@@ -18,7 +18,7 @@ texture = ExtResource("3_sombra")
 
 [node name="Sprite" type="Sprite2D" parent="."]
 texture = ExtResource("2_ade")
-offset = Vector2(0, -12)
+offset = Vector2(0, -16)
 hframes = 9
 
 [node name="Colisao" type="CollisionShape2D" parent="."]
@@ -26,6 +26,6 @@ position = Vector2(0, -3)
 shape = SubResource("pes")
 
 [node name="Camera" type="Camera2D" parent="."]
-position = Vector2(0, -12)
+position = Vector2(0, -16)
 position_smoothing_enabled = true
 position_smoothing_speed = 7.0

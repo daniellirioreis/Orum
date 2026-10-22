@@ -484,7 +484,7 @@ func _exu_aparece() -> void:
 	exu = Sprite2D.new()
 	exu.texture = preload("res://arte/exu_snes.png")
 	exu.hframes = 2
-	exu.offset = Vector2(0, -12)
+	exu.offset = Vector2(0, -16)
 	exu.position = marcas["e"]
 	exu.modulate = Color(1, 1, 1, 0)
 	var sombra := Sprite2D.new()
@@ -497,7 +497,7 @@ func _exu_aparece() -> void:
 	luz_exu.color = Color(1.0, 0.3, 0.25)
 	luz_exu.texture_scale = 1.2
 	luz_exu.energy = 0.0
-	luz_exu.position = Vector2(0, -12)
+	luz_exu.position = Vector2(0, -16)
 	exu.add_child(luz_exu)
 	create_tween().tween_property(luz_exu, "energy", 1.0, 1.0)
 
@@ -724,11 +724,15 @@ func _construir(nome: String) -> void:
 	chao.position = origem
 	chao.z_index = -10      # o chão fica sempre por baixo
 	add_child(chao)
-	for y in mapa.size():
-		for x in mapa[y].length():
-			var t := _tile_para(mapa, x, y)
-			if t >= 0:
-				chao.set_cell(Vector2i(x, y), 0, Vector2i(t, 0))
+	if LUGARES[nome]["dentro"]:
+		for y in mapa.size():
+			for x in mapa[y].length():
+				var t := _tile_para(mapa, x, y)
+				if t >= 0:
+					chao.set_cell(Vector2i(x, y), 0, Vector2i(t, 0))
+	else:
+		chao.z_index = -6
+		_construir_terreno(mapa, origem, chao)
 
 	var objetos := _ler("res://fases/%s_objetos.txt" % nome)
 	for y in objetos.size():
@@ -929,7 +933,7 @@ func _criar_interativo(caminho: String, quadros: int, base: Vector2, pe: Vector2
 
 
 func _criar_pessoa(caminho: String, quadros: int, base: Vector2) -> Area2D:
-	var n := _criar_interativo(caminho, quadros, base, Vector2(12, 6), -32.0)
+	var n := _criar_interativo(caminho, quadros, base, Vector2(12, 6), -40.0)
 	n.animar = true
 	var sombra := Sprite2D.new()
 	sombra.texture = TEX_SOMBRA
@@ -1089,3 +1093,97 @@ func _mover_galinha(b: Dictionary, delta: float) -> void:
 	g.position += para.normalized() * minf(14.0 * delta, para.length())
 	g.flip_h = para.x < 0.0
 	g.frame = b["cor"]
+
+
+# ------------------------------------------------------------------ terreno de fora com bordas arredondadas
+# Folha arte/terreno_snes.png: linha 0 = grama (4 variações); linhas 1-3 = terra, calçada e água,
+# 16 peças cada (índice = cima-esq*1 + cima-dir*2 + baixo-esq*4 + baixo-dir*8); linha 4 = enfeites.
+# As peças de borda ficam deslocadas meio bloco ("dual-grid"): cada uma cobre o encontro de 4 blocos,
+# por isso os cantos saem arredondados.
+const TERRENOS := [["r", "t", "_"], ["="], ["~", "|"]]
+const AGUA_CHARS := ["~", "|"]
+const SOBRE_TERRENO := ["M", "R", "h", "H", "J", "P", "^", "B", "b", "E"]
+
+
+func _criar_tileset_terreno() -> TileSet:
+	var ts := TileSet.new()
+	ts.tile_size = Vector2i(TILE, TILE)
+	var fonte := TileSetAtlasSource.new()
+	fonte.texture = preload("res://arte/terreno_snes.png")
+	fonte.texture_region_size = Vector2i(TILE, TILE)
+	ts.add_source(fonte, 0)
+	for y in 5:
+		for x in 16:
+			fonte.create_tile(Vector2i(x, y))
+	return ts
+
+
+func _construir_terreno(mapa: PackedStringArray, origem: Vector2, topo: TileMapLayer) -> void:
+	var ts := _criar_tileset_terreno()
+	var largura := 0
+	for linha in mapa:
+		largura = maxi(largura, linha.length())
+	var altura := mapa.size()
+
+	# 1) grama em tudo
+	var grama := TileMapLayer.new()
+	grama.tile_set = ts
+	grama.position = origem
+	grama.z_index = -10
+	add_child(grama)
+	for y in altura:
+		for x in largura:
+			grama.set_cell(Vector2i(x, y), 0, Vector2i((x * 7 + y * 13 + (x * y) % 5) % 4, 0))
+
+	# 2) terra, calçada e água, com bordas arredondadas
+	for i in TERRENOS.size():
+		var camada := TileMapLayer.new()
+		camada.tile_set = ts
+		camada.position = origem - Vector2(TILE / 2.0, TILE / 2.0)
+		camada.z_index = -9 + i
+		add_child(camada)
+		var letras: Array = TERRENOS[i]
+		for vy in altura + 1:
+			for vx in largura + 1:
+				var indice := 0
+				if _letra(mapa, vx - 1, vy - 1) in letras: indice += 1
+				if _letra(mapa, vx, vy - 1) in letras: indice += 2
+				if _letra(mapa, vx - 1, vy) in letras: indice += 4
+				if _letra(mapa, vx, vy) in letras: indice += 8
+				if indice > 0:
+					camada.set_cell(Vector2i(vx, vy), 0, Vector2i(indice, i + 1))
+
+	# 3) enfeites (tufos, flores, pedras de pisar)
+	var enfeites := TileMapLayer.new()
+	enfeites.tile_set = ts
+	enfeites.position = origem
+	enfeites.z_index = -5
+	add_child(enfeites)
+	for y in altura:
+		for x in mapa[y].length():
+			match mapa[y][x]:
+				";":
+					enfeites.set_cell(Vector2i(x, y), 0, Vector2i(0, 4))
+				"*":
+					enfeites.set_cell(Vector2i(x, y), 0, Vector2i(1 + (x + y) % 2, 4))
+				"o":
+					enfeites.set_cell(Vector2i(x, y), 0, Vector2i(3, 4))
+
+	# 4) por cima: muro, casa, barranco e escada (com colisão); água bloqueia passagem
+	for y in altura:
+		for x in mapa[y].length():
+			var c := mapa[y][x]
+			if c in SOBRE_TERRENO:
+				topo.set_cell(Vector2i(x, y), 0, Vector2i(_tile_para(mapa, x, y), 0))
+			elif c in AGUA_CHARS:
+				topo.set_cell(Vector2i(x, y), 0, Vector2i(INVISIVEL, 0))
+			elif c == "a":
+				_criar_cenario_quadros("res://arte/arbusto.png", 2, 1 if (x * 3 + y) % 4 == 0 else 0, Vector2(14, 8), origem + Vector2(x * TILE + TILE / 2.0, (y + 1) * TILE))
+			elif c == "e":
+				_criar_cenario("res://arte/estaca.png", Vector2(10, 6), origem + Vector2(x * TILE + TILE / 2.0, (y + 1) * TILE + 2))
+
+
+func _criar_cenario_quadros(caminho: String, quadros: int, quadro: int, pe: Vector2, base: Vector2) -> void:
+	var s := _criar_cenario(caminho, pe, base)
+	s.hframes = quadros
+	s.frame = quadro

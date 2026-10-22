@@ -1,7 +1,8 @@
 # Ọ̀run — Histórias dos Orixás (protótipo) · versão 16 bits
 
 > **Ramo `estilo-snes`**: visual inspirado nos RPGs de ação do Super Nintendo — tela de 256×224,
-> casa vista de fora com telhado, salas por dentro, arte de 16 bits, canteiros de arbustos,
+> casa vista de fora com telhado, salas por dentro, arte de 16 bits com bordas arredondadas
+> entre grama, terra, calçada e água, personagens 16×32, arbustos,
 > cercas de estacas de bambu, barrancos com escada, riacho, barra de cima com medidor das oferendas,
 > caixa de item, contadores e o AXÉ em búzios, e caixa de diálogo à moda antiga.
 > A versão anterior continua no ramo `main`.
@@ -138,6 +139,30 @@ Objetos e pessoas (`fases/<lugar>_objetos.txt`; `.` = nada):
 | `T` `X` | tronqueira e porteira |
 | `v` `e` | onde a Vó espera e onde Exu aparece |
 | `1` a `9` | portas |
+
+## Como trocar a arte (para redesenhar à mão)
+
+A arte foi feita para ser substituída sem mexer no código: é só abrir o PNG no **Pixelorama**
+(gratuito) ou no **Aseprite**, redesenhar respeitando o mesmo tamanho e a mesma posição de cada
+quadro, e salvar por cima.
+
+| Arquivo | Tamanho | Organização |
+|---|---|---|
+| `arte/terreno_snes.png` | 256×80 | linha 1: grama (4 variações) · linhas 2–4: terra, calçada e água, **16 peças de borda** cada · linha 5: tufo, flor branca, flor amarela, pedras de pisar, folhas |
+| `arte/tiles_snes.png` | 16×16 cada | muro, telhado, fachada, pisos e paredes das salas, barranco, escada (ordem em `fases/tiles_snes_indices.txt`) |
+| `arte/ade_snes.png` | 9 quadros de 16×32 | de frente (parado, passo, passo), de costas (3), de lado (3, virado para a direita) |
+| `arte/vo_snes.png` | 3 quadros de 16×32 | parada, respirando, braços erguidos |
+| `arte/tia_snes.png`, `oga_snes.png`, `cambone_snes.png`, `exu_snes.png` | 2 quadros de 16×32 | parado e respirando |
+| `arte/arbusto.png` | 2 quadros de 16×18 | normal e com frutinhas |
+| `arte/estaca.png`, `arte/obj_arvore.png`, `arte/obj_*.png` | livre | a base do desenho (onde ficam os pés) é a borda de baixo |
+
+**As 16 peças de borda** (terra, calçada, água): cada peça fica no encontro de 4 blocos do mapa.
+O número da peça (coluna) diz quais desses 4 blocos são daquele terreno:
+cima-esquerda = 1, cima-direita = 2, baixo-esquerda = 4, baixo-direita = 8 (soma).
+Ex.: a peça 15 é toda terreno; a peça 8 é só o cantinho de baixo à direita (um canto arredondado).
+
+**Paleta** usada: 5 a 6 tons por material, luz vindo de cima/esquerda, contorno colorido
+(uma versão bem escura da cor vizinha, não preto puro).
 
 ## Como editar os diálogos
 
