@@ -93,17 +93,17 @@ func _montar() -> void:
 
 	var painel := PanelContainer.new()
 	var estilo := StyleBoxFlat.new()
-	estilo.bg_color = Color(0.07, 0.04, 0.1, 0.93)
-	estilo.border_color = Color(0.85, 0.62, 0.28)
-	estilo.set_border_width_all(1)
+	estilo.bg_color = Color(0.06, 0.08, 0.3, 0.96)
+	estilo.border_color = Color(0.95, 0.95, 1.0)
+	estilo.set_border_width_all(2)
 	estilo.set_corner_radius_all(2)
 	painel.add_theme_stylebox_override("panel", estilo)
-	painel.position = Vector2(102, 40)
+	painel.position = Vector2(38, 50)
 	painel.custom_minimum_size = Vector2(180, 96)
 	_raiz.add_child(painel)
 
 	_status = Label.new()
-	_status.position = Vector2(102, 46)
+	_status.position = Vector2(38, 56)
 	_status.size = Vector2(180, 12)
 	_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_status.add_theme_font_size_override("font_size", 8)
@@ -112,7 +112,7 @@ func _montar() -> void:
 
 	for i in 3:
 		var caixa := Control.new()
-		caixa.position = Vector2(122 + i * 52, 64)
+		caixa.position = Vector2(58 + i * 52, 74)
 		_raiz.add_child(caixa)
 		var atlas := AtlasTexture.new()
 		atlas.atlas = TEX

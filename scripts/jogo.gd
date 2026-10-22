@@ -2,6 +2,9 @@ extends Node
 ## Estado global do jogo (autoload "Jogo").
 ## Guarda o progresso, configura os controles, toca sons e faz as transições de cena.
 
+## Tamanho da tela do jogo (como no Super Nintendo).
+const TELA := Vector2i(256, 224)
+
 var buzios := 0
 var buzios_total := 0
 var falou_com_exu := false
@@ -14,6 +17,8 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	# fonte padrão de todos os textos: Noto Sans, que desenha certo os acentos do iorubá
 	ThemeDB.fallback_font = preload("res://fontes/NotoSans-Regular.ttf")
+	# tela no tamanho do Super Nintendo (256x224), ampliada 3x na janela
+	get_window().content_scale_size = TELA
 	_configurar_controles()
 
 	_musica = AudioStreamPlayer.new()

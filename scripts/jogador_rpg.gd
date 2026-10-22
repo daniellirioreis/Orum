@@ -1,13 +1,13 @@
 extends CharacterBody2D
 ## Adé visto de cima (estilo RPG): anda nas quatro direções.
-## Folha arte/ade_rpg.png: 0-2 de frente, 3-5 de costas, 6 de lado parado, 7-10 de lado andando.
+## Folha arte/ade_snes.png: 0-2 de frente, 3-5 de costas, 6-8 de lado (parado, passo, passo).
 
 const VELOCIDADE := 72.0
 
 const ANIMACOES := {
-	"frente": {"parado": [0], "andando": [1, 0, 2, 0], "fps": 8.0},
-	"costas": {"parado": [3], "andando": [4, 3, 5, 3], "fps": 8.0},
-	"lado": {"parado": [6], "andando": [7, 8, 9, 10], "fps": 10.0},
+	"frente": {"parado": [0], "andando": [1, 0, 2, 0], "fps": 9.0},
+	"costas": {"parado": [3], "andando": [4, 3, 5, 3], "fps": 9.0},
+	"lado": {"parado": [6], "andando": [7, 6, 8, 6], "fps": 9.0},
 }
 
 var pode_mover := true

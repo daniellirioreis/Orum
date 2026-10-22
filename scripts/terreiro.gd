@@ -1,53 +1,57 @@
 extends Node2D
-## Prólogo, parte 1: o terreiro da Vó, em visão de cima (estilo RPG).
+## Prólogo, parte 1: o terreiro da Vó — estilo 16 bits (inspirado nos RPGs de ação do Super Nintendo).
 ##
-## Adé sonha com os orixás, acorda no barracão, pede a bênção à Vó e descobre que
-## precisa chamar Exu. Cada oferenda está num canto da casa:
+## O terreiro tem quatro lugares, cada um com seu mapa:
+##   quintal   → a casa vista de fora (telhado, fachada), horta, tronqueira e porteira
+##   barracão  → congá, atabaques, assistência (sala)
+##   cozinha   → Tia Dora (sala)
+##   despensa  → onde o Epó está escondido (sala)
+## As portas são números no arquivo de objetos: o mesmo número em dois lugares liga um ao outro.
+##
+## A história:
 ##   Efum  → Tia Dora, na cozinha (ela pede lenha do quintal antes)
-##   Epó   → escondido na despensa (é preciso procurar)
+##   Epó   → escondido na despensa
 ##   Oti   → Ogã Bené, nos atabaques (mini-jogo: repetir o toque)
 ##   Luma  → Lia, a cambone, no congá (só depois das outras três)
 ## Com tudo em mãos, a Vó vai para a tronqueira, faz-se o ritual, Exu chega e abre a porteira.
-##
-## O chão e as paredes estão em fases/terreiro.txt; os objetos e as pessoas em
-## fases/terreiro_objetos.txt; as falas em dialogos/terreiro.json.
 
 const TILE := 16
-const ARQUIVO_MAPA := "res://fases/terreiro.txt"
-const ARQUIVO_OBJETOS := "res://fases/terreiro_objetos.txt"
 const ARQUIVO_DIALOGO := "res://dialogos/terreiro.json"
 const ITENS := ["efum", "epo", "oti", "luna"]
 
-# posição de cada bloco na folha arte/tiles_rpg.png
-const T_PISO := Vector2i(0, 0)
-const T_LADRILHO := Vector2i(1, 0)
-const T_TABUA := Vector2i(2, 0)
-const T_GRAMA := Vector2i(3, 0)
-const T_GRAMA2 := Vector2i(4, 0)
-const T_CAMINHO := Vector2i(5, 0)
-const T_PAREDE_FRENTE := Vector2i(6, 0)
-const T_PAREDE_TOPO := Vector2i(7, 0)
-const T_MURO_FRENTE := Vector2i(8, 0)
-const T_MURO_TOPO := Vector2i(9, 0)
-const T_PAREDE_ALTO := Vector2i(10, 0)
-const T_JANELA := Vector2i(11, 0)
-const T_PISO2 := Vector2i(12, 0)
-const T_MURO_ALTO := Vector2i(13, 0)
-const T_GRAMA3 := Vector2i(14, 0)
-const T_CAMINHO2 := Vector2i(15, 0)
-const T_TERRA := Vector2i(16, 0)
-const TOTAL_TILES := 17
-const CHAO := {
-	".": T_PISO, ":": T_PISO2, "c": T_LADRILHO, "d": T_TABUA,
-	",": T_GRAMA, ";": T_GRAMA2, "*": T_GRAMA3, "_": T_CAMINHO, "=": T_CAMINHO2, "t": T_TERRA,
+## Onde cada lugar fica no "mundo" (bem separados uns dos outros) e se é sala ou área externa.
+const LUGARES := {
+	"quintal": {"origem": Vector2(0, 0), "dentro": false},
+	"barracao": {"origem": Vector2(0, 1200), "dentro": true},
+	"cozinha": {"origem": Vector2(700, 1200), "dentro": true},
+	"despensa": {"origem": Vector2(1200, 1200), "dentro": true},
 }
-const PAREDES := ["#", "j", "M"]
-const SOLIDOS := [T_PAREDE_FRENTE, T_PAREDE_TOPO, T_MURO_FRENTE, T_MURO_TOPO, T_PAREDE_ALTO, T_JANELA, T_MURO_ALTO]
+const LUGAR_INICIAL := "barracao"
 
-## Cor da noite (tudo fica mais escuro; os lampiões, velas e o fogão iluminam).
-const COR_NOITE := Color(0.46, 0.43, 0.64)
+## Cor da luz em cada tipo de lugar (a noite lá fora, a luz de lampião dentro).
+const COR_NOITE := Color(0.46, 0.45, 0.66)
+const COR_DENTRO := Color(0.78, 0.7, 0.66)
 
-## Objetos de cenário: imagem e tamanho do "pé" que bloqueia a passagem (0 = não bloqueia).
+# índice de cada bloco na folha arte/tiles_snes.png (lista em fases/tiles_snes_indices.txt)
+enum {
+	GRAMA, GRAMA_TUFO, GRAMA_FLOR, CAMINHO, TERRA, MURO_TOPO, MURO_FRENTE,
+	TELHADO, CUMEEIRA, BEIRAL, TELHADO_ESQ, TELHADO_DIR,
+	FACHADA, FACHADA_ALTO, FACHADA_JANELA, FACHADA_PORTA,
+	PISO, PISO2, LADRILHO, TABUA,
+	PAREDE_ALTO, PAREDE_JANELA, PAREDE_BAIXO, PAREDE_ESQ, PAREDE_DIR, PAREDE_FUNDO, PAREDE_CANTO, VAZIO, SOLEIRA,
+	INVISIVEL, TOTAL_TILES
+}
+const CHAO := {
+	",": GRAMA, ";": GRAMA_TUFO, "*": GRAMA_FLOR, "_": CAMINHO, "t": TERRA,
+	".": PISO, ":": PISO2, "c": LADRILHO, "d": TABUA, "+": SOLEIRA, "P": FACHADA_PORTA,
+}
+const ANDAVEL := [",", ";", "*", "_", "t", ".", ":", "c", "d", "+", "P"]
+const PAREDES := ["#", "j"]
+const SOLIDOS := [MURO_TOPO, MURO_FRENTE, TELHADO, CUMEEIRA, BEIRAL, TELHADO_ESQ, TELHADO_DIR,
+	FACHADA, FACHADA_ALTO, FACHADA_JANELA, PAREDE_ALTO, PAREDE_JANELA, PAREDE_BAIXO, PAREDE_ESQ,
+	PAREDE_DIR, PAREDE_FUNDO, PAREDE_CANTO, VAZIO, INVISIVEL]
+
+## Objetos de cenário: imagem e tamanho do "pé" que bloqueia a passagem (zero = não bloqueia).
 const CENARIO := {
 	"C": ["res://arte/obj_conga.png", Vector2(52, 14)],
 	"A": ["res://arte/obj_atabaques.png", Vector2(48, 10)],
@@ -56,7 +60,7 @@ const CENARIO := {
 	"O": ["res://arte/obj_pote.png", Vector2(12, 6)],
 	"Q": ["res://arte/obj_prateleira.png", Vector2(46, 8)],
 	"H": ["res://arte/obj_horta.png", Vector2(46, 22)],
-	"R": ["res://arte/obj_arvore.png", Vector2(10, 6)],
+	"R": ["res://arte/obj_arvore.png", Vector2(12, 8)],
 	"B": ["res://arte/obj_banco.png", Vector2(44, 8)],
 	"Z": ["res://arte/obj_cerquinha.png", Vector2(16, 6)],
 	"p": ["res://arte/obj_vaso.png", Vector2(10, 6)],
@@ -71,6 +75,8 @@ const CENARIO := {
 	"u": ["res://arte/obj_poste.png", Vector2(6, 6)],
 	"n": ["res://arte/obj_panelas.png", Vector2.ZERO],
 	"l": ["res://arte/obj_lampiao.png", Vector2.ZERO],
+	"a": ["res://arte/arbusto.png", Vector2(14, 10)],
+	"m2": ["res://arte/mato.png", Vector2.ZERO],
 }
 ## Coisas que ficam no chão, por baixo das pessoas.
 const NO_CHAO := {"E": "res://arte/obj_esteira.png", "r": "res://arte/obj_tapete.png"}
@@ -78,14 +84,14 @@ const NO_CHAO := {"E": "res://arte/obj_esteira.png", "r": "res://arte/obj_tapete
 const CENA_JOGADOR := preload("res://cenas/jogador_rpg.tscn")
 const CENA_INTERATIVO := preload("res://cenas/interativo.tscn")
 const TEX_ITENS := preload("res://arte/itens.png")
+const TEX_SOMBRA := preload("res://arte/sombra.png")
 
 ## Etapas: sonho → acordou → buscando → pronto → na_tronqueira → ritual → aberto
 var estado := "sonho"
 var coletados := {}
 var tia := "inicio"          # inicio → pediu_lenha → com_lenha → deu_efum
+var lugar_atual := ""
 
-var largura := 0
-var altura := 0
 var mundo: Node2D             # tudo que precisa de profundidade (ordenado por y)
 var jogador: CharacterBody2D
 var vo: Area2D
@@ -93,54 +99,59 @@ var tronqueira: Area2D
 var porteira: Node2D
 var exu: Sprite2D
 var marcas := {}              # posições especiais: "v" (Vó na tronqueira), "e" (Exu)
+var portas := {}              # número da porta → lista de [lugar, posição do bloco]
+var tamanhos := {}            # lugar → tamanho em pixels
 
 var _dados: Dictionary
-var _chao: TileMapLayer
+var _tileset: TileSet
+var _noite: CanvasModulate
 var _toque: CanvasLayer
 var _lista: Control
 var _icones := {}
 var _aviso: Label
 var _clarao: ColorRect
+var _cortina: ColorRect
 var _pendente := ""
 var _buscas := 0
 var _porteira_corpo: CollisionShape2D
 var _porteira_aberta := false
+var _trocando := false
 var _luz_tex: Texture2D = preload("res://arte/luz.png")
-var _bichos: Array = []        # galinhas que andam pelo quintal
+var _bichos: Array = []
 var _gatos: Array = []
-var _chamas: Array = []        # luzes que tremulam
+var _chamas: Array = []
 var _tempo := 0.0
+var _cor_fundo_antiga: Color
 
 
 func _ready() -> void:
 	Jogo.reiniciar()
 	Jogo.tocar_musica()
+	_cor_fundo_antiga = RenderingServer.get_default_clear_color()
+	RenderingServer.set_default_clear_color(Color.BLACK)   # fora das salas é tudo escuro
 	_dados = JSON.parse_string(FileAccess.get_file_as_string(ARQUIVO_DIALOGO))
+	_tileset = _criar_tileset()
 
-	_chao = TileMapLayer.new()
-	_chao.tile_set = _criar_tileset()
-	add_child(_chao)
 	mundo = Node2D.new()
 	mundo.y_sort_enabled = true
 	add_child(mundo)
-	var noite := CanvasModulate.new()
-	noite.color = COR_NOITE
-	add_child(noite)
-	_construir()
+	_noite = CanvasModulate.new()
+	add_child(_noite)
+	for nome in LUGARES:
+		_construir(nome)
+	mundo.add_child(jogador)
 	_criar_vagalumes()
-
-	var camera: Camera2D = jogador.get_node("Camera")
-	camera.limit_left = 0
-	camera.limit_top = 0
-	camera.limit_right = largura * TILE
-	camera.limit_bottom = altura * TILE
-	camera.reset_smoothing()
 
 	_toque = preload("res://scripts/toque.gd").new()
 	add_child(_toque)
 	_criar_interface()
 	$Dialogo.evento.connect(_ao_evento)
+	_entrar_lugar(LUGAR_INICIAL)
 	_sonho()
+
+
+func _exit_tree() -> void:
+	RenderingServer.set_default_clear_color(_cor_fundo_antiga)
 
 
 func _process(delta: float) -> void:
@@ -159,10 +170,78 @@ func _unhandled_input(ev: InputEvent) -> void:
 		Jogo.mudar_cena("res://cenas/titulo.tscn")
 
 
+# ------------------------------------------------------------------ lugares e portas
+
+## Ajusta a câmera e a luz para o lugar onde Adé está.
+func _entrar_lugar(nome: String) -> void:
+	lugar_atual = nome
+	var origem: Vector2 = LUGARES[nome]["origem"]
+	var tam: Vector2 = tamanhos[nome]
+	var tela := Vector2(Jogo.TELA)
+	var camera: Camera2D = jogador.get_node("Camera")
+	# sala menor que a tela fica centralizada (com escuro em volta), como nos jogos antigos
+	var esq := origem.x if tam.x >= tela.x else origem.x + (tam.x - tela.x) / 2.0
+	var topo := origem.y if tam.y >= tela.y else origem.y + (tam.y - tela.y) / 2.0
+	camera.limit_left = int(esq)
+	camera.limit_top = int(topo)
+	camera.limit_right = int(esq + maxf(tam.x, tela.x))
+	camera.limit_bottom = int(topo + maxf(tam.y, tela.y))
+	camera.reset_smoothing()
+	_noite.color = COR_DENTRO if LUGARES[nome]["dentro"] else COR_NOITE
+
+
+## Leva Adé (com a tela escurecendo) para outro lugar.
+func teleportar(nome: String, posicao: Vector2) -> void:
+	jogador.global_position = posicao
+	_entrar_lugar(nome)
+
+
+func _ao_pisar_porta(corpo: Node2D, numero: String, lugar: String) -> void:
+	if _trocando or not corpo.is_in_group("jogador") or not jogador.pode_mover:
+		return
+	for destino in portas[numero]:
+		if destino[0] != lugar:
+			_trocando = true
+			jogador.congelar(true)
+			Jogo.tocar_som("pulo", -14.0)
+			var t := create_tween()
+			t.tween_property(_cortina, "color:a", 1.0, 0.18)
+			await t.finished
+			teleportar(destino[0], _chegada(destino[0], destino[1]))
+			await get_tree().create_timer(0.08).timeout
+			var t2 := create_tween()
+			t2.tween_property(_cortina, "color:a", 0.0, 0.22)
+			await t2.finished
+			jogador.congelar(false)
+			_trocando = false
+			return
+
+
+## Onde Adé aparece ao chegar por uma porta: no primeiro bloco livre ao lado dela.
+func _chegada(lugar: String, celula: Vector2i) -> Vector2:
+	var mapa: PackedStringArray = _mapas[lugar]
+	for dir in [Vector2i(0, 1), Vector2i(0, -1), Vector2i(-1, 0), Vector2i(1, 0)]:
+		var c: Vector2i = celula + dir
+		var letra := _letra(mapa, c.x, c.y)
+		if letra in ANDAVEL and letra != "+" and letra != "P" and not _e_porta(lugar, c):
+			var origem: Vector2 = LUGARES[lugar]["origem"]
+			return origem + Vector2(c.x * TILE + TILE / 2.0, (c.y + 1) * TILE - 2)
+	return LUGARES[lugar]["origem"]
+
+
+func _e_porta(lugar: String, celula: Vector2i) -> bool:
+	for numero in portas:
+		for p in portas[numero]:
+			if p[0] == lugar and p[1] == celula:
+				return true
+	return false
+
+
 # ------------------------------------------------------------------ história
 
 func _sonho() -> void:
 	jogador.congelar(true)
+	var tela := Vector2(Jogo.TELA)
 	var camada := CanvasLayer.new()
 	camada.layer = 8
 	add_child(camada)
@@ -172,6 +251,7 @@ func _sonho() -> void:
 	camada.add_child(raiz)
 	var ceu := TextureRect.new()
 	ceu.texture = preload("res://arte/sonho_fundo.png")
+	ceu.position = Vector2(-64, 0)
 	raiz.add_child(ceu)
 	var figuras := []
 	for i in 7:
@@ -179,7 +259,7 @@ func _sonho() -> void:
 		s.texture = preload("res://arte/sonho_orixas.png")
 		s.hframes = 7
 		s.frame = i
-		s.position = Vector2(42 + i * 50, 104 + (6 if i % 2 else 0))
+		s.position = Vector2(tela.x / 2.0 + (i - 3) * 34, 84 + (6 if i % 2 else 0))
 		s.modulate.a = 0.0
 		raiz.add_child(s)
 		figuras.append(s)
@@ -303,10 +383,10 @@ func _ao_evento(nome: String) -> void:
 		"ganhar_luma":
 			_ganhar("luna")
 		"comecar_toque", "ir_para_tronqueira":
-			_pendente = nome          # acontece quando a conversa terminar
+			_pendente = nome
 		"vo_saudacao":
 			vo.animar = false
-			vo.sprite.frame = 2       # braços erguidos
+			vo.sprite.frame = 2
 		"tremer":
 			_tremer()
 		"exu_chega":
@@ -326,14 +406,13 @@ func _ganhar(id: String) -> void:
 		_mostrar_aviso("Leve tudo para a Vó, no barracão.")
 
 
-## A Vó vai na frente e espera na tronqueira.
 func _vo_vai_para_tronqueira() -> void:
 	estado = "na_tronqueira"
 	vo.ativo = false
 	var t := create_tween()
 	t.tween_property(vo, "modulate:a", 0.0, 0.6)
 	await t.finished
-	vo.position = marcas["v"]
+	vo.global_position = marcas["v"]
 	var t2 := create_tween()
 	t2.tween_property(vo, "modulate:a", 1.0, 0.6)
 	tronqueira.ativo = true
@@ -364,7 +443,7 @@ func _fazer_ritual() -> void:
 	tronqueira.sprite.frame = 1
 	var brilho: Sprite2D = tronqueira.get_node("Brilho")
 	brilho.visible = true
-	_luz(tronqueira.position + Vector2(0, -6), Color(1.0, 0.7, 0.4), 1.3, 1.6, true)
+	_luz(tronqueira.global_position + Vector2(0, -6), Color(1.0, 0.7, 0.4), 1.3, 1.6, true)
 	var pulsar := create_tween().set_loops()
 	pulsar.tween_property(brilho, "modulate:a", 0.6, 0.5)
 	pulsar.tween_property(brilho, "modulate:a", 1.0, 0.5)
@@ -376,7 +455,7 @@ func _fazer_ritual() -> void:
 
 	vo.animar = true
 	var t := create_tween()
-	t.tween_property(exu, "position", porteira.position + Vector2(0, 6), 1.4)
+	t.tween_property(exu, "global_position", porteira.global_position + Vector2(0, 6), 1.4)
 	t.tween_property(exu, "modulate:a", 0.0, 0.6)
 	await t.finished
 	estado = "aberto"
@@ -388,23 +467,27 @@ func _fazer_ritual() -> void:
 func _exu_aparece() -> void:
 	Jogo.tocar_som("caminho", -2.0)
 	exu = Sprite2D.new()
-	exu.texture = preload("res://arte/exu.png")
+	exu.texture = preload("res://arte/exu_snes.png")
 	exu.hframes = 2
-	exu.offset = Vector2(0, -16)
+	exu.offset = Vector2(0, -12)
 	exu.position = marcas["e"]
 	exu.modulate = Color(1, 1, 1, 0)
+	var sombra := Sprite2D.new()
+	sombra.texture = TEX_SOMBRA
+	sombra.show_behind_parent = true
+	exu.add_child(sombra)
 	mundo.add_child(exu)
 	var luz_exu := PointLight2D.new()
 	luz_exu.texture = _luz_tex
 	luz_exu.color = Color(1.0, 0.3, 0.25)
-	luz_exu.texture_scale = 1.4
+	luz_exu.texture_scale = 1.2
 	luz_exu.energy = 0.0
-	luz_exu.position = Vector2(0, -14)
+	luz_exu.position = Vector2(0, -12)
 	exu.add_child(luz_exu)
 	create_tween().tween_property(luz_exu, "energy", 1.0, 1.0)
 
 	var fumaca := CPUParticles2D.new()
-	fumaca.position = exu.position + Vector2(0, -14)
+	fumaca.position = exu.position + Vector2(0, -12)
 	fumaca.z_index = 2
 	fumaca.amount = 40
 	fumaca.lifetime = 1.4
@@ -467,7 +550,7 @@ func _falar(chave: String) -> void:
 func _falar_linhas(linhas: Array) -> void:
 	# se Adé está na metade de baixo da tela, a caixa vai para o alto (e vice-versa)
 	var y_na_tela := jogador.get_global_transform_with_canvas().origin.y
-	$Dialogo.posicionar(y_na_tela > 120.0)
+	$Dialogo.posicionar(estado != "sonho" and y_na_tela > Jogo.TELA.y * 0.58)
 	$Dialogo.iniciar(linhas)
 	await $Dialogo.terminou
 
@@ -478,18 +561,35 @@ func _juntar(lista: Array) -> String:
 	return ", ".join(lista.slice(0, lista.size() - 1)) + " e " + lista[-1]
 
 
-# ------------------------------------------------------------------ interface
+# ------------------------------------------------------------------ interface (barra de axé, oferendas, avisos)
 
 func _criar_interface() -> void:
 	var camada := CanvasLayer.new()
 	camada.layer = 6
 	add_child(camada)
+	var tela := Vector2(Jogo.TELA)
 
+	# barra de axé (à esquerda): três búzios, como a vida nos jogos antigos
+	var axe := _rotulo_hud("AXÉ", 7, Color(1.0, 0.86, 0.45))
+	axe.position = Vector2(8, 3)
+	camada.add_child(axe)
+	for i in 3:
+		var b := TextureRect.new()
+		b.texture = preload("res://arte/buzio_axe.png")
+		b.position = Vector2(8 + i * 12, 14)
+		camada.add_child(b)
+
+	# oferendas (à direita): apagadas até serem recolhidas
+	var titulo := _rotulo_hud("OFERENDAS", 7, Color(1.0, 0.86, 0.45))
+	titulo.position = Vector2(tela.x - 64, 3)
+	camada.add_child(titulo)
 	_lista = HBoxContainer.new()
-	_lista.position = Vector2(8, 6)
-	_lista.add_theme_constant_override("separation", 3)
+	_lista.position = Vector2(tela.x - 62, 13)
+	_lista.add_theme_constant_override("separation", 2)
 	_lista.visible = false
 	camada.add_child(_lista)
+	titulo.visible = false
+	_lista.visibility_changed.connect(func(): titulo.visible = _lista.visible)
 	for i in ITENS.size():
 		var atlas := AtlasTexture.new()
 		atlas.atlas = TEX_ITENS
@@ -500,14 +600,10 @@ func _criar_interface() -> void:
 		_lista.add_child(icone)
 		_icones[ITENS[i]] = icone
 
-	_aviso = Label.new()
+	_aviso = _rotulo_hud("", 8, Color(1, 0.95, 0.85))
 	_aviso.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_aviso.size = Vector2(384, 14)
-	_aviso.position = Vector2(0, 22)
-	_aviso.add_theme_font_size_override("font_size", 9)
-	_aviso.add_theme_color_override("font_color", Color(1, 0.95, 0.85))
-	_aviso.add_theme_color_override("font_outline_color", Color(0.1, 0.05, 0.12))
-	_aviso.add_theme_constant_override("outline_size", 3)
+	_aviso.size = Vector2(tela.x, 14)
+	_aviso.position = Vector2(0, 30)
 	_aviso.modulate.a = 0.0
 	camada.add_child(_aviso)
 
@@ -516,6 +612,25 @@ func _criar_interface() -> void:
 	_clarao.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_clarao.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	camada.add_child(_clarao)
+
+	var camada_cortina := CanvasLayer.new()
+	camada_cortina.layer = 50
+	add_child(camada_cortina)
+	_cortina = ColorRect.new()
+	_cortina.color = Color(0, 0, 0, 0)
+	_cortina.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_cortina.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	camada_cortina.add_child(_cortina)
+
+
+func _rotulo_hud(texto: String, tamanho: int, cor: Color) -> Label:
+	var l := Label.new()
+	l.text = texto
+	l.add_theme_font_size_override("font_size", tamanho)
+	l.add_theme_color_override("font_color", cor)
+	l.add_theme_color_override("font_outline_color", Color(0.05, 0.03, 0.08))
+	l.add_theme_constant_override("outline_size", 3)
+	return l
 
 
 func _mostrar_aviso(texto: String) -> void:
@@ -526,7 +641,10 @@ func _mostrar_aviso(texto: String) -> void:
 	t.tween_property(_aviso, "modulate:a", 0.0, 0.5)
 
 
-# ------------------------------------------------------------------ mapa
+# ------------------------------------------------------------------ mapas
+
+var _mapas := {}
+
 
 func _ler(caminho: String) -> PackedStringArray:
 	var linhas := PackedStringArray()
@@ -543,120 +661,185 @@ func _letra(mapa: PackedStringArray, x: int, y: int) -> String:
 	return mapa[y][x]
 
 
-func _construir() -> void:
-	var mapa := _ler(ARQUIVO_MAPA)
-	altura = mapa.size()
+func _construir(nome: String) -> void:
+	var origem: Vector2 = LUGARES[nome]["origem"]
+	var mapa := _ler("res://fases/%s.txt" % nome)
+	_mapas[nome] = mapa
+	var largura := 0
 	for linha in mapa:
 		largura = maxi(largura, linha.length())
+	tamanhos[nome] = Vector2(largura * TILE, mapa.size() * TILE)
 
-	# chão, paredes e muro (parede com a frente à mostra quando embaixo dela não há parede)
-	for y in altura:
+	var chao := TileMapLayer.new()
+	chao.tile_set = _tileset
+	chao.position = origem
+	chao.z_index = -10      # o chão fica sempre por baixo
+	add_child(chao)
+	for y in mapa.size():
 		for x in mapa[y].length():
-			var c := mapa[y][x]
-			var abaixo := _letra(mapa, x, y + 1)
-			var abaixo2 := _letra(mapa, x, y + 2)
-			if c in PAREDES:
-				# parede com 2 blocos de frente: o de baixo (barra azul) e o de cima (cal, às vezes com janela)
-				var muro := c == "M"
-				var tile := T_MURO_TOPO if muro else T_PAREDE_TOPO
-				if not abaixo in PAREDES:
-					tile = T_MURO_FRENTE if muro else T_PAREDE_FRENTE
-				elif not abaixo2 in PAREDES:
-					tile = T_MURO_ALTO if muro else (T_JANELA if c == "j" else T_PAREDE_ALTO)
-				_chao.set_cell(Vector2i(x, y), 0, tile)
-			elif CHAO.has(c):
-				_chao.set_cell(Vector2i(x, y), 0, CHAO[c])
+			var t := _tile_para(mapa, x, y)
+			if t >= 0:
+				chao.set_cell(Vector2i(x, y), 0, Vector2i(t, 0))
 
-	# objetos e pessoas
-	var objetos := _ler(ARQUIVO_OBJETOS)
+	var objetos := _ler("res://fases/%s_objetos.txt" % nome)
 	for y in objetos.size():
 		for x in objetos[y].length():
 			var c := objetos[y][x]
 			if c == ".":
 				continue
-			var base := Vector2(x * TILE + TILE / 2.0, (y + 1) * TILE)
-			if CENARIO.has(c):
-				_criar_cenario(CENARIO[c][0], CENARIO[c][1], base)
-				match c:
-					"l":
-						_luz(base + Vector2(0, -8), Color(1.0, 0.78, 0.45), 0.6, 2.0, true)
-					"u":
-						_luz(base + Vector2(0, -38), Color(1.0, 0.8, 0.5), 0.75, 2.4, true)
-					"F":
-						_luz(base + Vector2(-8, -10), Color(1.0, 0.55, 0.25), 0.7, 1.3, true)
-						_fumaca(base + Vector2(15, -40))
-					"C":
-						_luz(base + Vector2(0, -24), Color(1.0, 0.85, 0.6), 0.7, 1.8, true)
-				continue
-			if NO_CHAO.has(c):
-				var tapete := Sprite2D.new()
-				tapete.texture = load(NO_CHAO[c])
-				tapete.position = base + Vector2(0, -tapete.texture.get_height() / 2.0)
-				add_child(tapete)   # fica no chão, fora da ordenação
-				move_child(tapete, _chao.get_index() + 1)
-				continue
-			match c:
-				"b":
-					var varal := Sprite2D.new()
-					varal.texture = preload("res://arte/obj_bandeirinhas.png")
-					varal.centered = false
-					varal.position = Vector2(x * TILE, y * TILE)
-					varal.z_index = 20      # no teto: por cima de todo mundo
-					add_child(varal)
-				"+":
-					_luz(base + Vector2(0, -8), Color(1.0, 0.8, 0.55), 0.45, 2.6, false)
-				"g":
-					_criar_galinha(base)
-				"z":
-					var gato := Sprite2D.new()
-					gato.texture = preload("res://arte/gato.png")
-					gato.hframes = 2
-					gato.offset = Vector2(0, -6)
-					gato.position = base
-					mundo.add_child(gato)
-					_gatos.append(gato)
-				"P":
-					jogador = CENA_JOGADOR.instantiate()
-					jogador.position = base
-				"V":
-					vo = _criar_pessoa("res://arte/vo.png", 3, base)
-					vo.interagiu.connect(_falar_com_vo)
-				"D":
-					_criar_pessoa("res://arte/tia.png", 2, base).interagiu.connect(_falar_com_tia)
-				"G":
-					_criar_pessoa("res://arte/oga.png", 2, base).interagiu.connect(_falar_com_oga)
-				"N":
-					_criar_pessoa("res://arte/cambone.png", 2, base).interagiu.connect(_falar_com_cambone)
-				"K", "S", "k":
-					var tex := "res://arte/obj_caixote.png" if c != "S" else "res://arte/obj_saco.png"
-					var spot := _criar_interativo(tex, 1, base, Vector2(14, 8), -22.0)
-					spot.interagiu.connect(_procurar_na_despensa.bind(c == "k"))
-				"L":
-					var lenha := _criar_interativo("res://arte/obj_lenha.png", 1, base, Vector2(26, 10), -22.0)
-					lenha.interagiu.connect(_pegar_lenha)
-				"T":
-					tronqueira = _criar_interativo("res://arte/tronqueira.png", 2, base, Vector2(26, 8), -46.0)
-					tronqueira.ativo = false
-					var brilho := Sprite2D.new()
-					brilho.name = "Brilho"
-					brilho.texture = preload("res://arte/brilho.png")
-					brilho.scale = Vector2(3, 3)
-					brilho.position = Vector2(0, -8)
-					brilho.visible = false
-					tronqueira.add_child(brilho)
-					tronqueira.move_child(brilho, 0)
-					var oferendas := Node2D.new()
-					oferendas.name = "Oferendas"
-					tronqueira.add_child(oferendas)
-					tronqueira.interagiu.connect(_fazer_ritual)
-				"X":
-					_criar_porteira(base)
-				"v", "e":
-					marcas[c] = base
-	mundo.add_child(jogador)
+			var base := origem + Vector2(x * TILE + TILE / 2.0, (y + 1) * TILE)
+			_criar_objeto(nome, c, Vector2i(x, y), base, chao)
 
 
-func _criar_cenario(caminho: String, pe: Vector2, base: Vector2) -> void:
+## Escolhe o bloco certo olhando os vizinhos (paredes, telhado, muro).
+func _tile_para(mapa: PackedStringArray, x: int, y: int) -> int:
+	var c := _letra(mapa, x, y)
+	var acima := _letra(mapa, x, y - 1)
+	var abaixo := _letra(mapa, x, y + 1)
+	var abaixo2 := _letra(mapa, x, y + 2)
+	var esq := _letra(mapa, x - 1, y)
+	var dir := _letra(mapa, x + 1, y)
+	if CHAO.has(c):
+		return CHAO[c]
+	match c:
+		"M":
+			return MURO_TOPO if abaixo == "M" else MURO_FRENTE
+		"R":
+			if acima != "R":
+				return CUMEEIRA
+			if abaixo != "R":
+				return BEIRAL
+			if esq != "R":
+				return TELHADO_ESQ
+			if dir != "R":
+				return TELHADO_DIR
+			return TELHADO
+		"h":
+			return FACHADA_ALTO
+		"H":
+			return FACHADA
+		"J":
+			return FACHADA_JANELA
+		"#", "j":
+			if abaixo in ANDAVEL:
+				return PAREDE_BAIXO
+			if abaixo in PAREDES and abaixo2 in ANDAVEL:
+				return PAREDE_JANELA if c == "j" else PAREDE_ALTO
+			if dir in ANDAVEL:
+				return PAREDE_ESQ
+			if esq in ANDAVEL:
+				return PAREDE_DIR
+			if acima in ANDAVEL:
+				return PAREDE_FUNDO
+			return PAREDE_CANTO
+	return -1
+
+
+func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, chao: TileMapLayer) -> void:
+	if c.is_valid_int():
+		if not portas.has(c):
+			portas[c] = []
+		portas[c].append([lugar, celula])
+		var area := Area2D.new()
+		area.collision_layer = 0
+		area.collision_mask = 2
+		area.position = base - Vector2(0, TILE / 2.0)
+		var forma := CollisionShape2D.new()
+		var ret := RectangleShape2D.new()
+		ret.size = Vector2(12, 12)
+		forma.shape = ret
+		area.add_child(forma)
+		area.body_entered.connect(_ao_pisar_porta.bind(c, lugar))
+		add_child(area)
+		return
+	if c == "m" and lugar == "quintal":
+		c = "m2"   # no quintal, "m" é mato alto (na cozinha é a mesa)
+	if CENARIO.has(c):
+		var s := _criar_cenario(CENARIO[c][0], CENARIO[c][1], base)
+		if c == "a" and randf() < 0.3:
+			s.hframes = 2
+			s.frame = 1   # arbusto com frutinhas
+		elif c == "a":
+			s.hframes = 2
+		match c:
+			"l":
+				_luz(base + Vector2(0, -8), Color(1.0, 0.78, 0.45), 0.6, 1.8, true)
+			"u":
+				_luz(base + Vector2(0, -38), Color(1.0, 0.8, 0.5), 0.75, 2.2, true)
+			"F":
+				_luz(base + Vector2(-8, -10), Color(1.0, 0.55, 0.25), 0.7, 1.2, true)
+				_fumaca(base + Vector2(15, -40))
+			"C":
+				_luz(base + Vector2(0, -24), Color(1.0, 0.85, 0.6), 0.7, 1.6, true)
+		return
+	if NO_CHAO.has(c):
+		var tapete := Sprite2D.new()
+		tapete.texture = load(NO_CHAO[c])
+		tapete.position = base + Vector2(0, -tapete.texture.get_height() / 2.0)
+		tapete.z_index = -5
+		add_child(tapete)
+		return
+	match c:
+		"b":
+			var varal := Sprite2D.new()
+			varal.texture = preload("res://arte/obj_bandeirinhas.png")
+			varal.centered = false
+			varal.position = base - Vector2(TILE / 2.0, TILE)
+			varal.z_index = 20
+			add_child(varal)
+		"+":
+			_luz(base + Vector2(0, -8), Color(1.0, 0.8, 0.55), 0.45, 2.4, false)
+		"g":
+			_criar_galinha(base)
+		"z":
+			var gato := Sprite2D.new()
+			gato.texture = preload("res://arte/gato.png")
+			gato.hframes = 2
+			gato.offset = Vector2(0, -6)
+			gato.position = base
+			mundo.add_child(gato)
+			_gatos.append(gato)
+		"P":
+			jogador = CENA_JOGADOR.instantiate()
+			jogador.position = base
+		"V":
+			vo = _criar_pessoa("res://arte/vo_snes.png", 3, base)
+			vo.interagiu.connect(_falar_com_vo)
+		"D":
+			_criar_pessoa("res://arte/tia_snes.png", 2, base).interagiu.connect(_falar_com_tia)
+		"G":
+			_criar_pessoa("res://arte/oga_snes.png", 2, base).interagiu.connect(_falar_com_oga)
+		"N":
+			_criar_pessoa("res://arte/cambone_snes.png", 2, base).interagiu.connect(_falar_com_cambone)
+		"K", "S", "k":
+			var tex := "res://arte/obj_caixote.png" if c != "S" else "res://arte/obj_saco.png"
+			var spot := _criar_interativo(tex, 1, base, Vector2(14, 8), -22.0)
+			spot.interagiu.connect(_procurar_na_despensa.bind(c == "k"))
+		"L":
+			var lenha := _criar_interativo("res://arte/obj_lenha.png", 1, base, Vector2(26, 10), -22.0)
+			lenha.interagiu.connect(_pegar_lenha)
+		"T":
+			tronqueira = _criar_interativo("res://arte/tronqueira.png", 2, base, Vector2(26, 8), -46.0)
+			tronqueira.ativo = false
+			var brilho := Sprite2D.new()
+			brilho.name = "Brilho"
+			brilho.texture = preload("res://arte/brilho.png")
+			brilho.scale = Vector2(3, 3)
+			brilho.position = Vector2(0, -8)
+			brilho.visible = false
+			tronqueira.add_child(brilho)
+			tronqueira.move_child(brilho, 0)
+			var oferendas := Node2D.new()
+			oferendas.name = "Oferendas"
+			tronqueira.add_child(oferendas)
+			tronqueira.interagiu.connect(_fazer_ritual)
+		"X":
+			_criar_porteira(base)
+		"v", "e":
+			marcas[c] = base
+
+
+func _criar_cenario(caminho: String, pe: Vector2, base: Vector2) -> Sprite2D:
 	var s := Sprite2D.new()
 	s.texture = load(caminho)
 	s.offset = Vector2(0, -s.texture.get_height() / 2.0)
@@ -672,6 +855,7 @@ func _criar_cenario(caminho: String, pe: Vector2, base: Vector2) -> void:
 		forma.position = Vector2(0, -pe.y / 2.0)
 		corpo.add_child(forma)
 		add_child(corpo)
+	return s
 
 
 func _criar_interativo(caminho: String, quadros: int, base: Vector2, pe: Vector2, balao: float) -> Area2D:
@@ -691,8 +875,12 @@ func _criar_interativo(caminho: String, quadros: int, base: Vector2, pe: Vector2
 
 
 func _criar_pessoa(caminho: String, quadros: int, base: Vector2) -> Area2D:
-	var n := _criar_interativo(caminho, quadros, base, Vector2(12, 6), -38.0)
+	var n := _criar_interativo(caminho, quadros, base, Vector2(12, 6), -32.0)
 	n.animar = true
+	var sombra := Sprite2D.new()
+	sombra.texture = TEX_SOMBRA
+	n.add_child(sombra)
+	n.move_child(sombra, 0)
 	return n
 
 
@@ -735,7 +923,7 @@ func _criar_tileset() -> TileSet:
 	ts.add_physics_layer()
 	ts.set_physics_layer_collision_layer(0, 1)
 	var fonte := TileSetAtlasSource.new()
-	fonte.texture = preload("res://arte/tiles_rpg.png")
+	fonte.texture = preload("res://arte/tiles_snes.png")
 	fonte.texture_region_size = Vector2i(TILE, TILE)
 	ts.add_source(fonte, 0)
 	var m := TILE / 2.0
@@ -743,7 +931,7 @@ func _criar_tileset() -> TileSet:
 	for i in TOTAL_TILES:
 		var coord := Vector2i(i, 0)
 		fonte.create_tile(coord)
-		if coord in SOLIDOS:
+		if i in SOLIDOS:
 			var dados := fonte.get_tile_data(coord, 0)
 			dados.add_collision_polygon(0)
 			dados.set_collision_polygon_points(0, 0, quadrado)
@@ -752,7 +940,6 @@ func _criar_tileset() -> TileSet:
 
 # ------------------------------------------------------------------ luz, bichos e partículas
 
-## Uma luz quente (lampião, vela, fogo). "tremula" faz a luz piscar de leve como chama.
 func _luz(pos: Vector2, cor: Color, energia: float, escala: float, tremula: bool) -> PointLight2D:
 	var l := PointLight2D.new()
 	l.texture = _luz_tex
@@ -768,20 +955,21 @@ func _luz(pos: Vector2, cor: Color, energia: float, escala: float, tremula: bool
 
 func _material_sem_sombra() -> CanvasItemMaterial:
 	var m := CanvasItemMaterial.new()
-	m.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED   # brilha mesmo no escuro
+	m.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
 	return m
 
 
 func _criar_vagalumes() -> void:
+	var tam: Vector2 = tamanhos["quintal"]
 	var v := CPUParticles2D.new()
 	v.material = _material_sem_sombra()
 	v.z_index = 15
-	v.position = Vector2(largura * TILE / 2.0, (altura - 9) * TILE)
-	v.amount = 36
+	v.position = LUGARES["quintal"]["origem"] + Vector2(tam.x / 2.0, tam.y * 0.62)
+	v.amount = 30
 	v.lifetime = 5.0
 	v.preprocess = 5.0
 	v.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
-	v.emission_rect_extents = Vector2(largura * TILE / 2.0 - 24, 8 * TILE)
+	v.emission_rect_extents = Vector2(tam.x / 2.0 - 24, tam.y * 0.33)
 	v.gravity = Vector2.ZERO
 	v.direction = Vector2(0, -1)
 	v.spread = 180.0
@@ -827,16 +1015,15 @@ func _criar_galinha(base: Vector2) -> void:
 	g.offset = Vector2(0, -6)
 	g.position = base
 	mundo.add_child(g)
-	var cor := 0 if randf() < 0.5 else 2   # branca ou pedrês
+	var cor := 0 if randf() < 0.5 else 2
 	_bichos.append({"sprite": g, "origem": base, "alvo": base, "espera": randf_range(0.5, 2.0), "cor": cor})
 
 
-## Galinha: anda um pouco, para, bica o chão, anda de novo (sempre perto de onde nasceu).
 func _mover_galinha(b: Dictionary, delta: float) -> void:
 	var g: Sprite2D = b["sprite"]
 	if b["espera"] > 0.0:
 		b["espera"] -= delta
-		g.frame = b["cor"] + (1 if fmod(_tempo, 0.6) < 0.3 else 0)   # bicando
+		g.frame = b["cor"] + (1 if fmod(_tempo, 0.6) < 0.3 else 0)
 		if b["espera"] <= 0.0:
 			b["alvo"] = b["origem"] + Vector2(randf_range(-40, 40), randf_range(-24, 24))
 		return

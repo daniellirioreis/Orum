@@ -6,10 +6,11 @@ signal terminou
 signal evento(nome: String)
 
 const LETRAS_POR_SEGUNDO := 45.0
+const ALTURA_TELA := 224.0
 
-const COR_NOME := Color(0.95, 0.74, 0.32)
+const COR_NOME := Color(1.0, 0.86, 0.45)
 const COR_YORUBA := Color(1.0, 0.97, 0.9)
-const COR_LEGENDA := Color(0.78, 0.74, 0.82)
+const COR_LEGENDA := Color(0.78, 0.82, 0.95)
 
 var ativo := false
 var _linhas: Array = []
@@ -19,6 +20,7 @@ var _total := 0
 var _som_espera := 0.0
 
 var _painel: PanelContainer
+var _placa: PanelContainer
 var _nome: Label
 var _yoruba: Label
 var _legenda: Label
@@ -35,9 +37,10 @@ func _ready() -> void:
 
 ## Coloca a caixa no alto da tela (quando os personagens estão embaixo) ou embaixo.
 func posicionar(no_topo: bool) -> void:
-	var y := 26.0 if no_topo else 146.0
+	var y := 14.0 if no_topo else ALTURA_TELA - 66.0
 	_painel.position.y = y
-	_seta.position.y = y + 50.0
+	_placa.position.y = y - 9.0
+	_seta.position.y = y + 46.0
 
 
 func iniciar(linhas: Array) -> void:
@@ -54,6 +57,7 @@ func iniciar(linhas: Array) -> void:
 func _mostrar_linha() -> void:
 	var linha: Dictionary = _linhas[_indice]
 	_nome.text = linha.get("quem", "")
+	_placa.visible = _nome.text != ""
 	_yoruba.text = linha.get("yo", "")
 	_yoruba.visible = _yoruba.text != ""
 	_legenda.text = linha.get("pt", "")
@@ -105,6 +109,7 @@ func _unhandled_input(ev: InputEvent) -> void:
 func _fechar() -> void:
 	ativo = false
 	_painel.visible = false
+	_placa.visible = false
 	_seta.visible = false
 	# pequena pausa para o mesmo botão não fazer Adé pular
 	await get_tree().create_timer(0.12).timeout
@@ -119,34 +124,60 @@ func _congelar_jogador(valor: bool) -> void:
 
 
 func _montar_interface() -> void:
+	var largura := float(Jogo.TELA.x) - 16.0
 	_painel = PanelContainer.new()
 	var estilo := StyleBoxFlat.new()
-	estilo.bg_color = Color(0.07, 0.04, 0.1, 0.93)
-	estilo.border_color = Color(0.85, 0.62, 0.28)
-	estilo.set_border_width_all(1)
-	estilo.set_corner_radius_all(2)
-	estilo.set_content_margin_all(6)
+	estilo.bg_color = Color(0.06, 0.08, 0.3, 0.96)
+	estilo.border_color = Color(0.95, 0.95, 1.0)
+	estilo.set_border_width_all(2)
+	estilo.set_corner_radius_all(3)
+	estilo.content_margin_left = 8
+	estilo.content_margin_right = 8
+	estilo.content_margin_top = 7
+	estilo.content_margin_bottom = 5
+	estilo.shadow_color = Color(0, 0, 0, 0.5)
+	estilo.shadow_size = 2
+	estilo.shadow_offset = Vector2(1, 2)
 	_painel.add_theme_stylebox_override("panel", estilo)
-	_painel.position = Vector2(10, 146)
-	_painel.size = Vector2(364, 62)
-	_painel.custom_minimum_size = Vector2(364, 62)
+	_painel.position = Vector2(8, ALTURA_TELA - 66.0)
+	_painel.size = Vector2(largura, 58)
+	_painel.custom_minimum_size = Vector2(largura, 58)
 	add_child(_painel)
 
 	var caixa := VBoxContainer.new()
 	caixa.add_theme_constant_override("separation", 1)
 	_painel.add_child(caixa)
-
-	_nome = _rotulo(8, COR_NOME)
 	_yoruba = _rotulo(11, COR_YORUBA)
+	_yoruba.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_yoruba.custom_minimum_size.x = largura - 18
 	_legenda = _rotulo(8, COR_LEGENDA)
 	_legenda.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_legenda.custom_minimum_size.x = 350
-	for r in [_nome, _yoruba, _legenda]:
-		caixa.add_child(r)
+	_legenda.custom_minimum_size.x = largura - 18
+	caixa.add_child(_yoruba)
+	caixa.add_child(_legenda)
+
+	# plaquinha com o nome de quem fala, em cima da borda
+	_placa = PanelContainer.new()
+	var estilo_placa := StyleBoxFlat.new()
+	estilo_placa.bg_color = Color(0.5, 0.12, 0.12, 1.0)
+	estilo_placa.border_color = Color(0.95, 0.95, 1.0)
+	estilo_placa.set_border_width_all(1)
+	estilo_placa.set_corner_radius_all(2)
+	estilo_placa.content_margin_left = 5
+	estilo_placa.content_margin_right = 5
+	estilo_placa.content_margin_top = 0
+	estilo_placa.content_margin_bottom = 0
+	_placa.add_theme_stylebox_override("panel", estilo_placa)
+	_placa.position = Vector2(16, ALTURA_TELA - 75.0)
+	_placa.z_index = 1
+	add_child(_placa)
+	_nome = _rotulo(8, COR_NOME)
+	_placa.add_child(_nome)
+	_placa.visible = false
 
 	_seta = _rotulo(9, COR_NOME)
-	_seta.text = "»"
-	_seta.position = Vector2(362, 196)
+	_seta.text = "▼"
+	_seta.position = Vector2(largura - 6, ALTURA_TELA - 20.0)
 	add_child(_seta)
 
 

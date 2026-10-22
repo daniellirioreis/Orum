@@ -26,11 +26,11 @@ func _ready() -> void:
 	_subtitulo = _rotulo(9, Color(1, 0.95, 0.88))
 	for r in [_titulo, _subtitulo]:
 		r.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		r.size = Vector2(384, 20)
+		r.size = Vector2(Jogo.TELA.x, 20)
 		r.modulate.a = 0.0
 		add_child(r)
-	_titulo.position = Vector2(0, 52)
-	_subtitulo.position = Vector2(0, 74)
+	_titulo.position = Vector2(0, 60)
+	_subtitulo.position = Vector2(0, 82)
 
 
 func _process(_delta: float) -> void:

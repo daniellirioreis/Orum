@@ -1,9 +1,13 @@
-# Ọ̀run — Histórias dos Orixás (protótipo)
+# Ọ̀run — Histórias dos Orixás (protótipo) · versão 16 bits
+
+> **Ramo `estilo-snes`**: visual inspirado nos RPGs de ação do Super Nintendo — tela de 256×224,
+> casa vista de fora com telhado, salas por dentro, arte de 16 bits, barra de axé com búzios e
+> caixa de diálogo à moda antiga. A versão anterior continua no ramo `main`.
 
 Jogo de plataforma 2D em pixel art com os itans dos orixás.
 Esta versão tem o **Prólogo** completo, em duas partes:
 
-1. **Ilé — O Terreiro da Vó** (visão de cima, estilo RPG). Adé sonha com os orixás e acorda no
+1. **Ilé — O Terreiro da Vó** (visão de cima, estilo 16 bits). Adé sonha com os orixás e acorda no
    terreiro de Umbanda da avó, que é a mãe de santo da casa. Pede a bênção, conta o sonho e descobre
    que, para encontrar os orixás, primeiro precisa chamar Exu, o mensageiro. Cada oferenda está num
    canto da casa (Efum, Epó, Oti e Luma). Com tudo em mãos, faz o ritual na tronqueira, Exu aparece
@@ -85,43 +89,48 @@ Medidas úteis para desenhar fases: Adé pula até 3 blocos de altura e atravess
 
 ## Como editar o terreiro
 
-O terreiro usa dois arquivos de texto do mesmo tamanho, um em cima do outro:
+O terreiro tem quatro lugares, cada um com dois arquivos de texto do mesmo tamanho em `fases/`:
+`quintal`, `barracao`, `cozinha` e `despensa` (ex.: `fases/cozinha.txt` e `fases/cozinha_objetos.txt`).
 
-`fases/terreiro.txt` (chão e paredes):
+**Portas:** no arquivo de objetos, um número marca uma porta. O mesmo número em dois lugares
+liga um ao outro (ex.: `1` no barracão e `1` no quintal). Hoje: `1` barracão ↔ quintal,
+`2` barracão ↔ cozinha, `3` cozinha ↔ quintal, `4` cozinha ↔ despensa.
+
+Chão e paredes (`fases/<lugar>.txt`):
 
 | Caractere | O que é |
 |---|---|
-| `#` | parede da casa (com 2 blocos de altura, a parede mostra a frente alta) |
-| `j` | parede com janela |
-| `M` | muro do quintal |
-| `.` `:` | piso vermelho do barracão (liso / com marcas de uso) |
-| `c` | ladrilho da cozinha |
-| `d` | tábuas da despensa |
 | `,` `;` `*` | grama (lisa / com tufos / com flores) |
-| `_` `=` | caminho de terra (liso / com pedrinhas) |
-| `t` | terra batida (em volta da horta) |
+| `_` `t` | caminho de pedra, terra |
+| `M` | muro do quintal |
+| `R` | telhado (as bordas e a cumeeira se ajustam sozinhas) |
+| `h` `H` `J` `P` | fachada: parte de cima, parte de baixo, janela, porta |
+| `#` `j` | parede de sala (se ajusta sozinha) / parede com janela |
+| `.` `:` | piso vermelho (liso / com marcas) |
+| `c` `d` | ladrilho da cozinha, tábuas da despensa |
+| `+` | vão de porta dentro das salas |
 
-`fases/terreiro_objetos.txt` (coisas e pessoas; `.` = nada):
+Objetos e pessoas (`fases/<lugar>_objetos.txt`; `.` = nada):
 
 | Caractere | O que é |
 |---|---|
 | `P` | onde Adé acorda |
 | `V` `D` `G` `N` | Vó, Tia Dora, Ogã Bené, Lia (cambone) |
 | `C` `A` `E` `r` | congá, atabaques, esteira, tapete |
-| `Z` `B` | cerquinha (separa a gira da assistência) e banco |
-| `l` `+` `b` | lampião de parede, luz de teto (invisível), varal de bandeirinhas |
+| `Z` `B` | cerquinha e banco |
+| `l` `+` `b` | lampião de parede, luz de teto (invisível), bandeirinhas |
 | `p` | vaso com planta |
-| `F` `m` `O` | fogão a lenha, mesa, pote de barro |
-| `h` `i` `n` | filtro de barro, pilão, prateleira de panelas (na parede) |
+| `F` `h` `O` `n` `i` | fogão, filtro, pote, panelas (na parede), pilão |
+| `m` | mesa (na cozinha) / mato alto (no quintal) |
 | `Q` `U` | prateleira e barril da despensa |
-| `K` `S` | caixote e saco da despensa (dá para procurar neles) |
-| `k` | o caixote onde está o Epó |
+| `K` `S` `k` | caixote, saco, caixote onde está o Epó |
 | `L` `H` | lenha, horta |
-| `R` `Y` `J` | árvore, dendezeiro, bananeira |
-| `W` `f` `o` `u` | varal de roupa, flores, pedras, poste com lampião |
-| `g` `z` | galinha (anda sozinha) e gato dormindo |
+| `R` `Y` `J` `a` | árvore, dendezeiro, bananeira, arbusto |
+| `W` `f` `o` `u` | varal, flores, pedras, poste com lampião |
+| `g` `z` | galinha e gato |
 | `T` `X` | tronqueira e porteira |
-| `v` `e` | onde a Vó espera na tronqueira e onde Exu aparece |
+| `v` `e` | onde a Vó espera e onde Exu aparece |
+| `1` a `9` | portas |
 
 ## Como editar os diálogos
 
