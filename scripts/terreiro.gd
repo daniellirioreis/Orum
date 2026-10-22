@@ -130,6 +130,9 @@ var _trocando := false
 var _luz_tex: Texture2D = preload("res://arte/luz.png")
 var _bichos: Array = []
 var _gatos: Array = []
+var _ciranda := {}            # crianças de mãos dadas girando
+var _pega := {}               # duas crianças brincando de pega-pega
+var _roda := {}               # roda de capoeira
 var _chamas: Array = []
 var _tempo := 0.0
 var _cor_fundo_antiga: Color
@@ -176,6 +179,7 @@ func _process(delta: float) -> void:
 		_contador_buzios.text = "%03d" % Jogo.buzios
 	for g in _gatos:
 		g.frame = int(_tempo * 0.8) % 2
+	_animar_brincadeiras()
 
 
 func _unhandled_input(ev: InputEvent) -> void:
@@ -434,14 +438,54 @@ func _ganhar(id: String) -> void:
 func _vo_vai_para_tronqueira() -> void:
 	estado = "na_tronqueira"
 	vo.ativo = false
-	var t := create_tween()
-	t.tween_property(vo, "modulate:a", 0.0, 0.6)
-	await t.finished
+	jogador.congelar(true)
+	await _vo_sai_do_barracao()
+	jogador.congelar(false)
 	vo.global_position = marcas["v"]
 	var t2 := create_tween()
 	t2.tween_property(vo, "modulate:a", 1.0, 0.6)
 	tronqueira.ativo = true
 	_mostrar_aviso("Vá até a tronqueira, perto da porteira.")
+
+
+## A Vó atravessa o barracão andando até a porta do quintal e sai por ela.
+func _vo_sai_do_barracao() -> void:
+	var origem: Vector2 = LUGARES["barracao"]["origem"]
+	var xs := []
+	var linha := 0
+	for p in portas["1"]:
+		if p[0] == "barracao":
+			xs.append(p[1].x)
+			linha = p[1].y
+	var porta_x: float = origem.x + (xs.min() + xs.max() + 1) / 2.0 * TILE
+	var dentro_y: float = origem.y + linha * TILE           # logo antes da porta
+	var fora_y: float = origem.y + (linha + 1) * TILE + 4   # já atravessando
+	vo.animar = false
+	vo.olhar_para_jogador = false
+	vo.sprite.flip_h = false
+	var forma: CollisionShape2D = vo.get_node("Corpo/Forma")
+	forma.set_deferred("disabled", true)   # não esbarra em Adé no caminho
+	var passos := create_tween().set_loops()
+	passos.tween_callback(func(): vo.sprite.frame = 3).set_delay(0.18)
+	passos.tween_callback(func(): vo.sprite.frame = 4).set_delay(0.18)
+	const VEL := 38.0   # pixels por segundo
+	var pontos := [Vector2(porta_x, vo.global_position.y), Vector2(porta_x, dentro_y), Vector2(porta_x, fora_y)]
+	var de: Vector2 = vo.global_position
+	for alvo in pontos:
+		var dur := de.distance_to(alvo) / VEL
+		if dur > 0.01:
+			var t := create_tween()
+			t.tween_property(vo, "global_position", alvo, dur)
+			if alvo == pontos[2]:
+				t.parallel().tween_property(vo, "modulate:a", 0.0, dur)
+			await t.finished
+		de = alvo
+	passos.kill()
+	forma.set_deferred("disabled", false)
+	Jogo.tocar_som("pulo", -16.0)
+	await get_tree().create_timer(0.2).timeout
+	vo.olhar_para_jogador = true
+	vo.animar = true
 
 
 func _fazer_ritual() -> void:
@@ -871,7 +915,7 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			jogador = CENA_JOGADOR.instantiate()
 			jogador.position = base
 		"V":
-			vo = _criar_pessoa("res://arte/vo_snes.png", 3, base)
+			vo = _criar_pessoa("res://arte/vo_snes.png", 5, base)
 			vo.interagiu.connect(_falar_com_vo)
 		"D":
 			_criar_pessoa("res://arte/tia_snes.png", 2, base).interagiu.connect(_falar_com_tia)
@@ -910,6 +954,12 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			_criar_porteira(base)
 		"v", "e":
 			marcas[c] = base
+		"w":
+			_criar_ciranda(base)
+		"s":
+			_criar_pega_pega(base)
+		"x":
+			_criar_roda_capoeira(base)
 
 
 func _criar_cenario(caminho: String, pe: Vector2, base: Vector2) -> Sprite2D:
@@ -1080,6 +1130,125 @@ func _fumaca(pos: Vector2) -> void:
 	cores.set_color(1, Color(0.5, 0.48, 0.55, 0.0))
 	f.color_ramp = cores
 	add_child(f)
+
+
+# ------------------------------------------------------------------ gente brincando no quintal
+
+const TEX_CRIANCAS := preload("res://arte/criancas_snes.png")
+const TEX_CAPOEIRA := preload("res://arte/capoeira_snes.png")
+const TEX_RODA := preload("res://arte/roda_snes.png")
+
+
+## Uma pessoa animada só com quadros (sem área de conversa). "variante" é a linha da folha.
+func _figura(tex: Texture2D, quadros: int, linhas: int, variante: int, pos: Vector2, sombra := 1.0) -> Sprite2D:
+	var s := Sprite2D.new()
+	s.texture = tex
+	s.hframes = quadros
+	s.vframes = linhas
+	s.frame = variante * quadros
+	s.offset = Vector2(0, -16)
+	s.position = pos
+	s.set_meta("variante", variante)
+	var sb := Sprite2D.new()
+	sb.texture = TEX_SOMBRA
+	sb.scale = Vector2(sombra, sombra)
+	sb.show_behind_parent = true
+	s.add_child(sb)
+	mundo.add_child(s)
+	return s
+
+
+func _quadro(s: Sprite2D, f: int) -> void:
+	s.frame = int(s.get_meta("variante")) * s.hframes + f
+
+
+## Um ponto de conversa invisível no meio de um grupo, que também impede Adé de atravessá-lo.
+func _ponto_de_conversa(centro: Vector2, tamanho: Vector2, alcance: float, balao: float) -> Area2D:
+	var n := _criar_interativo("res://arte/criancas_snes.png", 4, centro, tamanho, balao)
+	n.sprite.visible = false
+	n.animar = false
+	n.olhar_para_jogador = false
+	(n.get_node("Corpo/Forma") as CollisionShape2D).position = Vector2.ZERO
+	(n.get_node("Alcance").shape as CircleShape2D).radius = alcance
+	return n
+
+
+func _criar_ciranda(base: Vector2) -> void:
+	var centro := base + Vector2(0, -4)
+	var criancas := []
+	for i in 4:
+		criancas.append(_figura(TEX_CRIANCAS, 4, 6, i, centro, 0.8))
+	_ciranda = {"centro": centro, "criancas": criancas}
+	_ponto_de_conversa(centro, Vector2(52, 22), 38.0, -36.0).interagiu.connect(_falar_com_criancas)
+
+
+func _criar_pega_pega(base: Vector2) -> void:
+	var centro := base + Vector2(8, -4)
+	_pega = {"centro": centro, "criancas": [_figura(TEX_CRIANCAS, 4, 6, 4, centro, 0.8), _figura(TEX_CRIANCAS, 4, 6, 5, centro, 0.8)]}
+
+
+func _criar_roda_capoeira(base: Vector2) -> void:
+	var centro := base + Vector2(0, -6)
+	var jogadores := [_figura(TEX_CAPOEIRA, 4, 2, 0, centro), _figura(TEX_CAPOEIRA, 4, 2, 1, centro)]
+	jogadores[1].flip_h = true   # um de frente para o outro
+	var membros := []
+	# [ângulo em graus, variante]: 0 berimbau (mestre), 1 pandeiro, 2-4 palmas
+	for m in [[-90, 0], [-118, 1], [-62, 2], [-148, 3], [-32, 4], [180, 2], [0, 3], [148, 4], [32, 1]]:
+		var a := deg_to_rad(m[0])
+		var pos := centro + Vector2(cos(a) * 50.0, sin(a) * 26.0 + 2.0)
+		membros.append(_figura(TEX_RODA, 2, 5, m[1], pos))
+	_roda = {"centro": centro, "jogadores": jogadores, "membros": membros}
+	_ponto_de_conversa(centro + Vector2(0, -2), Vector2(104, 52), 64.0, -66.0).interagiu.connect(_falar_com_mestre)
+
+
+func _animar_brincadeiras() -> void:
+	var t := _tempo
+	if _ciranda:
+		var c: Vector2 = _ciranda["centro"]
+		var lista: Array = _ciranda["criancas"]
+		for i in lista.size():
+			var a := t * 0.9 + i * TAU / lista.size()
+			lista[i].position = c + Vector2(cos(a) * 22.0, sin(a) * 10.0)
+			_quadro(lista[i], (int(t * 4.0) + i) % 2)
+	if _pega:
+		var c: Vector2 = _pega["centro"]
+		var lista: Array = _pega["criancas"]
+		for i in lista.size():
+			var a := t * 1.7 - i * 0.75                 # a segunda corre atrás da primeira
+			var r := 40.0 + sin(t * 0.7 + i) * 6.0
+			lista[i].position = c + Vector2(cos(a) * r, sin(a) * 12.0)
+			lista[i].flip_h = -sin(a) < 0.0
+			_quadro(lista[i], 2 + int(t * 9.0 + i) % 2)
+	if _roda:
+		var c: Vector2 = _roda["centro"]
+		var j: Array = _roda["jogadores"]
+		var fase := fmod(t, 4.0)
+		var ginga := int(t * 2.6) % 2
+		var balanco := sin(t * PI * 1.3) * 2.0
+		var quem_ataca := int(t / 4.0) % 2
+		for i in 2:
+			var lado := -1.0 if i == 0 else 1.0
+			j[i].position = c + Vector2(lado * 13.0 + balanco * -lado, 0)
+			if fase >= 2.4 and fase < 3.1:
+				_quadro(j[i], 2 if i == quem_ataca else 3)   # meia-lua de um, esquiva do outro
+			else:
+				_quadro(j[i], ginga)
+		for m in _roda["membros"]:
+			var v := int(m.get_meta("variante"))
+			if v == 0:
+				_quadro(m, int(t * 5.2) % 2)          # berimbau
+			elif v == 1:
+				_quadro(m, int(t * 5.2 + 1.0) % 2)    # pandeiro
+			else:
+				_quadro(m, int(t * 2.6) % 2)          # palmas no tempo da ginga
+
+
+func _falar_com_criancas() -> void:
+	await _falar("criancas_depois" if estado == "aberto" else "criancas")
+
+
+func _falar_com_mestre() -> void:
+	await _falar("capoeira_depois" if estado == "aberto" else "capoeira")
 
 
 func _criar_galinha(base: Vector2) -> void:

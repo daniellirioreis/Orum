@@ -116,6 +116,26 @@
 		{"quem": "Vó", "yo": "", "pt": "A porteira está aberta. Siga Exu, meu filho."}
 	],
 
+	"criancas": [
+		{"quem": "Crianças", "yo": "", "pt": "Ciranda, cirandinha, vamos todos cirandar..."},
+		{"quem": "Menina", "yo": "", "pt": "Adé! Vem pra roda com a gente!"},
+		{"quem": "Adé", "yo": "", "pt": "Agora não posso, tô ajudando a Vó. Depois eu venho!"}
+	],
+	"criancas_depois": [
+		{"quem": "Menina", "yo": "", "pt": "Adé, você viu o vento que deu lá na porteira? Até a ciranda parou!"},
+		{"quem": "Adé", "yo": "", "pt": "Vi sim... Depois eu conto tudo pra vocês."}
+	],
+	"capoeira": [
+		{"quem": "Mestre Tião", "yo": "", "pt": "Iê! Chega mais, menino. Escuta o berimbau."},
+		{"quem": "Mestre Tião", "yo": "", "pt": "Capoeira é luta, é dança e é brincadeira. Quem joga tem que ouvir o toque."},
+		{"quem": "Adé", "yo": "", "pt": "Um dia eu vou entrar nessa roda!"},
+		{"quem": "Mestre Tião", "yo": "", "pt": "Vai sim. Mas primeiro: ginga, ginga e mais ginga!"}
+	],
+	"capoeira_depois": [
+		{"quem": "Mestre Tião", "yo": "", "pt": "Sentiu? Quando a porteira abriu, o berimbau mudou de toque sozinho."},
+		{"quem": "Mestre Tião", "yo": "", "pt": "Laroyê, Exu! Os caminhos estão abertos, menino."}
+	],
+
 	"gameleira_ade": [
 		{"quem": "", "yo": "", "pt": "Uma gameleira-branca enorme. No tronco, um ojá branco amarrado com laço."},
 		{"quem": "Adé", "yo": "", "pt": "A Vó sempre diz que essa é a árvore de Iroko. Iroko é o tempo."},

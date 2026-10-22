@@ -136,6 +136,7 @@ Objetos e pessoas (`fases/<lugar>_objetos.txt`; `.` = nada):
 | `M` `q` `I` | mangueira, coqueiro, gameleira-branca de Iroko (com ojá branco) |
 | `W` `f` `o` `u` | varal, flores, pedras, poste com lampião |
 | `g` `z` | galinha e gato |
+| `w` `s` `x` | crianças na ciranda, crianças no pega-pega, roda de capoeira (com Mestre Tião) |
 | `c` | búzio para recolher (no quintal) |
 | `T` `X` | tronqueira e porteira |
 | `v` `e` | onde a Vó espera e onde Exu aparece |
