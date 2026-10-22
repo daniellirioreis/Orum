@@ -1,0 +1,37 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/npc.gd" id="1_npc"]
+[ext_resource type="Texture2D" path="res://arte/balao.png" id="2_balao"]
+
+[sub_resource type="CircleShape2D" id="alcance"]
+resource_local_to_scene = true
+radius = 20.0
+
+[sub_resource type="RectangleShape2D" id="corpo"]
+resource_local_to_scene = true
+size = Vector2(12, 6)
+
+[node name="Interativo" type="Area2D"]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_npc")
+olhar_para_jogador = false
+
+[node name="Sprite" type="Sprite2D" parent="."]
+
+[node name="Balao" type="Sprite2D" parent="."]
+visible = false
+z_index = 5
+position = Vector2(0, -40)
+texture = ExtResource("2_balao")
+
+[node name="Alcance" type="CollisionShape2D" parent="."]
+position = Vector2(0, -4)
+shape = SubResource("alcance")
+
+[node name="Corpo" type="StaticBody2D" parent="."]
+collision_mask = 0
+
+[node name="Forma" type="CollisionShape2D" parent="Corpo"]
+position = Vector2(0, -3)
+shape = SubResource("corpo")

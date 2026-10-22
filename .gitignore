@@ -1,0 +1,16 @@
+# Cache e arquivos gerados pela Godot (ela recria sozinha)
+.godot/
+*.tmp
+*.translation
+
+# Builds exportados
+/export/
+/builds/
+*.dmg
+*.exe
+*.pck
+*.zip
+
+# Sistema
+.DS_Store
+Thumbs.db

@@ -1,0 +1,20 @@
+{
+	"primeira_vez": [
+		{"quem": "Èṣù", "yo": "Ẹ kú ìrọ̀lẹ́, ọmọ mi.", "pt": "Boa tarde, minha criança. Você chegou."},
+		{"quem": "Adé", "yo": "Laroyê, Èṣù!", "pt": "Salve, Exu!"},
+		{"quem": "Èṣù", "yo": "Gbọ́ ìtàn yìí.", "pt": "Escute esta história."},
+		{"quem": "Ìtàn", "yo": "", "pt": "Dois amigos plantavam lado a lado, separados só por um caminho. Juravam que nada no mundo os faria brigar."},
+		{"quem": "Ìtàn", "yo": "", "pt": "Um dia, Exu passou entre as duas roças usando um gorro vermelho de um lado e preto do outro."},
+		{"quem": "Ìtàn", "yo": "", "pt": "Um amigo falou do homem de gorro vermelho. O outro jurou que o gorro era preto. A conversa virou briga."},
+		{"quem": "Ìtàn", "yo": "", "pt": "Então Exu voltou e mostrou o gorro: os dois tinham razão. Cada um só tinha visto o lado que estava à sua frente."},
+		{"quem": "Èṣù", "yo": "Ọ̀nà pọ̀.", "pt": "Os caminhos são muitos. Antes de escolher um, olhe de mais de um lado."},
+		{"quem": "Èṣù", "yo": "Ọ̀nà ti ṣí.", "pt": "O caminho está aberto.", "evento": "abrir_caminho"},
+		{"quem": "Èṣù", "yo": "Tẹ̀lé ọ̀nà Ògún.", "pt": "Siga pelo caminho de Ogum. Ele está abrindo a mata à sua frente."}
+	],
+	"depois": [
+		{"quem": "Èṣù", "yo": "Ó dàbọ̀, ọmọ mi.", "pt": "Até logo, minha criança. O caminho de Ogum está à sua espera."}
+	],
+	"todos_os_buzios": [
+		{"quem": "Èṣù", "yo": "O ṣeun!", "pt": "Obrigado! Você recolheu todos os búzios do caminho."}
+	]
+}

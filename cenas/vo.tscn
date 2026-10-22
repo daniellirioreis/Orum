@@ -1,0 +1,28 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/npc.gd" id="1_npc"]
+[ext_resource type="Texture2D" path="res://arte/vo.png" id="2_vo"]
+[ext_resource type="Texture2D" path="res://arte/balao.png" id="3_balao"]
+
+[sub_resource type="CircleShape2D" id="area_conversa"]
+radius = 28.0
+
+[node name="Vo" type="Area2D"]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_npc")
+altura_balao = -40.0
+
+[node name="Sprite" type="Sprite2D" parent="."]
+texture = ExtResource("2_vo")
+offset = Vector2(0, -16)
+hframes = 3
+
+[node name="Balao" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(0, -40)
+texture = ExtResource("3_balao")
+
+[node name="Area" type="CollisionShape2D" parent="."]
+position = Vector2(0, -12)
+shape = SubResource("area_conversa")

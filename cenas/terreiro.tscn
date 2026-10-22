@@ -1,0 +1,14 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/terreiro.gd" id="1_terreiro"]
+[ext_resource type="Script" path="res://scripts/dialogo.gd" id="2_dialogo"]
+[ext_resource type="Script" path="res://scripts/hud.gd" id="3_hud"]
+
+[node name="Terreiro" type="Node2D"]
+script = ExtResource("1_terreiro")
+
+[node name="Dialogo" type="CanvasLayer" parent="."]
+script = ExtResource("2_dialogo")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("3_hud")
