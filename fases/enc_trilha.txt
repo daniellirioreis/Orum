@@ -1,0 +1,16 @@
+aaaaaaaaaaarraaaaaaaaaaa
+aa,,;,,,,,,rr,,,,,,,,,aa
+a*,,,,,,,,,rr,,,,,,,,,,a
+a,;,,*,;,,,rr*,,,,,,,,,a
+a,,,,*,,*,,rr,,,,,*,,,,a
+aaaaaaaaaa,rraaaaaaaaaaa
+a,,,,,,;,,,rr,,,,,,,,,,a
+a,,,,,,*,,,rr,,,,,,,,,,a
+a;,,,,,,,,,rr,,,,,,,,,,a
+a,,,,,,,,,,rr,,;,,,,,,;a
+a,,,,,,;,,,rr,,,,,,,,,,a
+a,;,,,,,,,,rr,,,,,,,,,,a
+a,,,,,,,,,,rr,,,,,,,,,,a
+a,,,,,,;,,,rr,,,,,,,,;,a
+aa;,,,,,,,,rr,,,,;,,,,aa
+aaaaaaaaaaarraaaaaaaaaaa

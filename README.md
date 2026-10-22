@@ -52,12 +52,24 @@ Esta versão tem o **Prólogo** completo, em duas partes:
 - Noite de verdade: lampiões, velas do congá e fogão iluminam; vaga-lumes no quintal, fumaça na chaminé,
   galinhas andando e um gato dormindo. A cor da noite fica em `COR_NOITE`, no topo de `scripts/terreiro.gd`.
 
-**Na encruzilhada**
-- Adé, a personagem jogável, com corrida, pulo de altura variável, "coyote time" e renascimento ao cair.
-- 10 búzios (owó ẹyọ) espalhados pelo caminho.
-- Exu na encruzilhada, com diálogo em iorubá e legenda em português, contando o itan do gorro de duas cores.
-- O mato fechado que se abre depois da conversa, e a saída pelo caminho de Ogum (portal de ferro com màrìwò).
-- Fundo em camadas com pôr do sol e baobás, música de agogô e atabaque, efeitos sonoros.
+**Na encruzilhada (Oríta Mẹ́ta, visão de cima)** — `cenas/encruzilhada.tscn`, `scripts/encruzilhada.gd`
+- Três lugares à noite, cada um com um enigma até chegar a Exu:
+  - **Trilha**: empurrar a pedra até o ponto riscado no chão para abrir a cancela de bambu.
+  - **Mata**: acender as três lamparinas na ordem certa (leste, oeste e a do meio); a placa dá a dica.
+  - **Oríta** (onde os caminhos se encontram): afundar a pedra no riacho para atravessar e olhar a estátua
+    dos dois lados. O gorro é vermelho de um lado e preto do outro, como no itã de Exu.
+- Redemoinhos de poeira andam pelos caminhos. Cada um que pega Adé leva um búzio de **axé** (os 5 búzios
+  lá em cima, à direita). Sem axé, Adé volta para a entrada do lugar com o axé cheio.
+- Se a pedra ficar presa, ler a placa de novo faz as pedras voltarem para o lugar.
+- Exu aparece e abre o **mapa dos campos dos orixás** (`scripts/mapa_campos.gd`): os campos se acendem um
+  por um (Oxalá, Iansã, Xangô, Iemanjá, Oxum, Nanã, Omolu, Oxóssi e Ogum), com a ferramenta, a saudação e o
+  campo de cada um. Depois dá para ver cada campo com ← →. Falando com Exu de novo, o mapa abre outra vez.
+- Exu libera o caminho de Ogum, ao norte: é o fim do prólogo.
+- Os mapas ficam em `fases/enc_trilha.txt`, `fases/enc_mata.txt` e `fases/enc_orita.txt` (+ `_objetos`).
+  Letras novas dos objetos: `@` pedra que se empurra, `&` ponto riscado, `!` cancela, `$` lamparina,
+  `<` redemoinho que anda de lado, `^` redemoinho que anda para cima e para baixo, `?` placa,
+  `S` estátua do gorro, `x` onde Exu aparece, `>` saída (fim). Os textos ficam em `dialogos/encruzilhada.json`.
+- A versão antiga da encruzilhada (plataforma) continua em `cenas/jogo.tscn`, mas a porteira agora leva para a nova.
 
 ## Estrutura das pastas
 

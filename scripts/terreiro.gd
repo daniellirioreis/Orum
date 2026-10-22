@@ -99,6 +99,10 @@ var estado := "sonho"
 var coletados := {}
 var tia := "inicio"          # inicio → pediu_lenha → com_lenha → deu_efum
 var lugar_atual := ""
+## (variáveis para que outras cenas — como a encruzilhada — reaproveitem este script)
+var lugares: Dictionary = LUGARES
+var cor_fora := COR_FORA
+var cor_dentro := COR_DENTRO
 
 var mundo: Node2D             # tudo que precisa de profundidade (ordenado por y)
 var jogador: CharacterBody2D
@@ -109,6 +113,7 @@ var exu: Sprite2D
 var marcas := {}              # posições especiais: "v" (Vó na tronqueira), "e" (Exu)
 var portas := {}              # número da porta → lista de [lugar, posição do bloco]
 var tamanhos := {}            # lugar → tamanho em pixels
+var _chaos := {}              # lugar → camada do chão (com as colisões)
 
 var _dados: Dictionary
 var _tileset: TileSet
@@ -119,6 +124,8 @@ var _medidor: ColorRect
 var _item: TextureRect
 var _contador_buzios: Label
 var _contador_oferendas: Label
+var _hud_oferendas: Array = []   # medidor, caixa e contador das oferendas
+var _axe_icones: Array = []      # os 5 búzios do axé
 var _aviso: Label
 var _clarao: ColorRect
 var _cortina: ColorRect
@@ -151,7 +158,7 @@ func _ready() -> void:
 	add_child(mundo)
 	_noite = CanvasModulate.new()
 	add_child(_noite)
-	for nome in LUGARES:
+	for nome in lugares:
 		_construir(nome)
 	mundo.add_child(jogador)
 	$HUD.esconder_contador = true   # o terreiro tem a barra própria, lá em cima
@@ -192,7 +199,7 @@ func _unhandled_input(ev: InputEvent) -> void:
 ## Ajusta a câmera e a luz para o lugar onde Adé está.
 func _entrar_lugar(nome: String) -> void:
 	lugar_atual = nome
-	var origem: Vector2 = LUGARES[nome]["origem"]
+	var origem: Vector2 = lugares[nome]["origem"]
 	var tam: Vector2 = tamanhos[nome]
 	var tela := Vector2(Jogo.TELA)
 	var camera: Camera2D = jogador.get_node("Camera")
@@ -204,7 +211,7 @@ func _entrar_lugar(nome: String) -> void:
 	camera.limit_right = int(esq + maxf(tam.x, tela.x))
 	camera.limit_bottom = int(topo + maxf(tam.y, tela.y))
 	camera.reset_smoothing()
-	_noite.color = COR_DENTRO if LUGARES[nome]["dentro"] else COR_FORA
+	_noite.color = cor_dentro if lugares[nome]["dentro"] else cor_fora
 
 
 ## Leva Adé (com a tela escurecendo) para outro lugar.
@@ -241,9 +248,9 @@ func _chegada(lugar: String, celula: Vector2i) -> Vector2:
 		var c: Vector2i = celula + dir
 		var letra := _letra(mapa, c.x, c.y)
 		if letra in ANDAVEL and letra != "+" and letra != "P" and not _e_porta(lugar, c):
-			var origem: Vector2 = LUGARES[lugar]["origem"]
+			var origem: Vector2 = lugares[lugar]["origem"]
 			return origem + Vector2(c.x * TILE + TILE / 2.0, (c.y + 1) * TILE - 2)
-	return LUGARES[lugar]["origem"]
+	return lugares[lugar]["origem"]
 
 
 func _e_porta(lugar: String, celula: Vector2i) -> bool:
@@ -450,7 +457,7 @@ func _vo_vai_para_tronqueira() -> void:
 
 ## A Vó atravessa o barracão andando até a porta do quintal e sai por ela.
 func _vo_sai_do_barracao() -> void:
-	var origem: Vector2 = LUGARES["barracao"]["origem"]
+	var origem: Vector2 = lugares["barracao"]["origem"]
 	var xs := []
 	var linha := 0
 	for p in portas["1"]:
@@ -595,7 +602,7 @@ func _ao_passar_porteira(corpo: Node2D) -> void:
 		return
 	estado = "saindo"
 	jogador.congelar(true)
-	Jogo.mudar_cena("res://cenas/jogo.tscn")
+	Jogo.mudar_cena("res://cenas/encruzilhada.tscn")
 
 
 func _tremer() -> void:
@@ -644,17 +651,20 @@ func _criar_interface() -> void:
 	medidor.texture = preload("res://arte/hud_medidor.png")
 	medidor.position = Vector2(6, 5)
 	camada.add_child(medidor)
+	_hud_oferendas.append(medidor)
 	_medidor = ColorRect.new()
 	_medidor.color = Color(0.98, 0.78, 0.25)
 	_medidor.position = Vector2(8, 48)
 	_medidor.size = Vector2(10, 0)
 	camada.add_child(_medidor)
+	_hud_oferendas.append(_medidor)
 
 	# caixa do item: mostra a última oferenda recolhida
 	var caixa := TextureRect.new()
 	caixa.texture = preload("res://arte/hud_caixa.png")
 	caixa.position = Vector2(24, 8)
 	camada.add_child(caixa)
+	_hud_oferendas.append(caixa)
 	_item = TextureRect.new()
 	_item.position = Vector2(30, 14)
 	camada.add_child(_item)
@@ -675,10 +685,12 @@ func _criar_interface() -> void:
 	icone_of.texture = atlas
 	icone_of.position = Vector2(86, 5)
 	camada.add_child(icone_of)
+	_hud_oferendas.append(icone_of)
 	_contador_oferendas = _rotulo_hud("0/4", 10, Color.WHITE)
 	_contador_oferendas.add_theme_font_override("font", fonte_forte)
 	_contador_oferendas.position = Vector2(80, 16)
 	camada.add_child(_contador_oferendas)
+	_hud_oferendas.append(_contador_oferendas)
 
 	# AXÉ (à direita): búzios no lugar dos corações
 	var axe := _rotulo_hud("— AXÉ —", 7, Color(1.0, 0.9, 0.6))
@@ -692,6 +704,7 @@ func _criar_interface() -> void:
 		b.texture = preload("res://arte/buzio_axe.png")
 		b.position = Vector2(tela.x - 76 + i * 13, 15)
 		camada.add_child(b)
+		_axe_icones.append(b)
 
 	_lista = Control.new()   # (marcador de "busca começou"; a barra fica sempre à mostra)
 	camada.add_child(_lista)
@@ -765,7 +778,7 @@ func _letra(mapa: PackedStringArray, x: int, y: int) -> String:
 
 
 func _construir(nome: String) -> void:
-	var origem: Vector2 = LUGARES[nome]["origem"]
+	var origem: Vector2 = lugares[nome]["origem"]
 	var mapa := _ler("res://fases/%s.txt" % nome)
 	_mapas[nome] = mapa
 	var largura := 0
@@ -778,7 +791,8 @@ func _construir(nome: String) -> void:
 	chao.position = origem
 	chao.z_index = -10      # o chão fica sempre por baixo
 	add_child(chao)
-	if LUGARES[nome]["dentro"]:
+	_chaos[nome] = chao
+	if lugares[nome]["dentro"]:
 		for y in mapa.size():
 			for x in mapa[y].length():
 				var t := _tile_para(mapa, x, y)
@@ -1083,12 +1097,12 @@ func _material_sem_sombra() -> CanvasItemMaterial:
 	return m
 
 
-func _criar_vagalumes() -> void:
-	var tam: Vector2 = tamanhos["quintal"]
+func _criar_vagalumes(lugar := "quintal") -> void:
+	var tam: Vector2 = tamanhos[lugar]
 	var v := CPUParticles2D.new()
 	v.material = _material_sem_sombra()
 	v.z_index = 15
-	v.position = LUGARES["quintal"]["origem"] + Vector2(tam.x / 2.0, tam.y * 0.62)
+	v.position = lugares[lugar]["origem"] + Vector2(tam.x / 2.0, tam.y * 0.62)
 	v.amount = 30
 	v.lifetime = 5.0
 	v.preprocess = 5.0
