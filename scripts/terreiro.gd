@@ -1102,7 +1102,8 @@ func _mover_galinha(b: Dictionary, delta: float) -> void:
 # por isso os cantos saem arredondados.
 const TERRENOS := [["r", "t", "_"], ["="], ["~", "|"]]
 const AGUA_CHARS := ["~", "|"]
-const SOBRE_TERRENO := ["M", "R", "h", "H", "J", "P", "^", "B", "b", "E"]
+const SOBRE_TERRENO := ["M", "^", "B", "b", "E"]
+const CASA_CHARS := ["R", "h", "H", "J", "P"]
 
 
 func _criar_tileset_terreno() -> TileSet:
@@ -1169,11 +1170,31 @@ func _construir_terreno(mapa: PackedStringArray, origem: Vector2, topo: TileMapL
 				"o":
 					enfeites.set_cell(Vector2i(x, y), 0, Vector2i(3, 4))
 
-	# 4) por cima: muro, casa, barranco e escada (com colisão); água bloqueia passagem
+	# 4) a casa é um desenho inteiro (arte/casa.png); no mapa ela só ocupa espaço (colisão)
+	var casa_ini := Vector2i(9999, 9999)
+	var casa_fim := Vector2i(-1, -1)
+	for y in altura:
+		for x in mapa[y].length():
+			if mapa[y][x] in CASA_CHARS:
+				casa_ini = Vector2i(mini(casa_ini.x, x), mini(casa_ini.y, y))
+				casa_fim = Vector2i(maxi(casa_fim.x, x), maxi(casa_fim.y, y))
+	if casa_fim.x >= 0:
+		var casa := Sprite2D.new()
+		casa.texture = preload("res://arte/casa.png")
+		var base_casa := origem + Vector2((casa_ini.x + casa_fim.x + 1) * TILE / 2.0, (casa_fim.y + 1) * TILE)
+		casa.offset = Vector2(0, -casa.texture.get_height() / 2.0)
+		casa.position = base_casa
+		mundo.add_child(casa)
+		_fumaca(origem + Vector2(casa_ini.x * TILE + 211, casa_ini.y * TILE + 34))
+
+	# 5) por cima: muro, barranco e escada (com colisão); água e casa bloqueiam passagem
 	for y in altura:
 		for x in mapa[y].length():
 			var c := mapa[y][x]
-			if c in SOBRE_TERRENO:
+			if c in CASA_CHARS:
+				if c != "P":
+					topo.set_cell(Vector2i(x, y), 0, Vector2i(INVISIVEL, 0))
+			elif c in SOBRE_TERRENO:
 				topo.set_cell(Vector2i(x, y), 0, Vector2i(_tile_para(mapa, x, y), 0))
 			elif c in AGUA_CHARS:
 				topo.set_cell(Vector2i(x, y), 0, Vector2i(INVISIVEL, 0))

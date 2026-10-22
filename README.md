@@ -149,6 +149,7 @@ quadro, e salvar por cima.
 | Arquivo | Tamanho | Organização |
 |---|---|---|
 | `arte/terreno_snes.png` | 256×80 | linha 1: grama (4 variações) · linhas 2–4: terra, calçada e água, **16 peças de borda** cada · linha 5: tufo, flor branca, flor amarela, pedras de pisar, folhas |
+| `arte/casa.png` | 256×144 (16×9 blocos) | a casa vista de fora, uma peça só: telhado de quatro águas + fachada. Portas nas colunas 7 e 12, janelas nas colunas 2, 4, 10 e 14 (contando do 0). No mapa, a casa ocupa as letras `R`, `h`, `H`, `J` e `P` |
 | `arte/tiles_snes.png` | 16×16 cada | muro, telhado, fachada, pisos e paredes das salas, barranco, escada (ordem em `fases/tiles_snes_indices.txt`) |
 | `arte/ade_snes.png` | 9 quadros de 16×32 | de frente (parado, passo, passo), de costas (3), de lado (3, virado para a direita) |
 | `arte/vo_snes.png` | 3 quadros de 16×32 | parada, respirando, braços erguidos |
