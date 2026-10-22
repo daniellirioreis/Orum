@@ -133,6 +133,7 @@ Objetos e pessoas (`fases/<lugar>_objetos.txt`; `.` = nada):
 | `K` `S` `k` | caixote, saco, caixote onde está o Epó |
 | `L` `H` | lenha, horta |
 | `R` `Y` `J` `a` | árvore, dendezeiro, bananeira, arbusto |
+| `M` `q` `I` | mangueira, coqueiro, gameleira-branca de Iroko (com ojá branco) |
 | `W` `f` `o` `u` | varal, flores, pedras, poste com lampião |
 | `g` `z` | galinha e gato |
 | `c` | búzio para recolher (no quintal) |

@@ -67,6 +67,9 @@ const CENARIO := {
 	"Q": ["res://arte/obj_prateleira.png", Vector2(46, 8)],
 	"H": ["res://arte/obj_horta.png", Vector2(46, 22)],
 	"R": ["res://arte/obj_arvore.png", Vector2(12, 8)],
+	"M": ["res://arte/obj_mangueira.png", Vector2(12, 8)],
+	"q": ["res://arte/obj_coqueiro.png", Vector2(8, 6)],
+	"I": ["res://arte/obj_gameleira.png", Vector2(24, 10)],   # gameleira-branca de Iroko
 	"B": ["res://arte/obj_banco.png", Vector2(44, 8)],
 	"Z": ["res://arte/obj_cerquinha.png", Vector2(16, 6)],
 	"p": ["res://arte/obj_vaso.png", Vector2(10, 6)],
