@@ -28,3 +28,14 @@
 27 vazio
 28 soleira
 29 invisivel
+30 calcada
+31 arbusto
+32 estaca
+33 barranco_borda
+34 barranco_face
+35 barranco_pe
+36 escada
+37 agua
+38 margem
+39 degrau
+40 estrada

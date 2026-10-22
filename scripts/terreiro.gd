@@ -28,9 +28,11 @@ const LUGARES := {
 }
 const LUGAR_INICIAL := "barracao"
 
-## Cor da luz em cada tipo de lugar (a noite lá fora, a luz de lampião dentro).
-const COR_NOITE := Color(0.46, 0.45, 0.66)
-const COR_DENTRO := Color(0.78, 0.7, 0.66)
+## Cor da luz em cada tipo de lugar (fim de tarde lá fora, sombra fresca dentro de casa).
+const COR_FORA := Color(1.0, 0.96, 0.9)
+const COR_DENTRO := Color(0.95, 0.88, 0.82)
+## Força das luzes de lampião e fogo (de dia elas brilham pouco).
+const FORCA_LUZES := 0.35
 
 # índice de cada bloco na folha arte/tiles_snes.png (lista em fases/tiles_snes_indices.txt)
 enum {
@@ -39,17 +41,21 @@ enum {
 	FACHADA, FACHADA_ALTO, FACHADA_JANELA, FACHADA_PORTA,
 	PISO, PISO2, LADRILHO, TABUA,
 	PAREDE_ALTO, PAREDE_JANELA, PAREDE_BAIXO, PAREDE_ESQ, PAREDE_DIR, PAREDE_FUNDO, PAREDE_CANTO, VAZIO, SOLEIRA,
-	INVISIVEL, TOTAL_TILES
+	INVISIVEL, CALCADA, ARBUSTO, ESTACA, BARRANCO_BORDA, BARRANCO_FACE, BARRANCO_PE,
+	ESCADA, AGUA, MARGEM, DEGRAU, ESTRADA, TOTAL_TILES
 }
 const CHAO := {
 	",": GRAMA, ";": GRAMA_TUFO, "*": GRAMA_FLOR, "_": CAMINHO, "t": TERRA,
 	".": PISO, ":": PISO2, "c": LADRILHO, "d": TABUA, "+": SOLEIRA, "P": FACHADA_PORTA,
+	"=": CALCADA, "r": ESTRADA, "o": DEGRAU, "E": ESCADA, "a": ARBUSTO, "e": ESTACA,
+	"^": BARRANCO_BORDA, "B": BARRANCO_FACE, "b": BARRANCO_PE, "~": AGUA, "|": MARGEM,
 }
-const ANDAVEL := [",", ";", "*", "_", "t", ".", ":", "c", "d", "+", "P"]
+const ANDAVEL := [",", ";", "*", "_", "t", ".", ":", "c", "d", "+", "P", "=", "r", "o", "E"]
 const PAREDES := ["#", "j"]
 const SOLIDOS := [MURO_TOPO, MURO_FRENTE, TELHADO, CUMEEIRA, BEIRAL, TELHADO_ESQ, TELHADO_DIR,
 	FACHADA, FACHADA_ALTO, FACHADA_JANELA, PAREDE_ALTO, PAREDE_JANELA, PAREDE_BAIXO, PAREDE_ESQ,
-	PAREDE_DIR, PAREDE_FUNDO, PAREDE_CANTO, VAZIO, INVISIVEL]
+	PAREDE_DIR, PAREDE_FUNDO, PAREDE_CANTO, VAZIO, INVISIVEL, ARBUSTO, ESTACA,
+	BARRANCO_BORDA, BARRANCO_FACE, BARRANCO_PE, AGUA, MARGEM]
 
 ## Objetos de cenário: imagem e tamanho do "pé" que bloqueia a passagem (zero = não bloqueia).
 const CENARIO := {
@@ -107,7 +113,10 @@ var _tileset: TileSet
 var _noite: CanvasModulate
 var _toque: CanvasLayer
 var _lista: Control
-var _icones := {}
+var _medidor: ColorRect
+var _item: TextureRect
+var _contador_buzios: Label
+var _contador_oferendas: Label
 var _aviso: Label
 var _clarao: ColorRect
 var _cortina: ColorRect
@@ -140,7 +149,7 @@ func _ready() -> void:
 	for nome in LUGARES:
 		_construir(nome)
 	mundo.add_child(jogador)
-	_criar_vagalumes()
+	$HUD.esconder_contador = true   # o terreiro tem a barra própria, lá em cima
 
 	_toque = preload("res://scripts/toque.gd").new()
 	add_child(_toque)
@@ -161,6 +170,8 @@ func _process(delta: float) -> void:
 		l.energy = chama[1] * (0.88 + 0.12 * sin(_tempo * chama[2]) + randf_range(-0.04, 0.04))
 	for b in _bichos:
 		_mover_galinha(b, delta)
+	if _contador_buzios:
+		_contador_buzios.text = "%03d" % Jogo.buzios
 	for g in _gatos:
 		g.frame = int(_tempo * 0.8) % 2
 
@@ -187,7 +198,7 @@ func _entrar_lugar(nome: String) -> void:
 	camera.limit_right = int(esq + maxf(tam.x, tela.x))
 	camera.limit_bottom = int(topo + maxf(tam.y, tela.y))
 	camera.reset_smoothing()
-	_noite.color = COR_DENTRO if LUGARES[nome]["dentro"] else COR_NOITE
+	_noite.color = COR_DENTRO if LUGARES[nome]["dentro"] else COR_FORA
 
 
 ## Leva Adé (com a tela escurecendo) para outro lugar.
@@ -397,7 +408,11 @@ func _ao_evento(nome: String) -> void:
 
 func _ganhar(id: String) -> void:
 	coletados[id] = true
-	_icones[id].modulate = Color(1, 1, 1, 1)
+	var atlas := AtlasTexture.new()
+	atlas.atlas = TEX_ITENS
+	atlas.region = Rect2(ITENS.find(id) * 12, 0, 12, 12)
+	_item.texture = atlas
+	_atualizar_hud()
 	Jogo.tocar_som("buzio", -2.0)
 	_mostrar_aviso("Você pegou: " + _dados["pegou"][id])
 	if coletados.size() == ITENS.size():
@@ -568,42 +583,69 @@ func _criar_interface() -> void:
 	camada.layer = 6
 	add_child(camada)
 	var tela := Vector2(Jogo.TELA)
+	var fonte_forte := preload("res://fontes/NotoSans-SemiBold.ttf")
 
-	# barra de axé (à esquerda): três búzios, como a vida nos jogos antigos
-	var axe := _rotulo_hud("AXÉ", 7, Color(1.0, 0.86, 0.45))
-	axe.position = Vector2(8, 3)
+	# medidor das oferendas (à esquerda): enche a cada oferenda recolhida
+	var medidor := TextureRect.new()
+	medidor.texture = preload("res://arte/hud_medidor.png")
+	medidor.position = Vector2(6, 5)
+	camada.add_child(medidor)
+	_medidor = ColorRect.new()
+	_medidor.color = Color(0.98, 0.78, 0.25)
+	_medidor.position = Vector2(8, 48)
+	_medidor.size = Vector2(10, 0)
+	camada.add_child(_medidor)
+
+	# caixa do item: mostra a última oferenda recolhida
+	var caixa := TextureRect.new()
+	caixa.texture = preload("res://arte/hud_caixa.png")
+	caixa.position = Vector2(24, 8)
+	camada.add_child(caixa)
+	_item = TextureRect.new()
+	_item.position = Vector2(30, 14)
+	camada.add_child(_item)
+
+	# contadores: búzios e oferendas
+	var icone_buzio := TextureRect.new()
+	icone_buzio.texture = preload("res://arte/buzio_axe.png")
+	icone_buzio.position = Vector2(56, 8)
+	camada.add_child(icone_buzio)
+	_contador_buzios = _rotulo_hud("000", 10, Color.WHITE)
+	_contador_buzios.add_theme_font_override("font", fonte_forte)
+	_contador_buzios.position = Vector2(52, 16)
+	camada.add_child(_contador_buzios)
+	var atlas := AtlasTexture.new()
+	atlas.atlas = TEX_ITENS
+	atlas.region = Rect2(36, 0, 12, 12)
+	var icone_of := TextureRect.new()
+	icone_of.texture = atlas
+	icone_of.position = Vector2(86, 5)
+	camada.add_child(icone_of)
+	_contador_oferendas = _rotulo_hud("0/4", 10, Color.WHITE)
+	_contador_oferendas.add_theme_font_override("font", fonte_forte)
+	_contador_oferendas.position = Vector2(80, 16)
+	camada.add_child(_contador_oferendas)
+
+	# AXÉ (à direita): búzios no lugar dos corações
+	var axe := _rotulo_hud("— AXÉ —", 7, Color(1.0, 0.9, 0.6))
+	axe.add_theme_font_override("font", fonte_forte)
+	axe.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	axe.size = Vector2(70, 10)
+	axe.position = Vector2(tela.x - 78, 3)
 	camada.add_child(axe)
-	for i in 3:
+	for i in 5:
 		var b := TextureRect.new()
 		b.texture = preload("res://arte/buzio_axe.png")
-		b.position = Vector2(8 + i * 12, 14)
+		b.position = Vector2(tela.x - 76 + i * 13, 15)
 		camada.add_child(b)
 
-	# oferendas (à direita): apagadas até serem recolhidas
-	var titulo := _rotulo_hud("OFERENDAS", 7, Color(1.0, 0.86, 0.45))
-	titulo.position = Vector2(tela.x - 64, 3)
-	camada.add_child(titulo)
-	_lista = HBoxContainer.new()
-	_lista.position = Vector2(tela.x - 62, 13)
-	_lista.add_theme_constant_override("separation", 2)
-	_lista.visible = false
+	_lista = Control.new()   # (marcador de "busca começou"; a barra fica sempre à mostra)
 	camada.add_child(_lista)
-	titulo.visible = false
-	_lista.visibility_changed.connect(func(): titulo.visible = _lista.visible)
-	for i in ITENS.size():
-		var atlas := AtlasTexture.new()
-		atlas.atlas = TEX_ITENS
-		atlas.region = Rect2(i * 12, 0, 12, 12)
-		var icone := TextureRect.new()
-		icone.texture = atlas
-		icone.modulate = Color(0.2, 0.15, 0.25, 0.8)
-		_lista.add_child(icone)
-		_icones[ITENS[i]] = icone
 
 	_aviso = _rotulo_hud("", 8, Color(1, 0.95, 0.85))
 	_aviso.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_aviso.size = Vector2(tela.x, 14)
-	_aviso.position = Vector2(0, 30)
+	_aviso.position = Vector2(0, 36)
 	_aviso.modulate.a = 0.0
 	camada.add_child(_aviso)
 
@@ -621,6 +663,13 @@ func _criar_interface() -> void:
 	_cortina.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_cortina.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	camada_cortina.add_child(_cortina)
+
+
+func _atualizar_hud() -> void:
+	_contador_buzios.text = "%03d" % Jogo.buzios
+	_contador_oferendas.text = "%d/4" % coletados.size()
+	_medidor.size.y = 41.0 * coletados.size() / 4.0
+	_medidor.position.y = 48.0 - _medidor.size.y
 
 
 func _rotulo_hud(texto: String, tamanho: int, cor: Color) -> Label:
@@ -791,6 +840,11 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			_luz(base + Vector2(0, -8), Color(1.0, 0.8, 0.55), 0.45, 2.4, false)
 		"g":
 			_criar_galinha(base)
+		"c":
+			var buzio := preload("res://cenas/buzio.tscn").instantiate()
+			buzio.position = base - Vector2(0, TILE / 2.0)
+			mundo.add_child(buzio)
+			Jogo.buzios_total += 1
 		"z":
 			var gato := Sprite2D.new()
 			gato.texture = preload("res://arte/gato.png")
@@ -945,6 +999,7 @@ func _luz(pos: Vector2, cor: Color, energia: float, escala: float, tremula: bool
 	l.texture = _luz_tex
 	l.position = pos
 	l.color = cor
+	energia *= FORCA_LUZES
 	l.energy = energia
 	l.texture_scale = escala
 	add_child(l)

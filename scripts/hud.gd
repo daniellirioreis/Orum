@@ -2,6 +2,8 @@ extends CanvasLayer
 ## Contador de búzios e o letreiro com o nome da fase.
 
 var _contador: Label
+## Se verdadeiro, não mostra o contador de búzios do canto (cenas com barra própria).
+var esconder_contador := false
 var _icone: TextureRect
 var _titulo: Label
 var _subtitulo: Label
@@ -36,7 +38,7 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	_contador.text = "%d / %d" % [Jogo.buzios, Jogo.buzios_total]
 	# só mostra o contador de búzios nas fases que têm búzios
-	_contador.visible = Jogo.buzios_total > 0
+	_contador.visible = Jogo.buzios_total > 0 and not esconder_contador
 	_icone.visible = _contador.visible
 
 

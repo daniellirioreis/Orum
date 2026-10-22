@@ -1,9 +1,9 @@
 {
 	"sonho": [
-		{"quem": "", "yo": "", "pt": "Naquela noite, Adé sonhou de novo com eles."},
+		{"quem": "", "yo": "", "pt": "Naquela tarde, Adé cochilou na esteira do barracão e sonhou de novo com eles."},
 		{"quem": "", "yo": "", "pt": "Sete luzes no escuro. Sete presenças. Todas olhavam para ele."},
 		{"quem": "???", "yo": "Adé... Adé, wá.", "pt": "Adé... Adé, venha."},
-		{"quem": "", "yo": "", "pt": "E Adé acordou no barracão do terreiro, deitado na esteira."}
+		{"quem": "", "yo": "", "pt": "E Adé acordou assustado, ainda deitado na esteira."}
 	],
 	"conversa": [
 		{"quem": "Vó", "yo": "", "pt": "Acordou assustado, meu neto. Estava falando dormindo."},
@@ -31,7 +31,7 @@
 	],
 
 	"tia_antes": [
-		{"quem": "Tia Dora", "yo": "", "pt": "Boa noite, Adé! A cozinha desta casa nunca dorme."}
+		{"quem": "Tia Dora", "yo": "", "pt": "Boa tarde, Adé! A cozinha desta casa nunca para."}
 	],
 	"tia_pedido": [
 		{"quem": "Tia Dora", "yo": "", "pt": "O Efum? Tenho sim, meu bem."},

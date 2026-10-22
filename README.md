@@ -1,8 +1,10 @@
 # Ọ̀run — Histórias dos Orixás (protótipo) · versão 16 bits
 
 > **Ramo `estilo-snes`**: visual inspirado nos RPGs de ação do Super Nintendo — tela de 256×224,
-> casa vista de fora com telhado, salas por dentro, arte de 16 bits, barra de axé com búzios e
-> caixa de diálogo à moda antiga. A versão anterior continua no ramo `main`.
+> casa vista de fora com telhado, salas por dentro, arte de 16 bits, canteiros de arbustos,
+> cercas de estacas de bambu, barrancos com escada, riacho, barra de cima com medidor das oferendas,
+> caixa de item, contadores e o AXÉ em búzios, e caixa de diálogo à moda antiga.
+> A versão anterior continua no ramo `main`.
 
 Jogo de plataforma 2D em pixel art com os itans dos orixás.
 Esta versão tem o **Prólogo** completo, em duas partes:
@@ -101,7 +103,11 @@ Chão e paredes (`fases/<lugar>.txt`):
 | Caractere | O que é |
 |---|---|
 | `,` `;` `*` | grama (lisa / com tufos / com flores) |
+| `=` `r` `o` | calçada de pedras claras, estrada de terra, pedras de pisar |
 | `_` `t` | caminho de pedra, terra |
+| `a` `e` | canteiro de arbustos, estaca de bambu (cerca) |
+| `^` `B` `b` `E` | barranco: beirada, camadas de terra, pé do barranco; escada |
+| `~` `\|` | água do riacho, margem |
 | `M` | muro do quintal |
 | `R` | telhado (as bordas e a cumeeira se ajustam sozinhas) |
 | `h` `H` `J` `P` | fachada: parte de cima, parte de baixo, janela, porta |
@@ -128,6 +134,7 @@ Objetos e pessoas (`fases/<lugar>_objetos.txt`; `.` = nada):
 | `R` `Y` `J` `a` | árvore, dendezeiro, bananeira, arbusto |
 | `W` `f` `o` `u` | varal, flores, pedras, poste com lampião |
 | `g` `z` | galinha e gato |
+| `c` | búzio para recolher (no quintal) |
 | `T` `X` | tronqueira e porteira |
 | `v` `e` | onde a Vó espera e onde Exu aparece |
 | `1` a `9` | portas |
