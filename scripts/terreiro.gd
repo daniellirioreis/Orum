@@ -69,7 +69,6 @@ const CENARIO := {
 	"R": ["res://arte/obj_arvore.png", Vector2(12, 8)],
 	"M": ["res://arte/obj_mangueira.png", Vector2(12, 8)],
 	"q": ["res://arte/obj_coqueiro.png", Vector2(8, 6)],
-	"I": ["res://arte/obj_gameleira.png", Vector2(24, 10)],   # gameleira-branca de Iroko
 	"B": ["res://arte/obj_banco.png", Vector2(44, 8)],
 	"Z": ["res://arte/obj_cerquinha.png", Vector2(16, 6)],
 	"p": ["res://arte/obj_vaso.png", Vector2(10, 6)],
@@ -332,6 +331,14 @@ func _falar_com_tia() -> void:
 		await _falar("tia_lenha")
 	else:
 		await _falar("tia_depois")
+
+
+## Na gameleira: se a Vó já está lá fora (na tronqueira), é ela quem fala; antes, Adé lembra.
+func _olhar_gameleira() -> void:
+	if estado in ["na_tronqueira", "aberto"]:
+		await _falar("gameleira_vo")
+	else:
+		await _falar("gameleira_ade")
 
 
 func _pegar_lenha() -> void:
@@ -876,6 +883,11 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			var tex := "res://arte/obj_caixote.png" if c != "S" else "res://arte/obj_saco.png"
 			var spot := _criar_interativo(tex, 1, base, Vector2(14, 8), -22.0)
 			spot.interagiu.connect(_procurar_na_despensa.bind(c == "k"))
+		"I":
+			# gameleira-branca de Iroko: dá para "conversar" com ela
+			var gameleira := _criar_interativo("res://arte/obj_gameleira.png", 1, base, Vector2(24, 10), -90.0)
+			(gameleira.get_node("Alcance").shape as CircleShape2D).radius = 26.0
+			gameleira.interagiu.connect(_olhar_gameleira)
 		"L":
 			var lenha := _criar_interativo("res://arte/obj_lenha.png", 1, base, Vector2(26, 10), -22.0)
 			lenha.interagiu.connect(_pegar_lenha)

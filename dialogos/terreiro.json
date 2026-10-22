@@ -116,6 +116,17 @@
 		{"quem": "Vó", "yo": "", "pt": "A porteira está aberta. Siga Exu, meu filho."}
 	],
 
+	"gameleira_ade": [
+		{"quem": "", "yo": "", "pt": "Uma gameleira-branca enorme. No tronco, um ojá branco amarrado com laço."},
+		{"quem": "Adé", "yo": "", "pt": "A Vó sempre diz que essa é a árvore de Iroko. Iroko é o tempo."},
+		{"quem": "Adé", "yo": "", "pt": "Ela já estava aqui antes da casa... e vai continuar aqui depois de todos nós."}
+	],
+	"gameleira_vo": [
+		{"quem": "Vó", "yo": "", "pt": "Essa é a árvore de Iroko, meu neto. Iroko é o tempo."},
+		{"quem": "Vó", "yo": "", "pt": "Ela já estava aqui antes da casa. E vai continuar aqui depois de todos nós."},
+		{"quem": "Vó", "yo": "", "pt": "Por isso o ojá branco no tronco: a gente cuida de quem cuida da gente."}
+	],
+
 	"nomes_itens": {
 		"efum": "o Efum",
 		"epo": "o Epó",
