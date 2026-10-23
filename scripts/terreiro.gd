@@ -1892,7 +1892,15 @@ const ROTAS := {
 		["barracao", 21, 7, 2.5, ""]],
 	"tia_cozinha": [["cozinha", 10, 3, 5.0, "cozinhar"], ["cozinha", 3, 3, 3.0, ""], ["cozinha", 4, 6, 1.5, ""],
 		["cozinha", 10, 7, 3.0, "cozinhar"], ["cozinha", 8, 6, 2.0, ""]],
-	"tia_quintal": [["quintal", 32, 17, 4.0, "colher"], ["quintal", 37, 17, 4.0, "colher"], ["quintal", 34, 18, 2.5, ""]],
+	# na volta de Adé, a Tia colhe na horta, leva para a cozinha, cozinha no fogão e no pilão e volta para a horta
+	# (os pontos com 0 segundos são só o caminho, para contornar a cerca e a casa)
+	"tia_quintal": [["quintal", 32, 17, 4.0, "colher"], ["quintal", 37, 17, 4.0, "colher"],
+		["quintal", 31, 17, 0.0, ""], ["quintal", 31, 11, 0.0, ""], ["quintal", 29, 11, 0.0, ""],
+		["quintal", 29, 12, 0.0, ""], ["quintal", 25, 12, 0.0, ""],
+		["cozinha", 10, 3, 6.0, "cozinhar"], ["cozinha", 3, 3, 2.5, ""], ["cozinha", 10, 7, 4.0, "cozinhar"],
+		["cozinha", 10, 3, 5.0, "cozinhar"],
+		["quintal", 25, 12, 0.0, ""], ["quintal", 29, 12, 0.0, ""], ["quintal", 29, 11, 0.0, ""],
+		["quintal", 31, 11, 0.0, ""], ["quintal", 31, 17, 0.0, ""]],
 	"lia_barracao": [["barracao", 6, 4, 3.0, "varrer"], ["barracao", 8, 4, 2.5, ""], ["barracao", 5, 7, 3.0, "varrer"]],
 	"vo_quintal": [["quintal", 14, 31, 4.0, ""], ["quintal", 10, 30, 4.0, "varrer"], ["quintal", 12, 32, 3.0, ""]],
 	"vo_quarto": [["quarto", 8, 6, 3.0, ""], ["quarto", 4, 3, 3.0, "saudar"], ["quarto", 11, 3, 3.0, "saudar"],
@@ -1967,6 +1975,18 @@ func _mover_rotinas(delta: float) -> void:
 			continue
 		var ponto: Array = rota[r["i"]]
 		var alvo := _ponto_da_rota(ponto)
+		if r.get("trocando", false):
+			continue
+		if r["andando"] and _lugar_de(p.global_position) != ponto[0]:
+			# o ponto fica em outro cômodo: anda até a porta, some por ela e aparece do outro lado
+			var porta := _porta_entre(_lugar_de(p.global_position), ponto[0])
+			if porta.is_empty():
+				p.global_position = alvo
+			else:
+				alvo = lugares[porta[0]]["origem"] + Vector2(porta[1].x * TILE + TILE / 2.0, (porta[1].y + 1) * TILE - 2)
+				if p.global_position.distance_to(alvo) < 1.0:
+					_atravessar_porta(p, r, ponto[0], porta[2])
+					continue
 		if r["andando"]:
 			var falta: Vector2 = alvo - p.global_position
 			if falta.length() < 1.0:
@@ -2000,3 +2020,41 @@ func _mover_rotinas(delta: float) -> void:
 			if r["espera"] <= 0.0:
 				r["i"] = (r["i"] + 1) % rota.size()
 				r["andando"] = true
+
+
+
+## Em qual lugar (cômodo ou quintal) fica um ponto do mundo.
+func _lugar_de(pos: Vector2) -> String:
+	for nome in lugares:
+		var o: Vector2 = lugares[nome]["origem"]
+		if Rect2(o, tamanhos[nome]).has_point(pos):
+			return nome
+	return ""
+
+
+## A porta que liga dois lugares: [lugar de saída, célula de saída, célula de chegada no outro lugar].
+func _porta_entre(de: String, para: String) -> Array:
+	for numero in portas:
+		var lado_de = null
+		var lado_para = null
+		for pt in portas[numero]:
+			if pt[0] == de and lado_de == null:
+				lado_de = pt[1]
+			elif pt[0] == para and lado_para == null:
+				lado_para = pt[1]
+		if lado_de != null and lado_para != null:
+			return [de, lado_de, lado_para]
+	return []
+
+
+func _atravessar_porta(p: Area2D, r: Dictionary, destino: String, celula: Vector2i) -> void:
+	r["trocando"] = true
+	var t := create_tween()
+	t.tween_property(p, "modulate:a", 0.0, 0.25)
+	await t.finished
+	p.global_position = _chegada(destino, celula)
+	await get_tree().create_timer(0.4).timeout
+	var t2 := create_tween()
+	t2.tween_property(p, "modulate:a", 1.0, 0.25)
+	await t2.finished
+	r["trocando"] = false

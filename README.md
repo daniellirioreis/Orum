@@ -56,7 +56,8 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
 - As pessoas da casa: a Vó (mãe de santo), a Tia Dora (cozinha), o Ogã Bené (atabaques) e a Lia (cambone).
 - A Vó, o Ogã Bené, a Lia e a Tia Dora têm rotinas: andam entre alguns pontos, param e fazem alguma coisa (a Vó saúda
   o congá e varre, o Ogã afina o atabaque com o malho e depois toca, a Lia varre, a Tia Dora mexe as panelas no fogão e no pilão; na volta de Adé,
-  ela vai colher na horta). Antes do ritual cada um fica perto do seu lugar no barracão; quando Adé
+  ela colhe na horta, entra pela porta da cozinha, cozinha no fogão e no pilão e volta para a horta). Quando o ponto
+  seguinte fica em outro cômodo, a pessoa anda até a porta, some por ela e aparece do outro lado. Antes do ritual cada um fica perto do seu lugar no barracão; quando Adé
   volta de uma viagem, o Ogã fica perto da roda de capoeira, a Lia varre o quintal perto das crianças e a Vó, depois de
   assentar os troféus, cuida do quarto de santo (sem troféu novo, fica pela tronqueira e pela gameleira). Quando Adé
   chega perto, a pessoa para e olha para ele. As rotas ficam em `ROTAS`, no fim do `scripts/terreiro.gd`
