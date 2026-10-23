@@ -52,6 +52,8 @@ var _fogos: Array = []           # [sprite da tocha, fogo sem sombra, fase]
 var _invulneravel := 0.0
 var _empurrando := 0.0
 var _voltando := false
+var _sem_axe_agora := false     # Exu está oferecendo a troca (ou é fim de jogo)
+const BUZIOS_POR_AXE := 5       # quantos búzios coletados valem um búzio de axé
 
 
 func _ready() -> void:
@@ -515,12 +517,13 @@ func _atualizar_axe() -> void:
 		_axe_icones[i].modulate = Color(1, 1, 1, 1) if i < axe else Color(0.3, 0.25, 0.35, 0.55)
 
 
-## Acabaram os búzios de axé: fim de jogo. Adé cai, a tela escurece e o menu oferece voltar ao último
-## caminho que Exu guardou (o último jogo salvo) ou voltar ao título.
+## Acabaram os búzios de axé. Exu surge na fumaça ao lado de Adé e oferece trocar os búzios que ele juntou
+## pelo caminho: cada BUZIOS_POR_AXE búzios valem um búzio de axé. Sem búzios bastantes (ou sem querer trocar),
+## é fim de jogo: o menu oferece voltar ao último caminho guardado ou ao título.
 func _sem_axe() -> void:
-	if estado == "fim_de_jogo":
+	if _sem_axe_agora:
 		return
-	estado = "fim_de_jogo"
+	_sem_axe_agora = true
 	_voltando = true
 	jogador.congelar(true)
 	Jogo.tocar_som("erro", 0.0)
@@ -530,12 +533,88 @@ func _sem_axe() -> void:
 		piscar.tween_property(sp, "modulate", Color(1, 0.4, 0.4), 0.1)
 		piscar.tween_property(sp, "modulate", Color.WHITE, 0.1)
 	await piscar.finished
+	sp.modulate = Color(0.75, 0.7, 0.8)
+	var escurece := create_tween()
+	escurece.tween_property(_cortina, "color", Color(0.12, 0.02, 0.06, 0.45), 0.6)
+	await escurece.finished
+	# Exu surge ao lado de Adé
+	var lado := Vector2(22, 0) if _livre_para_exu(jogador.global_position + Vector2(22, 0)) else Vector2(-22, 0)
+	var e := _exu_surge(jogador.global_position + lado)
+	await get_tree().create_timer(1.1).timeout
+	jogador.olhar_para(e.position)
+	var trocou := await _exu_troca_buzios()
+	# Exu vai embora na fumaça
+	_fumaca_vermelha(e.position + Vector2(0, -12))
+	var some := create_tween()
+	some.tween_property(e, "modulate:a", 0.0, 0.6)
+	some.tween_callback(e.queue_free)
+	await get_tree().create_timer(0.5).timeout
+	if trocou:
+		_estrelinhas(jogador.global_position + Vector2(0, -12))
+		var clareia := create_tween()
+		clareia.tween_property(_cortina, "color", Color(0, 0, 0, 0), 0.6)
+		clareia.parallel().tween_property(sp, "modulate", Color.WHITE, 0.6)
+		await clareia.finished
+		_sem_axe_agora = false
+		_voltando = false
+		_invulneravel = 1.5
+		jogador.congelar(false)
+		_mostrar_aviso("O axé voltou! Búzios guardados: %d" % Jogo.buzios)
+		return
+	# fim de jogo
+	estado = "fim_de_jogo"
 	var cai := create_tween()
 	cai.tween_property(sp, "modulate", Color(0.5, 0.45, 0.6, 0.0), 1.0)
 	cai.parallel().tween_property(_cortina, "color", Color(0.12, 0.02, 0.06, 0.85), 1.2)
 	await cai.finished
 	await get_tree().create_timer(0.3).timeout
 	Jogo.menu.fim_de_jogo()
+
+
+## Exu propõe a troca. Devolve true se Adé trocou búzios por axé.
+func _exu_troca_buzios() -> bool:
+	var n: int = Jogo.buzios
+	var pode := mini(AXE_MAX, n / BUZIOS_POR_AXE)
+	var falas := [
+		{"quem": "Èṣù", "yo": "Láròyé!", "pt": "Laroyê, menino! Seu axé acabou."},
+	]
+	if pode == 0:
+		falas.append({"quem": "Èṣù", "yo": "", "pt": "Com %d búzios eu devolvo um búzio de axé... mas você só juntou %d." % [BUZIOS_POR_AXE, n]})
+		falas.append({"quem": "Èṣù", "yo": "", "pt": "Da próxima vez, junte os búzios do caminho. Eu guardo o que é seu."})
+		await _falar_linhas(falas)
+		jogador.congelar(true)
+		return false
+	falas.append({"quem": "Èṣù", "yo": "", "pt": "Você juntou %d búzios pelo caminho. Cada %d búzios valem um búzio de axé. Quer trocar?" % [n, BUZIOS_POR_AXE]})
+	await _falar_linhas(falas)
+	jogador.congelar(true)
+	var opcoes := []
+	for k in range(1, pode + 1):
+		opcoes.append("Trocar %d búzios por %d de axé" % [k * BUZIOS_POR_AXE, k])
+	opcoes.append("Não quero trocar")
+	var r: Dictionary = {}
+	while r.get("acao", "") != "ok":
+		r = await Jogo.menu.escolher("Búzios guardados: %d" % n, opcoes, pode - 1)
+	jogador.congelar(true)
+	if r["i"] >= pode:
+		await _falar_linhas([{"quem": "Èṣù", "yo": "", "pt": "Então o caminho acaba aqui... por enquanto."}])
+		jogador.congelar(true)
+		return false
+	var k: int = r["i"] + 1
+	Jogo.buzios -= k * BUZIOS_POR_AXE
+	axe = k
+	_atualizar_axe()
+	Jogo.tocar_som("buzio", 0.0)
+	await _falar_linhas([{"quem": "Èṣù", "yo": "", "pt": "Feito. O axé volta para quem sabe guardar o que junta."}])
+	jogador.congelar(true)
+	return true
+
+
+## Exu aparece do lado de Adé onde não tem parede nem água.
+func _livre_para_exu(pos: Vector2) -> bool:
+	var q := PhysicsPointQueryParameters2D.new()
+	q.position = pos + Vector2(0, -2)
+	q.collision_mask = 1
+	return get_world_2d().direct_space_state.intersect_point(q, 1).is_empty()
 
 
 # ------------------------------------------------------------------ escuridão, tochas e kiumbas

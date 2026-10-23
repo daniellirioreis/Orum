@@ -378,9 +378,6 @@ func _afundar_ade() -> void:
 	sp.modulate = Color.WHITE
 	axe -= 1
 	_atualizar_axe()
-	if axe <= 0:
-		_sem_axe()
-		return
 	teleportar("nana_brejo", _ponto_volta.get("nana_brejo", jogador.global_position))
 	for g in _garcas:                     # as garças voltam a pousar onde dá pé
 		g["foi"] = false
@@ -391,6 +388,9 @@ func _afundar_ade() -> void:
 	var c2 := create_tween()
 	c2.tween_property(_cortina, "color:a", 0.0, 0.35)
 	await c2.finished
+	if axe <= 0:
+		_sem_axe()                        # já em chão firme: Exu pode aparecer ali
+		return
 	_voltando = false
 	if not _afundou_uma_vez:
 		_afundou_uma_vez = true
@@ -680,14 +680,14 @@ func _mare_leva_ade() -> void:
 	await c.finished
 	axe -= 1
 	_atualizar_axe()
-	if axe <= 0:
-		_sem_axe()
-		return
 	teleportar("nana_mangue", _ultimo_firme)
 	await get_tree().create_timer(0.3).timeout
 	var c2 := create_tween()
 	c2.tween_property(_cortina, "color:a", 0.0, 0.4)
 	await c2.finished
+	if axe <= 0:
+		_sem_axe()
+		return
 	_voltando = false
 	_invulneravel = 1.0
 	if not _mare_levou_uma_vez:

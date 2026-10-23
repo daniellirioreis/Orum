@@ -88,7 +88,10 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   na luz das tochas (nem das lamparinas acesas): perto delas, Adé fica protegido. Quando Exu chega, os kiumbas
   e os redemoinhos se desfazem.
 - Redemoinhos de poeira andam pelos caminhos. Cada um que pega Adé leva um búzio de **axé** (os 3 búzios
-  lá em cima, à direita; `AXE_MAX` no `scripts/terreiro.gd`). Sem axé é **fim de jogo**: Adé cai, a tela escurece
+  lá em cima, à direita; `AXE_MAX` no `scripts/terreiro.gd`). Quando o axé acaba, **Exu surge** na fumaça ao lado de
+  Adé e oferece trocar os búzios coletados pelo caminho: **5 búzios valem 1 búzio de axé** (`BUZIOS_POR_AXE` no
+  `scripts/encruzilhada.gd`); dá para trocar 5, 10 ou 15 de uma vez, conforme o que Adé juntou, e Adé continua dali.
+  Sem búzios bastantes, ou se Adé não quiser trocar, é **fim de jogo**: Adé cai, a tela escurece
   e o menu "O axé acabou..." oferece **Voltar ao último caminho guardado** (o último jogo salvo na quartinha de Exu;
   apagado se ainda não há nenhum) ou **Voltar ao título**. Vale para todas as fases com axé.
 - Se a pedra ficar presa, ler a placa de novo faz as pedras voltarem para o lugar.
