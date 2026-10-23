@@ -177,7 +177,8 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   e o abraço (`arte/nana_abraco.png`; falas `nana_reencontro` e `nana_despedida`).
 - No terreiro, a Vó assenta o ibiri no assentamento lilás de Nanã (falas `conta_nana` e `assenta_nana`).
 - Mapas: `fases/nana_brejo.txt`, `nana_bambuzal.txt`, `nana_mangue.txt`, `nana_lagoa.txt` (+ `_objetos`), gerados
-  pelo `gerar_mapas_nana.py`. Chão: `l` lama firme, `L` lama funda, `v` água escura, `z` raízes do mangue (maré).
+  pelo `gerar_mapas_nana.py`. Chão: `m` chão de lama (quase tudo; prende um pouco), `,` só umas ilhas de grama,
+  `l` lama firme do brejo, `L` lama funda, `v` água escura, `z` raízes do mangue (maré). Há árvores plantadas dentro da lama.
   Objetos: `V` velhinha, `g` garça, `s` sapo, `K` bambu, `j` bambu rachado, `F` toco com a faca, `T` taboa,
   `k` caranguejo, `X` árvore do mangue, `u` flores lilás, `b` barro, `O` pedra do pote, `N` lugar de Nanã,
   `x` de onde a velhinha chega, `w` vitória-régia, `>` saída. Textos em `dialogos/mata_nana.json`.

@@ -52,7 +52,7 @@ const CHAO := {
 	"^": BARRANCO_BORDA, "B": BARRANCO_FACE, "b": BARRANCO_PE, "~": AGUA, "|": MARGEM,
 	"w": PISO_BRANCO, "x": PISO_BRANCO2,
 }
-const ANDAVEL := [",", ";", "*", "_", "t", ".", ":", "c", "d", "+", "P", "=", "r", "o", "E", "w", "x"]
+const ANDAVEL := [",", ";", "*", "_", "t", ".", ":", "c", "d", "+", "P", "=", "r", "o", "E", "w", "x", "m", "l"]   # m, l: lama (terra de Nanã)
 const PAREDES := ["#", "j"]
 const SOLIDOS := [MURO_TOPO, MURO_FRENTE, TELHADO, CUMEEIRA, BEIRAL, TELHADO_ESQ, TELHADO_DIR,
 	FACHADA, FACHADA_ALTO, FACHADA_JANELA, PAREDE_ALTO, PAREDE_JANELA, PAREDE_BAIXO, PAREDE_ESQ,

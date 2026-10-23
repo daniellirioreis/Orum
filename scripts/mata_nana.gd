@@ -84,7 +84,7 @@ var _chuva_forte := false
 
 func _ready() -> void:
 	lugares = LUGARES_NANA
-	terrenos = [[["t", "_"], 1], [LAMA, 5], [["v"], 6], [["z", "v"], 6]]
+	terrenos = [[["t", "_"], 1], [LAMA + ["m"], 5], [["v"], 6], [["z", "v"], 6]]
 	agua_chars = ["v"]
 	tex_moita = "res://arte/nana_moita.png"
 	cor_fora = CHUVA["nana_brejo"][0]
@@ -470,7 +470,8 @@ func _chao_de_ade(delta: float) -> void:
 		_tempo_no_fundo = 0.0
 		return
 	var letra := _letra_em(jogador.global_position + Vector2(0, -3))
-	jogador.fator_chao = 0.6 if letra in LAMA else 1.0
+	# o chão de lama (m) prende só um pouco; a lama do brejo e as raízes do mangue prendem mais
+	jogador.fator_chao = 0.6 if letra in LAMA else (0.85 if letra == "m" else 1.0)
 	if lugar_atual == "nana_brejo":
 		if letra == "L":
 			_tempo_no_fundo += delta

@@ -1,7 +1,7 @@
-aaaaaaa,,aaaaaaa
-aa,,,,,,,,,,,,aa
-a,,;,,,tt,,,*,,a
-a,,,,,,tt,,,,,,a
+aaaaaaammaaaaaaa
+aammmmmmmmm,,,aa
+ammmmmmmmmm,*,,a
+ammmmmmmmmmmmmma
 avvLLLLllLLLLvva
 avLLLLLllLLLLLva
 aLLLLllllLLLLLLa
@@ -22,9 +22,9 @@ avLLLllLLLLLLLva
 avvLLllllLLLLLLa
 aLLLLLLLllLLLLLa
 aLLLLLLLllLLLLLa
-a,,,,,,,tt,,,,,a
-a,;,,,,,tt,,,;,a
-a,,,*,,,tt,,,,,a
-a,,,,,,,tt,,*,,a
-aa,,,,,,tt,,,,aa
+ammmmmmmmmmmmmma
+amm,,,,,mmmmmmma
+amm,*,,,mmmmmmma
+amm,,,,,mmmmmmma
+aammmmmmmmmmmmaa
 aaaaaaaaaaaaaaaa
