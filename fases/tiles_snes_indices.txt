@@ -39,3 +39,5 @@
 38 margem
 39 degrau
 40 estrada
+41 piso_branco
+42 piso_branco2

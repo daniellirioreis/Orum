@@ -145,6 +145,10 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
 - O quarto tem um assentamento para cada orixá (Ogum, Oxóssi, Xangô, Iansã, Oxalá no meio, Oxum, Iemanjá, Nanã e Omolu),
   cada um na sua cor (`arte/assentamentos.png`, feita pelo `gerar_assentamentos.py`). Os vazios ficam apagados.
   Exu já tem o dele: a tronqueira. Os troféus entregues ficam em `Jogo.assentados`.
+- O quarto tem piso branco (letras `w` e `x` no `fases/quarto.txt`, blocos 41 e 42 do `arte/tiles_snes.png`) e adereços:
+  guias penduradas na parede (`j`), trio de quartinhas (`t`), defumador com fumaça (`d`), vasos de flores brancas (`y`),
+  velas brancas acesas no chão (`!`), espadas-de-são-jorge, a esteira e um banco. Arte feita pelo `gerar_quarto_santo.py`.
+- Depois que as oferendas são arriadas na tronqueira, elas saem do inventário de Adé (as caixinhas somem).
 - Saindo pela porteira de novo, Exu leva Adé direto ao mapa, na encruzilhada.
 - Para um troféu novo: o ícone fica em `ICONE_TROFEU` (no `scripts/terreiro.gd`), e as falas próprias em
   `conta_<id>` (Adé contando a viagem) e `assenta_<id>` (depois de assentar), em `dialogos/terreiro.json`.

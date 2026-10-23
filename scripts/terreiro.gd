@@ -43,15 +43,16 @@ enum {
 	PISO, PISO2, LADRILHO, TABUA,
 	PAREDE_ALTO, PAREDE_JANELA, PAREDE_BAIXO, PAREDE_ESQ, PAREDE_DIR, PAREDE_FUNDO, PAREDE_CANTO, VAZIO, SOLEIRA,
 	INVISIVEL, CALCADA, ARBUSTO, ESTACA, BARRANCO_BORDA, BARRANCO_FACE, BARRANCO_PE,
-	ESCADA, AGUA, MARGEM, DEGRAU, ESTRADA, TOTAL_TILES
+	ESCADA, AGUA, MARGEM, DEGRAU, ESTRADA, PISO_BRANCO, PISO_BRANCO2, TOTAL_TILES
 }
 const CHAO := {
 	",": GRAMA, ";": GRAMA_TUFO, "*": GRAMA_FLOR, "_": CAMINHO, "t": TERRA,
 	".": PISO, ":": PISO2, "c": LADRILHO, "d": TABUA, "+": SOLEIRA, "P": FACHADA_PORTA,
 	"=": CALCADA, "r": ESTRADA, "o": DEGRAU, "E": ESCADA, "a": ARBUSTO, "e": ESTACA,
 	"^": BARRANCO_BORDA, "B": BARRANCO_FACE, "b": BARRANCO_PE, "~": AGUA, "|": MARGEM,
+	"w": PISO_BRANCO, "x": PISO_BRANCO2,
 }
-const ANDAVEL := [",", ";", "*", "_", "t", ".", ":", "c", "d", "+", "P", "=", "r", "o", "E"]
+const ANDAVEL := [",", ";", "*", "_", "t", ".", ":", "c", "d", "+", "P", "=", "r", "o", "E", "w", "x"]
 const PAREDES := ["#", "j"]
 const SOLIDOS := [MURO_TOPO, MURO_FRENTE, TELHADO, CUMEEIRA, BEIRAL, TELHADO_ESQ, TELHADO_DIR,
 	FACHADA, FACHADA_ALTO, FACHADA_JANELA, PAREDE_ALTO, PAREDE_JANELA, PAREDE_BAIXO, PAREDE_ESQ,
@@ -215,6 +216,8 @@ func _process(delta: float) -> void:
 	for g in _gatos:
 		g.frame = int(_tempo * 0.8) % 2
 	_animar_brincadeiras()
+	for i in _velas_brancas.size():
+		_velas_brancas[i].frame = int(_tempo * 5.0 + i * 1.3) % 2
 
 
 func _unhandled_input(_ev: InputEvent) -> void:
@@ -546,9 +549,12 @@ func _fazer_ritual() -> void:
 		oferenda.modulate.a = 0.0
 		tronqueira.get_node("Oferendas").add_child(oferenda)
 		create_tween().tween_property(oferenda, "modulate:a", 1.0, 0.25)
+		# a oferenda sai do inventário de Adé: agora está na tronqueira
+		create_tween().tween_property(_slots[ITENS[i]], "modulate:a", 0.0, 0.25)
 		Jogo.tocar_som("buzio", -6.0)
 		await get_tree().create_timer(0.45).timeout
 	tronqueira.sprite.frame = 1
+	_esconder_inventario()
 	var brilho: Sprite2D = tronqueira.get_node("Brilho")
 	brilho.visible = true
 	_luz(tronqueira.global_position + Vector2(0, -6), Color(1.0, 0.7, 0.4), 1.3, 1.6, true)
@@ -897,6 +903,8 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 		area.add_child(forma)
 		area.body_entered.connect(_ao_pisar_porta.bind(c, lugar))
 		add_child(area)
+		return
+	if lugar == "quarto" and _adereco_do_quarto(c, base):
 		return
 	if c == "m" and lugar == "quintal":
 		c = "m2"   # no quintal, "m" é mato alto (na cozinha é a mesa)
@@ -1506,7 +1514,7 @@ func _preparar_retorno() -> void:
 	estado = "aberto"
 	for id in ITENS:
 		coletados[id] = true
-		_slots[id].modulate = Color.WHITE
+	_esconder_inventario()      # as oferendas já foram arriadas na tronqueira
 	tia = "deu_efum"
 	_abrir_porteira()
 	vo.global_position = marcas["v"]
@@ -1775,3 +1783,67 @@ func _lugar_livre_perto(lugar: String, pos: Vector2) -> Vector2:
 		if livre:
 			return p
 	return pos + Vector2(0, -18)
+
+
+# ------------------------------------------------------------------ adereços do quarto de santo
+
+var _velas_brancas: Array = []
+
+
+## Letras próprias do quarto: j guias penduradas na parede, t trio de quartinhas, d defumador (com fumaça),
+## y vaso de flores brancas, ! velas brancas acesas no chão.
+func _adereco_do_quarto(c: String, base: Vector2) -> bool:
+	match c:
+		"j":
+			var g := Sprite2D.new()
+			g.texture = preload("res://arte/obj_guias.png")
+			g.position = base + Vector2(0, -10)
+			g.offset = Vector2(0, -g.texture.get_height() / 2.0)
+			mundo.add_child(g)
+		"t":
+			_criar_cenario("res://arte/obj_quartinhas.png", Vector2(26, 6), base)
+		"d":
+			_criar_cenario("res://arte/obj_defumador.png", Vector2(10, 6), base)
+			_fumaca_fina(base + Vector2(0, -12))
+			_luz(base + Vector2(0, -8), Color(1.0, 0.55, 0.3), 0.6, 0.5, true)
+		"y":
+			_criar_cenario("res://arte/obj_flores_brancas.png", Vector2(10, 6), base)
+		"!":
+			var v := _criar_cenario("res://arte/obj_velas_brancas.png", Vector2.ZERO, base)
+			v.hframes = 2
+			v.offset = Vector2(0, -7)
+			_velas_brancas.append(v)
+			_luz(base + Vector2(0, -10), Color(1.0, 0.85, 0.6), 1.2, 0.9, true)
+		_:
+			return false
+	return true
+
+
+func _fumaca_fina(pos: Vector2) -> void:
+	var f := CPUParticles2D.new()
+	f.position = pos
+	f.z_index = 18
+	f.amount = 10
+	f.lifetime = 2.4
+	f.preprocess = 2.4
+	f.direction = Vector2(0.1, -1)
+	f.spread = 10.0
+	f.gravity = Vector2(3, -5)
+	f.initial_velocity_min = 4.0
+	f.initial_velocity_max = 8.0
+	f.scale_amount_min = 1.0
+	f.scale_amount_max = 2.5
+	var cores := Gradient.new()
+	cores.set_color(0, Color(0.92, 0.9, 0.95, 0.55))
+	cores.set_color(1, Color(0.8, 0.78, 0.85, 0.0))
+	f.color_ramp = cores
+	add_child(f)
+
+
+
+## Depois do ritual o inventário das oferendas fica vazio: as caixinhas somem e os búzios vão para o canto.
+func _esconder_inventario() -> void:
+	for n in _hud_oferendas:
+		n.visible = false
+	_icone_buzio.position.x = 8
+	_contador_buzios.position.x = 21
