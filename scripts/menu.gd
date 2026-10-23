@@ -1,7 +1,8 @@
 extends CanvasLayer
 ## Menus do jogo (fica dentro do Jogo, funciona mesmo com o jogo pausado):
-##   pausa()            → Esc / Start: Continuar, Opções, Voltar ao título, Sair do jogo
-##   opcoes()           → volume da música, volume dos efeitos, tela cheia
+##   pausa()            → Esc / Start: Continuar, Configurações, Voltar ao título, Sair do jogo
+##   opcoes()           → as configurações: volume da música, volume dos efeitos, tela cheia
+## Na tela de título os menus aparecem sem caixa, direto por cima do fundo (estilo_titulo).
 ##   escolher_caminho() → os três espaços de jogo salvo (para guardar ou para continuar)
 ##   escolher()         → uma lista qualquer de opções, no estilo das caixas de diálogo
 
@@ -17,6 +18,14 @@ var _cursor := 0
 var _desativadas: Array = []
 var _lateral := false
 var _resposta = null
+var _transparente := false     # sem caixa: as opções aparecem direto por cima do fundo (tela de título)
+var _topo := 100.0
+
+
+## Liga (na tela de título) ou desliga o jeito "sem caixa" dos menus.
+func estilo_titulo(ligado: bool, topo := 100.0) -> void:
+	_transparente = ligado
+	_topo = topo
 
 
 func _ready() -> void:
@@ -48,6 +57,9 @@ func _montar(titulo: String, opcoes: Array, rodape: String) -> void:
 	_raiz = Control.new()
 	_raiz.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(_raiz)
+	if _transparente:
+		_montar_sem_caixa(titulo, opcoes, rodape)
+		return
 	var escuro := ColorRect.new()
 	escuro.color = Color(0, 0, 0, 0.45)
 	escuro.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -89,12 +101,51 @@ func _montar(titulo: String, opcoes: Array, rodape: String) -> void:
 	_atualizar()
 
 
+## As opções direto por cima do fundo, centralizadas, com contorno escuro (como nos títulos dos 16 bits).
+func _montar_sem_caixa(titulo: String, opcoes: Array, rodape: String) -> void:
+	var y := _topo
+	if titulo != "":
+		var t := _rotulo(titulo, 9, COR_TITULO)
+		t.add_theme_font_override("font", preload("res://fontes/NotoSans-SemiBold.ttf"))
+		_centralizar(t, y, 12)
+		y += 15
+	_linhas.clear()
+	var longa := false
+	for o in opcoes:
+		longa = longa or str(o).length() > 26
+	for i in opcoes.size():
+		var l := _rotulo(str(opcoes[i]), 7 if longa else 9, COR_TEXTO)
+		_centralizar(l, y + i * 13, 13)
+		_linhas.append(l)
+	if rodape != "":
+		var r := _rotulo(rodape, 7, Color(0.9, 0.85, 0.95))
+		_centralizar(r, y + opcoes.size() * 13 + 3, 10)
+	_atualizar()
+
+
+## Põe o texto na largura toda da tela, centralizado, com contorno escuro.
+func _centralizar(l: Label, y: float, altura: float) -> void:
+	_contorno(l)
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_raiz.add_child(l)
+	l.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	l.offset_top = y
+	l.offset_bottom = y + altura
+
+
+func _contorno(l: Label) -> void:
+	l.add_theme_color_override("font_outline_color", Color(0.12, 0.05, 0.14))
+	l.add_theme_constant_override("outline_size", 3)
+
+
 func _atualizar() -> void:
 	for i in _linhas.size():
 		var l: Label = _linhas[i]
 		var texto := l.text.trim_prefix("▶ ").trim_prefix("   ")
 		l.text = ("▶ " if i == _cursor else "   ") + texto
 		var cor := COR_APAGADA if i in _desativadas else (COR_TITULO if i == _cursor else COR_TEXTO)
+		if _transparente and i in _desativadas:
+			cor = Color(0.7, 0.62, 0.72)
 		l.add_theme_color_override("font_color", cor)
 
 
@@ -150,7 +201,7 @@ func pausa() -> void:
 	get_tree().paused = true
 	var escolha := 0
 	while true:
-		var r := await escolher("Pausa", ["Continuar", "Opções", "Voltar ao título", "Sair do jogo"], escolha)
+		var r := await escolher("Pausa", ["Continuar", "Configurações", "Voltar ao título", "Sair do jogo"], escolha)
 		escolha = maxi(r["i"], 0)
 		if r["acao"] == "cancelar" or r["i"] == 0:
 			break
@@ -184,7 +235,7 @@ func opcoes() -> void:
 			"Tela cheia:  " + ("sim" if get_window().mode == Window.MODE_FULLSCREEN else "não"),
 			"Voltar",
 		]
-		var r := await escolher("Opções", itens, i, true, [], "← → para ajustar   ·   %s voltar" % ("B" if Jogo.usando_controle else "Esc"))
+		var r := await escolher("Configurações", itens, i, true, [], "← → para ajustar   ·   %s voltar" % ("B" if Jogo.usando_controle else "Esc"))
 		i = r["i"]
 		var passo := 0
 		match r["acao"]:
@@ -226,9 +277,8 @@ func escolher_caminho(titulo: String, para_carregar: bool) -> int:
 			itens.append("Caminho %d  ·  vazio" % (i + 1))
 			vazios.append(i)
 		else:
-			itens.append("Caminho %d  ·  %s  ·  ★ %d  ·  %s" % [i + 1, r["onde"], r["trofeus"], r["data"]])
-	if not para_carregar:
-		itens.append("Não guardar")
+			itens.append("Caminho %d · %s · ★%d · %s" % [i + 1, r["onde"], r["trofeus"], r["data"]])
+	itens.append("Voltar" if para_carregar else "Não guardar")
 	var inicial := maxi(Jogo.espaco_atual, 0)
 	var r2 := await escolher(titulo, itens, inicial, false, vazios if para_carregar else [])
 	if r2["acao"] != "ok" or r2["i"] >= Jogo.ESPACOS:

@@ -12,7 +12,6 @@ var _dica: Label
 func _atualizar_dicas() -> void:
 	if tipo != "titulo":
 		return
-	_aviso.text = Jogo.texto("Aperte {confirmar}")
 	_dica.text = Jogo.texto("Andar: {andar} · Falar: {interagir} · Atirar: {atirar} · Pausa: {pausa}") \
 		+ ("" if Jogo.usando_controle else " · F11: tela cheia")
 
@@ -31,7 +30,6 @@ func _ready() -> void:
 		_texto("Ìtàn àwọn Òrìṣà · Histórias dos Orixás", 10, Color(1, 0.95, 0.88), 76)
 		_personagem("res://arte/ade.png", 16, Vector2(110, 204))
 		_personagem("res://arte/exu.png", 24, Vector2(148, 204))
-		_aviso = _texto("", 9, Color(1, 1, 1), 112)
 		_dica = _texto("", 7, Color(0.85, 0.8, 0.9), 210)
 		_atualizar_dicas()
 		Jogo.dispositivo_mudou.connect(_atualizar_dicas)
@@ -45,29 +43,28 @@ func _ready() -> void:
 	# evita que o mesmo toque que trouxe até aqui pule a tela
 	await get_tree().create_timer(0.6).timeout
 	_pronto = true
+	if tipo == "titulo":
+		# o menu já aparece, direto por cima do pôr do sol
+		Jogo.menu.estilo_titulo(true, 98.0)
+		await _menu_inicial()
+
+
+func _exit_tree() -> void:
+	if tipo == "titulo":
+		Jogo.menu.estilo_titulo(false)
 
 
 func _process(_delta: float) -> void:
-	_aviso.visible = int(Time.get_ticks_msec() / 500) % 2 == 0
+	if _aviso:
+		_aviso.visible = int(Time.get_ticks_msec() / 500) % 2 == 0
 
 
 func _unhandled_input(ev: InputEvent) -> void:
-	if not _pronto:
+	if not _pronto or tipo == "titulo":
 		return
 	if ev.is_action_pressed("interagir") or ev.is_action_pressed("pular"):
 		_pronto = false
-		if tipo == "titulo":
-			get_viewport().set_input_as_handled()
-			await _menu_inicial()
-			_pronto = true
-		else:
-			Jogo.mudar_cena("res://cenas/titulo.tscn")
-	elif ev.is_action_pressed("sair") and tipo == "titulo":
-		# Esc / Start no título abre o mesmo menu (o "Sair" fica dentro dele)
-		_pronto = false
-		get_viewport().set_input_as_handled()
-		await _menu_inicial()
-		_pronto = true
+		Jogo.mudar_cena("res://cenas/titulo.tscn")
 
 
 func _texto(texto: String, tamanho: int, cor: Color, y: float) -> Label:
@@ -95,31 +92,32 @@ func _personagem(caminho: String, largura: int, pes: Vector2) -> void:
 
 
 
-## Novo jogo, Continuar (um dos três caminhos guardados por Exu), Opções e Sair.
-func _menu_inicial() -> void:
+## Novo jogo, Continuar (um dos três caminhos guardados por Exu), Configurações e Sair.
+func _menu_inicial() -> bool:
 	var tem_jogo := false
 	for i in Jogo.ESPACOS:
 		if not Jogo.resumo(i).is_empty():
 			tem_jogo = true
 	var escolha := 1 if tem_jogo else 0
 	while true:
-		var r: Dictionary = await Jogo.menu.escolher("Ọ̀run", ["Novo jogo", "Continuar", "Opções", "Sair"],
+		var r: Dictionary = await Jogo.menu.escolher("", ["Novo jogo", "Continuar", "Configurações", "Sair"],
 			escolha, false, [] if tem_jogo else [1])
 		if r["acao"] == "cancelar":
-			return
+			continue
 		escolha = r["i"]
 		match r["i"]:
 			0:
 				Jogo.reiniciar()
 				Jogo.mudar_cena("res://cenas/terreiro.tscn")
-				return
+				return true
 			1:
 				var espaco: int = await Jogo.menu.escolher_caminho("Continuar qual caminho?", true)
 				if espaco >= 0:
 					Jogo.carregar(espaco)
-					return
+					return true
 			2:
 				await Jogo.menu.opcoes()
 			3:
 				get_tree().quit()
-				return
+				return true
+	return false

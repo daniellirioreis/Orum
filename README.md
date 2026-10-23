@@ -37,7 +37,7 @@ Esta versão tem o **Prólogo** completo, em duas partes:
 | Pausa | Esc | Start |
 | Voltar nos menus | Esc ou Backspace | B · ◯ |
 | Pular (fases de plataforma antigas) | Espaço, W, ↑ ou Z | A |
-| Tela cheia | F11 | (no menu de Opções) |
+| Tela cheia | F11 | (em Configurações) |
 
 Os textos do jogo mostram os botões de quem está jogando: se o último toque foi no controle, aparece "Aperte A";
 no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}`, `{devagar}`, `{ver_mapa}`, `{pausa}`,
@@ -146,7 +146,7 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   `conta_<id>` (Adé contando a viagem) e `assenta_<id>` (depois de assentar), em `dialogos/terreiro.json`.
 
 **Pausa e jogo salvo (a quartinha de Exu)** — `scripts/menu.gd`, salvar/carregar no `scripts/jogo.gd`
-- Esc (ou Start) abre a pausa: Continuar, Opções (volume da música e dos efeitos, tela cheia), Voltar ao título e
+- Esc (ou Start) abre a pausa: Continuar, Configurações (volume da música e dos efeitos, tela cheia), Voltar ao título e
   Sair do jogo (com o aviso "O que Exu não guardou se perde"). Não dá para salvar pelo menu.
 - Para salvar, Adé procura a **quartinha de Exu** com a vela vermelha e preta e aperta E: ele bate palmas três vezes,
   a vela acende, Exu surge na fumaça e pergunta se Adé quer que ele guarde o seu caminho. São **três caminhos**
@@ -155,7 +155,7 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   (depois que Exu chega) e na entrada da mata de Oxóssi. Nos arquivos de objetos, a quartinha é a letra `*`.
 - O que fica guardado: troféus, assentamentos acesos, búzios, se o mapa já foi aberto e se a volta já foi feita.
   Continuando, Adé aparece no terreiro (ao lado da quartinha), no mapa (na encruzilhada) ou no começo da mata.
-- Na tela de título: Novo jogo, Continuar (escolhe um dos três caminhos), Opções e Sair.
+- Na tela de título: Novo jogo, Continuar (escolhe um dos três caminhos), Configurações e Sair. As opções aparecem direto por cima do pôr do sol, sem caixa.
 - Os arquivos ficam na pasta de dados do Godot (`user://caminho_1.json` a `caminho_3.json`) e as opções em `user://opcoes.cfg`.
 
 **Os orixás (modelos)** — `arte/orixas.png`, feita pelo `gerar_orixas.py`
