@@ -87,6 +87,8 @@ func _configurar_controles() -> void:
 	_acao("baixo", [KEY_S, KEY_DOWN], [JOY_BUTTON_DPAD_DOWN], JOY_AXIS_LEFT_Y, 1.0)
 	_acao("interagir", [KEY_E, KEY_ENTER, KEY_KP_ENTER, KEY_X], [JOY_BUTTON_X, JOY_BUTTON_B])
 	_acao("sair", [KEY_ESCAPE], [JOY_BUTTON_START])
+	# no mapa dos caminhos: afastar a câmera para ver a ilha inteira (e apertar de novo para voltar)
+	_acao("ver_mapa", [KEY_M, KEY_TAB, KEY_Q], [JOY_BUTTON_Y, JOY_BUTTON_LEFT_SHOULDER, JOY_BUTTON_RIGHT_SHOULDER])
 	_acao("tela_cheia", [KEY_F11], [])
 
 

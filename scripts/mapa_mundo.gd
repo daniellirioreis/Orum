@@ -55,6 +55,7 @@ var _tempestade: Array = []
 var _proximo_raio := 2.0
 var _fundo: Sprite2D
 var _camera: Camera2D
+var _vendo_ilha := false               # câmera afastada, mostrando a ilha inteira (tecla M / Tab)
 var _tamanho := Vector2(512, 448)      # o mapa é maior que a tela: a câmera segue o Adé
 var _texturas: Array = []
 var _ade: Sprite2D
@@ -173,7 +174,15 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(ev: InputEvent) -> void:
+	if ev.is_action_pressed("ver_mapa") and not _andando and not _caixa.visible and (not _ocupado or _vendo_ilha):
+		get_viewport().set_input_as_handled()
+		_ver_ilha(not _vendo_ilha)
+		return
 	if not ev.is_action_pressed("interagir"):
+		return
+	if _vendo_ilha:
+		get_viewport().set_input_as_handled()
+		_ver_ilha(false)
 		return
 	get_viewport().set_input_as_handled()
 	if _caixa.visible:
@@ -296,6 +305,33 @@ func _animar_ade(d: Vector2, andado: float) -> void:
 		_ade.flip_h = false
 
 
+## Afasta a câmera para mostrar a ilha inteira (ou volta para perto do Adé).
+func _ver_ilha(longe: bool) -> void:
+	_vendo_ilha = longe
+	_ocupado = true
+	var t := create_tween().set_parallel().set_trans(Tween.TRANS_SINE)
+	if longe:
+		var z := Jogo.TELA.x / _tamanho.x
+		_camera.position_smoothing_enabled = false
+		_camera.limit_left = -100000; _camera.limit_top = -100000
+		_camera.limit_right = 100000; _camera.limit_bottom = 100000
+		_camera.position = _camera.get_screen_center_position()
+		t.tween_property(_camera, "zoom", Vector2(z, z), 0.6)
+		t.tween_property(_camera, "position", _tamanho / 2.0 + Vector2(0, -12), 0.6)
+		Jogo.tocar_som("caminho", -16.0)
+		_descricao.text = "A ilha inteira. Aperte M (ou Tab) para voltar."
+	else:
+		t.tween_property(_camera, "zoom", Vector2.ONE, 0.6)
+		t.tween_property(_camera, "position", _ade.position + Vector2(0, -8), 0.6)
+	await t.finished
+	if not longe:
+		_camera.limit_left = 0; _camera.limit_top = 0
+		_camera.limit_right = int(_tamanho.x); _camera.limit_bottom = int(_tamanho.y)
+		_camera.position_smoothing_enabled = true
+		_mostrar_no(_no_atual)
+		_ocupado = false
+
+
 # ------------------------------------------------------------------ abertura dos caminhos
 
 func _abrir_caminhos() -> void:
@@ -351,7 +387,7 @@ func _abrir_caminhos() -> void:
 	_camera.limit_right = int(_tamanho.x); _camera.limit_bottom = int(_tamanho.y)
 	_camera.position_smoothing_enabled = true
 	await get_tree().create_timer(0.2).timeout
-	_abrir_caixa("Os caminhos estão abertos! Cada um leva ao campo de um orixá.\nAnde com as setas e escolha por onde começar.")
+	_abrir_caixa("Os caminhos estão abertos! Cada um leva a um orixá.\nAnde com as setas e escolha por onde começar.\nPara ver a ilha inteira, aperte M (ou Tab).")
 	_mostrar_no("orita")
 
 
