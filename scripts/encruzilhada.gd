@@ -20,9 +20,12 @@ const LUGARES_ENC := {
 }
 const AXE_MAX := 5
 ## letras do arquivo de objetos que ocupam o bloco (a pedra não passa por elas)
-const BLOQUEIAM := ["R", "M", "Y", "J", "q", "o", "$", "?", "S"]
+const BLOQUEIAM := ["R", "M", "Y", "J", "q", "o", "$", "?", "S", "y"]
 const ORDEM_TOCHAS := ["leste", "oeste", "meio"]
-const COR_NOITE := Color(0.5, 0.45, 0.76)
+const COR_NOITE := Color(0.2, 0.18, 0.34)     # noite fechada: quem ilumina são as tochas e as velas
+const RAIO_LUZ := 34.0                         # kiumba não entra nesse raio em volta de uma tocha
+const KIUMBA_VE := 76.0                        # de quão longe o kiumba enxerga Adé
+const KIUMBA_VEL := 30.0
 
 var axe := AXE_MAX
 var _pedras: Array = []          # {no, forma, sprite, lugar, celula, inicio, afundou, movendo}
@@ -39,6 +42,10 @@ var _viu := {}
 var _exu_pos := Vector2.ZERO
 var _ponto_volta := {}
 var _placa_lida := {}
+var _kiumbas: Array = []         # {no, sprite, casa, lugar, fase, sumiu}
+var _pontos_de_luz: Array = []   # [lugar, posição] das tochas acesas (as lamparinas entram quando acendem)
+var _avisou_kiumba := false
+var _fogos: Array = []           # [sprite da tocha, fogo sem sombra, fase]
 var _invulneravel := 0.0
 var _empurrando := 0.0
 var _voltando := false
@@ -64,6 +71,7 @@ func _ready() -> void:
 	mundo.add_child(jogador)
 	_ponto_volta["enc_trilha"] = jogador.global_position
 	_preparar_tochas()
+	_luz_de_ade()
 	$HUD.esconder_contador = true
 
 	_criar_interface()
@@ -98,6 +106,11 @@ func _process(delta: float) -> void:
 			_tomar_dano(r["no"].global_position)
 	for i in _velas.size():
 		_velas[i].frame = int(_tempo * 5.0 + i * 1.7) % 2
+	for f in _fogos:
+		var q := int(_tempo * 8.0 + f[2]) % 3
+		f[0].frame = q
+		f[1].frame = q
+	_mover_kiumbas(delta)
 	if _estatua and estado == "caminho":
 		_estatua.sprite.frame = 0 if jogador.global_position.x < _estatua.global_position.x else 1
 
@@ -151,6 +164,10 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			_estatua.interagiu.connect(_olhar_estatua)
 			_exu_pos = base          # Exu aparece no lugar da estátua, bem no meio do cruzamento
 			_luz(base + Vector2(0, -20), Color(0.9, 0.5, 0.9), 1.6, 1.4, false)
+		"y":
+			_criar_tochao(lugar, base)
+		"k":
+			_criar_kiumba(lugar, base)
 		"x":
 			if _exu_pos == Vector2.ZERO:
 				_exu_pos = base
@@ -498,6 +515,142 @@ func _sem_axe() -> void:
 	_invulneravel = 1.0
 
 
+# ------------------------------------------------------------------ escuridão, tochas e kiumbas
+
+## Uma luzinha fraca em volta de Adé, para ele não sumir no escuro.
+func _luz_de_ade() -> void:
+	var l := PointLight2D.new()
+	l.texture = _luz_tex
+	l.color = Color(0.75, 0.8, 1.0)
+	l.energy = 0.5
+	l.texture_scale = 0.55
+	l.position = Vector2(0, -10)
+	jogador.add_child(l)
+
+
+func _criar_tochao(lugar: String, base: Vector2) -> void:
+	var n := StaticBody2D.new()
+	n.position = base
+	var s := Sprite2D.new()
+	s.texture = preload("res://arte/enc_tochao.png")
+	s.hframes = 3
+	s.offset = Vector2(0, -15)
+	s.frame = randi() % 3
+	n.add_child(s)
+	var fogo := Sprite2D.new()           # o fogo brilha mesmo no escuro
+	fogo.texture = s.texture
+	fogo.hframes = 3
+	fogo.offset = s.offset
+	fogo.material = _material_sem_sombra()
+	fogo.modulate = Color(1, 1, 1, 0.85)
+	n.add_child(fogo)
+	var forma := CollisionShape2D.new()
+	var ret := RectangleShape2D.new()
+	ret.size = Vector2(6, 4)
+	forma.shape = ret
+	forma.position = Vector2(0, -2)
+	n.add_child(forma)
+	mundo.add_child(n)
+	_fogos.append([s, fogo, randf() * 3.0])
+	_luz(base + Vector2(0, -26), Color(1.0, 0.6, 0.28), 3.0, 1.15, true)
+	_pontos_de_luz.append([lugar, base])
+	# só a parte de cima (o fogo) fica sem sombra: corta o sprite claro na altura do cesto
+	fogo.region_enabled = true
+	fogo.region_rect = Rect2(0, 0, 48, 13)
+	fogo.offset = Vector2(0, -24.5)
+
+
+func _criar_kiumba(lugar: String, base: Vector2) -> void:
+	var a := Area2D.new()
+	a.collision_layer = 0
+	a.collision_mask = 2
+	a.position = base
+	var s := Sprite2D.new()
+	s.texture = preload("res://arte/enc_kiumba.png")
+	s.hframes = 4
+	s.offset = Vector2(0, -12)
+	s.material = _material_sem_sombra()   # os olhos vermelhos aparecem no escuro
+	s.modulate = Color(1, 1, 1, 0.9)
+	a.add_child(s)
+	var forma := CollisionShape2D.new()
+	var circ := CircleShape2D.new()
+	circ.radius = 6.0
+	forma.shape = circ
+	forma.position = Vector2(0, -8)
+	a.add_child(forma)
+	mundo.add_child(a)
+	_kiumbas.append({"no": a, "sprite": s, "casa": base, "lugar": lugar, "fase": randf() * TAU, "sumiu": false})
+
+
+func _na_luz(lugar: String, pos: Vector2, folga := 0.0) -> bool:
+	for p in _pontos_de_luz:
+		if p[0] == lugar and pos.distance_to(p[1]) < RAIO_LUZ + folga:
+			return true
+	for t in _tochas:
+		if t["acesa"] and t["lugar"] == lugar and pos.distance_to(t["no"].position) < RAIO_LUZ + folga:
+			return true
+	return false
+
+
+func _mover_kiumbas(delta: float) -> void:
+	for k in _kiumbas:
+		if k["sumiu"]:
+			continue
+		var no: Area2D = k["no"]
+		var s: Sprite2D = k["sprite"]
+		s.frame = int(_tempo * 6.0 + k["fase"]) % 4
+		if k["lugar"] != lugar_atual:
+			continue
+		var alvo: Vector2
+		var vel := KIUMBA_VEL
+		var ade := jogador.global_position
+		var ve := no.position.distance_to(ade) < KIUMBA_VE and not _na_luz(k["lugar"], ade)
+		if ve and jogador.pode_mover and not _voltando:
+			alvo = ade
+		else:
+			# volta para perto de casa, flutuando em círculos
+			alvo = k["casa"] + Vector2(cos(_tempo * 0.8 + k["fase"]) * 14.0, sin(_tempo * 1.1 + k["fase"]) * 8.0)
+			vel = KIUMBA_VEL * 0.6
+		var passo := (alvo - no.position).limit_length(vel * delta)
+		var novo := no.position + passo
+		if not _na_luz(k["lugar"], novo):       # a luz das tochas espanta o kiumba
+			no.position = novo
+		s.flip_h = passo.x < 0.0
+		s.position.y = sin(_tempo * 3.0 + k["fase"]) * 1.5
+		if ve and _invulneravel <= 0.0 and not _voltando and jogador.pode_mover and no.overlaps_body(jogador):
+			_tomar_dano(no.global_position)
+			_kiumba_recua(k)
+			if not _avisou_kiumba:
+				_avisou_kiumba = true
+				_mostrar_aviso("Um kiumba! As sombras têm medo da luz das tochas.")
+
+
+func _kiumba_recua(k: Dictionary) -> void:
+	k["sumiu"] = true
+	var no: Area2D = k["no"]
+	var t := create_tween()
+	t.tween_property(no, "modulate:a", 0.0, 0.25)
+	t.tween_callback(func(): no.position = k["casa"])
+	t.tween_interval(1.6)
+	t.tween_property(no, "modulate:a", 1.0, 0.6)
+	t.tween_callback(func(): k["sumiu"] = false)
+
+
+## Quando Exu chega, as sombras e os redemoinhos se desfazem: ele é o guardião da encruzilhada.
+func _espantar_sombras() -> void:
+	for k in _kiumbas:
+		k["sumiu"] = true
+		var t := create_tween()
+		t.tween_property(k["no"], "scale", Vector2(1.6, 0.2), 0.5)
+		t.parallel().tween_property(k["no"], "modulate:a", 0.0, 0.5)
+		t.tween_callback(k["no"].queue_free)
+	for r in _redemoinhos:
+		var t := create_tween()
+		t.tween_property(r["no"], "modulate:a", 0.0, 0.6)
+		t.tween_callback(r["no"].queue_free)
+	_redemoinhos.clear()
+
+
 # ------------------------------------------------------------------ placas, estátua e Exu
 
 func _ler_placa(lugar: String) -> void:
@@ -538,6 +691,7 @@ func _ao_evento(nome: String) -> void:
 			create_tween().tween_property(_estatua, "modulate:a", 0.0, 0.8)
 			_tremer()
 			_exu_aparece()
+			_espantar_sombras()
 			var ponto := _ponto_de_conversa(_exu_pos, Vector2(12, 6), 26.0, -42.0)
 			ponto.interagiu.connect(_falar_com_exu)
 		"mapa":

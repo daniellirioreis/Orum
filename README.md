@@ -58,6 +58,10 @@ Esta versão tem o **Prólogo** completo, em duas partes:
   - **Mata**: acender as três lamparinas na ordem certa (leste, oeste e a do meio); a placa dá a dica.
   - **Oríta** (onde os caminhos se encontram): afundar a pedra no riacho para atravessar e olhar a estátua
     dos dois lados. O gorro é vermelho de um lado e preto do outro, como no itã de Exu.
+- É noite fechada: quem ilumina são as tochas pelo caminho, as lamparinas e as velas. Adé tem só uma luzinha fraca.
+- **Kiumbas**: sombras de olhos vermelhos que vagam pela encruzilhada e perseguem Adé no escuro. Não entram
+  na luz das tochas (nem das lamparinas acesas): perto delas, Adé fica protegido. Quando Exu chega, os kiumbas
+  e os redemoinhos se desfazem.
 - Redemoinhos de poeira andam pelos caminhos. Cada um que pega Adé leva um búzio de **axé** (os 5 búzios
   lá em cima, à direita). Sem axé, Adé volta para a entrada do lugar com o axé cheio.
 - Se a pedra ficar presa, ler a placa de novo faz as pedras voltarem para o lugar.
@@ -78,7 +82,7 @@ Esta versão tem o **Prólogo** completo, em duas partes:
   Letras novas dos objetos: `@` pedra que se empurra, `&` ponto riscado, `!` cancela, `$` lamparina,
   `<` redemoinho que anda de lado, `^` redemoinho que anda para cima e para baixo, `?` placa,
   `S` estátua do gorro (no meio do cruzamento; Exu aparece no lugar dela), `x` lugar reserva de Exu,
-  `%` velas vermelha e preta nas quatro esquinas, `>` saída para o mapa dos caminhos. Os textos ficam em `dialogos/encruzilhada.json`.
+  `%` velas vermelha e preta nas quatro esquinas, `y` tocha, `k` kiumba, `>` saída para o mapa dos caminhos. Os textos ficam em `dialogos/encruzilhada.json`.
 - A versão antiga da encruzilhada (plataforma) continua em `cenas/jogo.tscn`, mas a porteira agora leva para a nova.
 
 ## Estrutura das pastas
