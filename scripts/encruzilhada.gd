@@ -66,6 +66,8 @@ func _ready() -> void:
 	_criar_interface()
 	for n in _hud_oferendas:
 		n.visible = false
+	_icone_buzio.position.x = 8          # sem o inventário, os búzios vão para o canto
+	_contador_buzios.position.x = 21
 	$Dialogo.evento.connect(_ao_evento)
 	_entrar_lugar("enc_trilha")
 	for nome in lugares:

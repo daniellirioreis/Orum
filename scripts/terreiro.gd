@@ -120,11 +120,11 @@ var _tileset: TileSet
 var _noite: CanvasModulate
 var _toque: CanvasLayer
 var _lista: Control
-var _medidor: ColorRect
-var _item: TextureRect
+var _icone_buzio: TextureRect
+var _slots := {}              # id da oferenda → ícone no inventário
+const COR_ITEM_FALTA := Color(0.25, 0.22, 0.3, 0.6)
 var _contador_buzios: Label
-var _contador_oferendas: Label
-var _hud_oferendas: Array = []   # medidor, caixa e contador das oferendas
+var _hud_oferendas: Array = []   # caixinhas do inventário das oferendas
 var _axe_icones: Array = []      # os 5 búzios do axé
 var _aviso: Label
 var _clarao: ColorRect
@@ -429,10 +429,12 @@ func _ao_evento(nome: String) -> void:
 
 func _ganhar(id: String) -> void:
 	coletados[id] = true
-	var atlas := AtlasTexture.new()
-	atlas.atlas = TEX_ITENS
-	atlas.region = Rect2(ITENS.find(id) * 12, 0, 12, 12)
-	_item.texture = atlas
+	var icone: TextureRect = _slots[id]
+	icone.modulate = Color.WHITE
+	icone.pivot_offset = Vector2(6, 6)
+	var t := create_tween()
+	t.tween_property(icone, "scale", Vector2(1.6, 1.6), 0.12)
+	t.tween_property(icone, "scale", Vector2.ONE, 0.18)
 	_atualizar_hud()
 	Jogo.tocar_som("buzio", -2.0)
 	_mostrar_aviso("Você pegou: " + _dados["pegou"][id])
@@ -646,51 +648,33 @@ func _criar_interface() -> void:
 	var tela := Vector2(Jogo.TELA)
 	var fonte_forte := preload("res://fontes/NotoSans-SemiBold.ttf")
 
-	# medidor das oferendas (à esquerda): enche a cada oferenda recolhida
-	var medidor := TextureRect.new()
-	medidor.texture = preload("res://arte/hud_medidor.png")
-	medidor.position = Vector2(6, 5)
-	camada.add_child(medidor)
-	_hud_oferendas.append(medidor)
-	_medidor = ColorRect.new()
-	_medidor.color = Color(0.98, 0.78, 0.25)
-	_medidor.position = Vector2(8, 48)
-	_medidor.size = Vector2(10, 0)
-	camada.add_child(_medidor)
-	_hud_oferendas.append(_medidor)
+	# inventário (à esquerda): uma caixinha para cada oferenda; as que faltam aparecem apagadas
+	for i in ITENS.size():
+		var caixa := TextureRect.new()
+		caixa.texture = preload("res://arte/hud_slot.png")
+		caixa.position = Vector2(6 + i * 19, 6)
+		camada.add_child(caixa)
+		_hud_oferendas.append(caixa)
+		var atlas := AtlasTexture.new()
+		atlas.atlas = TEX_ITENS
+		atlas.region = Rect2(i * 12, 0, 12, 12)
+		var item := TextureRect.new()
+		item.texture = atlas
+		item.position = caixa.position + Vector2(3, 3)
+		item.modulate = COR_ITEM_FALTA
+		camada.add_child(item)
+		_hud_oferendas.append(item)
+		_slots[ITENS[i]] = item
 
-	# caixa do item: mostra a última oferenda recolhida
-	var caixa := TextureRect.new()
-	caixa.texture = preload("res://arte/hud_caixa.png")
-	caixa.position = Vector2(24, 8)
-	camada.add_child(caixa)
-	_hud_oferendas.append(caixa)
-	_item = TextureRect.new()
-	_item.position = Vector2(30, 14)
-	camada.add_child(_item)
-
-	# contadores: búzios e oferendas
-	var icone_buzio := TextureRect.new()
-	icone_buzio.texture = preload("res://arte/buzio_axe.png")
-	icone_buzio.position = Vector2(56, 8)
-	camada.add_child(icone_buzio)
+	# búzios recolhidos
+	_icone_buzio = TextureRect.new()
+	_icone_buzio.texture = preload("res://arte/buzio_axe.png")
+	_icone_buzio.position = Vector2(86, 9)
+	camada.add_child(_icone_buzio)
 	_contador_buzios = _rotulo_hud("000", 10, Color.WHITE)
 	_contador_buzios.add_theme_font_override("font", fonte_forte)
-	_contador_buzios.position = Vector2(52, 16)
+	_contador_buzios.position = Vector2(99, 6)
 	camada.add_child(_contador_buzios)
-	var atlas := AtlasTexture.new()
-	atlas.atlas = TEX_ITENS
-	atlas.region = Rect2(36, 0, 12, 12)
-	var icone_of := TextureRect.new()
-	icone_of.texture = atlas
-	icone_of.position = Vector2(86, 5)
-	camada.add_child(icone_of)
-	_hud_oferendas.append(icone_of)
-	_contador_oferendas = _rotulo_hud("0/4", 10, Color.WHITE)
-	_contador_oferendas.add_theme_font_override("font", fonte_forte)
-	_contador_oferendas.position = Vector2(80, 16)
-	camada.add_child(_contador_oferendas)
-	_hud_oferendas.append(_contador_oferendas)
 
 	# AXÉ (à direita): búzios no lugar dos corações
 	var axe := _rotulo_hud("— AXÉ —", 7, Color(1.0, 0.9, 0.6))
@@ -734,9 +718,6 @@ func _criar_interface() -> void:
 
 func _atualizar_hud() -> void:
 	_contador_buzios.text = "%03d" % Jogo.buzios
-	_contador_oferendas.text = "%d/4" % coletados.size()
-	_medidor.size.y = 41.0 * coletados.size() / 4.0
-	_medidor.position.y = 48.0 - _medidor.size.y
 
 
 func _rotulo_hud(texto: String, tamanho: int, cor: Color) -> Label:
