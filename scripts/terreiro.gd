@@ -927,7 +927,7 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			s.hframes = 2
 		match c:
 			"l":
-				_luz(base + Vector2(0, -8), Color(1.0, 0.78, 0.45), 0.6, 1.8, true)
+				_lampioes.append([_luz(base + Vector2(0, -8), Color(1.0, 0.78, 0.45), 0.6, 1.8, true), s])
 			"u":
 				_luz(base + Vector2(0, -38), Color(1.0, 0.8, 0.5), 0.75, 2.2, true)
 			"F":
@@ -952,7 +952,7 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			varal.z_index = 20
 			add_child(varal)
 		"+":
-			_luz(base + Vector2(0, -8), Color(1.0, 0.8, 0.55), 0.45, 2.4, false)
+			_luzes_de_ambiente.append(_luz(base + Vector2(0, -8), Color(1.0, 0.8, 0.55), 0.45, 2.4, false))
 		"g":
 			_criar_galinha(base)
 		"c":
@@ -1533,7 +1533,11 @@ func _preparar_retorno() -> void:
 	_esconder_inventario()      # as oferendas já foram arriadas na tronqueira
 	tia = "deu_efum"
 	_abrir_porteira()
-	vo.global_position = marcas["v"]
+	if _tempo_de_ficar_dentro():
+		# na chuva e à noite a Vó espera Adé dentro do barracão, perto do congá
+		vo.global_position = _ponto_da_rota(["barracao", 11, 6])
+	else:
+		vo.global_position = marcas["v"]
 	vo.modulate.a = 1.0
 	tronqueira.ativo = false
 	_lista.visible = true
@@ -1554,7 +1558,7 @@ func _preparar_retorno() -> void:
 		jogador.congelar(false)
 	elif not _trofeus_novos().is_empty():
 		# a fala da chegada depende do que Adé traz: troféu novo, nada ainda, ou só uma visita
-		await _falar("retorno_chegada")
+		await _falar("retorno_chegada_dentro" if _tempo_de_ficar_dentro() else "retorno_chegada")
 	elif Jogo.assentados.is_empty():
 		await _falar("retorno_sem_trofeu")
 	else:
@@ -1931,7 +1935,7 @@ const ROTAS := {
 
 
 func _montar_rotinas() -> void:
-	if _retorno and (_tempo_atual == "chuva" or _tempo_atual == "noite"):
+	if _retorno and _tempo_de_ficar_dentro():
 		# na chuva e à noite todo mundo fica dentro de casa
 		_rotina(_oga, "oga_barracao", true)
 		_rotina(_lia, "lia_barracao", true)
@@ -1970,7 +1974,9 @@ func _rota_da_vo() -> String:
 		return ""                   # esperando Adé na tronqueira com o troféu
 	var q: Vector2 = lugares["quarto"]["origem"]
 	var no_quarto := vo.global_position.x >= q.x and vo.global_position.y >= q.y
-	return "vo_quarto" if no_quarto else "vo_quintal"
+	if no_quarto:
+		return "vo_quarto"
+	return "vo_barracao" if _tempo_de_ficar_dentro() else "vo_quintal"
 
 
 func _mover_rotinas(delta: float) -> void:
@@ -2242,6 +2248,8 @@ const TEMPOS := {
 const NOMES_TEMPOS := {"manha": "Manhã de sol", "tarde": "Fim de tarde", "noite": "Noite",
 	"nublado": "Dia nublado", "chuva": "Chuva"}
 var _tempo_atual := ""
+var _lampioes: Array = []          # [luz, sprite] de cada lampião
+var _luzes_de_ambiente: Array = []  # a claridade geral de cada cômodo
 var _camada_chuva: CanvasLayer
 var _clarao_raio: ColorRect
 var _sombras_nuvens: Array = []
@@ -2293,6 +2301,7 @@ func _aplicar_tempo(t: String) -> void:
 		_pega = {}
 		_roda = {}
 	if t == "noite":
+		_acender_lampioes()
 		_criar_vagalumes("quintal")
 		# uma luzinha fraca em volta de Adé, para ele não sumir no escuro
 		var l := PointLight2D.new()
@@ -2396,3 +2405,35 @@ func _animar_tempo(delta: float) -> void:
 			t.tween_property(_clarao_raio, "color:a", 0.35, 0.05)
 			t.tween_property(_clarao_raio, "color:a", 0.0, 0.4)
 			get_tree().create_timer(0.6).timeout.connect(func(): Jogo.tocar_som("caminho", -10.0))
+
+
+
+## À noite, quem ilumina a casa são os lampiões: a claridade geral dos cômodos quase some, e cada lampião
+## acende forte, com a chama brilhando (sem sombra) e uma roda de luz quente em volta.
+func _acender_lampioes() -> void:
+	for l in _luzes_de_ambiente:
+		l.energy = 0.0
+	for par in _lampioes:
+		var l: PointLight2D = par[0]
+		var sp: Sprite2D = par[1]
+		var forte := 1.1 * FORCA_LUZES
+		l.energy = forte
+		l.texture_scale = 1.0
+		l.position.y += 14          # a luz cai do lampião para o chão
+		for c in _chamas:
+			if c[0] == l:
+				c[1] = forte
+		var brilho := Sprite2D.new()   # a chama do lampião brilha mesmo no escuro
+		brilho.texture = sp.texture
+		brilho.offset = sp.offset
+		brilho.position = sp.position
+		brilho.material = _material_sem_sombra()
+		brilho.modulate = Color(1, 0.9, 0.7, 0.55)
+		brilho.z_index = sp.z_index
+		sp.get_parent().add_child(brilho)
+
+
+
+## Na chuva e à noite o pessoal fica dentro de casa (e a Vó espera Adé no barracão).
+func _tempo_de_ficar_dentro() -> bool:
+	return _tempo_atual == "chuva" or _tempo_atual == "noite"

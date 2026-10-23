@@ -169,7 +169,8 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
 - O tempo no terreiro muda a cada volta de Adé: manhã de sol, fim de tarde, noite (lampiões e velas mais fortes,
   vaga-lumes), nublado (sombras de nuvem passando pelo quintal) ou chuva (gotas, respingos e relâmpagos). Na
   primeira volta com troféu é sempre fim de tarde; depois é sorteado, sem repetir o anterior. Na chuva e à noite
-  as crianças e a roda de capoeira não estão, e a Lia, o Ogã e a Tia ficam dentro de casa. O tempo fica guardado no
+  as crianças e a roda de capoeira não estão, e a Lia, o Ogã e a Tia ficam dentro de casa; a Vó espera Adé dentro do
+  barracão, perto do congá (e não na tronqueira). À noite quem ilumina a casa são os lampiões. O tempo fica guardado no
   jogo salvo (`Jogo.tempo_terreiro`); as cores e a força das luzes de cada tempo ficam em `TEMPOS`, no `terreiro.gd`.
 - Para um troféu novo: o ícone fica em `ICONE_TROFEU` (no `scripts/terreiro.gd`), e as falas próprias em
   `conta_<id>` (Adé contando a viagem) e `assenta_<id>` (depois de assentar), em `dialogos/terreiro.json`.

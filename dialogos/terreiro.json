@@ -214,5 +214,10 @@
 	"retorno_visita": [
 		{"quem": "Adé", "yo": "", "pt": "De volta ao terreiro! Tem cheiro da comida da Tia Dora no ar."},
 		{"quem": "Adé", "yo": "", "pt": "Os presentes dos orixás estão lá no quarto de santo, com as velas acesas. Dá vontade de ir ver."}
+	],
+
+	"retorno_chegada_dentro": [
+		{"quem": "Adé", "yo": "", "pt": "Cheguei em casa! Que saudade do terreiro da Vó... Tem até cheiro da comida da Tia Dora."},
+		{"quem": "Adé", "yo": "", "pt": "Com esse tempo, a Vó deve estar me esperando lá dentro, no barracão. Vou contar tudo pra ela!"}
 	]
 }
