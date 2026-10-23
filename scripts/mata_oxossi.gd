@@ -58,6 +58,7 @@ var _assentamento: Area2D
 var _oxossi: Sprite2D
 var _oxossi_pos := Vector2.ZERO
 var _anim_oxossi := "parado"
+var _repetindo := false   # a mata já tinha sido vencida: no fim, Adé reencontra Oxóssi
 var _saida_moita: Array = []    # moitas que fecham a saída até o fim
 var _viu_clareira := false
 var _conversa: Area2D
@@ -108,6 +109,7 @@ func _inicio() -> void:
 	$HUD.mostrar_titulo("Igbó Ọ̀ṣọ́ọ̀sì", "A Mata de Oxóssi")
 	await get_tree().create_timer(1.6).timeout
 	if Jogo.trofeus.has("oxossi"):
+		_repetindo = true
 		# a mata já foi vencida: Adé pode fazer a fase de novo (do começo) ou voltar logo para o mapa
 		await _falar("revisita")
 		var r: Dictionary = await Jogo.menu.escolher("A Mata de Oxóssi", ["Fazer a fase de novo", "Voltar ao mapa"])
@@ -1018,8 +1020,52 @@ func _oxossi_chega() -> void:
 	await get_tree().create_timer(0.4).timeout
 	_conversa = _ponto_de_conversa(_oxossi.position, Vector2(12, 6), 26.0, -50.0)
 	_conversa.interagiu.connect(_falar_com_oxossi)
-	await _falar("oxossi")
+	if _repetindo:
+		await _falar("oxossi_reencontro")
+		await _abraco()
+		await _falar("oxossi_despedida")
+	else:
+		await _falar("oxossi")
 	await _oxossi_vai_embora()
+
+
+## Na fase repetida, Adé agradece e os dois se abraçam.
+func _abraco() -> void:
+	jogador.congelar(true)
+	var meio: Vector2 = (jogador.global_position + _oxossi.position) / 2.0
+	# Adé vai até Oxóssi
+	jogador.olhar_para(_oxossi.position)
+	var vai := create_tween()
+	vai.tween_property(jogador, "global_position", meio + Vector2(0, 4), 0.5)
+	vai.parallel().tween_property(_oxossi, "position", meio, 0.5)
+	await vai.finished
+	var abraco := Sprite2D.new()
+	abraco.texture = preload("res://arte/ox_abraco.png")
+	abraco.hframes = 2
+	abraco.offset = Vector2(0, -24)
+	abraco.position = meio + Vector2(0, 4)
+	var sombra := Sprite2D.new()
+	sombra.texture = TEX_SOMBRA
+	sombra.show_behind_parent = true
+	abraco.add_child(sombra)
+	mundo.add_child(abraco)
+	jogador.visible = false
+	_oxossi.visible = false
+	Jogo.tocar_som("buzio", -4.0)
+	for i in 6:
+		abraco.frame = 1 if i % 2 == 0 else 0
+		if i == 2:
+			_folhas(abraco.position + Vector2(0, -40))
+		await get_tree().create_timer(0.5).timeout
+	await get_tree().create_timer(0.4).timeout
+	abraco.queue_free()
+	jogador.visible = true
+	_oxossi.visible = true
+	# Oxóssi dá um passo para trás
+	var volta := create_tween()
+	volta.tween_property(_oxossi, "position", meio + Vector2(0, -10), 0.4)
+	await volta.finished
+	jogador.olhar_para(_oxossi.position)
 
 
 func _falar_com_oxossi() -> void:

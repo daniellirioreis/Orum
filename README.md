@@ -141,7 +141,7 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   nos mapas, `b` passarinhos, `G` pavão e `Q` onça.
 - No fim, Oxóssi dá o ofá para Adé: é o **troféu** (fica no último quadradinho do inventário, com moldura dourada,
   e em `Jogo.trofeus`), para levar ao terreiro da Vó. A mata abre a saída do norte, de volta ao mapa.
-- Voltando a uma mata já vencida, Adé escolhe logo na entrada entre **Fazer a fase de novo** (do começo, com todos os desafios) e **Voltar ao mapa**; e o menu
+- Voltando a uma mata já vencida, Adé escolhe logo na entrada entre **Fazer a fase de novo** (do começo, com todos os desafios) e **Voltar ao mapa**. No fim da fase repetida, Oxóssi reconhece Adé, os dois conversam, Adé agradece e eles se abraçam (`arte/ox_abraco.png`, feita pelo `gerar_abraco.py`; falas `oxossi_reencontro` e `oxossi_despedida`); e o menu
   de pausa ganha **Voltar ao mapa** (a cena diz se pode com `pode_voltar_ao_mapa()` e sai com `voltar_ao_mapa()`).
 - Mapas: `fases/ox_rastro.txt`, `ox_campo.txt`, `ox_ofa.txt`, `ox_clareira.txt` (+ `_objetos`), gerados pelo `gerar_mapas_oxossi.py`.
   Letras: `W N E` saídas do labirinto, `p` chegada, `v` veado pastando, `V` veado que passeia, `m`/`u` pé de milho

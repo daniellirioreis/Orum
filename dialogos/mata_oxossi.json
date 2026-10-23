@@ -3,6 +3,21 @@
 	"revisita": [
 		{"quem": "Adé", "yo": "", "pt": "A mata de Oxóssi de novo... Agora os bichos já me conhecem."}
 	],
+	"oxossi_reencontro": [
+		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Adé! Você voltou à minha mata."},
+		{"quem": "Adé", "yo": "", "pt": "Voltei, Oxóssi. Queria andar de novo pelo seu caminho... e te ver mais uma vez."},
+		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Desta vez você seguiu o rastro como quem já conhece a mata."},
+		{"quem": "Adé", "yo": "", "pt": "Foi você que me ensinou a olhar: o rastro, o vento, o silêncio."},
+		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "E você aprendeu. Quem aprende a olhar nunca mais anda perdido."},
+		{"quem": "Adé", "yo": "", "pt": "Obrigado, Oxóssi. Por me ensinar a ter paciência... e por me deixar te conhecer."},
+		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "O ofá é seu, minha criança. Onde ele estiver, a mata vai estar com você.", "evento": "trofeu"},
+		{"quem": "Adé", "yo": "", "pt": "Posso te dar um abraço?"},
+		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Venha cá."}
+	],
+	"oxossi_despedida": [
+		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Agora vá. A mata abre o caminho para você, sempre que voltar."},
+		{"quem": "Adé", "yo": "Ọkẹ́ àrò, Ọ̀ṣọ́ọ̀sì!", "pt": "Okê arô, Oxóssi!"}
+	],
 	"chegada": [
 		{"quem": "Adé", "yo": "", "pt": "Que mata fechada... As árvores são tão altas que quase escondem o céu."},
 		{"quem": "Adé", "yo": "", "pt": "Este é o campo de Oxóssi, o caçador. A Vó diz que ele conhece cada folha da mata."},
