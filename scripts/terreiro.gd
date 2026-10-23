@@ -406,6 +406,8 @@ func _procurar_na_despensa(tem_epo: bool) -> void:
 
 
 func _falar_com_oga() -> void:
+	if _toque and _toque.jogando:
+		return
 	if estado == "acordou" or estado == "sonho":
 		await _falar("oga_antes")
 	elif coletados.has("oti"):
@@ -415,7 +417,9 @@ func _falar_com_oga() -> void:
 		if _pendente == "comecar_toque":
 			_pendente = ""
 			jogador.congelar(true)
+			_oga.ativo = false          # durante o mini-jogo, apertar Enter não recomeça a conversa
 			await _toque.jogar()
+			_oga.ativo = true
 			await _falar("oga_ganhou")
 
 
