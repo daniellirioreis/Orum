@@ -3,7 +3,7 @@ extends Node2D
 ## para qual campo de orixá ele vai — andando pelo mapa, de ponto em ponto, como nos mapas-múndi
 ## dos jogos de 16 bits.
 ##
-## A ilha (arte/mundo_0.png e mundo_1.png) é feita pelo gerar_mapa_mundo.py. Os caminhos, os pontos
+## A ilha (arte/mundo_0.png a mundo_3.png: o mar, o rio e a cachoeira mexem entre eles) é feita pelo gerar_mapa_mundo.py. Os caminhos, os pontos
 ## e o Adé são desenhados aqui. Os textos de cada campo vêm de dialogos/encruzilhada.json ("campos").
 ##
 ## Controles: setas para andar de um ponto a outro, E / Enter para entrar no campo.
@@ -46,6 +46,9 @@ var _andando := false
 var _ocupado := true                  # durante a abertura e as mensagens
 var _tempo := 0.0
 
+var _nuvens: Array = []               # {no, base, amplitude, velocidade, fase}
+var _tempestade: Array = []
+var _proximo_raio := 2.0
 var _fundo: Sprite2D
 var _texturas: Array = []
 var _ade: Sprite2D
@@ -62,12 +65,15 @@ func _ready() -> void:
 	var dados: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://dialogos/encruzilhada.json"))
 	for c in dados["campos"]:
 		_campos[c["id"]] = c
-	_texturas = [preload("res://arte/mundo_0.png"), preload("res://arte/mundo_1.png")]
+	_texturas = [preload("res://arte/mundo_0.png"), preload("res://arte/mundo_1.png"),
+		preload("res://arte/mundo_2.png"), preload("res://arte/mundo_3.png")]
 	_fundo = Sprite2D.new()
 	_fundo.texture = _texturas[0]
 	_fundo.centered = false
 	_fundo.z_index = -10
 	add_child(_fundo)
+
+	_criar_nuvens()
 
 	var curva := 1.0
 	for par in ARESTAS:
@@ -112,7 +118,8 @@ func _curva(a: Vector2, b: Vector2, lado: float) -> PackedVector2Array:
 
 func _process(delta: float) -> void:
 	_tempo += delta
-	_fundo.texture = _texturas[int(_tempo * 1.6) % 2]
+	_fundo.texture = _texturas[int(_tempo * 4.0) % _texturas.size()]
+	_mexer_nuvens(delta)
 	queue_redraw()
 	if _ocupado or _andando:
 		return
@@ -140,6 +147,44 @@ func _unhandled_input(ev: InputEvent) -> void:
 		_fechar_caixa()
 	elif not _ocupado and not _andando:
 		_entrar()
+
+
+# ------------------------------------------------------------------ nuvens que andam e raios de Iansã
+
+func _criar_nuvens() -> void:
+	# [textura, posição, quanto anda para os lados, velocidade]
+	var lista := [
+		["res://arte/mundo_nuvem.png", Vector2(96, 40), 7.0, 0.35],
+		["res://arte/mundo_nuvem_p.png", Vector2(162, 41), 6.0, 0.42],
+		["res://arte/mundo_nuvem_p.png", Vector2(130, 34), 9.0, 0.28],
+		["res://arte/mundo_tempestade.png", Vector2(198, 40), 4.0, 0.9],
+		["res://arte/mundo_tempestade.png", Vector2(243, 43), 3.0, 1.1],
+		["res://arte/mundo_tempestade.png", Vector2(224, 34), 5.0, 0.8],
+	]
+	for i in lista.size():
+		var n := Sprite2D.new()
+		n.texture = load(lista[i][0])
+		n.position = lista[i][1]
+		n.z_index = 2
+		add_child(n)
+		_nuvens.append({"no": n, "base": lista[i][1], "amplitude": lista[i][2], "velocidade": lista[i][3], "fase": i * 1.7})
+		if "tempestade" in lista[i][0]:
+			_tempestade.append(n)
+
+
+func _mexer_nuvens(delta: float) -> void:
+	for c in _nuvens:
+		var t: float = _tempo * c["velocidade"] + c["fase"]
+		c["no"].position = c["base"] + Vector2(sin(t) * c["amplitude"], sin(t * 0.7) * 1.5).round()
+	_proximo_raio -= delta
+	if _proximo_raio <= 0.0:
+		_proximo_raio = randf_range(2.0, 4.5)
+		var nuvem: Sprite2D = _tempestade.pick_random()
+		var t := create_tween()
+		t.tween_property(nuvem, "modulate", Color(2.2, 2.2, 1.6), 0.05)
+		t.tween_property(nuvem, "modulate", Color.WHITE, 0.08)
+		t.tween_property(nuvem, "modulate", Color(1.8, 1.8, 1.4), 0.05)
+		t.tween_property(nuvem, "modulate", Color.WHITE, 0.2)
 
 
 # ------------------------------------------------------------------ andar pelos caminhos

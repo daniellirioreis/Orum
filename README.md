@@ -71,7 +71,8 @@ Esta versão tem o **Prólogo** completo, em duas partes:
 - Na primeira vez, os caminhos se abrem em ondas a partir da encruzilhada. Adé anda de ponto em ponto com as
   setas (as setinhas piscando mostram para onde dá para ir); a faixa de cima mostra o nome, a saudação e o campo.
 - Apertando E num campo: por enquanto aparece "Em breve!" — é aqui que as próximas fases vão se ligar.
-- A arte da ilha vem do `gerar_mapa_mundo.py` (`arte/mundo_0.png` e `mundo_1.png`, a água mexe entre os dois).
+- A arte da ilha vem do `gerar_mapa_mundo.py` (`arte/mundo_0.png` a `mundo_3.png`: o mar, o rio e a cachoeira
+  mexem entre os quatro quadros; as nuvens são `mundo_nuvem*.png` e `mundo_tempestade.png`, que andam devagar e piscam com raios).
   As posições dos pontos e os caminhos ficam em `NOS` e `ARESTAS`, no topo do script.
 - Os mapas ficam em `fases/enc_trilha.txt`, `fases/enc_mata.txt` e `fases/enc_orita.txt` (+ `_objetos`).
   Letras novas dos objetos: `@` pedra que se empurra, `&` ponto riscado, `!` cancela, `$` lamparina,
