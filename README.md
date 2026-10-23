@@ -186,6 +186,9 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   buriti; e há `n` aninga, `f`/`i` juncos (com ou sem florzinhas lilás) e `h` aguapé boiando. As bordas usam a
   moita do brejo (`tex_moita` no `scripts/terreiro.gd`). Arte em `arte/nana_buriti.png`, `nana_arvore_velha.png`,
   `nana_aninga.png`, `nana_juncos.png`, `nana_aguape.png` e `nana_moita.png` (`gerar_arte_nana.py`).
+- A água escura do brejo, do mangue e da lagoa mexe: faixas de luz passam devagar pela superfície (um shader na
+  camada da água, `SHADER_AGUA` no `mata_nana.gd`) e cada pingo de chuva abre um anel na água — na lagoa, com a
+  chuva forte da oferenda, são muitos mais.
 - O terreno ganhou linhas novas em `arte/terreno_snes.png` (lama, água escura, bolhas, raízes e vitórias-régias,
   feitas pelo `gerar_terreno_nana.py`); cada fase escolhe os seus terrenos em `terrenos` e `agua_chars`
   (`scripts/terreiro.gd`). Arte nova: `arte/nana_*.png` (`gerar_arte_nana.py` e `gerar_nana_pessoas.py`).

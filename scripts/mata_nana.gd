@@ -139,6 +139,7 @@ func _process(delta: float) -> void:
 	_mover_garcas(delta)
 	_mover_sapos()
 	_bolhas(delta)
+	_pingos_na_agua(delta)
 	_mover_mare(delta)
 	_mover_caranguejos()
 	_encher_pote(delta)
@@ -275,10 +276,91 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 
 ## A camada da maré (água por cima das raízes do mangue) começa invisível.
 func _camada_terreno(origem: Vector2, i: int, camada: TileMapLayer) -> void:
+	if i >= 2:
+		camada.material = _material_agua()        # a água escura mexe (brejo, mangue e lagoa)
 	if i == 3:
 		camada.modulate.a = 0.0
 		if origem == LUGARES_NANA["nana_mangue"]["origem"]:
 			_camada_mare = camada
+
+
+## A água parada mexe devagar: faixas de luz que passam e somem, em pixels (sem borrar a arte).
+const SHADER_AGUA := """
+shader_type canvas_item;
+varying vec2 mundo;
+void vertex() {
+	mundo = (MODEL_MATRIX * vec4(VERTEX, 0.0, 1.0)).xy;
+}
+void fragment() {
+	vec4 c = COLOR;                         // (a cor do bloco já vem com a textura)
+	vec2 p = floor(mundo);
+	float onda = sin(p.x * 0.31 + TIME * 1.6 + sin(p.y * 0.23 + TIME * 0.7) * 2.2)
+		* sin(p.y * 0.47 - TIME * 1.1 + p.x * 0.05);
+	float luz = step(0.72, onda) * 0.09 + step(0.9, onda) * 0.09;
+	float sombra = step(onda, -0.8) * 0.05;
+	c.rgb += vec3(luz * 0.75, luz, luz * 0.95) * c.a - vec3(sombra) * c.a;
+	COLOR = c;
+}
+"""
+var _shader_agua: ShaderMaterial
+
+
+func _material_agua() -> ShaderMaterial:
+	if not _shader_agua:
+		var sh := Shader.new()
+		sh.code = SHADER_AGUA
+		_shader_agua = ShaderMaterial.new()
+		_shader_agua.shader = sh
+	return _shader_agua
+
+
+## Anéis dos pingos de chuva abrindo na água.
+var _agua_de := {}              # lugar → células de água escura
+var _proximo_pingo := 0.0
+var _tex_anel: ImageTexture
+
+
+func _pingos_na_agua(delta: float) -> void:
+	var celulas: Array = _agua_de.get(lugar_atual, [])
+	if celulas.is_empty():
+		return
+	_proximo_pingo -= delta
+	if _proximo_pingo > 0.0:
+		return
+	var forte := lugar_atual == "nana_lagoa" and _chuva_forte
+	_proximo_pingo = randf_range(0.03, 0.08) if forte else randf_range(0.08, 0.2)
+	var camera: Camera2D = jogador.get_node("Camera")
+	var centro := camera.get_screen_center_position()
+	var origem: Vector2 = lugares[lugar_atual]["origem"]
+	for tentativa in 6:                    # só onde aparece na tela
+		var cel: Vector2i = celulas[randi() % celulas.size()]
+		var pos := origem + Vector2(cel) * TILE + Vector2(randf_range(2, 14), randf_range(2, 14))
+		if absf(pos.x - centro.x) < 140 and absf(pos.y - centro.y) < 125:
+			_anel(pos)
+			return
+
+
+func _anel(pos: Vector2) -> void:
+	if not _tex_anel:
+		var img := Image.create(9, 5, false, Image.FORMAT_RGBA8)
+		for x in 9:
+			for y in 5:
+				var dx := (x - 4) / 4.0
+				var dy := (y - 2) / 2.0
+				var r := dx * dx + dy * dy
+				if r > 0.55 and r < 1.15:
+					img.set_pixel(x, y, Color(0.75, 0.88, 0.85, 0.8))
+		_tex_anel = ImageTexture.create_from_image(img)
+	var s := Sprite2D.new()
+	s.texture = _tex_anel
+	s.position = pos
+	s.z_index = -3
+	s.scale = Vector2(0.3, 0.3)
+	add_child(s)
+	var t := create_tween()
+	t.tween_property(s, "scale", Vector2(1.2, 1.2), 0.55)
+	t.parallel().tween_property(s, "modulate:a", 0.0, 0.55)
+	t.tween_callback(s.queue_free)
 
 
 func _guardar_celulas() -> void:
@@ -294,6 +376,14 @@ func _guardar_celulas() -> void:
 							beira = true
 				if beira:
 					_lama_beira.append(Vector2i(x, y))
+	for lugar in lugares:
+		var m: PackedStringArray = _mapas[lugar]
+		var lista := []
+		for y in m.size():
+			for x in m[y].length():
+				if m[y][x] == "v":
+					lista.append(Vector2i(x, y))
+		_agua_de[lugar] = lista
 	var mangue: PackedStringArray = _mapas["nana_mangue"]
 	for y in mangue.size():
 		for x in mangue[y].length():
