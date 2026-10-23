@@ -1790,7 +1790,7 @@ func _lugar_livre_perto(lugar: String, pos: Vector2) -> Vector2:
 var _velas_brancas: Array = []
 
 
-## Letras próprias do quarto: j guias penduradas na parede, t trio de quartinhas, d defumador (com fumaça),
+## Letras próprias do quarto: u fotos da família na parede, j guias penduradas na parede, t trio de quartinhas, d defumador (com fumaça),
 ## y vaso de flores brancas, ! velas brancas acesas no chão.
 func _adereco_do_quarto(c: String, base: Vector2) -> bool:
 	match c:
@@ -1808,6 +1808,18 @@ func _adereco_do_quarto(c: String, base: Vector2) -> bool:
 			_luz(base + Vector2(0, -8), Color(1.0, 0.55, 0.3), 0.6, 0.5, true)
 		"y":
 			_criar_cenario("res://arte/obj_flores_brancas.png", Vector2(10, 6), base)
+		"u":
+			# as fotos antigas da família na parede: o bisavô, a bisavó, a Vó (no meio), o avô e a Vó moça com a
+			# mãe de Adé no colo. "u" marca só a parede; as posições ficam aqui (arte/obj_fotos.png).
+			var origem: Vector2 = lugares["quarto"]["origem"]
+			for f in [[56, 3, 0], [112, 2, 1], [128, 0, -1], [144, 1, 1], [202, 4, 0]]:
+				var foto := Sprite2D.new()
+				foto.texture = preload("res://arte/obj_fotos.png")
+				foto.hframes = 5
+				foto.frame = f[1]
+				foto.position = origem + Vector2(f[0], 13 + f[2])
+				foto.z_index = -2
+				add_child(foto)
 		"!":
 			var v := _criar_cenario("res://arte/obj_velas_brancas.png", Vector2.ZERO, base)
 			v.hframes = 2

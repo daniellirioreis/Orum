@@ -148,6 +148,8 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
 - O quarto tem piso branco (letras `w` e `x` no `fases/quarto.txt`, blocos 41 e 42 do `arte/tiles_snes.png`) e adereços:
   guias penduradas na parede (`j`), trio de quartinhas (`t`), defumador com fumaça (`d`), vasos de flores brancas (`y`),
   velas brancas acesas no chão (`!`), espadas-de-são-jorge, a esteira e um banco. Arte feita pelo `gerar_quarto_santo.py`.
+- Na parede, fotos antigas da família de Adé (`u`, `arte/obj_fotos.png`, feita pelo `gerar_fotos_parede.py`): o bisavô,
+  a bisavó (moldura oval dourada), a Vó no meio, o avô de chapéu e a Vó moça com a mãe de Adé no colo.
 - Depois que as oferendas são arriadas na tronqueira, elas saem do inventário de Adé (as caixinhas somem).
 - Saindo pela porteira de novo, Exu leva Adé direto ao mapa, na encruzilhada.
 - Para um troféu novo: o ícone fica em `ICONE_TROFEU` (no `scripts/terreiro.gd`), e as falas próprias em
