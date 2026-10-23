@@ -304,9 +304,12 @@ func _abrir_um(v: float, c: Dictionary) -> void:
 # ------------------------------------------------------------------ desenho dos caminhos e pontos
 
 func _draw() -> void:
-	for id in NOS:
-		if _vistos.has(id):
-			_desenhar_no(id)
+	# não há "bolinha" nos campos: a trilha termina numa clareira dentro de cada lugar.
+	# Só um brilho leve no chão mostra onde Adé está parado.
+	if not _andando:
+		var p: Vector2 = NOS[_no_atual]
+		var a := 0.35 + 0.3 * sin(_tempo * 5.0)
+		draw_arc(p + Vector2(0, 1), 8.0 + sin(_tempo * 5.0), 0, TAU, 24, Color(1, 1, 0.8, a), 1.0)
 	if not _ocupado and not _andando:
 		_desenhar_setas()
 
@@ -324,7 +327,24 @@ func _desenhar_trilhas() -> void:
 		for k in n + 1:
 			lista.append((pts.size() - 1 - k) if c.get("inverso", false) else k)
 		visiveis.append([c, lista])
+	# clareira de terra onde cada trilha termina
+	var fins := {}
+	for v in visiveis:
+		var c: Dictionary = v[0]
+		if c["aberto"] >= 0.999:
+			fins[c["a"]] = true
+			fins[c["b"]] = true
+		else:
+			fins[c["b"] if c.get("inverso", false) else c["a"]] = true
+	for id in fins:
+		_trilhas.draw_circle(NOS[id], 8.5, TRILHA_BORDA)
 	for camada in 4:
+		if camada == 1:
+			for id in fins:
+				_trilhas.draw_circle(NOS[id], 7.5, TRILHA_TERRA)
+		if camada == 2:
+			for id in fins:
+				_trilhas.draw_circle(NOS[id] + Vector2(-0.5, -1), 5.0, TRILHA_CLARA)
 		for v in visiveis:
 			var c: Dictionary = v[0]
 			var pts: PackedVector2Array = c["pontos"]
@@ -365,25 +385,6 @@ func _desenhar_trilhas() -> void:
 							_trilhas.draw_rect(Rect2(t, Vector2(1, 2)), TUFO)
 							_trilhas.draw_rect(Rect2(t + Vector2(1, 1), Vector2(1, 1)), TUFO)
 							_trilhas.draw_rect(Rect2(t + Vector2(-1, 1), Vector2(1, 1)), TUFO)
-
-
-func _desenhar_no(id: String) -> void:
-	var p: Vector2 = NOS[id]
-	var cores: Array = CORES[id]
-	var grande := id == "orita"
-	var r := 7.0 if grande else 6.0
-	draw_circle(p + Vector2(0, 2), r + 1.0, Color(0, 0, 0, 0.35))
-	draw_circle(p, r + 1.0, COR_CAMINHO_ESCURO)
-	draw_circle(p, r, cores[1])
-	draw_circle(p + Vector2(0, -1), r - 1.5, cores[0])
-	if grande:
-		# a encruzilhada: um "+" de caminho no meio, metade vermelho e metade preto
-		draw_rect(Rect2(p.x - 5, p.y - 1, 10, 3), COR_CAMINHO)
-		draw_rect(Rect2(p.x - 1, p.y - 5, 3, 10), COR_CAMINHO)
-	draw_rect(Rect2(p + Vector2(-3, -4), Vector2(2, 2)), Color(1, 1, 1, 0.75))
-	if id == _no_atual and not _andando:
-		var a := 0.45 + 0.35 * sin(_tempo * 5.0)
-		draw_arc(p, r + 3.0 + sin(_tempo * 5.0), 0, TAU, 24, Color(1, 1, 0.8, a), 1.0)
 
 
 func _desenhar_setas() -> void:
