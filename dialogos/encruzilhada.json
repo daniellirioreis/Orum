@@ -44,18 +44,18 @@
 		{"quem": "Èṣù", "yo": "Ẹ kú alẹ́, ọmọ mi.", "pt": "Boa noite, minha criança. Você olhou o gorro dos dois lados! Achei que ia passar a noite rodando essa estátua."},
 		{"quem": "Èṣù", "yo": "", "pt": "Os kiumbas e os redemoinhos já se foram. Correram de mim, não de você, viu? Aqui quem guarda o caminho sou eu."},
 		{"quem": "Adé", "yo": "Laroyê, Èṣù!", "pt": "Salve, Exu! A Vó me mandou. Quero conhecer todos os orixás."},
-		{"quem": "Èṣù", "yo": "", "pt": "Cada orixá cuida de um pedaço do mundo: a mata, o mar, a pedreira, o vento... E você cuida de tropeçar em tudo quanto é pedra."},
+		{"quem": "Èṣù", "yo": "Hi hi hi!", "pt": "Cada orixá cuida de um pedaço do mundo: a mata, o mar, a pedreira, o vento... E você cuida de tropeçar em tudo quanto é pedra."},
 		{"quem": "Èṣù", "yo": "", "pt": "Esses são os campos onde cada um atua. E todo caminho até eles passa por aqui. Sem pedágio... por enquanto."},
 		{"quem": "Èṣù", "yo": "Mo ṣí ọ̀nà fún ọ.", "pt": "Eu sou o dono dos caminhos. Vou abrir pra você... mas não vai se perder logo no primeiro, hein?"}
 	],
 	"exu_fim": [
-		{"quem": "Èṣù", "yo": "Ọ̀nà ti ṣí.", "pt": "Os caminhos estão abertos. Pode fechar a boca, menino, que entra mosquito.", "evento": "abrir_caminhos"},
+		{"quem": "Èṣù", "yo": "Ọ̀nà ti ṣí.", "pt": "Os caminhos estão abertos. Há há há! Pode fechar a boca, menino, que entra mosquito.", "evento": "abrir_caminhos"},
 		{"quem": "Èṣù", "yo": "", "pt": "Daqui saem caminhos para todos os lados. Cada um leva ao campo de um orixá. Nenhum leva pra cozinha da Tia Dora, já vou avisando."},
 		{"quem": "Èṣù", "yo": "", "pt": "Eu não vou escolher por você. Olhe bem, de mais de um lado... e escolha o seu caminho. Não vale tirar no par ou ímpar."},
 		{"quem": "Adé", "yo": "Laroyê, Èṣù!", "pt": "Obrigado, Exu! Eu vou escolher."}
 	],
 	"exu_depois": [
-		{"quem": "Èṣù", "yo": "", "pt": "A escolha é sua, minha criança. Vai ficar aí parado me olhando? Eu sei que sou bonito, mas o caminho é pra lá."}
+		{"quem": "Èṣù", "yo": "Hi hi hi!", "pt": "A escolha é sua, minha criança. Vai ficar aí parado me olhando? Eu sei que sou bonito, mas o caminho é pra lá."}
 	],
 	"campos": [
 		{"id": "oxala", "nome": "Oxalá", "yo": "Ọbàtálá", "saudacao": "Èpà Bàbá!", "campo": "O alto e o céu claro: a paz, a criação e a luz."},
@@ -75,9 +75,9 @@
 		{"quem": "Adé", "yo": "Laroyê, Èṣù!", "pt": "Vou levar para a Vó o que eu ganhei na viagem."},
 		{"quem": "Èṣù", "yo": "", "pt": "Quem vai e volta aprende o caminho. Hoje os kiumbas não te incomodam: mandei todos dormirem cedo."},
 		{"quem": "Èṣù", "yo": "", "pt": "Siga para o sul, pela mata e pela trilha, até a porteira do terreiro. O sul é pra baixo, viu? Só confirmando."},
-		{"quem": "Èṣù", "yo": "", "pt": "E da próxima vez é só me chamar no mapa, aqui na encruzilhada, que eu te levo direto. Economiza perna e sandália."}
+		{"quem": "Èṣù", "yo": "Hi hi hi!", "pt": "E da próxima vez é só me chamar no mapa, aqui na encruzilhada, que eu te levo direto. Economiza perna e sandália."}
 	],
 	"exu_volta_depois": [
-		{"quem": "Èṣù", "yo": "", "pt": "O caminho de casa fica ao sul, minha criança. Se for pro norte, vai parar na casa da avó de outro menino."}
+		{"quem": "Èṣù", "yo": "Há há há!", "pt": "O caminho de casa fica ao sul, minha criança. Se for pro norte, vai parar na casa da avó de outro menino."}
 	]
 }

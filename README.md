@@ -188,6 +188,9 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
 - **Som da chuva**: sempre que chove (no terreiro ou na terra de Nanã), toca o barulho da chuva caindo em laço
   (`sons/chuva.wav`), mais alto lá fora e abafado dentro de casa; na lagoa de Nanã ele engrossa com a chuva.
   Os relâmpagos agora têm trovão (`sons/trovao.wav`). Os dois sons são feitos pelo `gerar_som_chuva.py`.
+- **Exu brincalhão**: as falas de Exu zoam Adé de brincadeira, sem perder o ensinamento. Nas maiores zoações ele
+  ri: "Há há há!" (gargalhada) ou "Hi hi hi!" (risinho). O `scripts/dialogo.gd` toca o som sozinho quando a fala tem
+  a risada (`sons/gargalhada.wav` e `sons/risinho.wav`, feitos pelo `gerar_som_riso.py`).
 
 **A volta para o terreiro e o quarto de santo**
 - No mapa, apertar E na encruzilhada leva Adé de volta para casa. Na primeira vez ele volta a pé pela Oríta Mẹ́ta, fazendo

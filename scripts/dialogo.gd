@@ -66,8 +66,18 @@ func _mostrar_linha() -> void:
 	_letras = 0.0
 	_total = _yoruba.text.length() + _legenda.text.length()
 	_atualizar_texto()
+	_rir(linha.get("yo", "") + " " + linha.get("pt", ""))
 	if linha.has("evento"):
 		evento.emit(linha["evento"])
+
+
+## Quando a fala tem a risada de Exu, toca o som: "Há há há!" é a gargalhada, "hi hi hi!" o risinho.
+func _rir(texto: String) -> void:
+	var t := texto.to_lower()
+	if "há há há" in t:
+		Jogo.tocar_som("gargalhada", -2.0)
+	elif "hi hi hi" in t:
+		Jogo.tocar_som("risinho", -3.0)
 
 
 func _process(delta: float) -> void:

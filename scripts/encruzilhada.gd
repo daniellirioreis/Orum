@@ -576,10 +576,10 @@ func _exu_troca_buzios() -> bool:
 	var n: int = Jogo.buzios
 	var pode := mini(AXE_MAX, n / BUZIOS_POR_AXE)
 	var falas := [
-		{"quem": "Èṣù", "yo": "Láròyé!", "pt": "Laroyê, menino! Caiu de novo? Desse jeito vou ter que te levar no colo até a Vó!"},
+		{"quem": "Èṣù", "yo": "Láròyé!", "pt": "Laroyê, menino! Há há há! Caiu de novo? Desse jeito vou ter que te levar no colo até a Vó!"},
 	]
 	if pode == 0:
-		falas.append({"quem": "Èṣù", "yo": "", "pt": "Com %d búzios eu devolvo um búzio de axé... mas você só juntou %d. Com isso eu compro um pirulito, não um axé!" % [BUZIOS_POR_AXE, n]})
+		falas.append({"quem": "Èṣù", "yo": "Hi hi hi!", "pt": "Com %d búzios eu devolvo um búzio de axé... mas você só juntou %d. Com isso eu compro um pirulito, não um axé!" % [BUZIOS_POR_AXE, n]})
 		falas.append({"quem": "Èṣù", "yo": "", "pt": "Da próxima vez, junte os búzios do caminho. Eu guardo o que é seu... e conto pra Vó que você caiu!"})
 		await _falar_linhas(falas)
 		jogador.congelar(true)
@@ -596,7 +596,7 @@ func _exu_troca_buzios() -> bool:
 		r = await Jogo.menu.escolher("Búzios guardados: %d" % n, opcoes, pode - 1)
 	jogador.congelar(true)
 	if r["i"] >= pode:
-		await _falar_linhas([{"quem": "Èṣù", "yo": "", "pt": "Então o caminho acaba aqui... por enquanto. Vou ficar rindo desse tombo até amanhã."}])
+		await _falar_linhas([{"quem": "Èṣù", "yo": "Há há há!", "pt": "Então o caminho acaba aqui... por enquanto. Vou ficar rindo desse tombo até amanhã."}])
 		jogador.congelar(true)
 		return false
 	var k: int = r["i"] + 1
@@ -604,7 +604,7 @@ func _exu_troca_buzios() -> bool:
 	axe = k
 	_atualizar_axe()
 	Jogo.tocar_som("buzio", 0.0)
-	await _falar_linhas([{"quem": "Èṣù", "yo": "", "pt": "Feito! O axé volta pra quem sabe guardar o que junta. Mas da próxima vez eu cobro em farofa."}])
+	await _falar_linhas([{"quem": "Èṣù", "yo": "Hi hi hi!", "pt": "Feito! O axé volta pra quem sabe guardar o que junta. Mas da próxima vez eu cobro em farofa."}])
 	jogador.congelar(true)
 	return true
 
