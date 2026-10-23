@@ -118,6 +118,12 @@ func mudar_cena(caminho: String) -> void:
 
 ## Nome do botão de uma ação, para mostrar na tela (muda se o jogador troca de teclado para controle).
 func botao(acao: String) -> String:
+	var mapa := {"interagir": "interagir", "confirmar": "interagir", "atirar": "atirar", "devagar": "devagar",
+		"ver_mapa": "ver_mapa", "pausa": "sair"}
+	if mapa.has(acao):          # lê do controle configurado (o jogador pode ter trocado os botões)
+		var n := nome_controle(mapa[acao], usando_controle)
+		if n != "":
+			return n
 	return NOMES_BOTOES.get(acao, [acao, acao])[1 if usando_controle else 0]
 
 
@@ -179,11 +185,13 @@ func _configurar_controles() -> void:
 	_acao("atirar", [KEY_SPACE, KEY_Z, KEY_J], [JOY_BUTTON_B])
 	_acao("devagar", [KEY_SHIFT, KEY_C], [JOY_BUTTON_LEFT_SHOULDER, JOY_BUTTON_RIGHT_SHOULDER])
 	_acao("tela_cheia", [KEY_F11], [])
+	_ler_controles()
 
 
 func _acao(nome: String, teclas: Array, botoes: Array, eixo := -1, direcao := 0.0) -> void:
 	if not InputMap.has_action(nome):
 		InputMap.add_action(nome, 0.3)
+	InputMap.action_erase_events(nome)
 	for tecla in teclas:
 		var ev := InputEventKey.new()
 		ev.physical_keycode = tecla
@@ -197,6 +205,143 @@ func _acao(nome: String, teclas: Array, botoes: Array, eixo := -1, direcao := 0.
 		eva.axis = eixo
 		eva.axis_value = direcao
 		InputMap.action_add_event(nome, eva)
+
+
+# ------------------------------------------------------------------ trocar os controles (Configurações → Controles)
+
+## As ações que o jogador pode trocar, com o nome que aparece no menu.
+const CONTROLAVEIS := [
+	["interagir", "Falar / confirmar"], ["atirar", "Atirar"], ["devagar", "Andar devagar"],
+	["ver_mapa", "Ver a ilha"], ["sair", "Pausa"],
+	["cima", "Cima"], ["baixo", "Baixo"], ["esquerda", "Esquerda"], ["direita", "Direita"],
+]
+const NOMES_JOY := {
+	JOY_BUTTON_A: "A", JOY_BUTTON_B: "B", JOY_BUTTON_X: "X", JOY_BUTTON_Y: "Y",
+	JOY_BUTTON_LEFT_SHOULDER: "L", JOY_BUTTON_RIGHT_SHOULDER: "R", JOY_BUTTON_START: "Start",
+	JOY_BUTTON_BACK: "Select", JOY_BUTTON_DPAD_UP: "↑", JOY_BUTTON_DPAD_DOWN: "↓",
+	JOY_BUTTON_DPAD_LEFT: "←", JOY_BUTTON_DPAD_RIGHT: "→", JOY_BUTTON_LEFT_STICK: "L3",
+	JOY_BUTTON_RIGHT_STICK: "R3", JOY_BUTTON_GUIDE: "Guia",
+}
+const NOMES_TECLAS := {"Space": "Espaço", "Escape": "Esc", "Up": "↑", "Down": "↓", "Left": "←", "Right": "→",
+	"Backspace": "Apagar", "Tab": "Tab", "Shift": "Shift", "Ctrl": "Ctrl", "Alt": "Alt"}
+
+
+func _nome_do_evento(ev: InputEvent) -> String:
+	if ev is InputEventKey:
+		var n := OS.get_keycode_string(ev.physical_keycode if ev.physical_keycode != KEY_NONE else ev.keycode)
+		return NOMES_TECLAS.get(n, n)
+	if ev is InputEventJoypadButton:
+		return NOMES_JOY.get(ev.button_index, "Botão %d" % ev.button_index)
+	return ""
+
+
+## Nome da tecla (ou dos botões do controle) de uma ação, como ela está configurada agora.
+func nome_controle(acao: String, do_controle: bool) -> String:
+	var nomes := []
+	for ev in InputMap.action_get_events(acao):
+		if do_controle and ev is InputEventJoypadButton:
+			nomes.append(_nome_do_evento(ev))
+		elif not do_controle and ev is InputEventKey:
+			return _nome_do_evento(ev)          # no teclado, só a tecla principal
+	return " ou ".join(nomes)
+
+
+## Troca a tecla principal (ou o botão) de uma ação. Se outra ação usava essa tecla, as duas trocam.
+func trocar_controle(acao: String, novo: InputEvent) -> void:
+	var de_controle := novo is InputEventJoypadButton
+	var antigo: InputEvent = null
+	for ev in InputMap.action_get_events(acao):
+		if (de_controle and ev is InputEventJoypadButton) or (not de_controle and ev is InputEventKey):
+			antigo = ev
+			break
+	var limpo: InputEvent
+	if de_controle:
+		limpo = InputEventJoypadButton.new()
+		limpo.button_index = novo.button_index
+	else:
+		limpo = InputEventKey.new()
+		limpo.physical_keycode = novo.physical_keycode if novo.physical_keycode != KEY_NONE else novo.keycode
+	for par in CONTROLAVEIS:
+		var outra: String = par[0]
+		if outra == acao:
+			continue
+		for ev in InputMap.action_get_events(outra):
+			if _mesmo(ev, limpo):
+				InputMap.action_erase_event(outra, ev)
+				if antigo:
+					InputMap.action_add_event(outra, antigo.duplicate())
+	if de_controle:     # no controle, cada ação fica com um botão só
+		for ev in InputMap.action_get_events(acao):
+			if ev is InputEventJoypadButton:
+				InputMap.action_erase_event(acao, ev)
+	else:
+		if antigo:
+			InputMap.action_erase_event(acao, antigo)
+		for ev in InputMap.action_get_events(acao):
+			if _mesmo(ev, limpo):
+				InputMap.action_erase_event(acao, ev)
+	# a nova vira a principal (fica em primeiro)
+	var resto := InputMap.action_get_events(acao)
+	InputMap.action_erase_events(acao)
+	InputMap.action_add_event(acao, limpo)
+	for ev in resto:
+		InputMap.action_add_event(acao, ev)
+	_salvar_controles()
+	dispositivo_mudou.emit()       # para os textos ("Aperte E") se atualizarem
+
+
+func _mesmo(a: InputEvent, b: InputEvent) -> bool:
+	if a is InputEventKey and b is InputEventKey:
+		return a.physical_keycode == b.physical_keycode
+	if a is InputEventJoypadButton and b is InputEventJoypadButton:
+		return a.button_index == b.button_index
+	return false
+
+
+func restaurar_controles() -> void:
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://controles.cfg"))
+	_configurar_controles()
+	dispositivo_mudou.emit()
+
+
+func _salvar_controles() -> void:
+	var cfg := ConfigFile.new()
+	for par in CONTROLAVEIS:
+		var teclas := []
+		var botoes := []
+		for ev in InputMap.action_get_events(par[0]):
+			if ev is InputEventKey:
+				teclas.append(ev.physical_keycode)
+			elif ev is InputEventJoypadButton:
+				botoes.append(ev.button_index)
+		cfg.set_value(par[0], "teclas", teclas)
+		cfg.set_value(par[0], "botoes", botoes)
+	cfg.save("user://controles.cfg")
+
+
+func _ler_controles() -> void:
+	var cfg := ConfigFile.new()
+	if cfg.load("user://controles.cfg") != OK:
+		return
+	for par in CONTROLAVEIS:
+		var acao: String = par[0]
+		if not cfg.has_section(acao):
+			continue
+		var eixos := []
+		for ev in InputMap.action_get_events(acao):
+			if ev is InputEventJoypadMotion:
+				eixos.append(ev)
+		InputMap.action_erase_events(acao)
+		for k in cfg.get_value(acao, "teclas", []):
+			var ev := InputEventKey.new()
+			ev.physical_keycode = int(k)
+			InputMap.action_add_event(acao, ev)
+		for b in cfg.get_value(acao, "botoes", []):
+			var evb := InputEventJoypadButton.new()
+			evb.button_index = int(b)
+			InputMap.action_add_event(acao, evb)
+		for e in eixos:
+			InputMap.action_add_event(acao, e)
 
 
 # ------------------------------------------------------------------ opções (volume e tela)

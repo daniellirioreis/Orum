@@ -39,6 +39,10 @@ Esta versão tem o **Prólogo** completo, em duas partes:
 | Pular (fases de plataforma antigas) | Espaço, W, ↑ ou Z | A |
 | Tela cheia | F11 | (em Configurações) |
 
+Os controles podem ser trocados em **Configurações → Controles** (no título ou na pausa): escolha a ação e aperte
+a nova tecla ou o novo botão do controle. Se outra ação já usava aquela tecla, as duas trocam. "Restaurar o padrão"
+volta tudo como era. A escolha fica guardada em `user://controles.cfg`.
+
 Os textos do jogo mostram os botões de quem está jogando: se o último toque foi no controle, aparece "Aperte A";
 no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}`, `{devagar}`, `{ver_mapa}`, `{pausa}`,
 `{andar}`, `{setas}` ou `{confirmar}`, e o jogo troca pelo botão certo (a lista fica em `NOMES_BOTOES`, no `scripts/jogo.gd`).

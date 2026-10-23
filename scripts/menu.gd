@@ -18,6 +18,8 @@ var _cursor := 0
 var _desativadas: Array = []
 var _lateral := false
 var _resposta = null
+var _capturando := false       # esperando a nova tecla ou botão (Configurações → Controles)
+var _capturado: InputEvent
 var _transparente := false     # sem caixa: as opções aparecem direto por cima do fundo (tela de título)
 var _topo := 100.0
 
@@ -104,6 +106,14 @@ func _montar(titulo: String, opcoes: Array, rodape: String) -> void:
 ## As opções direto por cima do fundo, centralizadas, com contorno escuro (como nos títulos dos 16 bits).
 func _montar_sem_caixa(titulo: String, opcoes: Array, rodape: String) -> void:
 	var y := _topo
+	var altura_lista := (15.0 if titulo != "" else 0.0) + opcoes.size() * 13.0 + (14.0 if rodape != "" else 0.0)
+	if y + altura_lista > Jogo.TELA.y - 6.0:
+		# lista comprida (os controles): sobe e ganha uma faixa escura atrás, para dar para ler
+		y = maxf(6.0, (Jogo.TELA.y - altura_lista) / 2.0)
+		var faixa := ColorRect.new()
+		faixa.color = Color(0.05, 0.03, 0.1, 0.86)
+		faixa.set_anchors_preset(Control.PRESET_FULL_RECT)
+		_raiz.add_child(faixa)
 	if titulo != "":
 		var t := _rotulo(titulo, 9, COR_TITULO)
 		t.add_theme_font_override("font", preload("res://fontes/NotoSans-SemiBold.ttf"))
@@ -150,6 +160,14 @@ func _atualizar() -> void:
 
 
 func _input(ev: InputEvent) -> void:
+	if _capturando:
+		if ev.is_echo() or not ev.is_pressed():
+			return
+		if ev is InputEventKey or ev is InputEventJoypadButton:
+			get_viewport().set_input_as_handled()
+			_capturado = ev
+			_capturando = false
+		return
 	if not aberto or _resposta != null or _linhas.is_empty():
 		return
 	if ev.is_action_pressed("cima"):
@@ -233,6 +251,7 @@ func opcoes() -> void:
 			"Música:   " + _barra(Jogo.opcoes["musica"]),
 			"Efeitos:  " + _barra(Jogo.opcoes["efeitos"]),
 			"Tela cheia:  " + ("sim" if get_window().mode == Window.MODE_FULLSCREEN else "não"),
+			"Controles",
 			"Voltar",
 		]
 		var r := await escolher("Configurações", itens, i, true, [], "← → para ajustar   ·   %s voltar" % ("B" if Jogo.usando_controle else "Esc"))
@@ -246,8 +265,11 @@ func opcoes() -> void:
 			"dir":
 				passo = 1
 			"ok":
-				if i == 3:
+				if i == 4:
 					break
+				if i == 3:
+					await controles()
+					continue
 				passo = 1
 		if i == 0:
 			Jogo.mudar_opcao("musica", clampi(Jogo.opcoes["musica"] + passo, 0, 10))
@@ -259,6 +281,51 @@ func opcoes() -> void:
 			janela.mode = Window.MODE_WINDOWED if janela.mode == Window.MODE_FULLSCREEN else Window.MODE_FULLSCREEN
 	_fechar_caixa()
 	aberto = false
+
+
+## Configurações → Controles: cada ação com a tecla e o botão do controle. Escolhendo uma, aperta-se a nova.
+func controles() -> void:
+	var i := 0
+	while true:
+		var itens := []
+		for par in Jogo.CONTROLAVEIS:
+			itens.append("%s:  %s  ·  %s" % [par[1], Jogo.nome_controle(par[0], false),
+				Jogo.nome_controle(par[0], true) if Jogo.nome_controle(par[0], true) != "" else "—"])
+		itens.append("Restaurar o padrão")
+		itens.append("Voltar")
+		var r := await escolher("Controles  (teclado · controle)", itens, i, false, [],
+			"Escolha uma ação e aperte a nova tecla ou botão")
+		if r["acao"] == "cancelar":
+			break
+		i = r["i"]
+		if i == itens.size() - 1:
+			break
+		if i == itens.size() - 2:
+			Jogo.restaurar_controles()
+			continue
+		var par: Array = Jogo.CONTROLAVEIS[i]
+		await get_tree().create_timer(0.15, true, false, true).timeout
+		var ev := await _esperar_tecla("Aperte a nova tecla ou botão para:\n%s" % par[1])
+		if ev is InputEventKey and ev.physical_keycode == KEY_ESCAPE and par[0] != "sair":
+			continue          # Esc desiste da troca
+		if ev:
+			Jogo.trocar_controle(par[0], ev)
+			Jogo.tocar_som("buzio", -6.0)
+	_fechar_caixa()
+	aberto = false
+
+
+func _esperar_tecla(texto: String) -> InputEvent:
+	_fechar_caixa()
+	aberto = true
+	_montar(texto.split("\n")[0], [texto.split("\n")[1] if texto.contains("\n") else ""], "Esc desiste")
+	_linhas[0].text = _linhas[0].text.trim_prefix("▶ ")
+	_capturado = null
+	_capturando = true
+	while _capturando:
+		await get_tree().process_frame
+	_fechar_caixa()
+	return _capturado
 
 
 func _barra(v: int) -> String:
