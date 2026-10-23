@@ -10,6 +10,8 @@ var buzios_total := 0
 var falou_com_exu := false
 ## troféus que Adé ganhou dos orixás (id do orixá → nome do troféu), para levar ao terreiro da Vó
 var trofeus := {}
+## troféus que a Vó já colocou no assentamento do orixá, no quarto de santo
+var assentados := {}
 
 var _musica: AudioStreamPlayer
 var _fade: ColorRect
@@ -44,6 +46,7 @@ func reiniciar() -> void:
 	buzios_total = 0
 	falou_com_exu = false
 	trofeus = {}
+	assentados = {}
 
 
 func tocar_musica() -> void:

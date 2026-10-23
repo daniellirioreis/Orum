@@ -119,6 +119,21 @@ Esta versão tem o **Prólogo** completo, em duas partes:
 - Arte nova: `arte/ox_*.png` (feita pelo `gerar_arte_mata.py`) e o Oxóssi animado em `arte/oxossi_anim.png`.
 - Para testar direto, abra `cenas/mata_oxossi.tscn` no Godot e aperte F6.
 
+**A volta para o terreiro e o quarto de santo**
+- No mapa, apertar E na encruzilhada leva Adé de volta para casa. Na primeira vez ele volta a pé pela Oríta Mẹ́ta, fazendo
+  o caminho inverso: o cruzamento (Exu está lá e conversa com ele), a mata das lamparinas e a trilha da pedra, até a
+  saída do sul (letra `/` em `fases/enc_trilha_objetos.txt`). Os enigmas já estão resolvidos e não há kiumbas: Exu guarda
+  o caminho. Daí em diante, o mapa leva direto ao terreiro (o atalho).
+- No terreiro, a porteira está aberta e a Vó espera na tronqueira. Adé conta a viagem e entrega os troféus; a Vó leva
+  Adé ao **quarto de santo** (porta nova na parede esquerda do barracão, mapa `fases/quarto.txt`), anda até o
+  assentamento do orixá, coloca o troféu, acende a vela e saúda o orixá. Depois abençoa Adé.
+- O quarto tem um assentamento para cada orixá (Ogum, Oxóssi, Xangô, Iansã, Oxalá no meio, Oxum, Iemanjá, Nanã e Omolu),
+  cada um na sua cor (`arte/assentamentos.png`, feita pelo `gerar_assentamentos.py`). Os vazios ficam apagados.
+  Exu já tem o dele: a tronqueira. Os troféus entregues ficam em `Jogo.assentados`.
+- Saindo pela porteira de novo, Exu leva Adé direto ao mapa, na encruzilhada.
+- Para um troféu novo: o ícone fica em `ICONE_TROFEU` (no `scripts/terreiro.gd`), e as falas próprias em
+  `conta_<id>` (Adé contando a viagem) e `assenta_<id>` (depois de assentar), em `dialogos/terreiro.json`.
+
 **Os orixás (modelos)** — `arte/orixas.png`, feita pelo `gerar_orixas.py`
 - Dez quadros de 24x44 (um pouco maiores que o Adé), nesta ordem: Exu, Ogum, Oxóssi, Xangô, Iansã, Oxum,
   Iemanjá, Nanã, Omolu e Oxalá. Quem usa adê tem o rosto coberto pela franja de contas, como na tradição.

@@ -67,5 +67,17 @@
 		{"id": "omolu", "nome": "Omolu", "yo": "Ọmọlu", "saudacao": "Atotô!", "campo": "A terra: a cura e as passagens da vida."},
 		{"id": "oxossi", "nome": "Oxóssi", "yo": "Ọ̀ṣọ́ọ̀sì", "saudacao": "Okê Arô!", "campo": "As matas: a caça, a fartura e o conhecimento."},
 		{"id": "ogum", "nome": "Ogum", "yo": "Ògún", "saudacao": "Ogunhê!", "campo": "Os caminhos e o ferro: a coragem que abre a estrada."}
+	],
+
+	"volta": [
+		{"quem": "Adé", "yo": "", "pt": "A encruzilhada de novo... Mas agora as tochas e as lamparinas estão todas acesas."},
+		{"quem": "Èṣù", "yo": "Ẹ kú alẹ́, ọmọ mi.", "pt": "Boa noite, minha criança. Voltando para casa?"},
+		{"quem": "Adé", "yo": "Laroyê, Èṣù!", "pt": "Vou levar para a Vó o que eu ganhei na viagem."},
+		{"quem": "Èṣù", "yo": "", "pt": "Quem vai e volta aprende o caminho. Hoje os kiumbas não te incomodam: eu guardo a sua passagem."},
+		{"quem": "Èṣù", "yo": "", "pt": "Siga para o sul, pela mata e pela trilha, até a porteira do terreiro."},
+		{"quem": "Èṣù", "yo": "", "pt": "E da próxima vez é só me chamar no mapa, aqui na encruzilhada, que eu te levo direto."}
+	],
+	"exu_volta_depois": [
+		{"quem": "Èṣù", "yo": "", "pt": "O caminho de casa fica ao sul, minha criança."}
 	]
 }

@@ -11,6 +11,10 @@ extends "res://scripts/terreiro.gd"
 ## Exu aparece e abre os caminhos: Adé sai da encruzilhada por qualquer um deles (norte, oeste ou leste)
 ## e chega ao mapa dos caminhos (cenas/mapa_mundo.tscn), onde escolhe o campo de um orixá.
 ##
+## A volta (Jogo.get_meta("volta")): Adé sai do mapa pela encruzilhada e faz o caminho inverso, do cruzamento
+## até a trilha, e de lá para o terreiro (saída "/", no sul da trilha). Os enigmas já estão resolvidos e
+## os kiumbas não aparecem: Exu guarda o caminho. Depois da primeira volta, o mapa ganha o atalho direto.
+##
 ## Cada redemoinho que pega Adé leva um búzio de axé; sem axé, ele volta para a entrada do lugar.
 
 const LUGARES_ENC := {
@@ -83,7 +87,11 @@ func _ready() -> void:
 	_entrar_lugar("enc_trilha")
 	for nome in lugares:
 		_criar_vagalumes(nome)
-	_inicio()
+	if Jogo.has_meta("volta"):
+		Jogo.remove_meta("volta")
+		_preparar_volta()
+	else:
+		_inicio()
 
 
 func _inicio() -> void:
@@ -181,6 +189,19 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			mundo.add_child(v)
 			_velas.append(v)
 			_luz(base + Vector2(0, -12), Color(1.0, 0.55, 0.3), 1.1, 1.3, true)
+		"/":
+			# saída para o terreiro (só na volta)
+			var area_sul := Area2D.new()
+			area_sul.collision_layer = 0
+			area_sul.collision_mask = 2
+			area_sul.position = base - Vector2(0, TILE / 2.0)
+			var forma_sul := CollisionShape2D.new()
+			var ret_sul := RectangleShape2D.new()
+			ret_sul.size = Vector2(14, 12)
+			forma_sul.shape = ret_sul
+			area_sul.add_child(forma_sul)
+			area_sul.body_entered.connect(_voltar_ao_terreiro)
+			add_child(area_sul)
 		">":
 			var area := Area2D.new()
 			area.collision_layer = 0
@@ -703,6 +724,9 @@ func _ao_evento(nome: String) -> void:
 
 
 func _falar_com_exu() -> void:
+	if estado == "volta":
+		await _falar("exu_volta_depois")
+		return
 	if estado != "livre":
 		return
 	await _falar("exu_depois")
@@ -723,3 +747,76 @@ func _sair(corpo: Node2D) -> void:
 	estado = "saindo"
 	jogador.congelar(true)
 	Jogo.mudar_cena("res://cenas/mapa_mundo.tscn")
+
+
+# ------------------------------------------------------------------ a volta para o terreiro
+
+func _preparar_volta() -> void:
+	estado = "volta"
+	# tudo já foi resolvido na ida: cancelas abertas, lamparinas acesas, pedra no riacho
+	for lugar in _cancelas:
+		var c: Dictionary = _cancelas[lugar]
+		c["aberta"] = true
+		c["sprite"].frame = 1
+		c["forma"].set_deferred("disabled", true)
+		for cel in c["celulas"]:
+			_ocupado.erase(_chave(lugar, cel))
+	for t in _tochas:
+		t["acesa"] = true
+		t["no"].sprite.frame = 1
+		t["no"].ativo = false
+		t["luz"] = _luz(t["no"].position + Vector2(0, -22), Color(1.0, 0.62, 0.3), 3.0, 1.5, true)
+		_pontos_de_luz.append([t["lugar"], t["no"].position])
+	for p in _pedras:
+		if p["lugar"] == "enc_orita":
+			_pedra_no_riacho(p)
+	_espantar_sombras()
+	for k in _kiumbas:
+		k["no"].visible = false
+	# Exu já está no meio da encruzilhada, no lugar da estátua
+	if _estatua:
+		_estatua.visible = false
+		_estatua.ativo = false
+		_estatua.get_node("Corpo/Forma").set_deferred("disabled", true)
+	marcas["e"] = _exu_pos
+	var origem: Vector2 = lugares["enc_orita"]["origem"]
+	teleportar("enc_orita", origem + Vector2(13 * TILE + TILE, 2 * TILE - 2))
+	jogador.direcao_olhar = "frente"
+	jogador.congelar(true)
+	_exu_aparece()
+	_ponto_de_conversa(_exu_pos, Vector2(12, 6), 26.0, -42.0).interagiu.connect(_falar_com_exu)
+	await get_tree().create_timer(0.8).timeout
+	$HUD.mostrar_titulo("Oríta Mẹ́ta", "O caminho de volta")
+	await get_tree().create_timer(1.6).timeout
+	await _falar("volta")
+
+
+## Põe a pedra no primeiro bloco de água abaixo dela, já afundada (a passagem do riacho).
+func _pedra_no_riacho(p: Dictionary) -> void:
+	var lugar: String = p["lugar"]
+	var cel: Vector2i = p["celula"]
+	var mapa: PackedStringArray = _mapas[lugar]
+	while cel.y > 0 and _letra(mapa, cel.x, cel.y) != "~":
+		cel.y -= 1
+	if _letra(mapa, cel.x, cel.y) != "~":
+		return
+	p["celula"] = cel
+	p["no"].position = _base_celula(lugar, cel)
+	p["afundou"] = true
+	p["forma"].set_deferred("disabled", true)
+	var s: Sprite2D = p["sprite"]
+	s.z_index = -4
+	s.offset.y = -6.0
+	s.modulate = Color(0.62, 0.72, 0.88)
+	_pontes[_chave(lugar, cel)] = true
+	_chaos[lugar].erase_cell(cel)
+
+
+func _voltar_ao_terreiro(corpo: Node2D) -> void:
+	if not corpo.is_in_group("jogador") or estado != "volta":
+		return
+	estado = "saindo"
+	jogador.congelar(true)
+	Jogo.set_meta("volta_feita", true)     # daqui para a frente, o mapa tem o atalho direto
+	Jogo.set_meta("retorno", true)
+	Jogo.mudar_cena("res://cenas/terreiro.tscn")

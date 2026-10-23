@@ -25,6 +25,7 @@ const LUGARES := {
 	"barracao": {"origem": Vector2(0, 1200), "dentro": true},
 	"cozinha": {"origem": Vector2(700, 1200), "dentro": true},
 	"despensa": {"origem": Vector2(1200, 1200), "dentro": true},
+	"quarto": {"origem": Vector2(2200, 1200), "dentro": true},
 }
 const LUGAR_INICIAL := "barracao"
 
@@ -94,6 +95,18 @@ const CENA_INTERATIVO := preload("res://cenas/interativo.tscn")
 const TEX_ITENS := preload("res://arte/itens.png")
 const TEX_SOMBRA := preload("res://arte/sombra.png")
 
+## O quarto de santo: um assentamento para cada orixá, na ordem em que ficam na parede
+## (Exu já tem o dele: a tronqueira). Quando Adé traz o troféu de um orixá, a Vó coloca no assentamento
+## e a vela se acende. Folha arte/assentamentos.png: uma linha por orixá, quadro 0 apagado e 1 aceso.
+const ASSENTAMENTOS := ["ogum", "oxossi", "xango", "iansa", "oxala", "oxum", "iemanja", "nana", "omolu"]
+const COR_ASSENTAMENTO := {
+	"ogum": Color(0.4, 0.55, 1.0), "oxossi": Color(0.4, 1.0, 0.6), "xango": Color(1.0, 0.45, 0.35),
+	"iansa": Color(1.0, 0.6, 0.3), "oxala": Color(1.0, 1.0, 1.0), "oxum": Color(1.0, 0.85, 0.3),
+	"iemanja": Color(0.55, 0.8, 1.0), "nana": Color(0.8, 0.6, 1.0), "omolu": Color(0.9, 0.75, 0.5),
+}
+## Ícone de cada troféu: [folha, quadro de 12x12]
+const ICONE_TROFEU := {"oxossi": ["res://arte/ox_itens.png", 3]}
+
 ## Etapas: sonho → acordou → buscando → pronto → na_tronqueira → ritual → aberto
 var estado := "sonho"
 var coletados := {}
@@ -143,11 +156,20 @@ var _roda := {}               # roda de capoeira
 var _chamas: Array = []
 var _tempo := 0.0
 var _cor_fundo_antiga: Color
+var _retorno := false         # Adé voltou de um campo (pela encruzilhada ou pelo atalho do mapa)
+var _assentamentos := {}      # id do orixá → interativo do assentamento
+var _campos := {}             # id → nome, saudação (de dialogos/encruzilhada.json)
 
 
 func _ready() -> void:
-	Jogo.reiniciar()
+	_retorno = Jogo.has_meta("retorno")
+	if _retorno:
+		Jogo.remove_meta("retorno")
+	else:
+		Jogo.reiniciar()
 	Jogo.tocar_musica()
+	for c in JSON.parse_string(FileAccess.get_file_as_string("res://dialogos/encruzilhada.json"))["campos"]:
+		_campos[c["id"]] = c
 	_cor_fundo_antiga = RenderingServer.get_default_clear_color()
 	RenderingServer.set_default_clear_color(Color.BLACK)   # fora das salas é tudo escuro
 	_dados = JSON.parse_string(FileAccess.get_file_as_string(ARQUIVO_DIALOGO))
@@ -168,7 +190,11 @@ func _ready() -> void:
 	_criar_interface()
 	$Dialogo.evento.connect(_ao_evento)
 	_entrar_lugar(LUGAR_INICIAL)
-	_sonho()
+	_mostrar_assentamentos()
+	if _retorno:
+		_preparar_retorno()
+	else:
+		_sonho()
 
 
 func _exit_tree() -> void:
@@ -309,6 +335,9 @@ func _sonho() -> void:
 
 
 func _falar_com_vo() -> void:
+	if _retorno:
+		await _vo_no_retorno()
+		return
 	match estado:
 		"acordou":
 			await _falar("conversa")
@@ -604,7 +633,12 @@ func _ao_passar_porteira(corpo: Node2D) -> void:
 		return
 	estado = "saindo"
 	jogador.congelar(true)
-	Jogo.mudar_cena("res://cenas/encruzilhada.tscn")
+	if _retorno:
+		# os caminhos já estão abertos: Exu leva Adé direto ao mapa, na encruzilhada
+		Jogo.set_meta("no_mapa", "orita")
+		Jogo.mudar_cena("res://cenas/mapa_mundo.tscn")
+	else:
+		Jogo.mudar_cena("res://cenas/encruzilhada.tscn")
 
 
 func _tremer() -> void:
@@ -955,6 +989,8 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			_criar_pega_pega(base)
 		"x":
 			_criar_roda_capoeira(base)
+		"&":
+			_criar_assentamentos(base)
 
 
 func _criar_cenario(caminho: String, pe: Vector2, base: Vector2) -> Sprite2D:
@@ -1387,3 +1423,182 @@ func _criar_cenario_quadros(caminho: String, quadros: int, quadro: int, pe: Vect
 	var s := _criar_cenario(caminho, pe, base)
 	s.hframes = quadros
 	s.frame = quadro
+
+
+# ------------------------------------------------------------------ o quarto de santo e a volta de Adé
+
+func _criar_assentamentos(base: Vector2) -> void:
+	for i in ASSENTAMENTOS.size():
+		var id: String = ASSENTAMENTOS[i]
+		var pos := base + Vector2(8 + (i - 4) * 24, 6)
+		var a := _criar_interativo("res://arte/assentamentos.png", 2, pos, Vector2(20, 8), -36.0)
+		a.sprite.vframes = ASSENTAMENTOS.size()
+		a.sprite.frame = i * 2
+		a.sprite.offset = Vector2(0, -15)
+		a.interagiu.connect(_olhar_assentamento.bind(id))
+		_assentamentos[id] = a
+
+
+## Acende os assentamentos que já receberam troféu (ao abrir a cena).
+func _mostrar_assentamentos() -> void:
+	for id in Jogo.assentados:
+		_acender_assentamento(id, false)
+
+
+func _acender_assentamento(id: String, com_festa: bool) -> void:
+	var a: Area2D = _assentamentos[id]
+	a.sprite.frame = ASSENTAMENTOS.find(id) * 2 + 1
+	var trofeu := Sprite2D.new()
+	trofeu.name = "Trofeu"
+	if ICONE_TROFEU.has(id):
+		var atlas := AtlasTexture.new()
+		atlas.atlas = load(ICONE_TROFEU[id][0])
+		atlas.region = Rect2(int(ICONE_TROFEU[id][1]) * 12, 0, 12, 12)
+		trofeu.texture = atlas
+	else:
+		trofeu.texture = preload("res://arte/buzio_axe.png")
+	trofeu.position = Vector2(2, -15)
+	a.add_child(trofeu)
+	var cor: Color = COR_ASSENTAMENTO[id]
+	_luz(a.position + Vector2(6, -18), Color(1.0, 0.8, 0.5), 1.4, 0.9, true)
+	var aura := _luz(a.position + Vector2(0, -10), cor, 0.0, 1.3, false)
+	if com_festa:
+		trofeu.position.y = -40
+		trofeu.modulate.a = 0.0
+		var t := create_tween()
+		t.tween_property(trofeu, "position:y", -15.0, 0.6).set_ease(Tween.EASE_OUT)
+		t.parallel().tween_property(trofeu, "modulate:a", 1.0, 0.4)
+		t.tween_property(aura, "energy", 1.6 * FORCA_LUZES, 0.8)
+		Jogo.tocar_som("buzio", -2.0)
+	else:
+		aura.energy = 1.6 * FORCA_LUZES
+
+
+func _olhar_assentamento(id: String) -> void:
+	await _falar_linhas(_com_nomes(_dados["assentamento_cheio" if Jogo.assentados.has(id) else "assentamento_vazio"], id))
+
+
+## Troca {nome}, {saudacao} e {trofeu} nas falas pelo orixá certo.
+func _com_nomes(linhas: Array, id: String) -> Array:
+	var c: Dictionary = _campos[id]
+	var novas := linhas.duplicate(true)
+	for l in novas:
+		for campo in ["pt", "yo"]:
+			l[campo] = l[campo].replace("{nome}", c["nome"]).replace("{saudacao}", c["saudacao"]) \
+				.replace("{trofeu}", Jogo.trofeus.get(id, ""))
+	return novas
+
+
+## Adé volta de um campo: a porteira está aberta e a Vó o espera na tronqueira.
+func _preparar_retorno() -> void:
+	estado = "aberto"
+	for id in ITENS:
+		coletados[id] = true
+		_slots[id].modulate = Color.WHITE
+	tia = "deu_efum"
+	_abrir_porteira()
+	vo.global_position = marcas["v"]
+	vo.modulate.a = 1.0
+	tronqueira.ativo = false
+	teleportar("quintal", porteira.global_position + Vector2(0, -22))
+	jogador.direcao_olhar = "costas"
+	_lista.visible = true
+	jogador.congelar(true)
+	await get_tree().create_timer(0.6).timeout
+	$HUD.mostrar_titulo("Ilé", "De volta ao terreiro da Vó")
+	await get_tree().create_timer(1.4).timeout
+	await _falar("retorno_chegada")
+
+
+func _trofeus_novos() -> Array:
+	var novos := []
+	for id in ASSENTAMENTOS:
+		if Jogo.trofeus.has(id) and not Jogo.assentados.has(id):
+			novos.append(id)
+	return novos
+
+
+func _vo_no_retorno() -> void:
+	var novos := _trofeus_novos()
+	if novos.is_empty():
+		await _falar("vo_quarto" if lugar_atual == "quarto" else "vo_sem_trofeu")
+		return
+	await _falar("retorno_vo")
+	for id in novos:
+		if _dados.has("conta_" + id):
+			await _falar("conta_" + id)
+	await _falar("vo_leva_ao_quarto")
+	# a Vó leva Adé até o quarto de santo
+	jogador.congelar(true)
+	vo.ativo = false
+	var t := create_tween()
+	t.tween_property(_cortina, "color:a", 1.0, 0.5)
+	await t.finished
+	# os dois entram e ficam no meio do quarto, de frente para os assentamentos
+	var meio: Vector2 = lugares["quarto"]["origem"] + Vector2(8 * TILE, 6 * TILE)
+	teleportar("quarto", meio + Vector2(12, 0))
+	jogador.direcao_olhar = "costas"
+	vo.global_position = meio + Vector2(-14, 0)
+	await get_tree().create_timer(0.3).timeout
+	var t2 := create_tween()
+	t2.tween_property(_cortina, "color:a", 0.0, 0.5)
+	await t2.finished
+	for id in novos:
+		await _vo_assenta(id)
+	await _falar("vo_bencao")
+	vo.ativo = true
+	vo.animar = true
+	vo.olhar_para_jogador = true
+	jogador.congelar(false)
+	_mostrar_aviso("Quando quiser, saia pela porteira: Exu leva você ao mapa.")
+
+
+func _celula_da_porta(numero: String, lugar: String) -> Vector2i:
+	for p in portas[numero]:
+		if p[0] == lugar:
+			return p[1]
+	return Vector2i.ZERO
+
+
+## A Vó anda até o assentamento, coloca o troféu e saúda o orixá.
+func _vo_assenta(id: String) -> void:
+	var a: Area2D = _assentamentos[id]
+	var alvo := a.global_position + Vector2(0, 20)
+	vo.animar = false
+	vo.olhar_para_jogador = false
+	var passos := create_tween().set_loops()
+	passos.tween_callback(func(): vo.sprite.frame = 3).set_delay(0.18)
+	passos.tween_callback(func(): vo.sprite.frame = 4).set_delay(0.18)
+	vo.sprite.flip_h = alvo.x < vo.global_position.x
+	var forma: CollisionShape2D = vo.get_node("Corpo/Forma")
+	forma.set_deferred("disabled", true)
+	var t := create_tween()
+	t.tween_property(vo, "global_position", alvo, vo.global_position.distance_to(alvo) / 38.0)
+	await t.finished
+	passos.kill()
+	forma.set_deferred("disabled", false)
+	vo.sprite.frame = 0
+	jogador.olhar_para(a.global_position)
+	await get_tree().create_timer(0.3).timeout
+	Jogo.assentados[id] = true
+	_acender_assentamento(id, true)
+	await get_tree().create_timer(0.9).timeout
+	vo.sprite.frame = 2                      # a saudação
+	await _falar_linhas(_com_nomes(_dados["vo_assenta"], id))
+	if _dados.has("assenta_" + id):
+		await _falar("assenta_" + id)
+	jogador.congelar(true)
+	# a Vó dá uns passos para trás, para Adé ver o assentamento aceso
+	var volta := jogador.global_position + Vector2(-26, 0)
+	vo.sprite.flip_h = volta.x < vo.global_position.x
+	var anda := create_tween().set_loops()
+	anda.tween_callback(func(): vo.sprite.frame = 3).set_delay(0.18)
+	anda.tween_callback(func(): vo.sprite.frame = 4).set_delay(0.18)
+	forma.set_deferred("disabled", true)
+	var t2 := create_tween()
+	t2.tween_property(vo, "global_position", volta, vo.global_position.distance_to(volta) / 38.0)
+	await t2.finished
+	anda.kill()
+	forma.set_deferred("disabled", false)
+	vo.sprite.frame = 0
+	vo.sprite.flip_h = false

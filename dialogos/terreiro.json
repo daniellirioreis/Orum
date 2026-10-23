@@ -159,5 +159,51 @@
 		"oti": "Oti (bebida)",
 		"luna": "Luma (vela)",
 		"lenha": "Lenha para a Tia Dora"
-	}
+	},
+
+	"retorno_chegada": [
+		{"quem": "Adé", "yo": "", "pt": "Cheguei! O terreiro da Vó... os lampiões acesos, do jeito que eu deixei."},
+		{"quem": "Adé", "yo": "", "pt": "A Vó está me esperando lá na tronqueira."}
+	],
+	"retorno_vo": [
+		{"quem": "Vó", "yo": "", "pt": "Meu neto! Você voltou. Exu me avisou que você vinha pelo caminho."},
+		{"quem": "Adé", "yo": "", "pt": "Vó, eu encontrei um orixá! E trouxe uma coisa para a senhora."}
+	],
+	"conta_oxossi": [
+		{"quem": "Adé", "yo": "", "pt": "Fui na mata de Oxóssi. Segui os rastros, passei devagarinho pelos veados e achei um ofá com uma flecha só."},
+		{"quem": "Adé", "yo": "", "pt": "Tinha um pássaro enorme, de olhos vermelhos. Fiz uma oferenda a Exu, e Oxóssi apareceu e espantou ele com uma flecha!"},
+		{"quem": "Adé", "yo": "", "pt": "Ele me deu o ofá, Vó. Disse para eu trazer para cá."},
+		{"quem": "Vó", "yo": "Okê Arô!", "pt": "O caçador de uma flecha só... Você ouviu as minhas histórias direitinho, meu neto."}
+	],
+	"vo_leva_ao_quarto": [
+		{"quem": "Vó", "yo": "", "pt": "Isso não é brinquedo, é axé. Presente de orixá tem lugar certo."},
+		{"quem": "Vó", "yo": "", "pt": "Venha comigo ao quarto de santo. Lá cada orixá tem o seu assentamento."}
+	],
+	"vo_assenta": [
+		{"quem": "Vó", "yo": "{saudacao}", "pt": "Aqui fica o {trofeu}, presente de {nome} para o meu neto."},
+		{"quem": "Vó", "yo": "", "pt": "A vela está acesa. Toda vez que olhar para este assentamento, você vai lembrar do que aprendeu."}
+	],
+	"assenta_oxossi": [
+		{"quem": "Adé", "yo": "", "pt": "Olhar com atenção, esperar a hora certa e repartir a fartura. Foi isso que Oxóssi me ensinou."},
+		{"quem": "Vó", "yo": "", "pt": "Então você já aprendeu muito, meu filho."}
+	],
+	"vo_bencao": [
+		{"quem": "Vó", "yo": "", "pt": "Ainda tem muito assentamento esperando. Cada orixá tem uma história para te contar."},
+		{"quem": "Adé", "yo": "", "pt": "A bênção, Vó."},
+		{"quem": "Vó", "yo": "", "pt": "Deus te abençoe, meu neto. Que os orixás te acompanhem."},
+		{"quem": "Vó", "yo": "", "pt": "Quando quiser seguir viagem, é só sair pela porteira. Exu abre o caminho."}
+	],
+	"vo_sem_trofeu": [
+		{"quem": "Vó", "yo": "", "pt": "Voltou para matar a saudade, meu neto? A porteira está aberta."},
+		{"quem": "Vó", "yo": "", "pt": "Quando encontrar um orixá, traga a história para a sua Vó."}
+	],
+	"vo_quarto": [
+		{"quem": "Vó", "yo": "", "pt": "O quarto de santo é lugar de respeito. Cada vela acesa é um orixá que você encontrou."}
+	],
+	"assentamento_vazio": [
+		{"quem": "Adé", "yo": "", "pt": "O assentamento de {nome}. Ainda está esperando... Um dia eu trago um presente de {nome} para cá."}
+	],
+	"assentamento_cheio": [
+		{"quem": "Adé", "yo": "{saudacao}", "pt": "O assentamento de {nome}, com a vela acesa e o {trofeu}."}
+	]
 }

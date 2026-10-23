@@ -626,7 +626,7 @@ func _mostrar_no(id: String) -> void:
 	if id == "orita":
 		_nome.text = "Oríta Mẹ́ta · a encruzilhada"
 		_saudacao.text = "Laroyê!"
-		_descricao.text = "Todo caminho começa e termina aqui."
+		_descricao.text = "Aperte E para voltar ao terreiro da Vó." if Jogo.has_meta("mapa_aberto") else "Todo caminho começa e termina aqui."
 		_icone.texture = null
 		return
 	var c: Dictionary = _campos[id]
@@ -651,7 +651,15 @@ func _esconder_no() -> void:
 
 func _entrar() -> void:
 	if _no_atual == "orita":
-		_abrir_caixa("Exu: \"A escolha é sua, minha criança. Ande até um campo e entre.\"")
+		# voltar para o terreiro da Vó: a pé pela encruzilhada na primeira vez, depois pelo atalho
+		_ocupado = true
+		Jogo.tocar_som("caminho", -6.0)
+		if Jogo.has_meta("volta_feita"):
+			Jogo.set_meta("retorno", true)
+			Jogo.mudar_cena("res://cenas/terreiro.tscn")
+		else:
+			Jogo.set_meta("volta", true)
+			Jogo.mudar_cena("res://cenas/encruzilhada.tscn")
 		return
 	if CENAS_DOS_CAMPOS.has(_no_atual):
 		_ocupado = true
