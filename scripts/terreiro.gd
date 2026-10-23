@@ -2235,7 +2235,7 @@ const TEMPOS := {
 	# tempo: [cor lá fora, cor dentro de casa, força das luzes (lampiões, fogão, velas)]
 	"manha": [Color(1.0, 1.0, 0.95), Color(0.97, 0.94, 0.9), 0.5],
 	"tarde": [Color(1.0, 0.86, 0.72), Color(0.95, 0.86, 0.8), 1.0],
-	"noite": [Color(0.3, 0.33, 0.55), Color(0.55, 0.5, 0.62), 3.0],
+	"noite": [Color(0.12, 0.13, 0.28), Color(0.2, 0.18, 0.3), 2.0],
 	"nublado": [Color(0.72, 0.74, 0.8), Color(0.84, 0.82, 0.84), 1.3],
 	"chuva": [Color(0.52, 0.56, 0.68), Color(0.75, 0.72, 0.76), 1.7],
 }
@@ -2266,11 +2266,18 @@ func _aplicar_tempo(t: String) -> void:
 	cor_fora = dados[0]
 	cor_dentro = dados[1]
 	var forca: float = dados[2]
+	# lá fora as luzes crescem bastante; dentro de casa só um pouco (senão a sala fica clara como de dia)
+	var fatores := {}
 	for filho in get_children():
 		if filho is PointLight2D:
-			filho.energy *= forca
+			var lugar := _lugar_de(filho.position)
+			var f := forca
+			if lugar != "" and lugares[lugar]["dentro"]:
+				f = 1.0 + (forca - 1.0) * 0.15
+			fatores[filho] = f
+			filho.energy *= f
 	for chama in _chamas:
-		chama[1] *= forca
+		chama[1] *= fatores.get(chama[0], forca)
 	if t == "noite" or t == "chuva":
 		# as crianças e a roda de capoeira foram para casa
 		for grupo in [_ciranda, _pega, _roda]:
@@ -2287,6 +2294,14 @@ func _aplicar_tempo(t: String) -> void:
 		_roda = {}
 	if t == "noite":
 		_criar_vagalumes("quintal")
+		# uma luzinha fraca em volta de Adé, para ele não sumir no escuro
+		var l := PointLight2D.new()
+		l.texture = _luz_tex
+		l.color = Color(0.75, 0.8, 1.0)
+		l.energy = 0.45
+		l.texture_scale = 0.6
+		l.position = Vector2(0, -10)
+		jogador.add_child(l)
 	if t == "nublado" or t == "chuva":
 		_criar_sombras_de_nuvem(0.14 if t == "nublado" else 0.2)
 	if t == "chuva":
