@@ -205,5 +205,14 @@
 	],
 	"assentamento_cheio": [
 		{"quem": "Adé", "yo": "{saudacao}", "pt": "O assentamento de {nome}, com a vela acesa e o {trofeu}."}
+	],
+
+	"retorno_sem_trofeu": [
+		{"quem": "Adé", "yo": "", "pt": "De volta ao terreiro! Ainda não encontrei nenhum orixá... mas é bom passar em casa."},
+		{"quem": "Adé", "yo": "", "pt": "Depois eu volto pela porteira. Exu me leva de novo para a encruzilhada."}
+	],
+	"retorno_visita": [
+		{"quem": "Adé", "yo": "", "pt": "De volta ao terreiro! Tem cheiro da comida da Tia Dora no ar."},
+		{"quem": "Adé", "yo": "", "pt": "Os presentes dos orixás estão lá no quarto de santo, com as velas acesas. Dá vontade de ir ver."}
 	]
 }

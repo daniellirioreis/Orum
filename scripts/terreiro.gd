@@ -1547,7 +1547,13 @@ func _preparar_retorno() -> void:
 	if continuando:
 		jogador.congelar(false)
 	else:
+		# a fala da chegada depende do que Adé traz: troféu novo, nada ainda, ou só uma visita
+	if not _trofeus_novos().is_empty():
 		await _falar("retorno_chegada")
+	elif Jogo.assentados.is_empty():
+		await _falar("retorno_sem_trofeu")
+	else:
+		await _falar("retorno_visita")
 
 
 func _trofeus_novos() -> Array:
