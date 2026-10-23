@@ -738,13 +738,13 @@ func _criar_javali(lugar: String, base: Vector2) -> void:
 	forma.shape = circ
 	forma.position = Vector2(0, -6)
 	a.add_child(forma)
-	# o javali fecha a passagem: um corpo sólido onde ele fica
+	# o javali guarda o cantinho do coqueiro: um corpo sólido onde ele fica
 	var corpo := StaticBody2D.new()
 	var f2 := CollisionShape2D.new()
 	var r2 := RectangleShape2D.new()
-	r2.size = Vector2(62, 12)
+	r2.size = Vector2(34, 10)          # fecha a abertura do cantinho do coqueiro (2 blocos)
 	f2.shape = r2
-	f2.position = Vector2(8, -18)
+	f2.position = Vector2(8, -6)
 	corpo.add_child(f2)
 	a.add_child(corpo)
 	mundo.add_child(a)

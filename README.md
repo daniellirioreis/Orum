@@ -112,8 +112,8 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   - **O campo dos veados** (paciência): perto dos veados, quem corre espanta a caça. Segurando Shift/C, Adé anda
     devagar e passa. Se um veado foge, Adé volta para a entrada do campo. No milharal está a **espiga de milho**.
   - **O presente do caçador** (mirar): num toco, Adé acha o **ofá** com uma flecha só. Atirar corta a corda do tronco
-    seco, que cai e vira ponte sobre o riacho; acertar a colmeia solta as abelhas, que espantam o javali da passagem,
-    e cai o **favo de mel**. As cobras fogem quando a flecha passa perto. O **coco** fica debaixo do coqueiro.
+    seco, que cai e vira ponte sobre o riacho; acertar a colmeia solta as abelhas, que espantam o javali que guarda o cantinho do coqueiro,
+    e cai o **favo de mel**. As cobras fogem quando a flecha passa perto. O **coco** fica no cantinho do coqueiro, atrás do javali (o caminho principal fica sempre livre, na ida e na volta).
     Depois de atirar, é preciso ir buscar a flecha; se ela cai na água, volta sozinha.
   - **A clareira** (o pássaro das Iyami): a sombra no chão mostra onde o pássaro vai mergulhar, e as flechas desviam dele.
     Com milho, coco e mel, Adé faz a oferenda no assentamento de Exu; o pássaro baixa a guarda, Oxóssi chega e,
