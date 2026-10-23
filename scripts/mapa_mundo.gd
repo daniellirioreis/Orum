@@ -1,7 +1,8 @@
 extends Node2D
 ## O mapa dos caminhos: depois que Exu abre os caminhos, Adé sai da encruzilhada e escolhe
 ## para qual campo de orixá ele vai — andando pelo mapa, de ponto em ponto, como nos mapas-múndi
-## dos jogos de 16 bits.
+## dos jogos de 16 bits. O mapa é maior que a tela (512x448) e a câmera segue o Adé; na primeira vez,
+## ela se afasta para mostrar a ilha inteira enquanto os caminhos se abrem.
 ##
 ## A ilha (arte/mundo_0.png a mundo_3.png: o mar, o rio e a cachoeira mexem entre eles) e as trilhas
 ## (fases/mapa_mundo.json) são feitas pelo gerar_mapa_mundo.py. As trilhas, os pontos e o Adé são desenhados aqui. Os textos de cada campo vêm de dialogos/encruzilhada.json ("campos").
@@ -53,6 +54,8 @@ var _nuvens: Array = []               # {no, base, amplitude, velocidade, fase}
 var _tempestade: Array = []
 var _proximo_raio := 2.0
 var _fundo: Sprite2D
+var _camera: Camera2D
+var _tamanho := Vector2(512, 448)      # o mapa é maior que a tela: a câmera segue o Adé
 var _texturas: Array = []
 var _ade: Sprite2D
 var _nome: Label
@@ -79,6 +82,8 @@ func _ready() -> void:
 	_criar_nuvens()
 
 	var mapa: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(ARQUIVO_MAPA))
+	if mapa.has("tamanho"):
+		_tamanho = Vector2(mapa["tamanho"][0], mapa["tamanho"][1])
 	for id in mapa["nos"]:
 		NOS[id] = Vector2(mapa["nos"][id][0], mapa["nos"][id][1])
 	for c in mapa["caminhos"]:
@@ -122,6 +127,17 @@ func _ready() -> void:
 	_ade.add_child(sombra)
 	add_child(_ade)
 
+	_camera = Camera2D.new()
+	_camera.limit_left = 0
+	_camera.limit_top = 0
+	_camera.limit_right = int(_tamanho.x)
+	_camera.limit_bottom = int(_tamanho.y)
+	_camera.position = _ade.position
+	_camera.position_smoothing_enabled = true
+	_camera.position_smoothing_speed = 6.0
+	add_child(_camera)
+	_camera.make_current()
+
 	_criar_interface()
 	Jogo.tocar_musica()
 	if Jogo.has_meta("mapa_aberto"):
@@ -141,6 +157,8 @@ func _process(delta: float) -> void:
 	_tempo += delta
 	_fundo.texture = _texturas[int(_tempo * 4.0) % _texturas.size()]
 	_mexer_nuvens(delta)
+	if _camera.zoom.x >= 0.999:
+		_camera.position = _ade.position + Vector2(0, -8)
 	for en in _enfeites:
 		en.frame = int(_tempo * 1.5) % en.hframes
 	queue_redraw()
@@ -169,12 +187,15 @@ func _unhandled_input(ev: InputEvent) -> void:
 func _criar_nuvens() -> void:
 	# [textura, posição, quanto anda para os lados, velocidade]
 	var lista := [
-		["res://arte/mundo_nuvem.png", Vector2(160, 38), 7.0, 0.35],
-		["res://arte/mundo_nuvem_p.png", Vector2(98, 70), 8.0, 0.3],      # na encosta, abaixo do templo
-		["res://arte/mundo_nuvem_p.png", Vector2(148, 74), 7.0, 0.38],
-		["res://arte/mundo_tempestade.png", Vector2(198, 40), 4.0, 0.9],
-		["res://arte/mundo_tempestade.png", Vector2(243, 43), 3.0, 1.1],
-		["res://arte/mundo_tempestade.png", Vector2(224, 34), 5.0, 0.8],
+		["res://arte/mundo_nuvem.png", Vector2(330, 70), 10.0, 0.3],
+		["res://arte/mundo_nuvem.png", Vector2(150, 60), 12.0, 0.25],
+		["res://arte/mundo_nuvem_p.png", Vector2(196, 136), 10.0, 0.3],   # na encosta, abaixo do templo
+		["res://arte/mundo_nuvem_p.png", Vector2(292, 144), 9.0, 0.38],
+		["res://arte/mundo_nuvem_p.png", Vector2(244, 156), 12.0, 0.22],
+		["res://arte/mundo_tempestade.png", Vector2(390, 76), 5.0, 0.9],
+		["res://arte/mundo_tempestade.png", Vector2(480, 84), 4.0, 1.1],
+		["res://arte/mundo_tempestade.png", Vector2(440, 64), 6.0, 0.8],
+		["res://arte/mundo_tempestade.png", Vector2(420, 100), 4.0, 1.0],
 	]
 	for i in lista.size():
 		var n := Sprite2D.new()
@@ -281,7 +302,15 @@ func _abrir_caminhos() -> void:
 	_nome.text = "Oríta Mẹ́ta"
 	_saudacao.text = "Laroyê!"
 	_descricao.text = "Exu abriu os caminhos..."
-	await get_tree().create_timer(0.8).timeout
+	await get_tree().create_timer(0.6).timeout
+	# a câmera se afasta para ver a ilha inteira enquanto os caminhos se abrem
+	var longe := Jogo.TELA.x / _tamanho.x
+	var t0 := create_tween().set_parallel().set_trans(Tween.TRANS_SINE)
+	_camera.position_smoothing_enabled = false
+	_camera.limit_right = 100000; _camera.limit_bottom = 100000; _camera.limit_left = -100000; _camera.limit_top = -100000
+	t0.tween_property(_camera, "zoom", Vector2(longe, longe), 1.0)
+	t0.tween_property(_camera, "position", _tamanho / 2.0 + Vector2(0, -12), 1.0)
+	await t0.finished
 	# abre em ondas: primeiro o que sai da encruzilhada, depois o que sai dos pontos novos
 	var feitos := {}
 	var fronteira := ["orita"]
@@ -313,7 +342,15 @@ func _abrir_caminhos() -> void:
 		fronteira = proximos
 		await get_tree().create_timer(0.25).timeout
 	Jogo.set_meta("mapa_aberto", true)
-	await get_tree().create_timer(0.4).timeout
+	await get_tree().create_timer(0.6).timeout
+	var t1 := create_tween().set_parallel().set_trans(Tween.TRANS_SINE)
+	t1.tween_property(_camera, "zoom", Vector2.ONE, 1.0)
+	t1.tween_property(_camera, "position", _ade.position + Vector2(0, -8), 1.0)
+	await t1.finished
+	_camera.limit_left = 0; _camera.limit_top = 0
+	_camera.limit_right = int(_tamanho.x); _camera.limit_bottom = int(_tamanho.y)
+	_camera.position_smoothing_enabled = true
+	await get_tree().create_timer(0.2).timeout
 	_abrir_caixa("Os caminhos estão abertos! Cada um leva ao campo de um orixá.\nAnde com as setas e escolha por onde começar.")
 	_mostrar_no("orita")
 
@@ -549,7 +586,8 @@ func _abrir_caixa(texto: String) -> void:
 	_ocupado = true
 	_texto_caixa.text = texto
 	_caixa.visible = true
-	_caixa.position.y = 160.0 if NOS[_no_atual].y < 140.0 else 36.0
+	var y_tela := _ade.get_global_transform_with_canvas().origin.y     # a caixa não cobre o Adé
+	_caixa.position.y = 160.0 if y_tela < 140.0 else 36.0
 	_seta_caixa.position = _caixa.position + Vector2(220, 40)
 	_seta_caixa.visible = true
 	Jogo.tocar_som("texto", -14.0)

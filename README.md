@@ -72,13 +72,15 @@ Esta versão tem o **Prólogo** completo, em duas partes:
 - Uma ilha com a encruzilhada no meio e o campo de cada orixá em volta: Omolu (terra e palha), Oxalá (o morro
   branco e as nuvens), Iansã (tempestade e raios), Oxóssi (a mata), Ogum (a bigorna e o ferro), Xangô (a pedreira),
   Nanã (a lama e as lagoas), Oxum (a cachoeira e o rio dourado) e Iemanjá (o mar).
-- Na primeira vez, os caminhos se abrem em ondas a partir da encruzilhada. Adé anda de ponto em ponto com as
+- O mapa tem o dobro do tamanho da tela (512x448) e a câmera segue o Adé, como no Super Mario World. Xangô e Oxalá
+  ficam no alto, em dois andares de paredão; onde a trilha sobe um paredão aparecem degraus e Adé anda mais devagar.
+- Na primeira vez, a câmera se afasta para mostrar a ilha inteira e os caminhos se abrem em ondas a partir da encruzilhada. Adé anda de ponto em ponto com as
   setas (as setinhas piscando mostram para onde dá para ir); a faixa de cima mostra o nome, a saudação e o campo.
 - Apertando E num campo: por enquanto aparece "Em breve!" — é aqui que as próximas fases vão se ligar.
 - A arte da ilha vem do `gerar_mapa_mundo.py` (`arte/mundo_0.png` a `mundo_3.png`: o mar, o rio e a cachoeira
   mexem entre os quatro quadros; as nuvens são `mundo_nuvem*.png` e `mundo_tempestade.png`, que andam devagar e piscam com raios).
   Os pontos e as trilhas (que fazem curvas e passam por uma ponte no rio de Oxum) ficam em `NOS` e `CAMINHOS`,
-  no topo do `gerar_mapa_mundo.py`; ele grava `fases/mapa_mundo.json`, que o jogo lê. Para escolher o caminho,
+  no topo do `gerar_mapa_mundo.py` (no tamanho da tela; o script multiplica por `E = 2`); ele grava `fases/mapa_mundo.json`, que o jogo lê. Para escolher o caminho,
   vale a seta mais parecida com a direção para onde a trilha sai do ponto.
 - Os mapas ficam em `fases/enc_trilha.txt`, `fases/enc_mata.txt` e `fases/enc_orita.txt` (+ `_objetos`).
   Letras novas dos objetos: `@` pedra que se empurra, `&` ponto riscado, `!` cancela, `$` lamparina,
