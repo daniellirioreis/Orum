@@ -247,6 +247,7 @@ func _entrar_lugar(nome: String) -> void:
 	_noite.color = cor_dentro if lugares[nome]["dentro"] else cor_fora
 	if _camada_chuva:
 		_camada_chuva.visible = not lugares[nome]["dentro"]      # a chuva só cai lá fora
+		_volume_chuva(_volume_do_lugar(nome), 0.3)
 
 
 ## Leva Adé (com a tela escurecendo) para outro lugar.
@@ -2264,6 +2265,8 @@ var _tempo_atual := ""
 var _lampioes: Array = []          # [luz, sprite] de cada lampião
 var _luzes_de_ambiente: Array = []  # a claridade geral de cada cômodo
 var _camada_chuva: CanvasLayer
+var _som_chuva: AudioStreamPlayer   # barulho da chuva caindo (em laço)
+var _tween_chuva: Tween
 var _clarao_raio: ColorRect
 var _sombras_nuvens: Array = []
 var _proximo_raio := 6.0
@@ -2397,6 +2400,34 @@ func _criar_chuva() -> void:
 	_clarao_raio.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_camada_chuva.add_child(_clarao_raio)
 	set_process(true)
+	# o barulho da chuva: em laço, mais alto lá fora e abafado dentro de casa
+	var som: AudioStreamWAV = load("res://sons/chuva.wav").duplicate()
+	som.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	som.loop_begin = 0
+	som.loop_end = som.data.size() / 2
+	_som_chuva = AudioStreamPlayer.new()
+	_som_chuva.stream = som
+	_som_chuva.bus = "Efeitos"
+	_som_chuva.volume_db = -60.0
+	add_child(_som_chuva)
+	_som_chuva.play()
+	if lugar_atual != "":
+		_volume_chuva(_volume_do_lugar(lugar_atual), 1.0)
+
+
+## Volume da chuva em cada lugar: lá fora mais alto, dentro de casa abafada.
+func _volume_do_lugar(nome: String) -> float:
+	return -18.0 if lugares[nome]["dentro"] else -8.0
+
+
+## Muda o volume do barulho da chuva aos poucos.
+func _volume_chuva(db: float, tempo := 0.6) -> void:
+	if not _som_chuva:
+		return
+	if _tween_chuva:
+		_tween_chuva.kill()            # só vale a última mudança
+	_tween_chuva = create_tween()
+	_tween_chuva.tween_property(_som_chuva, "volume_db", db, tempo)
 
 
 func _animar_tempo(delta: float) -> void:
@@ -2417,7 +2448,7 @@ func _animar_tempo(delta: float) -> void:
 			t.tween_property(_clarao_raio, "color:a", 0.0, 0.12)
 			t.tween_property(_clarao_raio, "color:a", 0.35, 0.05)
 			t.tween_property(_clarao_raio, "color:a", 0.0, 0.4)
-			get_tree().create_timer(0.6).timeout.connect(func(): Jogo.tocar_som("caminho", -10.0))
+			get_tree().create_timer(0.6).timeout.connect(func(): Jogo.tocar_som("trovao", -4.0))
 
 
 

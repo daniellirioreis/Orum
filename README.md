@@ -179,6 +179,9 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   feitas pelo `gerar_terreno_nana.py`); cada fase escolhe os seus terrenos em `terrenos` e `agua_chars`
   (`scripts/terreiro.gd`). Arte nova: `arte/nana_*.png` (`gerar_arte_nana.py` e `gerar_nana_pessoas.py`).
 - Para testar direto, abra `cenas/mata_nana.tscn` no Godot e aperte F6.
+- **Som da chuva**: sempre que chove (no terreiro ou na terra de Nanã), toca o barulho da chuva caindo em laço
+  (`sons/chuva.wav`), mais alto lá fora e abafado dentro de casa; na lagoa de Nanã ele engrossa com a chuva.
+  Os relâmpagos agora têm trovão (`sons/trovao.wav`). Os dois sons são feitos pelo `gerar_som_chuva.py`.
 
 **A volta para o terreiro e o quarto de santo**
 - No mapa, apertar E na encruzilhada leva Adé de volta para casa. Na primeira vez ele volta a pé pela Oríta Mẹ́ta, fazendo
