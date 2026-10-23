@@ -12,6 +12,8 @@ var falou_com_exu := false
 var trofeus := {}
 ## troféus que a Vó já colocou no assentamento do orixá, no quarto de santo
 var assentados := {}
+## O tempo no terreiro na última volta de Adé (manha, tarde, noite, nublado, chuva). Muda a cada volta.
+var tempo_terreiro := ""
 
 ## Jogos salvos: três "caminhos", cada um num arquivo (user://caminho_1.json ...).
 ## Quem guarda é Exu, na quartinha com a vela vermelha e preta (ver scripts/terreiro.gd).
@@ -85,6 +87,7 @@ func reiniciar() -> void:
 	falou_com_exu = false
 	trofeus = {}
 	assentados = {}
+	tempo_terreiro = ""
 	espaco_atual = -1
 	for m in ["mapa_aberto", "volta_feita", "no_mapa", "volta", "retorno", "na_quartinha"]:
 		if has_meta(m):
@@ -389,6 +392,7 @@ func salvar(espaco: int, local: String) -> void:
 		"assentados": assentados,
 		"buzios": buzios,
 		"metas": metas,
+		"tempo": tempo_terreiro,
 		"data": Time.get_datetime_string_from_system(false, true),
 	}
 	var f := FileAccess.open(_arquivo(espaco), FileAccess.WRITE)
@@ -428,6 +432,7 @@ func carregar(espaco: int) -> void:
 	trofeus = d.get("trofeus", {})
 	assentados = d.get("assentados", {})
 	buzios = int(d.get("buzios", 0))
+	tempo_terreiro = d.get("tempo", "")
 	for m in d.get("metas", {}):
 		if d["metas"][m]:
 			set_meta(m, true)

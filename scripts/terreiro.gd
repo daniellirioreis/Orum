@@ -218,6 +218,7 @@ func _process(delta: float) -> void:
 		g.frame = int(_tempo * 0.8) % 2
 	_animar_brincadeiras()
 	_mover_rotinas(delta)
+	_animar_tempo(delta)
 	for i in _velas_brancas.size():
 		_velas_brancas[i].frame = int(_tempo * 5.0 + i * 1.3) % 2
 
@@ -244,6 +245,8 @@ func _entrar_lugar(nome: String) -> void:
 	camera.limit_bottom = int(topo + maxf(tam.y, tela.y))
 	camera.reset_smoothing()
 	_noite.color = cor_dentro if lugares[nome]["dentro"] else cor_fora
+	if _camada_chuva:
+		_camada_chuva.visible = not lugares[nome]["dentro"]      # a chuva só cai lá fora
 
 
 ## Leva Adé (com a tela escurecendo) para outro lugar.
@@ -1240,7 +1243,8 @@ func _criar_ciranda(base: Vector2) -> void:
 	for i in 4:
 		criancas.append(_figura(TEX_CRIANCAS, 4, 6, i, centro, 0.8))
 	_ciranda = {"centro": centro, "criancas": criancas}
-	_ponto_de_conversa(centro, Vector2(52, 22), 38.0, -36.0).interagiu.connect(_falar_com_criancas)
+	_ciranda["ponto"] = _ponto_de_conversa(centro, Vector2(52, 22), 38.0, -36.0)
+	_ciranda["ponto"].interagiu.connect(_falar_com_criancas)
 
 
 func _criar_pega_pega(base: Vector2) -> void:
@@ -1259,7 +1263,8 @@ func _criar_roda_capoeira(base: Vector2) -> void:
 		var pos := centro + Vector2(cos(a) * 50.0, sin(a) * 26.0 + 2.0)
 		membros.append(_figura(TEX_RODA, 2, 5, m[1], pos))
 	_roda = {"centro": centro, "jogadores": jogadores, "membros": membros}
-	_ponto_de_conversa(centro + Vector2(0, -2), Vector2(104, 52), 64.0, -66.0).interagiu.connect(_falar_com_mestre)
+	_roda["ponto"] = _ponto_de_conversa(centro + Vector2(0, -2), Vector2(104, 52), 64.0, -66.0)
+	_roda["ponto"].interagiu.connect(_falar_com_mestre)
 
 
 func _animar_brincadeiras() -> void:
@@ -1521,6 +1526,7 @@ func _com_nomes(linhas: Array, id: String) -> Array:
 
 ## Adé volta de um campo: a porteira está aberta e a Vó o espera na tronqueira.
 func _preparar_retorno() -> void:
+	_escolher_tempo(Jogo.has_meta("na_quartinha"))
 	estado = "aberto"
 	for id in ITENS:
 		coletados[id] = true
@@ -1925,7 +1931,12 @@ const ROTAS := {
 
 
 func _montar_rotinas() -> void:
-	if _retorno:
+	if _retorno and (_tempo_atual == "chuva" or _tempo_atual == "noite"):
+		# na chuva e à noite todo mundo fica dentro de casa
+		_rotina(_oga, "oga_barracao", true)
+		_rotina(_lia, "lia_barracao", true)
+		_rotina(_tia, "tia_cozinha", true)
+	elif _retorno:
 		_rotina(_oga, "oga_quintal", true)
 		_rotina(_lia, "lia_quintal", true)
 		_rotina(_tia, "tia_quintal", true)
@@ -2214,3 +2225,159 @@ func _pufe(pos: Vector2, cores: Array, n: int, vel: float, gravidade: Vector2) -
 	add_child(f)
 	f.emitting = true
 	get_tree().create_timer(1.2).timeout.connect(f.queue_free)
+
+
+
+# ------------------------------------------------------------------ o tempo no terreiro (muda a cada volta de Adé)
+# manhã de sol, fim de tarde, noite, nublado ou chuva. Na primeira volta com troféu é sempre fim de tarde
+# (para a cena com a Vó); depois é sorteado, sem repetir o da vez anterior. Fica guardado no jogo salvo.
+const TEMPOS := {
+	# tempo: [cor lá fora, cor dentro de casa, força das luzes (lampiões, fogão, velas)]
+	"manha": [Color(1.0, 1.0, 0.95), Color(0.97, 0.94, 0.9), 0.5],
+	"tarde": [Color(1.0, 0.86, 0.72), Color(0.95, 0.86, 0.8), 1.0],
+	"noite": [Color(0.3, 0.33, 0.55), Color(0.55, 0.5, 0.62), 3.0],
+	"nublado": [Color(0.72, 0.74, 0.8), Color(0.84, 0.82, 0.84), 1.3],
+	"chuva": [Color(0.52, 0.56, 0.68), Color(0.75, 0.72, 0.76), 1.7],
+}
+const NOMES_TEMPOS := {"manha": "Manhã de sol", "tarde": "Fim de tarde", "noite": "Noite",
+	"nublado": "Dia nublado", "chuva": "Chuva"}
+var _tempo_atual := ""
+var _camada_chuva: CanvasLayer
+var _clarao_raio: ColorRect
+var _sombras_nuvens: Array = []
+var _proximo_raio := 6.0
+
+
+func _escolher_tempo(continuando: bool) -> void:
+	var t := Jogo.tempo_terreiro
+	if not continuando or t == "":
+		if Jogo.assentados.is_empty() and not _trofeus_novos().is_empty():
+			t = "tarde"                       # a primeira volta com troféu
+		else:
+			var opcoes := TEMPOS.keys().filter(func(k): return k != Jogo.tempo_terreiro)
+			t = opcoes[randi() % opcoes.size()]
+	Jogo.tempo_terreiro = t
+	_aplicar_tempo(t)
+
+
+func _aplicar_tempo(t: String) -> void:
+	_tempo_atual = t
+	var dados: Array = TEMPOS[t]
+	cor_fora = dados[0]
+	cor_dentro = dados[1]
+	var forca: float = dados[2]
+	for filho in get_children():
+		if filho is PointLight2D:
+			filho.energy *= forca
+	for chama in _chamas:
+		chama[1] *= forca
+	if t == "noite" or t == "chuva":
+		# as crianças e a roda de capoeira foram para casa
+		for grupo in [_ciranda, _pega, _roda]:
+			if grupo.is_empty():
+				continue
+			for chave in ["criancas", "jogadores", "membros"]:
+				for f in grupo.get(chave, []):
+					f.visible = false
+			if grupo.has("ponto"):
+				grupo["ponto"].ativo = false
+				grupo["ponto"].get_node("Corpo/Forma").set_deferred("disabled", true)
+		_ciranda = {}
+		_pega = {}
+		_roda = {}
+	if t == "noite":
+		_criar_vagalumes("quintal")
+	if t == "nublado" or t == "chuva":
+		_criar_sombras_de_nuvem(0.14 if t == "nublado" else 0.2)
+	if t == "chuva":
+		_criar_chuva()
+	if lugar_atual != "":
+		_noite.color = cor_dentro if lugares[lugar_atual]["dentro"] else cor_fora
+
+
+## Sombras grandes e suaves que passam devagar pelo quintal.
+func _criar_sombras_de_nuvem(alfa: float) -> void:
+	var origem: Vector2 = lugares["quintal"]["origem"]
+	var tam: Vector2 = tamanhos["quintal"]
+	for i in 4:
+		var p := Polygon2D.new()
+		var pts := PackedVector2Array()
+		var rx := randf_range(70, 110)
+		var ry := randf_range(30, 45)
+		for k in 24:
+			var a := k / 24.0 * TAU
+			pts.append(Vector2(cos(a) * rx * (1.0 + 0.15 * sin(a * 3.0)), sin(a) * ry))
+		p.polygon = pts
+		p.color = Color(0.1, 0.1, 0.18, alfa)
+		p.z_index = 25
+		p.position = origem + Vector2(randf() * tam.x, randf() * tam.y)
+		add_child(p)
+		_sombras_nuvens.append([p, randf_range(6.0, 10.0)])
+
+
+## A chuva cai na tela (só lá fora), com respingos no chão e um relâmpago de vez em quando.
+func _criar_chuva() -> void:
+	_camada_chuva = CanvasLayer.new()
+	_camada_chuva.layer = 3
+	add_child(_camada_chuva)
+	var img := Image.create(1, 6, false, Image.FORMAT_RGBA8)
+	for y in 6:
+		img.set_pixel(0, y, Color(0.75, 0.82, 1.0, 0.25 + y * 0.1))
+	var gota := ImageTexture.create_from_image(img)
+	var tela := Vector2(Jogo.TELA)
+	var chuva := CPUParticles2D.new()
+	chuva.texture = gota
+	chuva.position = Vector2(tela.x / 2.0 + 30, -10)
+	chuva.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	chuva.emission_rect_extents = Vector2(tela.x * 0.7, 4)
+	chuva.amount = 140
+	chuva.lifetime = 0.9
+	chuva.preprocess = 1.0
+	chuva.direction = Vector2(-0.25, 1)
+	chuva.spread = 2.0
+	chuva.gravity = Vector2(0, 0)
+	chuva.initial_velocity_min = 240.0
+	chuva.initial_velocity_max = 290.0
+	chuva.particle_flag_align_y = true
+	_camada_chuva.add_child(chuva)
+	var respingo := CPUParticles2D.new()
+	respingo.position = tela / 2.0
+	respingo.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	respingo.emission_rect_extents = tela / 2.0
+	respingo.amount = 40
+	respingo.lifetime = 0.25
+	respingo.spread = 180.0
+	respingo.gravity = Vector2.ZERO
+	respingo.initial_velocity_min = 6.0
+	respingo.initial_velocity_max = 12.0
+	respingo.scale_amount_min = 1.0
+	respingo.scale_amount_max = 1.0
+	respingo.color = Color(0.8, 0.88, 1.0, 0.7)
+	_camada_chuva.add_child(respingo)
+	_clarao_raio = ColorRect.new()
+	_clarao_raio.color = Color(0.9, 0.92, 1.0, 0.0)
+	_clarao_raio.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_clarao_raio.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_camada_chuva.add_child(_clarao_raio)
+	set_process(true)
+
+
+func _animar_tempo(delta: float) -> void:
+	if _sombras_nuvens.size() > 0:
+		var origem: Vector2 = lugares["quintal"]["origem"]
+		var largura: float = tamanhos["quintal"].x
+		for n in _sombras_nuvens:
+			var p: Polygon2D = n[0]
+			p.position.x += n[1] * delta
+			if p.position.x > origem.x + largura + 120:
+				p.position.x = origem.x - 120
+	if _clarao_raio and _camada_chuva.visible:
+		_proximo_raio -= delta
+		if _proximo_raio <= 0.0:
+			_proximo_raio = randf_range(7.0, 14.0)
+			var t := create_tween()
+			t.tween_property(_clarao_raio, "color:a", 0.55, 0.05)
+			t.tween_property(_clarao_raio, "color:a", 0.0, 0.12)
+			t.tween_property(_clarao_raio, "color:a", 0.35, 0.05)
+			t.tween_property(_clarao_raio, "color:a", 0.0, 0.4)
+			get_tree().create_timer(0.6).timeout.connect(func(): Jogo.tocar_som("caminho", -10.0))
