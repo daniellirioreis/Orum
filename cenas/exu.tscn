@@ -1,8 +1,8 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=5 format=3 uid="uid://db1uol00ckmiw"]
 
 [ext_resource type="Script" path="res://scripts/exu.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://arte/exu.png" id="2_exu"]
-[ext_resource type="Texture2D" path="res://arte/balao.png" id="3_balao"]
+[ext_resource type="Texture2D" uid="uid://c5qfdq7wn2qck" path="res://arte/exu.png" id="2_exu"]
+[ext_resource type="Texture2D" uid="uid://d28oy5jm6fdrm" path="res://arte/balao.png" id="3_balao"]
 
 [sub_resource type="CircleShape2D" id="area_conversa"]
 radius = 36.0
