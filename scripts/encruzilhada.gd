@@ -576,15 +576,15 @@ func _exu_troca_buzios() -> bool:
 	var n: int = Jogo.buzios
 	var pode := mini(AXE_MAX, n / BUZIOS_POR_AXE)
 	var falas := [
-		{"quem": "Èṣù", "yo": "Láròyé!", "pt": "Laroyê, menino! Seu axé acabou."},
+		{"quem": "Èṣù", "yo": "Láròyé!", "pt": "Laroyê, menino! Caiu de novo? Desse jeito vou ter que te levar no colo até a Vó!"},
 	]
 	if pode == 0:
-		falas.append({"quem": "Èṣù", "yo": "", "pt": "Com %d búzios eu devolvo um búzio de axé... mas você só juntou %d." % [BUZIOS_POR_AXE, n]})
-		falas.append({"quem": "Èṣù", "yo": "", "pt": "Da próxima vez, junte os búzios do caminho. Eu guardo o que é seu."})
+		falas.append({"quem": "Èṣù", "yo": "", "pt": "Com %d búzios eu devolvo um búzio de axé... mas você só juntou %d. Com isso eu compro um pirulito, não um axé!" % [BUZIOS_POR_AXE, n]})
+		falas.append({"quem": "Èṣù", "yo": "", "pt": "Da próxima vez, junte os búzios do caminho. Eu guardo o que é seu... e conto pra Vó que você caiu!"})
 		await _falar_linhas(falas)
 		jogador.congelar(true)
 		return false
-	falas.append({"quem": "Èṣù", "yo": "", "pt": "Você juntou %d búzios pelo caminho. Cada %d búzios valem um búzio de axé. Quer trocar?" % [n, BUZIOS_POR_AXE]})
+	falas.append({"quem": "Èṣù", "yo": "", "pt": "Olha só, juntou %d búzios! Tá rico, hein? Cada %d búzios valem um búzio de axé. Quer trocar?" % [n, BUZIOS_POR_AXE]})
 	await _falar_linhas(falas)
 	jogador.congelar(true)
 	var opcoes := []
@@ -596,7 +596,7 @@ func _exu_troca_buzios() -> bool:
 		r = await Jogo.menu.escolher("Búzios guardados: %d" % n, opcoes, pode - 1)
 	jogador.congelar(true)
 	if r["i"] >= pode:
-		await _falar_linhas([{"quem": "Èṣù", "yo": "", "pt": "Então o caminho acaba aqui... por enquanto."}])
+		await _falar_linhas([{"quem": "Èṣù", "yo": "", "pt": "Então o caminho acaba aqui... por enquanto. Vou ficar rindo desse tombo até amanhã."}])
 		jogador.congelar(true)
 		return false
 	var k: int = r["i"] + 1
@@ -604,7 +604,7 @@ func _exu_troca_buzios() -> bool:
 	axe = k
 	_atualizar_axe()
 	Jogo.tocar_som("buzio", 0.0)
-	await _falar_linhas([{"quem": "Èṣù", "yo": "", "pt": "Feito. O axé volta para quem sabe guardar o que junta."}])
+	await _falar_linhas([{"quem": "Èṣù", "yo": "", "pt": "Feito! O axé volta pra quem sabe guardar o que junta. Mas da próxima vez eu cobro em farofa."}])
 	jogador.congelar(true)
 	return true
 

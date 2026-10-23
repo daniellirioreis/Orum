@@ -1,20 +1,20 @@
 {
 	"primeira_vez": [
-		{"quem": "Èṣù", "yo": "Ẹ kú ìrọ̀lẹ́, ọmọ mi.", "pt": "Boa tarde, minha criança. Você chegou."},
+		{"quem": "Èṣù", "yo": "Ẹ kú ìrọ̀lẹ́, ọmọ mi.", "pt": "Boa tarde, minha criança. Você chegou! Demorou, hein? Deu tempo até de tirar um cochilo."},
 		{"quem": "Adé", "yo": "Laroyê, Èṣù!", "pt": "Salve, Exu!"},
-		{"quem": "Èṣù", "yo": "Gbọ́ ìtàn yìí.", "pt": "Escute esta história."},
+		{"quem": "Èṣù", "yo": "Gbọ́ ìtàn yìí.", "pt": "Escute esta história. E preste atenção, que no fim eu faço pergunta."},
 		{"quem": "Ìtàn", "yo": "", "pt": "Dois amigos plantavam lado a lado, separados só por um caminho. Juravam que nada no mundo os faria brigar."},
 		{"quem": "Ìtàn", "yo": "", "pt": "Um dia, Exu passou entre as duas roças usando um gorro vermelho de um lado e preto do outro."},
 		{"quem": "Ìtàn", "yo": "", "pt": "Um amigo falou do homem de gorro vermelho. O outro jurou que o gorro era preto. A conversa virou briga."},
 		{"quem": "Ìtàn", "yo": "", "pt": "Então Exu voltou e mostrou o gorro: os dois tinham razão. Cada um só tinha visto o lado que estava à sua frente."},
-		{"quem": "Èṣù", "yo": "Ọ̀nà pọ̀.", "pt": "Os caminhos são muitos. Antes de escolher um, olhe de mais de um lado."},
-		{"quem": "Èṣù", "yo": "Ọ̀nà ti ṣí.", "pt": "O caminho está aberto.", "evento": "abrir_caminho"},
-		{"quem": "Èṣù", "yo": "Tẹ̀lé ọ̀nà Ògún.", "pt": "Siga pelo caminho de Ogum. Ele está abrindo a mata à sua frente."}
+		{"quem": "Èṣù", "yo": "Ọ̀nà pọ̀.", "pt": "Os caminhos são muitos. Antes de escolher um, olhe de mais de um lado. Os dois amigos não olharam... e eu ri até o gorro cair."},
+		{"quem": "Èṣù", "yo": "Ọ̀nà ti ṣí.", "pt": "O caminho está aberto. Pode ir, que eu não mordo.", "evento": "abrir_caminho"},
+		{"quem": "Èṣù", "yo": "Tẹ̀lé ọ̀nà Ògún.", "pt": "Siga pelo caminho de Ogum. Ele está abrindo a mata à sua frente. Só não fique na frente dele, que Ogum não freia."}
 	],
 	"depois": [
-		{"quem": "Èṣù", "yo": "Ó dàbọ̀, ọmọ mi.", "pt": "Até logo, minha criança. O caminho de Ogum está à sua espera."}
+		{"quem": "Èṣù", "yo": "Ó dàbọ̀, ọmọ mi.", "pt": "Até logo, minha criança. O caminho de Ogum está à sua espera. E Ogum não gosta de esperar, hein?"}
 	],
 	"todos_os_buzios": [
-		{"quem": "Èṣù", "yo": "O ṣeun!", "pt": "Obrigado! Você recolheu todos os búzios do caminho."}
+		{"quem": "Èṣù", "yo": "O ṣeun!", "pt": "Obrigado! Você recolheu todos os búzios do caminho. Agora vou contar um por um, pra ver se não sumiu nenhum no seu bolso."}
 	]
 }

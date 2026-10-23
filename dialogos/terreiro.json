@@ -106,10 +106,10 @@
 	],
 	"exu": [
 		{"quem": "Vó e Adé", "yo": "", "pt": "Laroyê, Exu!"},
-		{"quem": "Èṣù", "yo": "Ta ló pè mí?", "pt": "Quem me chamou?"},
+		{"quem": "Èṣù", "yo": "Ta ló pè mí?", "pt": "Quem me chamou? Ah, é o neto da Vó! Bateu palma tão forte que eu achei que a gira tinha começado."},
 		{"quem": "Adé", "yo": "", "pt": "Fui eu, Adé. Quero encontrar todos os orixás."},
-		{"quem": "Èṣù", "yo": "Èmi ni Èṣù.", "pt": "Eu sou Exu, guardião das encruzilhadas e mensageiro entre os mundos."},
-		{"quem": "Èṣù", "yo": "Tẹ̀lé mi.", "pt": "Me siga. Na encruzilhada eu te conto uma história.", "evento": "abrir_porteira"},
+		{"quem": "Èṣù", "yo": "Èmi ni Èṣù.", "pt": "Eu sou Exu, guardião das encruzilhadas e mensageiro entre os mundos. E o mais bonito deles, não esquece."},
+		{"quem": "Èṣù", "yo": "Tẹ̀lé mi.", "pt": "Me siga. Na encruzilhada eu te conto uma história. Tenta acompanhar o passo, que eu ando rápido.", "evento": "abrir_porteira"},
 		{"quem": "Vó", "yo": "", "pt": "Vai, meu neto. E volta pra me contar."}
 	],
 	"depois": [
