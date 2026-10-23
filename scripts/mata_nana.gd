@@ -159,9 +159,9 @@ func _entrar_lugar(nome: String) -> void:
 func _volume_do_lugar(nome: String) -> float:
 	if nome == "nana_lagoa":
 		if _nana.has("acalmou"):
-			return -14.0
-		return -1.0 if _chuva_forte else -5.0
-	return -7.0 if nome == "nana_mangue" else -9.0
+			return -28.0
+		return -14.0 if _chuva_forte else -18.0
+	return -20.0 if nome == "nana_mangue" else -22.0
 
 
 func teleportar(nome: String, posicao: Vector2) -> void:
@@ -802,7 +802,7 @@ func _fazer_oferenda() -> void:
 	_chuva_forte = true
 	_proximo_raio = 1.5
 	_chuva.amount = 320
-	_volume_chuva(-1.0, 1.5)
+	_volume_chuva(-14.0, 1.5)
 	create_tween().tween_property(_noite, "color", Color(0.42, 0.42, 0.58), 1.5)
 
 
@@ -957,7 +957,7 @@ func _nana_vai_embora() -> void:
 	_nana["acalmou"] = true
 	_chuva_forte = false
 	_chuva.amount = 70
-	_volume_chuva(-14.0, 2.5)
+	_volume_chuva(-28.0, 2.5)
 	cor_fora = COR_DEPOIS
 	create_tween().tween_property(_noite, "color", COR_DEPOIS, 2.0)
 	await get_tree().create_timer(1.0).timeout

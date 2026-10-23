@@ -2417,7 +2417,7 @@ func _criar_chuva() -> void:
 
 ## Volume da chuva em cada lugar: lá fora mais alto, dentro de casa abafada.
 func _volume_do_lugar(nome: String) -> float:
-	return -18.0 if lugares[nome]["dentro"] else -8.0
+	return -30.0 if lugares[nome]["dentro"] else -22.0     # bem baixinho, de fundo
 
 
 ## Muda o volume do barulho da chuva aos poucos.
