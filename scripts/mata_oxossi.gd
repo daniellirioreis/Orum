@@ -108,14 +108,12 @@ func _inicio() -> void:
 	$HUD.mostrar_titulo("Igbó Ọ̀ṣọ́ọ̀sì", "A Mata de Oxóssi")
 	await get_tree().create_timer(1.6).timeout
 	if Jogo.trofeus.has("oxossi"):
-		# a mata já foi vencida: Adé pode andar por ela de novo ou voltar logo para o mapa
+		# a mata já foi vencida: Adé pode fazer a fase de novo (do começo) ou voltar logo para o mapa
 		await _falar("revisita")
-		var r: Dictionary = await Jogo.menu.escolher("A Mata de Oxóssi", ["Andar pela mata", "Voltar ao mapa"])
+		var r: Dictionary = await Jogo.menu.escolher("A Mata de Oxóssi", ["Fazer a fase de novo", "Voltar ao mapa"])
 		if r["acao"] == "ok" and r["i"] == 1:
 			voltar_ao_mapa()
 			return
-		jogador.congelar(false)
-		return
 	await _falar("chegada")
 
 
@@ -1075,7 +1073,10 @@ func _ganhar_trofeu() -> void:
 	brilho.tween_property(_moldura_trofeu, "modulate", Color(1.0, 0.95, 0.6), 0.6)
 	brilho.tween_property(_moldura_trofeu, "modulate", Color(1.0, 0.78, 0.3), 0.6)
 	Jogo.tocar_som("buzio", 0.0)
-	_mostrar_aviso("Troféu: o Ofá de Oxóssi! Leve para o terreiro da Vó.")
+	if Jogo.assentados.has("oxossi"):
+		_mostrar_aviso("O Ofá de Oxóssi de novo! O dele já está no quarto de santo da Vó.")
+	else:
+		_mostrar_aviso("Troféu: o Ofá de Oxóssi! Leve para o terreiro da Vó.")
 
 
 func _folhas(pos: Vector2) -> void:
