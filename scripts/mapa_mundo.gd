@@ -66,6 +66,7 @@ var _icone: TextureRect
 var _caixa: PanelContainer
 var _texto_caixa: Label
 var _seta_caixa: Label
+var _legenda: Label                   # a faixa de baixo com os controles
 
 
 func _ready() -> void:
@@ -142,6 +143,7 @@ func _ready() -> void:
 	_criar_interface()
 	Jogo.tocar_musica()
 	if Jogo.has_meta("mapa_aberto"):
+		_mudar_legenda("andar")
 		for c in _caminhos:
 			c["aberto"] = 1.0
 		_trilhas.queue_redraw()
@@ -305,9 +307,23 @@ func _animar_ade(d: Vector2, andado: float) -> void:
 		_ade.flip_h = false
 
 
+func _mudar_legenda(modo: String) -> void:
+	match modo:
+		"ilha":
+			_legenda.text = "M  voltar para perto do Adé"
+		"caixa":
+			_legenda.text = "E  continuar"
+		"andar":
+			_legenda.text = "← ↑ → ↓  andar      E  entrar      M  ver a ilha inteira"
+		_:
+			_legenda.text = ""
+	_legenda.get_parent().get_child(_legenda.get_index() - 1).visible = _legenda.text != ""
+
+
 ## Afasta a câmera para mostrar a ilha inteira (ou volta para perto do Adé).
 func _ver_ilha(longe: bool) -> void:
 	_vendo_ilha = longe
+	_mudar_legenda("ilha" if longe else "andar")
 	_ocupado = true
 	var t := create_tween().set_parallel().set_trans(Tween.TRANS_SINE)
 	if longe:
@@ -561,6 +577,23 @@ func _criar_interface() -> void:
 	_seta_caixa.visible = false
 	camada.add_child(_seta_caixa)
 
+	# legenda embaixo: os controles do mapa
+	var faixa_baixo := Panel.new()
+	faixa_baixo.position = Vector2(4, 207)
+	faixa_baixo.size = Vector2(248, 15)
+	var estilo_baixo := _estilo()
+	estilo_baixo.set_border_width_all(1)
+	estilo_baixo.set_corner_radius_all(3)
+	faixa_baixo.add_theme_stylebox_override("panel", estilo_baixo)
+	camada.add_child(faixa_baixo)
+	_legenda = _rotulo(fonte, 7, Color(0.92, 0.93, 1.0))
+	_legenda.position = Vector2(4, 208)
+	_legenda.size = Vector2(248, 12)
+	_legenda.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_legenda.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	camada.add_child(_legenda)
+	_mudar_legenda("")
+
 
 func _estilo() -> StyleBoxFlat:
 	var e := StyleBoxFlat.new()
@@ -620,16 +653,18 @@ func _entrar() -> void:
 
 func _abrir_caixa(texto: String) -> void:
 	_ocupado = true
+	_mudar_legenda("caixa")
 	_texto_caixa.text = texto
 	_caixa.visible = true
 	var y_tela := _ade.get_global_transform_with_canvas().origin.y     # a caixa não cobre o Adé
-	_caixa.position.y = 160.0 if y_tela < 140.0 else 36.0
+	_caixa.position.y = 150.0 if y_tela < 130.0 else 36.0
 	_seta_caixa.position = _caixa.position + Vector2(220, 40)
 	_seta_caixa.visible = true
 	Jogo.tocar_som("texto", -14.0)
 
 
 func _fechar_caixa() -> void:
+	_mudar_legenda("andar")
 	_caixa.visible = false
 	_seta_caixa.visible = false
 	await get_tree().create_timer(0.15).timeout
