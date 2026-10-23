@@ -599,7 +599,8 @@ func _exu_surge(pos: Vector2) -> Sprite2D:
 	Jogo.tocar_som("caminho", -2.0)
 	var e := Sprite2D.new()
 	e.texture = preload("res://arte/exu_snes.png")
-	e.hframes = 2
+	e.hframes = 4                      # 0-1 parado · 2-3 gargalhando
+	e.add_to_group("exu_sprite")
 	e.offset = Vector2(0, -16)
 	e.position = pos
 	e.modulate = Color(1, 1, 1, 0)
@@ -619,8 +620,43 @@ func _exu_surge(pos: Vector2) -> Sprite2D:
 	_fumaca_vermelha(pos + Vector2(0, -12))
 	create_tween().tween_property(e, "modulate:a", 1.0, 1.0)
 	var piscar := e.create_tween().set_loops()
-	piscar.tween_callback(func(): e.frame = (e.frame + 1) % 2).set_delay(0.6)
+	piscar.tween_callback(func():
+		if not e.get_meta("rindo", false):
+			e.frame = (e.frame + 1) % 2).set_delay(0.6)
+	# quando a fala dele tem risada, Exu gargalha
+	if not $Dialogo.risada.is_connected(_exu_ri):
+		$Dialogo.risada.connect(_exu_ri)
+	# chega rindo
+	get_tree().create_timer(1.0).timeout.connect(func():
+		if is_instance_valid(e):
+			_gargalhar(e, 1.4))
 	return e
+
+
+## Todos os Exus em cena gargalham (a fala do diálogo tem "Há há há!" ou "Hi hi hi!").
+func _exu_ri(forte: bool) -> void:
+	for e in get_tree().get_nodes_in_group("exu_sprite"):
+		if is_instance_valid(e) and e.visible and e.modulate.a > 0.5:
+			_gargalhar(e, 1.4 if forte else 0.9)
+
+
+## Exu gargalha: olhos fechados, boca aberta, o corpo sacudindo (quadros 2 e 3).
+func _gargalhar(e: Sprite2D, segundos: float) -> void:
+	if e.get_meta("rindo", false):
+		return
+	e.set_meta("rindo", true)
+	var x0 := e.position.x
+	var passos := int(segundos / 0.12)
+	var t := e.create_tween()
+	for i in passos:
+		t.tween_callback(func():
+			e.frame = 2 + i % 2
+			e.position.x = x0 + (0.5 if i % 2 == 0 else -0.5))
+		t.tween_interval(0.12)
+	t.tween_callback(func():
+		e.frame = 0
+		e.position.x = x0
+		e.set_meta("rindo", false))
 
 
 func _fumaca_vermelha(pos: Vector2) -> void:

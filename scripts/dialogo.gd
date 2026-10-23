@@ -3,6 +3,7 @@ extends CanvasLayer
 ## Cada linha é um dicionário {"quem", "yo", "pt", "evento" (opcional)}.
 
 signal terminou
+signal risada(forte: bool)     # a fala tem a risada de Exu
 signal evento(nome: String)
 
 const LETRAS_POR_SEGUNDO := 45.0
@@ -71,13 +72,14 @@ func _mostrar_linha() -> void:
 		evento.emit(linha["evento"])
 
 
-## Quando a fala tem a risada de Exu, toca o som: "Há há há!" é a gargalhada, "hi hi hi!" o risinho.
+## Quando a fala tem a risada de Exu, avisa a cena (Exu gargalha): "Há há há!" é a gargalhada (forte),
+## "hi hi hi!" o risinho.
 func _rir(texto: String) -> void:
 	var t := texto.to_lower()
 	if "há há há" in t:
-		Jogo.tocar_som("gargalhada", -2.0)
+		risada.emit(true)
 	elif "hi hi hi" in t:
-		Jogo.tocar_som("risinho", -3.0)
+		risada.emit(false)
 
 
 func _process(delta: float) -> void:
