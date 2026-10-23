@@ -71,7 +71,8 @@ Esta versão tem o **Prólogo** completo, em duas partes:
 **O mapa dos caminhos (estilo mapa-múndi dos 16 bits)** — `cenas/mapa_mundo.tscn`, `scripts/mapa_mundo.gd`
 - Uma ilha com a encruzilhada no meio e o campo de cada orixá em volta: Oxum (em cima à esquerda: a montanha verde,
   a cachoeira em degraus, a lagoa dourada com o abebé na ilhota, peixinhos, borboletas, ipês com colmeia e o rio de
-  ouro que atravessa a mata de Oxóssi até o mar), Oxalá (o morro branco e o templo), Iansã (tempestade e raios),
+  ouro, largo e cheio de curvas, que atravessa a mata de Oxóssi, passa entre a encruzilhada e Omolu, corre por
+  baixo do mundo de Ogum e deságua no mar de Iemanjá; as trilhas cruzam o rio por pontes), Oxalá (o morro branco e o templo), Iansã (tempestade e raios),
   Oxóssi (a mata), Ogum (a ferraria, o mariwô e o minério), Xangô (a pedreira), Nanã (a lama e o mangue),
   Omolu (embaixo, no meio: terra, palha e pipoca) e Iemanjá (o mar).
 - O mapa tem o dobro do tamanho da tela (512x448) e a câmera segue o Adé, como no Super Mario World. Xangô e Oxalá
