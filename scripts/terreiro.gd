@@ -198,6 +198,7 @@ func _ready() -> void:
 		_preparar_retorno()
 	else:
 		_sonho()
+	_montar_rotinas()
 
 
 func _exit_tree() -> void:
@@ -216,6 +217,7 @@ func _process(delta: float) -> void:
 	for g in _gatos:
 		g.frame = int(_tempo * 0.8) % 2
 	_animar_brincadeiras()
+	_mover_rotinas(delta)
 	for i in _velas_brancas.size():
 		_velas_brancas[i].frame = int(_tempo * 5.0 + i * 1.3) % 2
 
@@ -962,14 +964,16 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			jogador = CENA_JOGADOR.instantiate()
 			jogador.position = base
 		"V":
-			vo = _criar_pessoa("res://arte/vo_snes.png", 5, base)
+			vo = _criar_pessoa("res://arte/vo_snes.png", 7, base)
 			vo.interagiu.connect(_falar_com_vo)
 		"D":
 			_criar_pessoa("res://arte/tia_snes.png", 2, base).interagiu.connect(_falar_com_tia)
 		"G":
-			_criar_pessoa("res://arte/oga_snes.png", 2, base).interagiu.connect(_falar_com_oga)
+			_oga = _criar_pessoa("res://arte/oga_snes.png", 7, base)
+			_oga.interagiu.connect(_falar_com_oga)
 		"N":
-			_criar_pessoa("res://arte/cambone_snes.png", 2, base).interagiu.connect(_falar_com_cambone)
+			_lia = _criar_pessoa("res://arte/cambone_snes.png", 7, base)
+			_lia.interagiu.connect(_falar_com_cambone)
 		"K", "S", "k":
 			var tex := "res://arte/obj_caixote.png" if c != "S" else "res://arte/obj_saco.png"
 			var spot := _criar_interativo(tex, 1, base, Vector2(14, 8), -22.0)
@@ -1859,3 +1863,123 @@ func _esconder_inventario() -> void:
 		n.visible = false
 	_icone_buzio.position.x = 8
 	_contador_buzios.position.x = 21
+
+
+
+# ------------------------------------------------------------------ a vida no terreiro: rotinas da Vó, do Ogã Bené e da Lia
+# Cada pessoa anda entre alguns pontos, para um pouco em cada um e às vezes faz alguma coisa:
+#   "saudar" (braços erguidos, quadro 2), "varrer" (Vó e Lia, quadros 5-6) ou "tocar" (Ogã, quadros 5-6).
+# Os quadros 3 e 4 são os passos. Quando Adé chega perto, a pessoa para e olha para ele; quando o jogo
+# está numa cena (diálogo, ritual, mini-jogo), todo mundo espera.
+# Antes do ritual cada um fica perto do seu lugar no barracão (para Adé achar); na volta de Adé, eles saem:
+# o Ogã vai para perto da roda de capoeira, a Lia varre o quintal e a Vó, depois de assentar os troféus,
+# cuida do quarto de santo (ou, se não há troféu novo, fica pela tronqueira e pela gameleira).
+
+const VEL_PESSOA := 22.0
+var _oga: Area2D
+var _lia: Area2D
+var _rotinas := {}            # pessoa → {rota: [[lugar, celula, espera, acao]], i, espera, andando, nome}
+
+## [lugar, coluna, linha, segundos parado, o que faz]
+const ROTAS := {
+	"vo_barracao": [["barracao", 14, 5, 3.0, ""], ["barracao", 9, 5, 3.0, "saudar"], ["barracao", 9, 7, 2.0, ""],
+		["barracao", 15, 7, 2.5, "varrer"]],
+	"oga_barracao": [["barracao", 17, 6, 3.0, ""], ["barracao", 19, 5, 4.0, "tocar"], ["barracao", 21, 7, 2.5, ""]],
+	"lia_barracao": [["barracao", 6, 4, 3.0, "varrer"], ["barracao", 8, 4, 2.5, ""], ["barracao", 5, 7, 3.0, "varrer"]],
+	"vo_quintal": [["quintal", 14, 31, 4.0, ""], ["quintal", 10, 30, 4.0, "varrer"], ["quintal", 12, 32, 3.0, ""]],
+	"vo_quarto": [["quarto", 8, 6, 3.0, ""], ["quarto", 4, 3, 3.0, "saudar"], ["quarto", 11, 3, 3.0, "saudar"],
+		["quarto", 8, 7, 3.0, "varrer"]],
+	"oga_quintal": [["quintal", 29, 11, 3.0, ""], ["quintal", 37, 11, 4.0, "tocar"], ["quintal", 33, 11, 3.0, ""]],
+	"lia_quintal": [["quintal", 3, 18, 4.0, "varrer"], ["quintal", 15, 18, 4.0, "varrer"], ["quintal", 8, 18, 2.5, ""]],
+}
+
+
+func _montar_rotinas() -> void:
+	if _retorno:
+		_rotina(_oga, "oga_quintal", true)
+		_rotina(_lia, "lia_quintal", true)
+	else:
+		_rotina(_oga, "oga_barracao", false)
+		_rotina(_lia, "lia_barracao", false)
+	_rotina(vo, "", false)          # a da Vó muda conforme a história (veja _rota_da_vo)
+
+
+func _rotina(p: Area2D, nome: String, comecar_la: bool) -> void:
+	if p == null:
+		return
+	_rotinas[p] = {"nome": nome, "i": 0, "espera": randf_range(0.5, 2.0), "andando": false}
+	if comecar_la and nome != "":
+		p.global_position = _ponto_da_rota(ROTAS[nome][0])
+
+
+func _ponto_da_rota(ponto: Array) -> Vector2:
+	return lugares[ponto[0]]["origem"] + Vector2(ponto[1] * TILE + TILE / 2.0, (ponto[2] + 1) * TILE - 2)
+
+
+## Qual rotina a Vó segue agora (ou nenhuma, quando a história precisa dela num lugar).
+func _rota_da_vo() -> String:
+	if not vo or not vo.ativo:
+		return ""
+	if not _retorno:
+		return "vo_barracao" if estado in ["acordou", "buscando"] else ""
+	if not _trofeus_novos().is_empty():
+		return ""                   # esperando Adé na tronqueira com o troféu
+	var q: Vector2 = lugares["quarto"]["origem"]
+	var no_quarto := vo.global_position.x >= q.x and vo.global_position.y >= q.y
+	return "vo_quarto" if no_quarto else "vo_quintal"
+
+
+func _mover_rotinas(delta: float) -> void:
+	if _rotinas.is_empty() or not jogador:
+		return
+	var em_cena: bool = not jogador.pode_mover or $Dialogo.ativo
+	for p in _rotinas:
+		var r: Dictionary = _rotinas[p]
+		if p == vo:
+			var nome := _rota_da_vo()
+			if nome != r["nome"]:
+				r["nome"] = nome
+				r["i"] = 0
+				r["espera"] = 0.5
+				r["andando"] = false
+				if nome == "":
+					continue
+		if r["nome"] == "":
+			continue
+		var rota: Array = ROTAS[r["nome"]]
+		var sp: Sprite2D = p.sprite
+		var perto: bool = p.global_position.distance_to(jogador.global_position) < 30.0
+		if em_cena or perto:
+			# para, olha para Adé e respira
+			p.animar = true
+			p.olhar_para_jogador = true
+			continue
+		var ponto: Array = rota[r["i"]]
+		var alvo := _ponto_da_rota(ponto)
+		if r["andando"]:
+			var falta: Vector2 = alvo - p.global_position
+			if falta.length() < 1.0:
+				r["andando"] = false
+				r["espera"] = float(ponto[3])
+				continue
+			p.animar = false
+			p.olhar_para_jogador = false
+			var passo: Vector2 = falta.limit_length(VEL_PESSOA * delta)
+			p.global_position += passo
+			if absf(passo.x) > 0.05:
+				sp.flip_h = passo.x < 0.0
+			sp.frame = 3 + int(_tempo * 6.0) % 2
+		else:
+			r["espera"] -= delta
+			match str(ponto[4]):
+				"saudar":
+					p.animar = false
+					sp.frame = 2
+				"varrer", "tocar":
+					p.animar = false
+					sp.frame = 5 + int(_tempo * 3.0) % 2
+				_:
+					p.animar = true
+			if r["espera"] <= 0.0:
+				r["i"] = (r["i"] + 1) % rota.size()
+				r["andando"] = true
