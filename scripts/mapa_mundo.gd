@@ -42,6 +42,7 @@ var _campos := {}                     # id → dados do campo (nome, yo, saudaca
 var _caminhos: Array = []             # {a, b, pontos: PackedVector2Array, aberto: 0..1}
 var _vistos := {}                     # pontos que já apareceram (na abertura)
 var NOS := {}                         # id → posição do ponto
+var _enfeites: Array = []             # sprites que balançam (mariwô)
 var _trilhas: Node2D                  # desenha as trilhas (só redesenha quando muda)
 var _no_atual := "orita"
 var _andando := false
@@ -88,6 +89,15 @@ func _ready() -> void:
 		for i in c["ponte"]:
 			ponte[int(i)] = true
 		_caminhos.append({"a": c["a"], "b": c["b"], "pontos": pts, "ponte": ponte, "aberto": 0.0})
+	for e in mapa.get("enfeites", []):
+		var en := Sprite2D.new()           # coisas que ficam por cima da trilha (o portal de mariwô)
+		en.texture = load(e[0])
+		en.hframes = int(e[1])
+		en.offset = Vector2(0, -en.texture.get_height() / 2.0 + 1)
+		en.position = Vector2(e[2], e[3])
+		en.z_index = 1
+		add_child(en)
+		_enfeites.append(en)
 	_trilhas = Node2D.new()
 	_trilhas.z_index = -5
 	_trilhas.draw.connect(_desenhar_trilhas)
@@ -124,6 +134,8 @@ func _process(delta: float) -> void:
 	_tempo += delta
 	_fundo.texture = _texturas[int(_tempo * 4.0) % _texturas.size()]
 	_mexer_nuvens(delta)
+	for en in _enfeites:
+		en.frame = int(_tempo * 1.5) % en.hframes
 	queue_redraw()
 	if _ocupado or _andando:
 		return
