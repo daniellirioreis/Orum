@@ -970,7 +970,7 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			_tia = _criar_pessoa("res://arte/tia_snes.png", 7, base)
 			_tia.interagiu.connect(_falar_com_tia)
 		"G":
-			_oga = _criar_pessoa("res://arte/oga_snes.png", 7, base)
+			_oga = _criar_pessoa("res://arte/oga_snes.png", 9, base)
 			_oga.interagiu.connect(_falar_com_oga)
 		"N":
 			_lia = _criar_pessoa("res://arte/cambone_snes.png", 7, base)
@@ -1869,7 +1869,8 @@ func _esconder_inventario() -> void:
 
 # ------------------------------------------------------------------ a vida no terreiro: rotinas da Vó, do Ogã Bené e da Lia
 # Cada pessoa anda entre alguns pontos, para um pouco em cada um e às vezes faz alguma coisa:
-#   "saudar" (braços erguidos, quadro 2), "varrer" (Vó e Lia, quadros 5-6), "tocar" (Ogã, quadros 5-6) ou
+#   "saudar" (braços erguidos, quadro 2), "varrer" (Vó e Lia, quadros 5-6), "tocar" (Ogã com o atabaque na
+#   frente, quadros 5-6), "afinar" (Ogã batendo o malho nas cunhas do atabaque, quadros 7-8) ou
 #   "cozinhar" / "colher" (Tia Dora com a colher de pau: no fogão, no pilão e, na volta de Adé, na horta).
 # Os quadros 3 e 4 são os passos. Quando Adé chega perto, a pessoa para e olha para ele; quando o jogo
 # está numa cena (diálogo, ritual, mini-jogo), todo mundo espera.
@@ -1887,7 +1888,8 @@ var _rotinas := {}            # pessoa → {rota: [[lugar, celula, espera, acao]
 const ROTAS := {
 	"vo_barracao": [["barracao", 14, 5, 3.0, ""], ["barracao", 9, 5, 3.0, "saudar"], ["barracao", 9, 7, 2.0, ""],
 		["barracao", 15, 7, 2.5, "varrer"]],
-	"oga_barracao": [["barracao", 17, 6, 3.0, ""], ["barracao", 19, 5, 4.0, "tocar"], ["barracao", 21, 7, 2.5, ""]],
+	"oga_barracao": [["barracao", 17, 6, 3.0, ""], ["barracao", 19, 5, 4.0, "afinar"], ["barracao", 19, 5, 5.0, "tocar"],
+		["barracao", 21, 7, 2.5, ""]],
 	"tia_cozinha": [["cozinha", 10, 3, 5.0, "cozinhar"], ["cozinha", 3, 3, 3.0, ""], ["cozinha", 4, 6, 1.5, ""],
 		["cozinha", 10, 7, 3.0, "cozinhar"], ["cozinha", 8, 6, 2.0, ""]],
 	"tia_quintal": [["quintal", 32, 17, 4.0, "colher"], ["quintal", 37, 17, 4.0, "colher"], ["quintal", 34, 18, 2.5, ""]],
@@ -1895,7 +1897,8 @@ const ROTAS := {
 	"vo_quintal": [["quintal", 14, 31, 4.0, ""], ["quintal", 10, 30, 4.0, "varrer"], ["quintal", 12, 32, 3.0, ""]],
 	"vo_quarto": [["quarto", 8, 6, 3.0, ""], ["quarto", 4, 3, 3.0, "saudar"], ["quarto", 11, 3, 3.0, "saudar"],
 		["quarto", 8, 7, 3.0, "varrer"]],
-	"oga_quintal": [["quintal", 29, 11, 3.0, ""], ["quintal", 37, 11, 4.0, "tocar"], ["quintal", 33, 11, 3.0, ""]],
+	"oga_quintal": [["quintal", 29, 11, 3.0, ""], ["quintal", 37, 11, 3.0, "afinar"], ["quintal", 37, 11, 5.0, "tocar"],
+		["quintal", 33, 11, 3.0, ""]],
 	"lia_quintal": [["quintal", 3, 18, 4.0, "varrer"], ["quintal", 15, 18, 4.0, "varrer"], ["quintal", 8, 18, 2.5, ""]],
 }
 
@@ -1983,9 +1986,15 @@ func _mover_rotinas(delta: float) -> void:
 				"saudar":
 					p.animar = false
 					sp.frame = 2
-				"varrer", "tocar", "cozinhar", "colher":
+				"varrer", "cozinhar", "colher":
 					p.animar = false
 					sp.frame = 5 + int(_tempo * 3.0) % 2
+				"tocar":
+					p.animar = false
+					sp.frame = 5 + int(_tempo * 6.0) % 2      # as mãos batendo no couro, uma de cada vez
+				"afinar":
+					p.animar = false
+					sp.frame = 7 + int(_tempo * 4.0) % 2      # o malho batendo nas cunhas do atabaque
 				_:
 					p.animar = true
 			if r["espera"] <= 0.0:
