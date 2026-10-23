@@ -69,9 +69,11 @@ Esta versão tem o **Prólogo** completo, em duas partes:
   saem da encruzilhada; qualquer uma leva ao **mapa dos caminhos**.
 
 **O mapa dos caminhos (estilo mapa-múndi dos 16 bits)** — `cenas/mapa_mundo.tscn`, `scripts/mapa_mundo.gd`
-- Uma ilha com a encruzilhada no meio e o campo de cada orixá em volta: Omolu (terra e palha), Oxalá (o morro
-  branco e as nuvens), Iansã (tempestade e raios), Oxóssi (a mata), Ogum (a bigorna e o ferro), Xangô (a pedreira),
-  Nanã (a lama e as lagoas), Oxum (a cachoeira e o rio dourado) e Iemanjá (o mar).
+- Uma ilha com a encruzilhada no meio e o campo de cada orixá em volta: Oxum (em cima à esquerda: a montanha verde,
+  a cachoeira em degraus, a lagoa dourada com o abebé na ilhota, peixinhos, borboletas, ipês com colmeia e o rio de
+  ouro que atravessa a mata de Oxóssi até o mar), Oxalá (o morro branco e o templo), Iansã (tempestade e raios),
+  Oxóssi (a mata), Ogum (a ferraria, o mariwô e o minério), Xangô (a pedreira), Nanã (a lama e o mangue),
+  Omolu (embaixo, no meio: terra, palha e pipoca) e Iemanjá (o mar).
 - O mapa tem o dobro do tamanho da tela (512x448) e a câmera segue o Adé, como no Super Mario World. Xangô e Oxalá
   ficam no alto, em dois andares de paredão; onde a trilha sobe um paredão aparecem degraus e Adé anda mais devagar.
 - Na primeira vez, a câmera se afasta para mostrar a ilha inteira e os caminhos se abrem em ondas a partir da encruzilhada. Adé anda de ponto em ponto com as
