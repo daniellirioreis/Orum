@@ -88,7 +88,10 @@ func _ready() -> void:
 		var ponte := {}
 		for i in c["ponte"]:
 			ponte[int(i)] = true
-		_caminhos.append({"a": c["a"], "b": c["b"], "pontos": pts, "ponte": ponte, "aberto": 0.0})
+		var esconder := {}                  # pedaço dentro da cruz da encruzilhada (lá o chão já é caminho)
+		for i in c.get("esconder", []):
+			esconder[int(i)] = true
+		_caminhos.append({"a": c["a"], "b": c["b"], "pontos": pts, "ponte": ponte, "esconder": esconder, "aberto": 0.0})
 	for e in mapa.get("enfeites", []):
 		var en := Sprite2D.new()           # coisas que ficam por cima da trilha (o portal de mariwô)
 		en.texture = load(e[0])
@@ -337,7 +340,9 @@ func _desenhar_trilhas() -> void:
 			continue
 		var lista := []
 		for k in n + 1:
-			lista.append((pts.size() - 1 - k) if c.get("inverso", false) else k)
+			var i: int = (pts.size() - 1 - k) if c.get("inverso", false) else k
+			if not c["esconder"].has(i):
+				lista.append(i)
 		visiveis.append([c, lista])
 	# clareira de terra onde cada trilha termina
 	var fins := {}
@@ -348,6 +353,7 @@ func _desenhar_trilhas() -> void:
 			fins[c["b"]] = true
 		else:
 			fins[c["b"] if c.get("inverso", false) else c["a"]] = true
+	fins.erase("orita")                 # a encruzilhada tem a cruz desenhada na arte
 	for id in fins:
 		_trilhas.draw_circle(NOS[id], 6.0, TRILHA_BORDA)
 	for camada in 4:
