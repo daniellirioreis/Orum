@@ -410,6 +410,21 @@ func _ler(espaco: int) -> Dictionary:
 	return d if d is Dictionary else {}
 
 
+## O último caminho guardado: o espaço em uso (se existir) ou o arquivo salvo mais recente. -1 se não houver.
+func ultimo_salvo() -> int:
+	if espaco_atual >= 0 and FileAccess.file_exists(_arquivo(espaco_atual)):
+		return espaco_atual
+	var melhor := -1
+	var quando := 0
+	for e in ESPACOS:
+		if FileAccess.file_exists(_arquivo(e)):
+			var t := FileAccess.get_modified_time(_arquivo(e))
+			if t > quando:
+				quando = t
+				melhor = e
+	return melhor
+
+
 ## Uma linha curta para mostrar no menu: onde, quantos troféus e quando.
 func resumo(espaco: int) -> Dictionary:
 	var d := _ler(espaco)

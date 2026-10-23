@@ -137,9 +137,11 @@ var _lista: Control
 var _icone_buzio: TextureRect
 var _slots := {}              # id da oferenda → ícone no inventário
 const COR_ITEM_FALTA := Color(0.25, 0.22, 0.3, 0.6)
+## Búzios de axé (a "vida" de Adé nas fases): acabou, é fim de jogo.
+const AXE_MAX := 3
 var _contador_buzios: Label
 var _hud_oferendas: Array = []   # caixinhas do inventário das oferendas
-var _axe_icones: Array = []      # os 5 búzios do axé
+var _axe_icones: Array = []      # os búzios do axé (AXE_MAX)
 var _aviso: Label
 var _clarao: ColorRect
 var _cortina: ColorRect
@@ -743,10 +745,10 @@ func _criar_interface() -> void:
 	axe.size = Vector2(70, 10)
 	axe.position = Vector2(tela.x - 78, 3)
 	camada.add_child(axe)
-	for i in 5:
+	for i in AXE_MAX:
 		var b := TextureRect.new()
 		b.texture = preload("res://arte/buzio_axe.png")
-		b.position = Vector2(tela.x - 76 + i * 13, 15)
+		b.position = Vector2(tela.x - 76 + 13 + i * 13, 15)
 		camada.add_child(b)
 		_axe_icones.append(b)
 
@@ -1753,7 +1755,7 @@ func _na_quartinha() -> void:
 ## Enche o axé de novo (nas cenas que têm axé).
 func _axe_cheio() -> void:
 	if "axe" in self:
-		set("axe", 5)
+		set("axe", AXE_MAX)
 		for b in _axe_icones:
 			b.modulate = Color.WHITE
 

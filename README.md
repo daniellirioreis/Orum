@@ -87,8 +87,10 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
 - **Kiumbas**: sombras de olhos vermelhos que vagam pela encruzilhada e perseguem Adé no escuro. Não entram
   na luz das tochas (nem das lamparinas acesas): perto delas, Adé fica protegido. Quando Exu chega, os kiumbas
   e os redemoinhos se desfazem.
-- Redemoinhos de poeira andam pelos caminhos. Cada um que pega Adé leva um búzio de **axé** (os 5 búzios
-  lá em cima, à direita). Sem axé, Adé volta para a entrada do lugar com o axé cheio.
+- Redemoinhos de poeira andam pelos caminhos. Cada um que pega Adé leva um búzio de **axé** (os 3 búzios
+  lá em cima, à direita; `AXE_MAX` no `scripts/terreiro.gd`). Sem axé é **fim de jogo**: Adé cai, a tela escurece
+  e o menu "O axé acabou..." oferece **Voltar ao último caminho guardado** (o último jogo salvo na quartinha de Exu;
+  apagado se ainda não há nenhum) ou **Voltar ao título**. Vale para todas as fases com axé.
 - Se a pedra ficar presa, ler a placa de novo faz as pedras voltarem para o lugar.
 - Exu aparece, abre os caminhos e deixa a escolha com Adé. As estradas do norte, do oeste e do leste
   saem da encruzilhada; qualquer uma leva ao **mapa dos caminhos**.

@@ -1,6 +1,7 @@
 extends CanvasLayer
 ## Menus do jogo (fica dentro do Jogo, funciona mesmo com o jogo pausado):
 ##   pausa()            → Esc / Start: Continuar, (Voltar ao mapa), Configurações, Voltar ao título, Sair do jogo
+##   fim_de_jogo()      → acabou o axé: voltar ao último caminho guardado ou ao título
 ##   opcoes()           → as configurações: volume da música, volume dos efeitos, tela cheia
 ## Na tela de título os menus aparecem sem caixa, direto por cima do fundo (estilo_titulo).
 ##   escolher_caminho() → os três espaços de jogo salvo (para guardar ou para continuar)
@@ -245,6 +246,28 @@ func pausa() -> void:
 				get_tree().quit()
 				return
 	get_tree().paused = false
+
+
+## Fim de jogo (acabaram os búzios de axé): voltar ao último caminho guardado ou ao título.
+func fim_de_jogo() -> void:
+	get_tree().paused = true
+	var ultimo := Jogo.ultimo_salvo()
+	var rodape := "Nenhum caminho guardado ainda."
+	if ultimo >= 0:
+		var r := Jogo.resumo(ultimo)
+		rodape = "%s · %s" % [r.get("onde", "?"), r.get("data", "")]
+	var opcoes := ["Voltar ao último caminho guardado", "Voltar ao título"]
+	var desativadas := [] if ultimo >= 0 else [0]
+	while true:
+		var r := await escolher("O axé acabou...", opcoes, 0 if ultimo >= 0 else 1, false, desativadas, rodape)
+		if r["acao"] != "ok":
+			continue                      # aqui não dá para fechar: tem que escolher
+		get_tree().paused = false
+		if r["i"] == 0 and ultimo >= 0:
+			Jogo.carregar(ultimo)
+		else:
+			Jogo.mudar_cena("res://cenas/titulo.tscn")
+		return
 
 
 func confirmar(pergunta: String) -> bool:

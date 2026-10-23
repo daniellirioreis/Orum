@@ -377,9 +377,10 @@ func _afundar_ade() -> void:
 	sp.position.y = y0
 	sp.modulate = Color.WHITE
 	axe -= 1
-	if axe <= 0:
-		axe = AXE_MAX
 	_atualizar_axe()
+	if axe <= 0:
+		_sem_axe()
+		return
 	teleportar("nana_brejo", _ponto_volta.get("nana_brejo", jogador.global_position))
 	for g in _garcas:                     # as garças voltam a pousar onde dá pé
 		g["foi"] = false
@@ -678,9 +679,10 @@ func _mare_leva_ade() -> void:
 	c.tween_property(_cortina, "color:a", 1.0, 0.4)
 	await c.finished
 	axe -= 1
-	if axe <= 0:
-		axe = AXE_MAX
 	_atualizar_axe()
+	if axe <= 0:
+		_sem_axe()
+		return
 	teleportar("nana_mangue", _ultimo_firme)
 	await get_tree().create_timer(0.3).timeout
 	var c2 := create_tween()

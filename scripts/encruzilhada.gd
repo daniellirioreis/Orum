@@ -22,7 +22,6 @@ const LUGARES_ENC := {
 	"enc_mata": {"origem": Vector2(0, 600), "dentro": false},
 	"enc_orita": {"origem": Vector2(0, 1300), "dentro": false},
 }
-const AXE_MAX := 5
 ## letras do arquivo de objetos que ocupam o bloco (a pedra não passa por elas)
 const BLOQUEIAM := ["R", "M", "Y", "J", "q", "o", "$", "?", "S", "y"]
 const ORDEM_TOCHAS := ["leste", "oeste", "meio"]
@@ -516,24 +515,27 @@ func _atualizar_axe() -> void:
 		_axe_icones[i].modulate = Color(1, 1, 1, 1) if i < axe else Color(0.3, 0.25, 0.35, 0.55)
 
 
+## Acabaram os búzios de axé: fim de jogo. Adé cai, a tela escurece e o menu oferece voltar ao último
+## caminho que Exu guardou (o último jogo salvo) ou voltar ao título.
 func _sem_axe() -> void:
+	if estado == "fim_de_jogo":
+		return
+	estado = "fim_de_jogo"
 	_voltando = true
 	jogador.congelar(true)
-	await get_tree().create_timer(0.4).timeout
-	var t := create_tween()
-	t.tween_property(_cortina, "color:a", 1.0, 0.4)
-	await t.finished
-	teleportar(lugar_atual, _ponto_volta.get(lugar_atual, jogador.global_position))
-	axe = AXE_MAX
-	_atualizar_axe()
+	Jogo.tocar_som("erro", 0.0)
+	var sp: Sprite2D = jogador.sprite
+	var piscar := create_tween()
+	for i in 4:
+		piscar.tween_property(sp, "modulate", Color(1, 0.4, 0.4), 0.1)
+		piscar.tween_property(sp, "modulate", Color.WHITE, 0.1)
+	await piscar.finished
+	var cai := create_tween()
+	cai.tween_property(sp, "modulate", Color(0.5, 0.45, 0.6, 0.0), 1.0)
+	cai.parallel().tween_property(_cortina, "color", Color(0.12, 0.02, 0.06, 0.85), 1.2)
+	await cai.finished
 	await get_tree().create_timer(0.3).timeout
-	var t2 := create_tween()
-	t2.tween_property(_cortina, "color:a", 0.0, 0.4)
-	await t2.finished
-	_mostrar_aviso("O axé voltou. Tente de novo!")
-	jogador.congelar(false)
-	_voltando = false
-	_invulneravel = 1.0
+	Jogo.menu.fim_de_jogo()
 
 
 # ------------------------------------------------------------------ escuridão, tochas e kiumbas
