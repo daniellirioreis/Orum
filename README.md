@@ -61,8 +61,13 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   volta de uma viagem, o Ogã fica perto da roda de capoeira, a Lia varre o quintal perto das crianças e a Vó, depois de
   assentar os troféus, cuida do quarto de santo (sem troféu novo, fica pela tronqueira e pela gameleira). Quando Adé
   chega perto, a pessoa para e olha para ele. As rotas ficam em `ROTAS`, no fim do `scripts/terreiro.gd`
-  ([lugar, coluna, linha, segundos parado, "saudar" / "varrer" / "tocar"]). Folhas de 7 quadros: parado (0-1),
-  saudação (2), passos (3-4) e fazendo algo (5-6); o Ogã tem mais dois, afinando o atabaque (7-8).
+  ([lugar, coluna, linha, segundos parado, "saudar" / "varrer" / "tocar"]). Quadros: parado (0-1), saudação (2),
+  passos (3-4) e fazendo algo (5-6); depois vêm as poses junto dos objetos (feitas pelo `gerar_personagens.py`):
+  a Vó de costas saudando o congá e os assentamentos (7-8), a Lia de costas acendendo a vela do congá (7-8), a Tia
+  de costas mexendo a panela no fogão (7-8), socando o pilão (9-10) e agachada colhendo na horta (11-12), e o Ogã
+  afinando o atabaque com o próprio tambor (7-8), tocando atrás dos atabaques do barracão (9-10) e afinando ao lado
+  deles (11-12). Os objetos respondem: o vapor sobe da panela, o pilão balança, o couro do atabaque vibra, as folhas
+  da horta mexem, a vela do congá acende e a vassoura levanta poeira (`_efeito_no_objeto`, no `terreiro.gd`).
 - Onde está cada oferenda:
   - **Efum**: com a Tia Dora, na cozinha. Antes, ela pede lenha do quintal.
   - **Epó**: escondido na despensa. É preciso procurar nos caixotes e sacos.

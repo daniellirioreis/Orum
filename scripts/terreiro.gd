@@ -912,6 +912,7 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 		c = "m2"   # no quintal, "m" é mato alto (na cozinha é a mesa)
 	if CENARIO.has(c):
 		var s := _criar_cenario(CENARIO[c][0], CENARIO[c][1], base)
+		_objetos[lugar + ":" + c] = s       # para as pessoas da casa interagirem com eles (fogão, atabaques...)
 		if c == "a" and randf() < 0.3:
 			s.hframes = 2
 			s.frame = 1   # arbusto com frutinhas
@@ -964,16 +965,16 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			jogador = CENA_JOGADOR.instantiate()
 			jogador.position = base
 		"V":
-			vo = _criar_pessoa("res://arte/vo_snes.png", 7, base)
+			vo = _criar_pessoa("res://arte/vo_snes.png", 9, base)
 			vo.interagiu.connect(_falar_com_vo)
 		"D":
-			_tia = _criar_pessoa("res://arte/tia_snes.png", 7, base)
+			_tia = _criar_pessoa("res://arte/tia_snes.png", 13, base)
 			_tia.interagiu.connect(_falar_com_tia)
 		"G":
-			_oga = _criar_pessoa("res://arte/oga_snes.png", 9, base)
+			_oga = _criar_pessoa("res://arte/oga_snes.png", 13, base)
 			_oga.interagiu.connect(_falar_com_oga)
 		"N":
-			_lia = _criar_pessoa("res://arte/cambone_snes.png", 7, base)
+			_lia = _criar_pessoa("res://arte/cambone_snes.png", 9, base)
 			_lia.interagiu.connect(_falar_com_cambone)
 		"K", "S", "k":
 			var tex := "res://arte/obj_caixote.png" if c != "S" else "res://arte/obj_saco.png"
@@ -1882,28 +1883,31 @@ const VEL_PESSOA := 22.0
 var _oga: Area2D
 var _lia: Area2D
 var _tia: Area2D
+var _objetos := {}            # "lugar:letra" → sprite do objeto (ex.: "cozinha:F" é o fogão)
+var _vapor: CPUParticles2D
 var _rotinas := {}            # pessoa → {rota: [[lugar, celula, espera, acao]], i, espera, andando, nome}
 
 ## [lugar, coluna, linha, segundos parado, o que faz]
 const ROTAS := {
-	"vo_barracao": [["barracao", 14, 5, 3.0, ""], ["barracao", 9, 5, 3.0, "saudar"], ["barracao", 9, 7, 2.0, ""],
+	"vo_barracao": [["barracao", 14, 5, 3.0, ""], ["barracao", 9.5, 4, 4.0, "saudar_costas"], ["barracao", 9, 7, 2.0, ""],
 		["barracao", 15, 7, 2.5, "varrer"]],
-	"oga_barracao": [["barracao", 17, 6, 3.0, ""], ["barracao", 19, 5, 4.0, "afinar"], ["barracao", 19, 5, 5.0, "tocar"],
-		["barracao", 21, 7, 2.5, ""]],
-	"tia_cozinha": [["cozinha", 10, 3, 5.0, "cozinhar"], ["cozinha", 3, 3, 3.0, ""], ["cozinha", 4, 6, 1.5, ""],
-		["cozinha", 10, 7, 3.0, "cozinhar"], ["cozinha", 8, 6, 2.0, ""]],
+	# o Ogã afina ao lado do atabaque grande e toca atrás do atabaque pequeno (só o tronco aparece)
+	"oga_barracao": [["barracao", 17, 6, 3.0, ""], ["barracao", 16.875, 4, 4.0, "afinar_grande"],
+		["barracao", 20.125, 3.75, 6.0, "tocar_grande"], ["barracao", 22, 6, 0.0, ""], ["barracao", 21, 7, 2.5, ""]],
+	"tia_cozinha": [["cozinha", 10.2, 2.6, 6.0, "cozinhar"], ["cozinha", 3, 3, 3.0, ""], ["cozinha", 4, 6, 1.5, ""],
+		["cozinha", 11, 6.4, 4.0, "pilao"], ["cozinha", 8, 6, 2.0, ""]],
 	# na volta de Adé, a Tia colhe na horta, leva para a cozinha, cozinha no fogão e no pilão e volta para a horta
 	# (os pontos com 0 segundos são só o caminho, para contornar a cerca e a casa)
-	"tia_quintal": [["quintal", 32, 17, 4.0, "colher"], ["quintal", 37, 17, 4.0, "colher"],
+	"tia_quintal": [["quintal", 34, 16, 4.0, "colher"], ["quintal", 36, 16, 4.0, "colher"],
 		["quintal", 31, 17, 0.0, ""], ["quintal", 31, 11, 0.0, ""], ["quintal", 29, 11, 0.0, ""],
 		["quintal", 29, 12, 0.0, ""], ["quintal", 25, 12, 0.0, ""],
-		["cozinha", 10, 3, 6.0, "cozinhar"], ["cozinha", 3, 3, 2.5, ""], ["cozinha", 10, 7, 4.0, "cozinhar"],
-		["cozinha", 10, 3, 5.0, "cozinhar"],
+		["cozinha", 10.2, 2.6, 6.0, "cozinhar"], ["cozinha", 3, 3, 2.5, ""], ["cozinha", 11, 6.4, 4.0, "pilao"],
+		["cozinha", 10.2, 2.6, 5.0, "cozinhar"],
 		["quintal", 25, 12, 0.0, ""], ["quintal", 29, 12, 0.0, ""], ["quintal", 29, 11, 0.0, ""],
 		["quintal", 31, 11, 0.0, ""], ["quintal", 31, 17, 0.0, ""]],
-	"lia_barracao": [["barracao", 6, 4, 3.0, "varrer"], ["barracao", 8, 4, 2.5, ""], ["barracao", 5, 7, 3.0, "varrer"]],
+	"lia_barracao": [["barracao", 6, 4, 3.0, "varrer"], ["barracao", 12.5, 4, 3.0, "acender"], ["barracao", 5, 7, 3.0, "varrer"]],
 	"vo_quintal": [["quintal", 14, 31, 4.0, ""], ["quintal", 10, 30, 4.0, "varrer"], ["quintal", 12, 32, 3.0, ""]],
-	"vo_quarto": [["quarto", 8, 6, 3.0, ""], ["quarto", 4, 3, 3.0, "saudar"], ["quarto", 11, 3, 3.0, "saudar"],
+	"vo_quarto": [["quarto", 8, 6, 3.0, ""], ["quarto", 4, 3, 3.0, "saudar_costas"], ["quarto", 11, 3, 3.0, "saudar_costas"],
 		["quarto", 8, 7, 3.0, "varrer"]],
 	"oga_quintal": [["quintal", 29, 11, 3.0, ""], ["quintal", 37, 11, 3.0, "afinar"], ["quintal", 37, 11, 5.0, "tocar"],
 		["quintal", 33, 11, 3.0, ""]],
@@ -1926,7 +1930,8 @@ func _montar_rotinas() -> void:
 func _rotina(p: Area2D, nome: String, comecar_la: bool) -> void:
 	if p == null:
 		return
-	_rotinas[p] = {"nome": nome, "i": 0, "espera": randf_range(0.5, 2.0), "andando": false}
+	# começa andando até o primeiro ponto (a não ser que já apareça lá)
+	_rotinas[p] = {"nome": nome, "i": 0, "espera": randf_range(0.5, 2.0), "andando": not comecar_la}
 	if comecar_la and nome != "":
 		p.global_position = _ponto_da_rota(ROTAS[nome][0])
 
@@ -1952,6 +1957,7 @@ func _mover_rotinas(delta: float) -> void:
 	if _rotinas.is_empty() or not jogador:
 		return
 	var em_cena: bool = not jogador.pode_mover or $Dialogo.ativo
+	_atualizar_vapor()
 	for p in _rotinas:
 		var r: Dictionary = _rotinas[p]
 		if p == vo:
@@ -1960,7 +1966,7 @@ func _mover_rotinas(delta: float) -> void:
 				r["nome"] = nome
 				r["i"] = 0
 				r["espera"] = 0.5
-				r["andando"] = false
+				r["andando"] = true
 				if nome == "":
 					continue
 		if r["nome"] == "":
@@ -2002,11 +2008,41 @@ func _mover_rotinas(delta: float) -> void:
 			sp.frame = 3 + int(_tempo * 6.0) % 2
 		else:
 			r["espera"] -= delta
-			match str(ponto[4]):
+			var antes := sp.frame
+			var acao := str(ponto[4])
+			match acao:
 				"saudar":
 					p.animar = false
 					sp.frame = 2
-				"varrer", "cozinhar", "colher":
+				"saudar_costas":                                   # de costas, diante do congá ou do assentamento
+					p.animar = false
+					sp.flip_h = false
+					sp.frame = 7 + int(_tempo * 1.5) % 2
+				"acender":                                         # a Lia acende a vela do congá
+					p.animar = false
+					sp.flip_h = false
+					sp.frame = 7 if r["espera"] > float(ponto[3]) - 1.0 else 8
+				"cozinhar":                                        # de costas, mexendo a panela no fogão
+					p.animar = false
+					sp.flip_h = false
+					sp.frame = (7 if _lugar_de(p.global_position) == "cozinha" else 5) + int(_tempo * 3.0) % 2
+				"pilao":
+					p.animar = false
+					sp.flip_h = false
+					sp.frame = 9 + int(_tempo * 2.5) % 2
+				"colher":                                          # agachada na beira do canteiro
+					p.animar = false
+					sp.flip_h = false
+					sp.frame = 11 + int(_tempo * 0.8) % 2
+				"tocar_grande":
+					p.animar = false
+					sp.flip_h = false
+					sp.frame = 9 + int(_tempo * 6.0) % 2
+				"afinar_grande":
+					p.animar = false
+					sp.flip_h = false
+					sp.frame = 11 + int(_tempo * 4.0) % 2
+				"varrer":
 					p.animar = false
 					sp.frame = 5 + int(_tempo * 3.0) % 2
 				"tocar":
@@ -2017,6 +2053,8 @@ func _mover_rotinas(delta: float) -> void:
 					sp.frame = 7 + int(_tempo * 4.0) % 2      # o malho batendo nas cunhas do atabaque
 				_:
 					p.animar = true
+			if sp.frame != antes:
+				_efeito_no_objeto(p, acao, sp.frame)
 			if r["espera"] <= 0.0:
 				r["i"] = (r["i"] + 1) % rota.size()
 				r["andando"] = true
@@ -2058,3 +2096,112 @@ func _atravessar_porta(p: Area2D, r: Dictionary, destino: String, celula: Vector
 	t2.tween_property(p, "modulate:a", 1.0, 0.25)
 	await t2.finished
 	r["trocando"] = false
+
+
+
+# ------------------------------------------------------------------ os objetos respondem ao que as pessoas fazem
+
+func _objeto(chave: String) -> Sprite2D:
+	return _objetos.get(chave) as Sprite2D
+
+
+func _efeito_no_objeto(p: Area2D, acao: String, quadro: int) -> void:
+	var lugar := _lugar_de(p.global_position)
+	match acao:
+		"tocar_grande":
+			var a := _objeto("barracao:A")
+			if a:      # o couro do atabaque vibra a cada batida
+				var t := create_tween()
+				t.tween_property(a, "scale", Vector2(1.02, 0.97), 0.04)
+				t.tween_property(a, "scale", Vector2.ONE, 0.08)
+				_pufe(p.global_position + Vector2(0, -22), [Color(1, 1, 0.9, 0.9), Color(1, 0.9, 0.6, 0.0)], 3, 18.0, Vector2(0, -20))
+		"afinar_grande":
+			if quadro == 12:
+				_pufe(p.global_position + Vector2(8, -10), [Color(0.95, 0.85, 0.6, 0.9), Color(0.8, 0.6, 0.3, 0.0)], 4, 22.0, Vector2(0, 30))
+		"pilao":
+			var pl := _objeto("cozinha:i")
+			if quadro == 10 and pl:   # a mão de pilão bate no fundo: o pilão balança e sobe um pozinho
+				var t := create_tween()
+				t.tween_property(pl, "scale", Vector2(1.06, 0.94), 0.05)
+				t.tween_property(pl, "scale", Vector2.ONE, 0.1)
+				_pufe(pl.global_position + Vector2(0, -20), [Color(0.95, 0.9, 0.75, 0.9), Color(0.9, 0.85, 0.7, 0.0)], 5, 14.0, Vector2(0, 10))
+		"colher":
+			var h := _objeto("quintal:H")
+			if h:      # as folhas balançam; quando ela levanta, sai uma verdura
+				var t := create_tween()
+				t.tween_property(h, "position:x", h.position.x + 1.0, 0.06)
+				t.tween_property(h, "position:x", h.position.x, 0.06)
+				_pufe(p.global_position + Vector2(4, -10), [Color(0.4, 0.8, 0.3, 1.0), Color(0.3, 0.6, 0.2, 0.0)], 4 if quadro == 12 else 2, 16.0, Vector2(0, 30))
+		"saudar_costas":
+			_pufe(p.global_position + Vector2(0, -34), [Color(1, 0.9, 0.5, 0.8), Color(1, 0.8, 0.4, 0.0)], 2, 8.0, Vector2(0, -12))
+		"acender":
+			if quadro == 8:   # a vela do congá acende na mão da Lia
+				_pufe(p.global_position + Vector2(4, -34), [Color(1, 0.9, 0.5, 1.0), Color(1, 0.5, 0.2, 0.0)], 6, 14.0, Vector2(0, -10))
+				var l := _luz(p.global_position + Vector2(4, -34), Color(1.0, 0.75, 0.4), 0.0, 0.8, false)
+				var t := create_tween()
+				t.tween_property(l, "energy", 1.4 * FORCA_LUZES, 0.3)
+				t.tween_interval(1.2)
+				t.tween_property(l, "energy", 0.0, 0.6)
+				t.tween_callback(l.queue_free)
+		"varrer":
+			if quadro == 6:   # a poeira da vassoura
+				var lado := -6.0 if p.sprite.flip_h else 6.0
+				_pufe(p.global_position + Vector2(lado, -2), [Color(0.85, 0.78, 0.65, 0.7), Color(0.8, 0.75, 0.6, 0.0)], 4, 12.0, Vector2(0, -6))
+	if lugar == "":
+		return
+
+
+## O vapor sobe da panela enquanto a Tia Dora cozinha no fogão.
+func _atualizar_vapor() -> void:
+	var f := _objeto("cozinha:F")
+	if f == null or _tia == null or not _rotinas.has(_tia):
+		return
+	if _vapor == null:
+		_vapor = CPUParticles2D.new()
+		_vapor.position = f.position + Vector2(3, -36)
+		_vapor.z_index = 18
+		_vapor.amount = 12
+		_vapor.lifetime = 1.6
+		_vapor.direction = Vector2(0, -1)
+		_vapor.spread = 20.0
+		_vapor.gravity = Vector2(0, -12)
+		_vapor.initial_velocity_min = 6.0
+		_vapor.initial_velocity_max = 12.0
+		_vapor.scale_amount_min = 1.5
+		_vapor.scale_amount_max = 3.0
+		var g := Gradient.new()
+		g.set_color(0, Color(1, 1, 1, 0.75))
+		g.set_color(1, Color(0.9, 0.9, 0.95, 0.0))
+		_vapor.color_ramp = g
+		_vapor.emitting = false
+		add_child(_vapor)
+	var r: Dictionary = _rotinas[_tia]
+	var cozinhando := false
+	if r["nome"] != "" and not r["andando"]:
+		var ponto: Array = ROTAS[r["nome"]][r["i"]]
+		cozinhando = ponto[4] == "cozinhar" and ponto[0] == "cozinha"
+	_vapor.emitting = cozinhando
+
+
+func _pufe(pos: Vector2, cores: Array, n: int, vel: float, gravidade: Vector2) -> void:
+	var f := CPUParticles2D.new()
+	f.position = pos
+	f.z_index = 16
+	f.amount = n
+	f.lifetime = 0.7
+	f.one_shot = true
+	f.explosiveness = 0.9
+	f.spread = 180.0
+	f.direction = Vector2(0, -1)
+	f.gravity = gravidade
+	f.initial_velocity_min = vel * 0.5
+	f.initial_velocity_max = vel
+	f.scale_amount_min = 1.0
+	f.scale_amount_max = 1.6
+	var g := Gradient.new()
+	g.set_color(0, cores[0])
+	g.set_color(1, cores[1])
+	f.color_ramp = g
+	add_child(f)
+	f.emitting = true
+	get_tree().create_timer(1.2).timeout.connect(f.queue_free)
