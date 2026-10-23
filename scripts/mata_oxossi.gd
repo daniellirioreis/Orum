@@ -107,6 +107,15 @@ func _inicio() -> void:
 	await get_tree().create_timer(0.8).timeout
 	$HUD.mostrar_titulo("Igbó Ọ̀ṣọ́ọ̀sì", "A Mata de Oxóssi")
 	await get_tree().create_timer(1.6).timeout
+	if Jogo.trofeus.has("oxossi"):
+		# a mata já foi vencida: Adé pode andar por ela de novo ou voltar logo para o mapa
+		await _falar("revisita")
+		var r: Dictionary = await Jogo.menu.escolher("A Mata de Oxóssi", ["Andar pela mata", "Voltar ao mapa"])
+		if r["acao"] == "ok" and r["i"] == 1:
+			voltar_ao_mapa()
+			return
+		jogador.congelar(false)
+		return
 	await _falar("chegada")
 
 
@@ -1122,6 +1131,19 @@ func _ao_evento(nome: String) -> void:
 			_ganhar_trofeu()
 		_:
 			super._ao_evento(nome)
+
+
+## Num campo já concluído, o menu de pausa oferece "Voltar ao mapa".
+func pode_voltar_ao_mapa() -> bool:
+	return Jogo.trofeus.has("oxossi") and estado != "saindo"
+
+
+func voltar_ao_mapa() -> void:
+	estado = "saindo"
+	jogador.congelar(true)
+	Jogo.set_meta("no_mapa", "oxossi")
+	Jogo.tocar_som("caminho", -6.0)
+	Jogo.mudar_cena("res://cenas/mapa_mundo.tscn")
 
 
 func _sair(corpo: Node2D) -> void:

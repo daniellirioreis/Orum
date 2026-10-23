@@ -1,5 +1,8 @@
 {
 	"nomes": {"milho": "uma espiga de milho", "coco": "um coco", "mel": "um favo de mel"},
+	"revisita": [
+		{"quem": "Adé", "yo": "", "pt": "A mata de Oxóssi de novo... Agora os bichos já me conhecem."}
+	],
 	"chegada": [
 		{"quem": "Adé", "yo": "", "pt": "Que mata fechada... As árvores são tão altas que quase escondem o céu."},
 		{"quem": "Adé", "yo": "", "pt": "Este é o campo de Oxóssi, o caçador. A Vó diz que ele conhece cada folha da mata."},

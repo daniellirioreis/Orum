@@ -1,6 +1,6 @@
 extends CanvasLayer
 ## Menus do jogo (fica dentro do Jogo, funciona mesmo com o jogo pausado):
-##   pausa()            → Esc / Start: Continuar, Configurações, Voltar ao título, Sair do jogo
+##   pausa()            → Esc / Start: Continuar, (Voltar ao mapa), Configurações, Voltar ao título, Sair do jogo
 ##   opcoes()           → as configurações: volume da música, volume dos efeitos, tela cheia
 ## Na tela de título os menus aparecem sem caixa, direto por cima do fundo (estilo_titulo).
 ##   escolher_caminho() → os três espaços de jogo salvo (para guardar ou para continuar)
@@ -218,19 +218,29 @@ func pausa() -> void:
 		return
 	get_tree().paused = true
 	var escolha := 0
+	var cena := get_tree().current_scene
+	var pode_mapa: bool = cena != null and cena.has_method("pode_voltar_ao_mapa") and cena.pode_voltar_ao_mapa()
+	var itens := ["Continuar", "Configurações", "Voltar ao título", "Sair do jogo"]
+	if pode_mapa:
+		itens.insert(1, "Voltar ao mapa")
 	while true:
-		var r := await escolher("Pausa", ["Continuar", "Configurações", "Voltar ao título", "Sair do jogo"], escolha)
+		var r := await escolher("Pausa", itens, escolha)
 		escolha = maxi(r["i"], 0)
 		if r["acao"] == "cancelar" or r["i"] == 0:
 			break
-		if r["i"] == 1:
+		var item: String = itens[r["i"]]
+		if item == "Voltar ao mapa":
+			get_tree().paused = false
+			cena.voltar_ao_mapa()
+			return
+		if item == "Configurações":
 			await opcoes()
-		elif r["i"] == 2:
+		elif item == "Voltar ao título":
 			if await confirmar("Voltar ao título?"):
 				get_tree().paused = false
 				Jogo.mudar_cena("res://cenas/titulo.tscn")
 				return
-		elif r["i"] == 3:
+		elif item == "Sair do jogo":
 			if await confirmar("Sair do jogo?"):
 				get_tree().quit()
 				return
