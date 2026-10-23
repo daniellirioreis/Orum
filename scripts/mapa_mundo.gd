@@ -91,7 +91,11 @@ func _ready() -> void:
 		var esconder := {}                  # pedaço dentro da cruz da encruzilhada (lá o chão já é caminho)
 		for i in c.get("esconder", []):
 			esconder[int(i)] = true
-		_caminhos.append({"a": c["a"], "b": c["b"], "pontos": pts, "ponte": ponte, "esconder": esconder, "aberto": 0.0})
+		var escada := {}                    # onde a trilha sobe um paredão: degraus (e Adé anda mais devagar)
+		for e in c.get("escada", []):
+			escada[int(e[0])] = Color8(int(e[1]), int(e[2]), int(e[3]))
+		_caminhos.append({"a": c["a"], "b": c["b"], "pontos": pts, "ponte": ponte, "esconder": esconder,
+			"escada": escada, "aberto": 0.0})
 	for e in mapa.get("enfeites", []):
 		var en := Sprite2D.new()           # coisas que ficam por cima da trilha (o portal de mariwô)
 		en.texture = load(e[0])
@@ -165,9 +169,9 @@ func _unhandled_input(ev: InputEvent) -> void:
 func _criar_nuvens() -> void:
 	# [textura, posição, quanto anda para os lados, velocidade]
 	var lista := [
-		["res://arte/mundo_nuvem.png", Vector2(96, 40), 7.0, 0.35],
-		["res://arte/mundo_nuvem_p.png", Vector2(162, 41), 6.0, 0.42],
-		["res://arte/mundo_nuvem_p.png", Vector2(130, 34), 9.0, 0.28],
+		["res://arte/mundo_nuvem.png", Vector2(160, 38), 7.0, 0.35],
+		["res://arte/mundo_nuvem_p.png", Vector2(98, 70), 8.0, 0.3],      # na encosta, abaixo do templo
+		["res://arte/mundo_nuvem_p.png", Vector2(148, 74), 7.0, 0.38],
 		["res://arte/mundo_tempestade.png", Vector2(198, 40), 4.0, 0.9],
 		["res://arte/mundo_tempestade.png", Vector2(243, 43), 3.0, 1.1],
 		["res://arte/mundo_tempestade.png", Vector2(224, 34), 5.0, 0.8],
@@ -233,16 +237,19 @@ func _andar(c: Dictionary) -> void:
 		destino = c["a"]
 	_esconder_no()
 	Jogo.tocar_som("pulo", -18.0)
+	var invertido: bool = c["b"] != destino
 	var andado := 0.0
 	for i in range(1, pts.size()):
 		var de := pts[i - 1]
 		var para := pts[i]
 		var passo := de.distance_to(para)
+		var original: int = (pts.size() - 1 - i) if invertido else i
+		var vel := VELOCIDADE * (0.5 if c["escada"].has(original) else 1.0)   # na escada, mais devagar
 		var t := 0.0
 		while t < passo:
 			var dt := get_process_delta_time()
-			t += VELOCIDADE * dt
-			andado += VELOCIDADE * dt
+			t += vel * dt
+			andado += vel * dt
 			_ade.position = de.lerp(para, minf(1.0, t / passo))
 			_animar_ade(para - de, andado)
 			await get_tree().process_frame
@@ -372,12 +379,14 @@ func _desenhar_trilhas() -> void:
 				var depois := pts[mini(pts.size() - 1, i + 1)]
 				var normal := (depois - antes).normalized().orthogonal()
 				var ponte: bool = c["ponte"].has(i)
+				var degrau: bool = c["escada"].has(i)
 				var largura := 2.2 + 0.4 * sin(i * 0.37 + pts[0].x)   # trilha estreita, do tamanho do Adé do mapa
 				match camada:
 					0:
 						_trilhas.draw_circle(p, largura + 1.0, TRILHA_BORDA)
 					1:
-						_trilhas.draw_circle(p, largura, MADEIRA if ponte else TRILHA_TERRA)
+						var cor_chao: Color = c["escada"][i] if degrau else (MADEIRA if ponte else TRILHA_TERRA)
+						_trilhas.draw_circle(p, largura, cor_chao)
 					2:
 						if ponte:
 							if i % 3 == 0:     # vão entre as tábuas
@@ -385,9 +394,17 @@ func _desenhar_trilhas() -> void:
 									_trilhas.draw_rect(Rect2((p + normal * k).round(), Vector2.ONE), TRILHA_BORDA)
 							else:
 								_trilhas.draw_rect(Rect2((p + normal * -2).round(), Vector2(1, 1)), MADEIRA_CLARA)
+						elif degrau:
+							# degraus: uma linha escura (o espelho do degrau) e uma clara (a pisada), alternando
+							var cor_d: Color = c["escada"][i]
+							var cor_linha: Color = cor_d.darkened(0.45) if i % 3 == 0 else (cor_d.lightened(0.25) if i % 3 == 1 else cor_d)
+							for k in range(-2, 3):
+								_trilhas.draw_rect(Rect2((p + normal * k).round(), Vector2.ONE), cor_linha)
 						else:
 							_trilhas.draw_circle(p + Vector2(-0.5, -0.5), maxf(0.8, largura - 1.3), TRILHA_CLARA)
 					3:
+						if degrau:
+							continue
 						if ponte:
 							for lado in [-4, 4]:   # corrimão
 								_trilhas.draw_rect(Rect2((p + normal * lado).round(), Vector2.ONE), Color(0.25, 0.14, 0.06))
