@@ -1395,6 +1395,7 @@ const AGUA_CHARS := ["~", "|"]
 var terrenos: Array = [[TERRENOS[0], 1], [TERRENOS[1], 2], [TERRENOS[2], 3]]
 var agua_chars: Array = AGUA_CHARS
 var _ts_terreno: TileSet
+var tex_moita := "res://arte/arbusto.png"   # a moita das bordas (a fase de Nanã usa a do brejo)
 const SOBRE_TERRENO := ["M", "^", "B", "b", "E"]
 const CASA_CHARS := ["R", "h", "H", "J", "P"]
 
@@ -1496,7 +1497,7 @@ func _construir_terreno(mapa: PackedStringArray, origem: Vector2, topo: TileMapL
 			elif c in agua_chars:
 				topo.set_cell(Vector2i(x, y), 0, Vector2i(INVISIVEL, 0))
 			elif c == "a":
-				_criar_cenario_quadros("res://arte/arbusto.png", 2, 1 if (x * 3 + y) % 4 == 0 else 0, Vector2(14, 8), origem + Vector2(x * TILE + TILE / 2.0, (y + 1) * TILE))
+				_criar_cenario_quadros(tex_moita, 2, 1 if (x * 3 + y) % 4 == 0 else 0, Vector2(14, 8), origem + Vector2(x * TILE + TILE / 2.0, (y + 1) * TILE))
 			elif c == "e":
 				_criar_cenario("res://arte/estaca.png", Vector2(10, 6), origem + Vector2(x * TILE + TILE / 2.0, (y + 1) * TILE + 2))
 

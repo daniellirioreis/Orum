@@ -181,6 +181,11 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   Objetos: `V` velhinha, `g` garça, `s` sapo, `K` bambu, `j` bambu rachado, `F` toco com a faca, `T` taboa,
   `k` caranguejo, `X` árvore do mangue, `u` flores lilás, `b` barro, `O` pedra do pote, `N` lugar de Nanã,
   `x` de onde a velhinha chega, `w` vitória-régia, `>` saída. Textos em `dialogos/mata_nana.json`.
+- A vegetação é do brejo, do mangue e da lagoa: nas letras das árvores, `R` vira a árvore velha com barba-de-velho
+  pendurada (como os cabelos brancos de Nanã), `M` a árvore do mangue (no mangue) ou a árvore velha, `q J Y` o
+  buriti; e há `n` aninga, `f`/`i` juncos (com ou sem florzinhas lilás) e `h` aguapé boiando. As bordas usam a
+  moita do brejo (`tex_moita` no `scripts/terreiro.gd`). Arte em `arte/nana_buriti.png`, `nana_arvore_velha.png`,
+  `nana_aninga.png`, `nana_juncos.png`, `nana_aguape.png` e `nana_moita.png` (`gerar_arte_nana.py`).
 - O terreno ganhou linhas novas em `arte/terreno_snes.png` (lama, água escura, bolhas, raízes e vitórias-régias,
   feitas pelo `gerar_terreno_nana.py`); cada fase escolhe os seus terrenos em `terrenos` e `agua_chars`
   (`scripts/terreiro.gd`). Arte nova: `arte/nana_*.png` (`gerar_arte_nana.py` e `gerar_nana_pessoas.py`).

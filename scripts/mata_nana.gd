@@ -86,6 +86,7 @@ func _ready() -> void:
 	lugares = LUGARES_NANA
 	terrenos = [[["t", "_"], 1], [LAMA, 5], [["v"], 6], [["z", "v"], 6]]
 	agua_chars = ["v"]
+	tex_moita = "res://arte/nana_moita.png"
 	cor_fora = CHUVA["nana_brejo"][0]
 	estado = "caminho"
 	Jogo.tocar_musica()
@@ -235,6 +236,24 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			_chegada_velhinha = base
 		"w":
 			_criar_vitoria_regia(base, celula)
+		# a vegetação do brejo, do mangue e da lagoa (no lugar das árvores do quintal)
+		"R":
+			_criar_cenario("res://arte/nana_arvore_velha.png", Vector2(12, 8), base)
+		"M":
+			if lugar == "nana_mangue":
+				_criar_cenario("res://arte/nana_mangue.png", Vector2(14, 8), base)
+			else:
+				_criar_cenario("res://arte/nana_arvore_velha.png", Vector2(12, 8), base)
+		"q", "J", "Y":
+			_criar_cenario("res://arte/nana_buriti.png", Vector2(6, 6), base)
+		"n":
+			_criar_cenario("res://arte/nana_aninga.png", Vector2(10, 6), base)
+		"f", "i":
+			var j := _criar_cenario("res://arte/nana_juncos.png", Vector2.ZERO, base)
+			j.hframes = 2
+			j.frame = 1 if c == "f" else 0
+		"h":
+			_criar_aguape(base, celula)
 		">":
 			var area := Area2D.new()
 			area.collision_layer = 0
@@ -247,7 +266,7 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			area.add_child(forma)
 			area.body_entered.connect(_sair)
 			add_child(area)
-			var fecha := _criar_cenario("res://arte/arbusto.png", Vector2(16, 14), base)
+			var fecha := _criar_cenario("res://arte/nana_moita.png", Vector2(16, 14), base)
 			fecha.hframes = 2
 			_saida_moita.append(fecha)
 		_:
@@ -286,6 +305,20 @@ func _letra_em(pos: Vector2) -> String:
 	var origem: Vector2 = lugares[lugar_atual]["origem"]
 	var rel := pos - origem
 	return _letra(_mapas[lugar_atual], floori(rel.x / TILE), floori(rel.y / TILE))
+
+
+## Aguapé boiando na água escura, com flor lilás de vez em quando.
+func _criar_aguape(base: Vector2, celula: Vector2i) -> void:
+	var s := Sprite2D.new()
+	s.texture = preload("res://arte/nana_aguape.png")
+	s.hframes = 2
+	s.frame = (celula.x + celula.y) % 2
+	s.position = base - Vector2(0, TILE / 2.0) + Vector2(randf_range(-3, 3), randf_range(-3, 3))
+	s.z_index = -3
+	add_child(s)
+	var t := create_tween().set_loops()
+	t.tween_property(s, "position:x", s.position.x + 1.5, 1.8 + randf()).set_trans(Tween.TRANS_SINE)
+	t.tween_property(s, "position:x", s.position.x, 1.8 + randf()).set_trans(Tween.TRANS_SINE)
 
 
 func _criar_vitoria_regia(base: Vector2, celula: Vector2i) -> void:
