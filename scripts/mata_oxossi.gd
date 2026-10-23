@@ -61,6 +61,13 @@ var _anim_oxossi := "parado"
 var _saida_moita: Array = []    # moitas que fecham a saída até o fim
 var _viu_clareira := false
 var _conversa: Area2D
+# mais bichos da mata
+var _passarinhos: Array = []    # {s, casa, lugar, cor, voou, volta}
+var _bandos: Array = []         # passarinhos voando pelo céu: {s, vel, base_y, fase}
+var _proximo_bando := 3.0
+var _pavoes: Array = []         # {no, casa, alvo, espera, aberto}
+var _oncas: Array = []          # {a, s, casa, lugar, estado, tempo}
+var _viu_onca := false
 
 
 func _ready() -> void:
@@ -111,6 +118,10 @@ func _process(delta: float) -> void:
 	_mover_javali(delta)
 	_mover_passaro(delta)
 	_pegar_coletaveis()
+	_mover_passarinhos(delta)
+	_mover_bandos(delta)
+	_mover_pavoes(delta)
+	_mover_oncas(delta)
 	if _oxossi and _anim_oxossi == "parado":
 		_oxossi.frame = int(_tempo * 3.0) % 4
 
@@ -181,6 +192,13 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			_assentamento.interagiu.connect(_no_assentamento)
 		"x":
 			_oxossi_pos = base
+		"b":
+			for k in 3:
+				_criar_passarinho(lugar, base + Vector2(randf_range(-14, 14), randf_range(-8, 6)))
+		"G":
+			_criar_pavao(lugar, base)
+		"Q":
+			_criar_onca(lugar, base)
 		">":
 			var area := _area(base - Vector2(0, TILE / 2.0), Vector2(14, 12))
 			area.body_entered.connect(_sair)
@@ -495,6 +513,10 @@ func _alvo_em(p: Vector2) -> Dictionary:
 			"javali":
 				if not _javali["foi"] and p.distance_to(_javali["s"].position + Vector2(0, -8)) < 12.0:
 					return a
+			"onca":
+				var o: Dictionary = a["onca"]
+				if p.distance_to(o["a"].position + Vector2(0, -9)) < 14.0:
+					return a
 			"passaro":
 				if not _passaro["foi"] and p.distance_to(_passaro["s"].position + Vector2(0, -20)) < 22.0:
 					return a
@@ -578,6 +600,10 @@ func _flecha_acertou(a: Dictionary) -> void:
 			Jogo.tocar_som("erro", -8.0)
 			_mostrar_aviso("A flecha bateu no couro grosso do javali...")
 			_javali["bravo"] = 1.0
+		"onca":
+			_flecha_cai()
+			_acordar_onca(a["onca"])
+			_mostrar_aviso("Oxóssi não caça por caçar. Deixe a onça dormir!")
 		"passaro":
 			_flecha_cai()
 			Jogo.tocar_som("erro", -6.0)
@@ -1103,3 +1129,230 @@ func _sair(corpo: Node2D) -> void:
 		return
 	Jogo.set_meta("no_mapa", "oxossi")
 	super._sair(corpo)
+
+
+# ------------------------------------------------------------------ passarinhos, pavão e onça
+
+func _criar_passarinho(lugar: String, pos: Vector2) -> void:
+	var s := Sprite2D.new()
+	s.texture = preload("res://arte/ox_passarinhos.png")
+	s.hframes = 4
+	s.vframes = 3
+	s.offset = Vector2(0, -4)
+	s.position = pos
+	var cor := randi() % 3
+	s.frame = cor * 4
+	s.flip_h = randf() < 0.5
+	mundo.add_child(s)
+	_passarinhos.append({"s": s, "casa": pos, "lugar": lugar, "cor": cor, "voou": false, "volta": 0.0,
+		"fase": randf() * 10.0})
+
+
+func _mover_passarinhos(delta: float) -> void:
+	for b in _passarinhos:
+		var s: Sprite2D = b["s"]
+		var cor: int = b["cor"]
+		if b["voou"]:
+			b["volta"] -= delta
+			if b["volta"] <= 0.0 and b["casa"].distance_to(jogador.global_position) > 60.0:
+				# volta voando e pousa de novo
+				b["voou"] = false
+				s.position = b["casa"] + Vector2(-50 if s.flip_h else 50, -60)
+				s.modulate.a = 1.0
+				var t := create_tween()
+				t.tween_property(s, "position", b["casa"], 1.0)
+			else:
+				s.frame = cor * 4 + 2 + int(_tempo * 14.0) % 2
+			continue
+		if s.position.distance_to(b["casa"]) > 1.0:
+			s.frame = cor * 4 + 2 + int(_tempo * 14.0) % 2
+			continue
+		# bicando o chão
+		var bica := fmod(_tempo + b["fase"], 2.4) < 0.5
+		s.frame = cor * 4 + (1 if bica and int(_tempo * 6.0) % 2 == 0 else 0)
+		if b["lugar"] == lugar_atual and s.position.distance_to(jogador.global_position) < 34.0:
+			_passarinho_voa(b)
+
+
+func _passarinho_voa(b: Dictionary) -> void:
+	b["voou"] = true
+	b["volta"] = randf_range(6.0, 9.0)
+	var s: Sprite2D = b["s"]
+	var lado := 1.0 if s.position.x > jogador.global_position.x else -1.0
+	s.flip_h = lado < 0.0
+	Jogo.tocar_som("texto", -18.0)
+	var t := create_tween()
+	t.tween_property(s, "position", s.position + Vector2(lado * randf_range(60, 90), randf_range(-90, -60)), 1.2)
+	t.parallel().tween_property(s, "modulate:a", 0.0, 1.2).set_delay(0.5)
+
+
+## De vez em quando um bando de passarinhos atravessa o céu da mata.
+func _mover_bandos(delta: float) -> void:
+	_proximo_bando -= delta
+	if _proximo_bando <= 0.0:
+		_proximo_bando = randf_range(7.0, 13.0)
+		var camera: Camera2D = jogador.get_node("Camera")
+		var centro := camera.get_screen_center_position()
+		var da_esquerda := randf() < 0.5
+		var y0 := centro.y - randf_range(30, 90)
+		var cor := randi() % 3
+		for k in randi_range(3, 6):
+			var s := Sprite2D.new()
+			s.texture = preload("res://arte/ox_passarinhos.png")
+			s.hframes = 4
+			s.vframes = 3
+			s.z_index = 15
+			s.flip_h = not da_esquerda
+			s.position = Vector2(centro.x + (-150.0 if da_esquerda else 150.0) - (k * 14.0 if da_esquerda else -k * 14.0),
+				y0 + randf_range(-12, 12))
+			s.set_meta("cor", cor)
+			add_child(s)
+			_bandos.append({"s": s, "vel": (60.0 if da_esquerda else -60.0) + randf_range(-6, 6),
+				"base_y": s.position.y, "fase": randf() * TAU, "vida": 6.0})
+	for b in _bandos.duplicate():
+		var s: Sprite2D = b["s"]
+		b["vida"] -= delta
+		s.position.x += b["vel"] * delta
+		s.position.y = b["base_y"] + sin(_tempo * 3.0 + b["fase"]) * 4.0
+		s.frame = int(s.get_meta("cor")) * 4 + 2 + int(_tempo * 12.0 + b["fase"]) % 2
+		if b["vida"] <= 0.0:
+			s.queue_free()
+			_bandos.erase(b)
+
+
+func _criar_pavao(lugar: String, base: Vector2) -> void:
+	var n := _criar_interativo("res://arte/ox_pavao.png", 3, base, Vector2(12, 6), -40.0)
+	n.olhar_para_jogador = false
+	n.sprite.offset = Vector2(0, -18)
+	var sombra := Sprite2D.new()
+	sombra.texture = TEX_SOMBRA
+	sombra.scale = Vector2(1.3, 1.0)
+	n.add_child(sombra)
+	n.move_child(sombra, 0)
+	n.interagiu.connect(_olhar_pavao.bind(n))
+	_pavoes.append({"no": n, "casa": base, "alvo": base, "espera": 1.0, "aberto": 0.0, "lugar": lugar})
+
+
+func _mover_pavoes(delta: float) -> void:
+	for p in _pavoes:
+		var n: Area2D = p["no"]
+		var perto: bool = p["lugar"] == lugar_atual and n.position.distance_to(jogador.global_position) < 44.0
+		if perto:
+			p["aberto"] = 2.0                  # abre a cauda quando Adé chega perto
+		p["aberto"] = maxf(0.0, p["aberto"] - delta)
+		if p["aberto"] > 0.0:
+			n.sprite.frame = 2
+			continue
+		if p["espera"] > 0.0:
+			p["espera"] -= delta
+			n.sprite.frame = 0
+			if p["espera"] <= 0.0:
+				p["alvo"] = p["casa"] + Vector2(randf_range(-28, 28), randf_range(-12, 12))
+			continue
+		var para: Vector2 = p["alvo"] - n.position
+		if para.length() < 1.0:
+			p["espera"] = randf_range(1.5, 3.5)
+			continue
+		n.position += para.normalized() * minf(12.0 * delta, para.length())
+		n.sprite.flip_h = para.x < 0.0
+		n.sprite.frame = int(_tempo * 4.0) % 2
+
+
+func _olhar_pavao(_n: Area2D) -> void:
+	await _falar("pavao")
+
+
+func _criar_onca(lugar: String, base: Vector2) -> void:
+	var a := Area2D.new()
+	a.collision_layer = 0
+	a.collision_mask = 2
+	a.position = base
+	var s := Sprite2D.new()
+	s.texture = preload("res://arte/ox_onca.png")
+	s.hframes = 4
+	s.offset = Vector2(0, -10)
+	s.flip_h = true
+	a.add_child(s)
+	var sombra := Sprite2D.new()
+	sombra.texture = TEX_SOMBRA
+	sombra.scale = Vector2(2.2, 1.2)
+	sombra.show_behind_parent = true
+	s.add_child(sombra)
+	var forma := CollisionShape2D.new()
+	var circ := CircleShape2D.new()
+	circ.radius = 9.0
+	forma.shape = circ
+	forma.position = Vector2(0, -6)
+	a.add_child(forma)
+	var corpo := StaticBody2D.new()
+	var f2 := CollisionShape2D.new()
+	var r2 := RectangleShape2D.new()
+	r2.size = Vector2(26, 8)
+	f2.shape = r2
+	f2.position = Vector2(0, -4)
+	corpo.add_child(f2)
+	a.add_child(corpo)
+	mundo.add_child(a)
+	var o := {"a": a, "s": s, "casa": base, "lugar": lugar, "estado": "dorme", "tempo": 0.0}
+	_oncas.append(o)
+	_alvos.append({"tipo": "onca", "lugar": lugar, "onca": o})
+
+
+func _mover_oncas(delta: float) -> void:
+	for o in _oncas:
+		var s: Sprite2D = o["s"]
+		var a: Area2D = o["a"]
+		o["tempo"] -= delta
+		match o["estado"]:
+			"dorme":
+				s.frame = int(_tempo * 0.8) % 2          # respira devagar
+				if o["lugar"] == lugar_atual and jogador.pode_mover and not _voltando:
+					var d := a.position.distance_to(jogador.global_position)
+					if d < 18.0 or (d < 80.0 and jogador.velocity.length() > 40.0):
+						_acordar_onca(o)
+			"acordada":
+				s.frame = 2
+				s.flip_h = jogador.global_position.x < a.position.x
+				if o["tempo"] <= 0.0:
+					_bote(o)
+			"bote":
+				s.frame = 3
+				if _invulneravel <= 0.0 and not _voltando and jogador.pode_mover and a.overlaps_body(jogador):
+					_tomar_dano(a.global_position)
+			"volta":
+				s.frame = 2
+				var para: Vector2 = o["casa"] - a.position
+				if para.length() < 1.0:
+					o["estado"] = "dorme"
+					s.flip_h = true
+				else:
+					a.position += para.normalized() * minf(30.0 * delta, para.length())
+					s.flip_h = para.x < 0.0
+
+
+func _acordar_onca(o: Dictionary) -> void:
+	if o["estado"] != "dorme":
+		return
+	o["estado"] = "acordada"
+	o["tempo"] = 0.7
+	Jogo.tocar_som("erro", -4.0)
+	var t := create_tween()                      # o rugido: a onça se estica
+	t.tween_property(o["s"], "scale", Vector2(1.12, 1.12), 0.15)
+	t.tween_property(o["s"], "scale", Vector2.ONE, 0.2)
+	if not _viu_onca:
+		_viu_onca = true
+		_mostrar_aviso("Uma onça! Perto dela, ande devagar (SHIFT ou C).")
+
+
+func _bote(o: Dictionary) -> void:
+	o["estado"] = "bote"
+	var a: Area2D = o["a"]
+	var alvo := jogador.global_position
+	var dir := (alvo - a.position)
+	if dir.length() > 80.0:
+		alvo = a.position + dir.normalized() * 80.0
+	var t := create_tween()
+	t.tween_property(a, "position", alvo, 0.3).set_ease(Tween.EASE_OUT)
+	await t.finished
+	await get_tree().create_timer(0.5).timeout
+	o["estado"] = "volta"

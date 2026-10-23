@@ -110,6 +110,12 @@ Esta versão tem o **Prólogo** completo, em duas partes:
     Com milho, coco e mel, Adé faz a oferenda no assentamento de Exu; o pássaro baixa a guarda, Oxóssi chega e,
     com uma flecha só, espanta o pássaro (não mata). O sol se põe, e Adé e Oxóssi conversam sobre o sonho e sobre o que
     Oxóssi guarda: o conhecimento da mata, a paciência e a fartura repartida.
+- Os bichos da mata: passarinhos (sabiá, azulão e canário) bicando o chão, que voam quando Adé chega perto e voltam
+  depois; bandos de passarinhos atravessando o céu; o pavão, que passeia e abre a cauda quando Adé se aproxima;
+  e a onça-pintada, dormindo perto do caminho depois da ponte: se Adé passa correndo perto, ela acorda, ruge e dá o
+  bote (leva um búzio de axé); andando devagar, ela continua dormindo. Flecha na onça só acorda a onça.
+  Arte em `arte/ox_passarinhos.png`, `ox_pavao.png` e `ox_onca.png` (feita pelo `gerar_bichos_mata.py`);
+  nos mapas, `b` passarinhos, `G` pavão e `Q` onça.
 - No fim, Oxóssi dá o ofá para Adé: é o **troféu** (fica no último quadradinho do inventário, com moldura dourada,
   e em `Jogo.trofeus`), para levar ao terreiro da Vó. A mata abre a saída do norte, de volta ao mapa.
 - Mapas: `fases/ox_rastro.txt`, `ox_campo.txt`, `ox_ofa.txt`, `ox_clareira.txt` (+ `_objetos`), gerados pelo `gerar_mapas_oxossi.py`.
