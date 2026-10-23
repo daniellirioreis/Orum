@@ -92,6 +92,11 @@ Esta versão tem o **Prólogo** completo, em duas partes:
   `%` velas vermelha e preta nas quatro esquinas, `y` tocha, `k` kiumba, `>` saída para o mapa dos caminhos. Os textos ficam em `dialogos/encruzilhada.json`.
 - A versão antiga da encruzilhada (plataforma) continua em `cenas/jogo.tscn`, mas a porteira agora leva para a nova.
 
+**Os orixás (modelos)** — `arte/orixas.png`, feita pelo `gerar_orixas.py`
+- Dez quadros de 24x44 (um pouco maiores que o Adé), nesta ordem: Exu, Ogum, Oxóssi, Xangô, Iansã, Oxum,
+  Iemanjá, Nanã, Omolu e Oxalá. Quem usa adê tem o rosto coberto pela franja de contas, como na tradição.
+- Ainda não aparecem no jogo: vão entrar quando cada fase de orixá for feita.
+
 ## Estrutura das pastas
 
 ```
