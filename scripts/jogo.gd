@@ -8,6 +8,8 @@ const TELA := Vector2i(256, 224)
 var buzios := 0
 var buzios_total := 0
 var falou_com_exu := false
+## troféus que Adé ganhou dos orixás (id do orixá → nome do troféu), para levar ao terreiro da Vó
+var trofeus := {}
 
 var _musica: AudioStreamPlayer
 var _fade: ColorRect
@@ -41,6 +43,7 @@ func reiniciar() -> void:
 	buzios = 0
 	buzios_total = 0
 	falou_com_exu = false
+	trofeus = {}
 
 
 func tocar_musica() -> void:
@@ -89,6 +92,9 @@ func _configurar_controles() -> void:
 	_acao("sair", [KEY_ESCAPE], [JOY_BUTTON_START])
 	# no mapa dos caminhos: afastar a câmera para ver a ilha inteira (e apertar de novo para voltar)
 	_acao("ver_mapa", [KEY_M, KEY_TAB, KEY_Q], [JOY_BUTTON_Y, JOY_BUTTON_LEFT_SHOULDER, JOY_BUTTON_RIGHT_SHOULDER])
+	# na mata de Oxóssi: atirar a flecha do ofá e andar devagar (sem espantar os bichos)
+	_acao("atirar", [KEY_SPACE, KEY_Z, KEY_J], [JOY_BUTTON_A])
+	_acao("devagar", [KEY_SHIFT, KEY_C], [JOY_BUTTON_LEFT_SHOULDER, JOY_BUTTON_RIGHT_SHOULDER])
 	_acao("tela_cheia", [KEY_F11], [])
 
 

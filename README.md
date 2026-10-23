@@ -33,6 +33,8 @@ Esta versão tem o **Prólogo** completo, em duas partes:
 | Andar (fases de plataforma) | A / D ou setas | Direcional ou analógico |
 | Pular | Espaço, W, ↑ ou Z | A |
 | Falar / avançar diálogo | E, Enter ou X | X ou B |
+| Atirar a flecha (mata de Oxóssi) | Espaço, Z ou J | A |
+| Andar devagar, sem barulho (mata de Oxóssi) | segurar Shift ou C | L ou R |
 | Voltar ao título | Esc | Start |
 | Tela cheia | F11 | |
 
@@ -79,7 +81,9 @@ Esta versão tem o **Prólogo** completo, em duas partes:
   ficam no alto, em dois andares de paredão; onde a trilha sobe um paredão aparecem degraus e Adé anda mais devagar.
 - Na primeira vez, a câmera se afasta para mostrar a ilha inteira e os caminhos se abrem em ondas a partir da encruzilhada. Adé anda de ponto em ponto com as
   setas (as setinhas piscando mostram para onde dá para ir); a faixa de cima mostra o nome, a saudação e o campo.
-- Apertando E num campo: por enquanto aparece "Em breve!" — é aqui que as próximas fases vão se ligar.
+- Apertando E num campo, Adé entra na fase daquele orixá (por enquanto, só a de Oxóssi; os outros mostram "Em breve!").
+  As fases ficam em `CENAS_DOS_CAMPOS`, no topo de `scripts/mapa_mundo.gd`. Ao voltar, Adé aparece no campo de onde saiu,
+  e o troféu ganho aparece com uma ★ na faixa de cima.
 - A arte da ilha vem do `gerar_mapa_mundo.py` (`arte/mundo_0.png` a `mundo_3.png`: o mar, o rio e a cachoeira
   mexem entre os quatro quadros; as nuvens são `mundo_nuvem*.png` e `mundo_tempestade.png`, que andam devagar e piscam com raios).
   Os pontos e as trilhas (que fazem curvas e passam por uma ponte no rio de Oxum) ficam em `NOS` e `CAMINHOS`,
@@ -92,10 +96,33 @@ Esta versão tem o **Prólogo** completo, em duas partes:
   `%` velas vermelha e preta nas quatro esquinas, `y` tocha, `k` kiumba, `>` saída para o mapa dos caminhos. Os textos ficam em `dialogos/encruzilhada.json`.
 - A versão antiga da encruzilhada (plataforma) continua em `cenas/jogo.tscn`, mas a porteira agora leva para a nova.
 
+**A Mata de Oxóssi (Igbó Ọ̀ṣọ́ọ̀sì, visão de cima)** — `cenas/mata_oxossi.tscn`, `scripts/mata_oxossi.gd`
+- Baseada no itan do caçador de uma flecha só. Quatro lugares, cada um ensina uma coisa do caçador:
+  - **O labirinto dos rastros** (observar): três saídas (oeste, norte, leste). O rastro do veado (duas unhas)
+    leva à saída certa; o rastro de pássaro engana. São três acertos seguidos; errou, a mata devolve Adé ao começo.
+  - **O campo dos veados** (paciência): perto dos veados, quem corre espanta a caça. Segurando Shift/C, Adé anda
+    devagar e passa. Se um veado foge, Adé volta para a entrada do campo. No milharal está a **espiga de milho**.
+  - **O presente do caçador** (mirar): num toco, Adé acha o **ofá** com uma flecha só. Atirar corta a corda do tronco
+    seco, que cai e vira ponte sobre o riacho; acertar a colmeia solta as abelhas, que espantam o javali da passagem,
+    e cai o **favo de mel**. As cobras fogem quando a flecha passa perto. O **coco** fica debaixo do coqueiro.
+    Depois de atirar, é preciso ir buscar a flecha; se ela cai na água, volta sozinha.
+  - **A clareira** (o pássaro das Iyami): a sombra no chão mostra onde o pássaro vai mergulhar, e as flechas desviam dele.
+    Com milho, coco e mel, Adé faz a oferenda no assentamento de Exu; o pássaro baixa a guarda, Oxóssi chega e,
+    com uma flecha só, espanta o pássaro (não mata). O sol se põe, e Adé e Oxóssi conversam sobre o sonho e sobre o que
+    Oxóssi guarda: o conhecimento da mata, a paciência e a fartura repartida.
+- No fim, Oxóssi dá o ofá para Adé: é o **troféu** (fica no último quadradinho do inventário, com moldura dourada,
+  e em `Jogo.trofeus`), para levar ao terreiro da Vó. A mata abre a saída do norte, de volta ao mapa.
+- Mapas: `fases/ox_rastro.txt`, `ox_campo.txt`, `ox_ofa.txt`, `ox_clareira.txt` (+ `_objetos`), gerados pelo `gerar_mapas_oxossi.py`.
+  Letras: `W N E` saídas do labirinto, `p` chegada, `v` veado pastando, `V` veado que passeia, `m`/`u` pé de milho
+  (sem/com espiga), `O` toco com o ofá, `T` tronco amarrado, `s` cobra, `j` javali, `H` árvore com colmeia, `k` coco,
+  `B` pássaro, `X` assentamento de Exu, `x` de onde Oxóssi chega, `>` saída. Textos em `dialogos/mata_oxossi.json`.
+- Arte nova: `arte/ox_*.png` (feita pelo `gerar_arte_mata.py`) e o Oxóssi animado em `arte/oxossi_anim.png`.
+- Para testar direto, abra `cenas/mata_oxossi.tscn` no Godot e aperte F6.
+
 **Os orixás (modelos)** — `arte/orixas.png`, feita pelo `gerar_orixas.py`
 - Dez quadros de 24x44 (um pouco maiores que o Adé), nesta ordem: Exu, Ogum, Oxóssi, Xangô, Iansã, Oxum,
   Iemanjá, Nanã, Omolu e Oxalá. Quem usa adê tem o rosto coberto pela franja de contas, como na tradição.
-- Ainda não aparecem no jogo: vão entrar quando cada fase de orixá for feita.
+- Ainda não aparecem no jogo (menos Oxóssi, animado na fase dele): vão entrar quando cada fase de orixá for feita.
 
 ## Estrutura das pastas
 

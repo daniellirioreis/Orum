@@ -3,6 +3,7 @@ extends CharacterBody2D
 ## Folha arte/ade_snes.png: 0-2 de frente, 3-5 de costas, 6-8 de lado (parado, passo, passo).
 
 const VELOCIDADE := 72.0
+const LENTO := 0.4          # segurando "devagar" (SHIFT / C): passos de caçador, sem barulho
 
 const ANIMACOES := {
 	"frente": {"parado": [0], "andando": [1, 0, 2, 0], "fps": 9.0},
@@ -13,6 +14,7 @@ const ANIMACOES := {
 var pode_mover := true
 var limite_queda := 100000.0   # não usado aqui; existe para ser igual ao jogador de plataforma
 var direcao_olhar := "frente"
+var devagar := false
 var _tempo_anim := 0.0
 
 @onready var sprite: Sprite2D = $Sprite
@@ -24,7 +26,8 @@ func _physics_process(delta: float) -> void:
 		entrada = Vector2(Input.get_axis("esquerda", "direita"), Input.get_axis("cima", "baixo"))
 		if entrada.length() > 1.0:
 			entrada = entrada.normalized()
-	velocity = entrada * VELOCIDADE
+	devagar = pode_mover and Input.is_action_pressed("devagar")
+	velocity = entrada * VELOCIDADE * (LENTO if devagar else 1.0)
 	move_and_slide()
 
 	if entrada != Vector2.ZERO:
@@ -42,7 +45,8 @@ func _animar(delta: float, andando: bool) -> void:
 	var anim: Dictionary = ANIMACOES[direcao_olhar]
 	if andando:
 		var quadros: Array = anim["andando"]
-		sprite.frame = quadros[int(_tempo_anim * anim["fps"]) % quadros.size()]
+		var fps: float = anim["fps"] * (0.5 if devagar else 1.0)
+		sprite.frame = quadros[int(_tempo_anim * fps) % quadros.size()]
 	else:
 		sprite.frame = anim["parado"][0]
 
@@ -63,3 +67,13 @@ func congelar(valor: bool) -> void:
 	pode_mover = not valor
 	if valor:
 		velocity = Vector2.ZERO
+
+
+## Para onde Adé está olhando (usado para atirar a flecha).
+func direcao() -> Vector2:
+	match direcao_olhar:
+		"frente":
+			return Vector2.DOWN
+		"costas":
+			return Vector2.UP
+	return Vector2.LEFT if sprite.flip_h else Vector2.RIGHT

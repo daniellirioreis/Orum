@@ -1,0 +1,14 @@
+aaaaaaa,,aaaaaaa
+aa,,,,,,,,,,,,aa
+a,,;,,,,,,,,*,,a
+a,,,,,,tt,,,,,,a
+a,,,,,tttt,,;,,a
+a,*,,tttttt,,,,a
+,,,,,tttttt,,,,,
+,,,,,,tttt,,,,,,
+a,,,,,,tt,,,,,,a
+a,;,,,,tt,,,*,,a
+a,,,,,,tt,,,,,,a
+a,,,,,,tt,,,;,,a
+aa,,,,,tt,,,,,aa
+aaaaaaaaaaaaaaaa

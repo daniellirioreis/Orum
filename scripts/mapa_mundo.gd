@@ -39,6 +39,9 @@ const TUFO := Color(0.2, 0.48, 0.22)
 const MADEIRA := Color(0.56, 0.35, 0.17)
 const MADEIRA_CLARA := Color(0.72, 0.5, 0.27)
 
+## os campos que já têm fase
+const CENAS_DOS_CAMPOS := {"oxossi": "res://cenas/mata_oxossi.tscn"}
+
 var _campos := {}                     # id → dados do campo (nome, yo, saudacao, campo)
 var _caminhos: Array = []             # {a, b, pontos: PackedVector2Array, aberto: 0..1}
 var _vistos := {}                     # pontos que já apareceram (na abertura)
@@ -121,7 +124,9 @@ func _ready() -> void:
 	_ade.texture = preload("res://arte/ade_mapa.png")   # Adé pequenininho, do tamanho do mapa
 	_ade.hframes = 6
 	_ade.offset = Vector2(0, -6)
-	_ade.position = NOS["orita"]
+	if Jogo.has_meta("no_mapa") and NOS.has(Jogo.get_meta("no_mapa")):
+		_no_atual = Jogo.get_meta("no_mapa")      # voltando de um campo: Adé aparece lá
+	_ade.position = NOS[_no_atual]
 	var sombra := Sprite2D.new()
 	sombra.texture = preload("res://arte/sombra.png")
 	sombra.scale = Vector2(0.75, 0.75)
@@ -627,6 +632,8 @@ func _mostrar_no(id: String) -> void:
 	var c: Dictionary = _campos[id]
 	_nome.text = "%s · %s" % [c["nome"], c["yo"]]
 	_saudacao.text = c["saudacao"]
+	if Jogo.trofeus.has(id):
+		_saudacao.text += "  ★ " + Jogo.trofeus[id]
 	_descricao.text = c["campo"]
 	var atlas := AtlasTexture.new()
 	atlas.atlas = preload("res://arte/mapa_icones.png")
@@ -645,6 +652,11 @@ func _esconder_no() -> void:
 func _entrar() -> void:
 	if _no_atual == "orita":
 		_abrir_caixa("Exu: \"A escolha é sua, minha criança. Ande até um campo e entre.\"")
+		return
+	if CENAS_DOS_CAMPOS.has(_no_atual):
+		_ocupado = true
+		Jogo.tocar_som("caminho", -6.0)
+		Jogo.mudar_cena(CENAS_DOS_CAMPOS[_no_atual])
 		return
 	var c: Dictionary = _campos[_no_atual]
 	Jogo.tocar_som("caminho", -10.0)
