@@ -43,15 +43,16 @@
 		{"quem": "Adé", "yo": "Laroyê, Èṣù!", "pt": "Salve, Exu! A Vó me mandou. Quero conhecer todos os orixás."},
 		{"quem": "Èṣù", "yo": "", "pt": "Cada orixá cuida de um pedaço do mundo: a mata, o mar, a pedreira, o vento..."},
 		{"quem": "Èṣù", "yo": "", "pt": "Esses são os campos onde cada um atua. E todo caminho até eles passa por aqui."},
-		{"quem": "Èṣù", "yo": "Mo ṣí ọ̀nà fún ọ.", "pt": "Eu sou o dono dos caminhos. Vou abri-los para você.", "evento": "mapa"}
+		{"quem": "Èṣù", "yo": "Mo ṣí ọ̀nà fún ọ.", "pt": "Eu sou o dono dos caminhos. Vou abri-los para você."}
 	],
 	"exu_fim": [
-		{"quem": "Èṣù", "yo": "Ọ̀nà ti ṣí.", "pt": "Os caminhos estão abertos."},
-		{"quem": "Èṣù", "yo": "Tẹ̀lé ọ̀nà Ògún.", "pt": "Comece pelo caminho de Ogum, ao norte. Ele abre a estrada para quem tem coragem.", "evento": "abrir_norte"},
-		{"quem": "Adé", "yo": "Ogunhê!", "pt": "Obrigado, Exu!"}
+		{"quem": "Èṣù", "yo": "Ọ̀nà ti ṣí.", "pt": "Os caminhos estão abertos.", "evento": "abrir_caminhos"},
+		{"quem": "Èṣù", "yo": "", "pt": "Daqui saem caminhos para todos os lados. Cada um leva ao campo de um orixá."},
+		{"quem": "Èṣù", "yo": "", "pt": "Eu não vou escolher por você. Olhe bem, de mais de um lado... e escolha o seu caminho."},
+		{"quem": "Adé", "yo": "Laroyê, Èṣù!", "pt": "Obrigado, Exu! Eu vou escolher."}
 	],
 	"exu_depois": [
-		{"quem": "Èṣù", "yo": "", "pt": "Quer ver os campos dos orixás de novo? Olhe bem.", "evento": "mapa"}
+		{"quem": "Èṣù", "yo": "", "pt": "A escolha é sua, minha criança. Saia da encruzilhada por qualquer caminho."}
 	],
 	"campos": [
 		{"id": "oxala", "nome": "Oxalá", "yo": "Ọbàtálá", "saudacao": "Èpà Bàbá!", "campo": "O alto e o céu claro: a paz, a criação e a luz."},

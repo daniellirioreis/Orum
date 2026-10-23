@@ -1,0 +1,442 @@
+extends Node2D
+## O mapa dos caminhos: depois que Exu abre os caminhos, Adé sai da encruzilhada e escolhe
+## para qual campo de orixá ele vai — andando pelo mapa, de ponto em ponto, como nos mapas-múndi
+## dos jogos de 16 bits.
+##
+## A ilha (arte/mundo_0.png e mundo_1.png) é feita pelo gerar_mapa_mundo.py. Os caminhos, os pontos
+## e o Adé são desenhados aqui. Os textos de cada campo vêm de dialogos/encruzilhada.json ("campos").
+##
+## Controles: setas para andar de um ponto a outro, E / Enter para entrar no campo.
+
+const NOS := {
+	"orita": Vector2(128, 122), "oxala": Vector2(128, 58), "iansa": Vector2(220, 58), "omolu": Vector2(36, 58),
+	"oxossi": Vector2(36, 122), "ogum": Vector2(174, 122), "xango": Vector2(220, 122),
+	"nana": Vector2(36, 186), "oxum": Vector2(128, 186), "iemanja": Vector2(220, 186),
+}
+## caminhos (a ordem importa só para a animação de abertura: começam todos da encruzilhada)
+const ARESTAS := [
+	["orita", "oxala"], ["orita", "ogum"], ["orita", "oxum"], ["orita", "oxossi"],
+	["oxala", "iansa"], ["oxala", "omolu"], ["ogum", "xango"], ["oxum", "iemanja"], ["oxum", "nana"],
+	["oxossi", "omolu"], ["oxossi", "nana"], ["xango", "iansa"], ["xango", "iemanja"],
+]
+## cor do ponto de cada campo (as cores de cada orixá)
+const CORES := {
+	"orita": [Color(0.85, 0.12, 0.12), Color(0.1, 0.08, 0.12)],
+	"oxala": [Color(1, 1, 1), Color(0.86, 0.88, 0.95)],
+	"iansa": [Color(0.86, 0.3, 0.3), Color(0.65, 0.12, 0.2)],
+	"xango": [Color(0.9, 0.2, 0.15), Color(1, 1, 1)],
+	"iemanja": [Color(0.45, 0.75, 1.0), Color(0.18, 0.4, 0.8)],
+	"oxum": [Color(1.0, 0.85, 0.2), Color(0.9, 0.62, 0.1)],
+	"nana": [Color(0.7, 0.55, 0.85), Color(0.45, 0.3, 0.6)],
+	"omolu": [Color(0.95, 0.85, 0.6), Color(0.15, 0.12, 0.1)],
+	"oxossi": [Color(0.3, 0.75, 0.55), Color(0.1, 0.5, 0.35)],
+	"ogum": [Color(0.2, 0.45, 0.9), Color(0.1, 0.4, 0.25)],
+}
+const ORDEM_ICONES := ["oxala", "iansa", "xango", "iemanja", "oxum", "nana", "omolu", "oxossi", "ogum"]
+const VELOCIDADE := 70.0
+const COR_CAMINHO := Color(0.95, 0.83, 0.56)
+const COR_CAMINHO_ESCURO := Color(0.32, 0.2, 0.1)
+const COR_PEGADA := Color(0.82, 0.66, 0.38)
+
+var _campos := {}                     # id → dados do campo (nome, yo, saudacao, campo)
+var _caminhos: Array = []             # {a, b, pontos: PackedVector2Array, aberto: 0..1}
+var _vistos := {}                     # pontos que já apareceram (na abertura)
+var _no_atual := "orita"
+var _andando := false
+var _ocupado := true                  # durante a abertura e as mensagens
+var _tempo := 0.0
+
+var _fundo: Sprite2D
+var _texturas: Array = []
+var _ade: Sprite2D
+var _nome: Label
+var _saudacao: Label
+var _descricao: Label
+var _icone: TextureRect
+var _caixa: PanelContainer
+var _texto_caixa: Label
+var _seta_caixa: Label
+
+
+func _ready() -> void:
+	var dados: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://dialogos/encruzilhada.json"))
+	for c in dados["campos"]:
+		_campos[c["id"]] = c
+	_texturas = [preload("res://arte/mundo_0.png"), preload("res://arte/mundo_1.png")]
+	_fundo = Sprite2D.new()
+	_fundo.texture = _texturas[0]
+	_fundo.centered = false
+	_fundo.z_index = -10
+	add_child(_fundo)
+
+	var curva := 1.0
+	for par in ARESTAS:
+		_caminhos.append({"a": par[0], "b": par[1], "pontos": _curva(NOS[par[0]], NOS[par[1]], curva), "aberto": 0.0})
+		curva = -curva
+
+	_ade = Sprite2D.new()
+	_ade.texture = preload("res://arte/ade_snes.png")
+	_ade.hframes = 9
+	_ade.offset = Vector2(0, -14)
+	_ade.position = NOS["orita"]
+	var sombra := Sprite2D.new()
+	sombra.texture = preload("res://arte/sombra.png")
+	sombra.show_behind_parent = true
+	_ade.add_child(sombra)
+	add_child(_ade)
+
+	_criar_interface()
+	Jogo.tocar_musica()
+	if Jogo.has_meta("mapa_aberto"):
+		for c in _caminhos:
+			c["aberto"] = 1.0
+		for id in NOS:
+			_vistos[id] = true
+		_ocupado = false
+		_mostrar_no(_no_atual)
+	else:
+		_vistos["orita"] = true
+		_abrir_caminhos()
+
+
+## Caminho levemente curvo entre dois pontos (fica mais bonito que uma linha reta).
+func _curva(a: Vector2, b: Vector2, lado: float) -> PackedVector2Array:
+	var pts := PackedVector2Array()
+	var normal := (b - a).normalized().orthogonal()
+	var n := int(a.distance_to(b) / 2.0)
+	for i in n + 1:
+		var t := float(i) / n
+		pts.append(a.lerp(b, t) + normal * sin(t * PI) * 5.0 * lado)
+	return pts
+
+
+func _process(delta: float) -> void:
+	_tempo += delta
+	_fundo.texture = _texturas[int(_tempo * 1.6) % 2]
+	queue_redraw()
+	if _ocupado or _andando:
+		return
+	var dir := Vector2i.ZERO
+	if Input.is_action_pressed("cima"):
+		dir = Vector2i(0, -1)
+	elif Input.is_action_pressed("baixo"):
+		dir = Vector2i(0, 1)
+	elif Input.is_action_pressed("esquerda"):
+		dir = Vector2i(-1, 0)
+	elif Input.is_action_pressed("direita"):
+		dir = Vector2i(1, 0)
+	if dir != Vector2i.ZERO:
+		var c = _caminho_na_direcao(_no_atual, dir)
+		if c != null:
+			_andar(c)
+	_ade.frame = 0
+
+
+func _unhandled_input(ev: InputEvent) -> void:
+	if not ev.is_action_pressed("interagir"):
+		return
+	get_viewport().set_input_as_handled()
+	if _caixa.visible:
+		_fechar_caixa()
+	elif not _ocupado and not _andando:
+		_entrar()
+
+
+# ------------------------------------------------------------------ andar pelos caminhos
+
+func _direcao(de: String, para: String) -> Vector2i:
+	var d: Vector2 = NOS[para] - NOS[de]
+	if absf(d.x) > absf(d.y):
+		return Vector2i(int(signf(d.x)), 0)
+	return Vector2i(0, int(signf(d.y)))
+
+
+func _caminho_na_direcao(no: String, dir: Vector2i):
+	for c in _caminhos:
+		if c["a"] == no and _direcao(no, c["b"]) == dir:
+			return c
+		if c["b"] == no and _direcao(no, c["a"]) == dir:
+			return c
+	return null
+
+
+func _andar(c: Dictionary) -> void:
+	_andando = true
+	var pts: PackedVector2Array = c["pontos"]
+	var destino: String = c["b"]
+	if c["b"] == _no_atual:
+		pts = pts.duplicate()
+		pts.reverse()
+		destino = c["a"]
+	_esconder_no()
+	Jogo.tocar_som("pulo", -18.0)
+	var andado := 0.0
+	for i in range(1, pts.size()):
+		var de := pts[i - 1]
+		var para := pts[i]
+		var passo := de.distance_to(para)
+		var t := 0.0
+		while t < passo:
+			var dt := get_process_delta_time()
+			t += VELOCIDADE * dt
+			andado += VELOCIDADE * dt
+			_ade.position = de.lerp(para, minf(1.0, t / passo))
+			_animar_ade(para - de, andado)
+			await get_tree().process_frame
+	_ade.position = NOS[destino]
+	_ade.flip_h = false
+	_ade.frame = 0
+	_no_atual = destino
+	_andando = false
+	Jogo.tocar_som("buzio", -14.0)
+	_mostrar_no(destino)
+
+
+func _animar_ade(d: Vector2, andado: float) -> void:
+	var passo := int(andado / 6.0) % 4
+	var seq := [1, 0, 2, 0]
+	if absf(d.x) > absf(d.y):
+		_ade.frame = 6 + seq[passo]
+		_ade.flip_h = d.x < 0.0
+	elif d.y < 0.0:
+		_ade.frame = 3 + seq[passo]
+		_ade.flip_h = false
+	else:
+		_ade.frame = 0 + seq[passo]
+		_ade.flip_h = false
+
+
+# ------------------------------------------------------------------ abertura dos caminhos
+
+func _abrir_caminhos() -> void:
+	_nome.text = "Oríta Mẹ́ta"
+	_saudacao.text = "Laroyê!"
+	_descricao.text = "Exu abriu os caminhos..."
+	await get_tree().create_timer(0.8).timeout
+	# abre em ondas: primeiro o que sai da encruzilhada, depois o que sai dos pontos novos
+	var feitos := {}
+	var fronteira := ["orita"]
+	while fronteira.size() > 0:
+		var proximos := []
+		var abrindo := []
+		for i in _caminhos.size():
+			var c: Dictionary = _caminhos[i]
+			if feitos.has(i):
+				continue
+			if c["a"] in fronteira or c["b"] in fronteira:
+				feitos[i] = true
+				abrindo.append(c)
+		if abrindo.is_empty():
+			break
+		Jogo.tocar_som("caminho", -12.0)
+		var t := create_tween().set_parallel()
+		for c in abrindo:
+			c["inverso"] = c["b"] in fronteira and not (c["a"] in fronteira)
+			t.tween_method(_abrir_um.bind(c), 0.0, 1.0, 0.7)
+		await t.finished
+		for c in abrindo:
+			for id in [c["a"], c["b"]]:
+				if not _vistos.has(id):
+					_vistos[id] = true
+					proximos.append(id)
+		if proximos.size() > 0:
+			Jogo.tocar_som("buzio", -6.0)
+		fronteira = proximos
+		await get_tree().create_timer(0.25).timeout
+	Jogo.set_meta("mapa_aberto", true)
+	await get_tree().create_timer(0.4).timeout
+	_abrir_caixa("Os caminhos estão abertos! Cada um leva ao campo de um orixá.\nAnde com as setas e escolha por onde começar.")
+	_mostrar_no("orita")
+
+
+func _abrir_um(v: float, c: Dictionary) -> void:
+	c["aberto"] = v
+
+
+# ------------------------------------------------------------------ desenho dos caminhos e pontos
+
+func _draw() -> void:
+	for c in _caminhos:
+		_desenhar_caminho(c, true)
+	for c in _caminhos:
+		_desenhar_caminho(c, false)
+	for id in NOS:
+		if _vistos.has(id):
+			_desenhar_no(id)
+	if not _ocupado and not _andando:
+		_desenhar_setas()
+
+
+func _desenhar_caminho(c: Dictionary, contorno: bool) -> void:
+	var pts: PackedVector2Array = c["pontos"]
+	var n := int(round(c["aberto"] * (pts.size() - 1)))
+	if n <= 0:
+		return
+	for k in n + 1:
+		var i: int = (pts.size() - 1 - k) if c.get("inverso", false) else k
+		var p := pts[i]
+		if contorno:
+			draw_rect(Rect2(p - Vector2(3, 3), Vector2(7, 7)), COR_CAMINHO_ESCURO)
+		else:
+			draw_rect(Rect2(p - Vector2(2, 2), Vector2(5, 5)), COR_CAMINHO)
+			if k % 4 == 0:
+				draw_rect(Rect2(p, Vector2(1, 1)), COR_PEGADA)
+
+
+func _desenhar_no(id: String) -> void:
+	var p: Vector2 = NOS[id]
+	var cores: Array = CORES[id]
+	var grande := id == "orita"
+	var r := 7.0 if grande else 6.0
+	draw_circle(p + Vector2(0, 2), r + 1.0, Color(0, 0, 0, 0.35))
+	draw_circle(p, r + 1.0, COR_CAMINHO_ESCURO)
+	draw_circle(p, r, cores[1])
+	draw_circle(p + Vector2(0, -1), r - 1.5, cores[0])
+	if grande:
+		# a encruzilhada: um "+" de caminho no meio, metade vermelho e metade preto
+		draw_rect(Rect2(p.x - 5, p.y - 1, 10, 3), COR_CAMINHO)
+		draw_rect(Rect2(p.x - 1, p.y - 5, 3, 10), COR_CAMINHO)
+	draw_rect(Rect2(p + Vector2(-3, -4), Vector2(2, 2)), Color(1, 1, 1, 0.75))
+	if id == _no_atual and not _andando:
+		var a := 0.45 + 0.35 * sin(_tempo * 5.0)
+		draw_arc(p, r + 3.0 + sin(_tempo * 5.0), 0, TAU, 24, Color(1, 1, 0.8, a), 1.0)
+
+
+func _desenhar_setas() -> void:
+	if fmod(_tempo, 0.8) > 0.55:
+		return
+	var p: Vector2 = NOS[_no_atual]
+	for d in [Vector2i(0, -1), Vector2i(0, 1), Vector2i(-1, 0), Vector2i(1, 0)]:
+		if _caminho_na_direcao(_no_atual, d) == null:
+			continue
+		var v := Vector2(d)
+		var ponta := p + v * 15.0 + (Vector2(0, -12) if d.y == -1 else Vector2.ZERO)
+		var lado := v.orthogonal() * 3.0
+		var pts := PackedVector2Array([ponta + v * 3.0, ponta - lado, ponta + lado])
+		draw_colored_polygon(pts, Color(1, 0.95, 0.6))
+		draw_polyline(PackedVector2Array([pts[0], pts[1], pts[2], pts[0]]), COR_CAMINHO_ESCURO, 1.0)
+
+
+# ------------------------------------------------------------------ faixa de cima e caixa de texto
+
+func _criar_interface() -> void:
+	var camada := CanvasLayer.new()
+	camada.layer = 5
+	add_child(camada)
+	var fonte := preload("res://fontes/NotoSans-SemiBold.ttf")
+
+	var faixa := Panel.new()
+	faixa.position = Vector2(4, 3)
+	faixa.size = Vector2(248, 28)
+	faixa.add_theme_stylebox_override("panel", _estilo())
+	camada.add_child(faixa)
+	_icone = TextureRect.new()
+	_icone.position = Vector2(8, 9)
+	camada.add_child(_icone)
+	_nome = _rotulo(fonte, 9, Color(1, 0.97, 0.88))
+	_nome.position = Vector2(27, 4)
+	camada.add_child(_nome)
+	_saudacao = _rotulo(fonte, 9, Color(1, 0.82, 0.35))
+	_saudacao.position = Vector2(140, 4)
+	_saudacao.size = Vector2(106, 14)
+	_saudacao.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	camada.add_child(_saudacao)
+	_descricao = _rotulo(null, 7, Color(0.85, 0.88, 1.0))
+	_descricao.position = Vector2(27, 17)
+	_descricao.size = Vector2(222, 12)
+	_descricao.clip_text = true
+	camada.add_child(_descricao)
+
+	_caixa = PanelContainer.new()
+	_caixa.position = Vector2(12, 160)
+	_caixa.custom_minimum_size = Vector2(232, 52)
+	_caixa.size = Vector2(232, 52)
+	var estilo := _estilo()
+	estilo.content_margin_left = 8
+	estilo.content_margin_right = 8
+	estilo.content_margin_top = 5
+	estilo.content_margin_bottom = 5
+	_caixa.add_theme_stylebox_override("panel", estilo)
+	_texto_caixa = _rotulo(null, 8, Color.WHITE)
+	_texto_caixa.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_texto_caixa.custom_minimum_size = Vector2(216, 0)
+	_caixa.add_child(_texto_caixa)
+	_caixa.visible = false
+	camada.add_child(_caixa)
+	_seta_caixa = _rotulo(fonte, 8, Color(1, 0.85, 0.3))
+	_seta_caixa.text = "▼"
+	_seta_caixa.visible = false
+	camada.add_child(_seta_caixa)
+
+
+func _estilo() -> StyleBoxFlat:
+	var e := StyleBoxFlat.new()
+	e.bg_color = Color(0.06, 0.07, 0.24, 0.92)
+	e.border_color = Color(0.95, 0.95, 1.0)
+	e.set_border_width_all(2)
+	e.set_corner_radius_all(4)
+	e.shadow_color = Color(0, 0, 0, 0.4)
+	e.shadow_size = 2
+	return e
+
+
+func _rotulo(fonte: Font, tamanho: int, cor: Color) -> Label:
+	var l := Label.new()
+	if fonte:
+		l.add_theme_font_override("font", fonte)
+	l.add_theme_font_size_override("font_size", tamanho)
+	l.add_theme_color_override("font_color", cor)
+	l.add_theme_color_override("font_outline_color", Color(0.02, 0.02, 0.08))
+	l.add_theme_constant_override("outline_size", 3)
+	return l
+
+
+func _mostrar_no(id: String) -> void:
+	if id == "orita":
+		_nome.text = "Oríta Mẹ́ta · a encruzilhada"
+		_saudacao.text = "Laroyê!"
+		_descricao.text = "Todo caminho começa e termina aqui."
+		_icone.texture = null
+		return
+	var c: Dictionary = _campos[id]
+	_nome.text = "%s · %s" % [c["nome"], c["yo"]]
+	_saudacao.text = c["saudacao"]
+	_descricao.text = c["campo"]
+	var atlas := AtlasTexture.new()
+	atlas.atlas = preload("res://arte/mapa_icones.png")
+	atlas.region = Rect2(ORDEM_ICONES.find(id) * 16, 0, 16, 16)
+	_icone.texture = atlas
+	_icone.position = Vector2(8, 9)
+
+
+func _esconder_no() -> void:
+	_nome.text = ""
+	_saudacao.text = ""
+	_descricao.text = ""
+	_icone.texture = null
+
+
+func _entrar() -> void:
+	if _no_atual == "orita":
+		_abrir_caixa("Exu: \"A escolha é sua, minha criança. Ande até um campo e entre.\"")
+		return
+	var c: Dictionary = _campos[_no_atual]
+	Jogo.tocar_som("caminho", -10.0)
+	_abrir_caixa("%s %s\nO caminho até o campo de %s ainda está se abrindo... Em breve!" % [c["saudacao"], c["nome"], c["nome"]])
+
+
+func _abrir_caixa(texto: String) -> void:
+	_ocupado = true
+	_texto_caixa.text = texto
+	_caixa.visible = true
+	_caixa.position.y = 160.0 if NOS[_no_atual].y < 140.0 else 36.0
+	_seta_caixa.position = _caixa.position + Vector2(220, 40)
+	_seta_caixa.visible = true
+	Jogo.tocar_som("texto", -14.0)
+
+
+func _fechar_caixa() -> void:
+	_caixa.visible = false
+	_seta_caixa.visible = false
+	await get_tree().create_timer(0.15).timeout
+	_ocupado = false

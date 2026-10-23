@@ -8,7 +8,8 @@ extends "res://scripts/terreiro.gd"
 ##   enc_orita  → a encruzilhada de verdade: dois caminhos que se cruzam, com velas nas esquinas.
 ##                Afundar a pedra no riacho para atravessar e olhar a estátua do meio dos dois lados
 ##                (o gorro vermelho de um lado e preto do outro, como no itã de Exu).
-## Exu aparece, abre o mapa dos campos dos orixás e libera o caminho de Ogum (fim do prólogo).
+## Exu aparece e abre os caminhos: Adé sai da encruzilhada por qualquer um deles (norte, oeste ou leste)
+## e chega ao mapa dos caminhos (cenas/mapa_mundo.tscn), onde escolhe o campo de um orixá.
 ##
 ## Cada redemoinho que pega Adé leva um búzio de axé; sem axé, ele volta para a entrada do lugar.
 
@@ -521,12 +522,9 @@ func _olhar_estatua() -> void:
 		await get_tree().create_timer(1.2).timeout
 		jogador.olhar_para(_exu_pos)
 		await _falar("exu")
-		if _pendente == "mapa":
-			_pendente = ""
-			await _abrir_mapa(true)
 		await _falar("exu_fim")
 		estado = "livre"
-		_mostrar_aviso("Siga pelo caminho de Ogum, ao norte.")
+		_mostrar_aviso("Escolha um caminho e saia da encruzilhada.")
 	else:
 		await _falar("estatua_" + lado)
 
@@ -544,7 +542,7 @@ func _ao_evento(nome: String) -> void:
 			ponto.interagiu.connect(_falar_com_exu)
 		"mapa":
 			_pendente = "mapa"
-		"abrir_norte":
+		"abrir_caminhos", "abrir_norte":
 			_abrir_cancela("enc_orita")
 		_:
 			super._ao_evento(nome)
@@ -554,9 +552,6 @@ func _falar_com_exu() -> void:
 	if estado != "livre":
 		return
 	await _falar("exu_depois")
-	if _pendente == "mapa":
-		_pendente = ""
-		await _abrir_mapa(false)
 
 
 func _abrir_mapa(revelar: bool) -> void:
@@ -573,4 +568,4 @@ func _sair(corpo: Node2D) -> void:
 		return
 	estado = "saindo"
 	jogador.congelar(true)
-	Jogo.mudar_cena("res://cenas/fim.tscn")
+	Jogo.mudar_cena("res://cenas/mapa_mundo.tscn")

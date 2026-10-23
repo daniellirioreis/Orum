@@ -61,15 +61,23 @@ Esta versão tem o **Prólogo** completo, em duas partes:
 - Redemoinhos de poeira andam pelos caminhos. Cada um que pega Adé leva um búzio de **axé** (os 5 búzios
   lá em cima, à direita). Sem axé, Adé volta para a entrada do lugar com o axé cheio.
 - Se a pedra ficar presa, ler a placa de novo faz as pedras voltarem para o lugar.
-- Exu aparece e abre o **mapa dos campos dos orixás** (`scripts/mapa_campos.gd`): os campos se acendem um
-  por um (Oxalá, Iansã, Xangô, Iemanjá, Oxum, Nanã, Omolu, Oxóssi e Ogum), com a ferramenta, a saudação e o
-  campo de cada um. Depois dá para ver cada campo com ← →. Falando com Exu de novo, o mapa abre outra vez.
-- Exu libera o caminho de Ogum, ao norte: é o fim do prólogo.
+- Exu aparece, abre os caminhos e deixa a escolha com Adé. As estradas do norte, do oeste e do leste
+  saem da encruzilhada; qualquer uma leva ao **mapa dos caminhos**.
+
+**O mapa dos caminhos (estilo mapa-múndi dos 16 bits)** — `cenas/mapa_mundo.tscn`, `scripts/mapa_mundo.gd`
+- Uma ilha com a encruzilhada no meio e o campo de cada orixá em volta: Omolu (terra e palha), Oxalá (o morro
+  branco e as nuvens), Iansã (tempestade e raios), Oxóssi (a mata), Ogum (a bigorna e o ferro), Xangô (a pedreira),
+  Nanã (a lama e as lagoas), Oxum (a cachoeira e o rio dourado) e Iemanjá (o mar).
+- Na primeira vez, os caminhos se abrem em ondas a partir da encruzilhada. Adé anda de ponto em ponto com as
+  setas (as setinhas piscando mostram para onde dá para ir); a faixa de cima mostra o nome, a saudação e o campo.
+- Apertando E num campo: por enquanto aparece "Em breve!" — é aqui que as próximas fases vão se ligar.
+- A arte da ilha vem do `gerar_mapa_mundo.py` (`arte/mundo_0.png` e `mundo_1.png`, a água mexe entre os dois).
+  As posições dos pontos e os caminhos ficam em `NOS` e `ARESTAS`, no topo do script.
 - Os mapas ficam em `fases/enc_trilha.txt`, `fases/enc_mata.txt` e `fases/enc_orita.txt` (+ `_objetos`).
   Letras novas dos objetos: `@` pedra que se empurra, `&` ponto riscado, `!` cancela, `$` lamparina,
   `<` redemoinho que anda de lado, `^` redemoinho que anda para cima e para baixo, `?` placa,
   `S` estátua do gorro (no meio do cruzamento; Exu aparece no lugar dela), `x` lugar reserva de Exu,
-  `%` velas vermelha e preta nas quatro esquinas, `>` saída (fim). Os textos ficam em `dialogos/encruzilhada.json`.
+  `%` velas vermelha e preta nas quatro esquinas, `>` saída para o mapa dos caminhos. Os textos ficam em `dialogos/encruzilhada.json`.
 - A versão antiga da encruzilhada (plataforma) continua em `cenas/jogo.tscn`, mas a porteira agora leva para a nova.
 
 ## Estrutura das pastas
