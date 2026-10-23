@@ -5,8 +5,9 @@ extends "res://scripts/terreiro.gd"
 ## Três lugares, cada um com um desafio até chegar a Exu:
 ##   enc_trilha → empurrar a pedra até o ponto riscado para abrir a cancela (e fugir do redemoinho)
 ##   enc_mata   → acender as lamparinas na ordem certa (leste, oeste, meio)
-##   enc_orita  → afundar a pedra no riacho para atravessar e olhar a estátua dos dois lados
-##                (o gorro vermelho de um lado e preto do outro, como no itã de Exu)
+##   enc_orita  → a encruzilhada de verdade: dois caminhos que se cruzam, com velas nas esquinas.
+##                Afundar a pedra no riacho para atravessar e olhar a estátua do meio dos dois lados
+##                (o gorro vermelho de um lado e preto do outro, como no itã de Exu).
 ## Exu aparece, abre o mapa dos campos dos orixás e libera o caminho de Ogum (fim do prólogo).
 ##
 ## Cada redemoinho que pega Adé leva um búzio de axé; sem axé, ele volta para a entrada do lugar.
@@ -32,6 +33,7 @@ var _redemoinhos: Array = []     # {no, sprite, de, ate, vel, fase}
 var _ocupado := {}
 var _pontes := {}
 var _estatua: Area2D
+var _velas: Array = []
 var _viu := {}
 var _exu_pos := Vector2.ZERO
 var _ponto_volta := {}
@@ -93,6 +95,8 @@ func _process(delta: float) -> void:
 		r["sprite"].frame = int(_tempo * 12.0 + r["fase"] * 10.0) % 4
 		if _invulneravel <= 0.0 and not _voltando and jogador.pode_mover and r["no"].overlaps_body(jogador):
 			_tomar_dano(r["no"].global_position)
+	for i in _velas.size():
+		_velas[i].frame = int(_tempo * 5.0 + i * 1.7) % 2
 	if _estatua and estado == "caminho":
 		_estatua.sprite.frame = 0 if jogador.global_position.x < _estatua.global_position.x else 1
 
@@ -144,9 +148,21 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			_estatua.olhar_para_jogador = false
 			(_estatua.get_node("Alcance").shape as CircleShape2D).radius = 30.0
 			_estatua.interagiu.connect(_olhar_estatua)
+			_exu_pos = base          # Exu aparece no lugar da estátua, bem no meio do cruzamento
 			_luz(base + Vector2(0, -20), Color(0.9, 0.5, 0.9), 1.6, 1.4, false)
 		"x":
-			_exu_pos = base
+			if _exu_pos == Vector2.ZERO:
+				_exu_pos = base
+		"%":
+			# velas vermelha e preta nas esquinas da encruzilhada
+			var v := Sprite2D.new()
+			v.texture = preload("res://arte/enc_velas.png")
+			v.hframes = 2
+			v.offset = Vector2(0, -8)
+			v.position = base
+			mundo.add_child(v)
+			_velas.append(v)
+			_luz(base + Vector2(0, -12), Color(1.0, 0.55, 0.3), 1.1, 1.3, true)
 		">":
 			var area := Area2D.new()
 			area.collision_layer = 0
@@ -519,6 +535,9 @@ func _ao_evento(nome: String) -> void:
 	match nome:
 		"exu_chega":
 			marcas["e"] = _exu_pos
+			# a estátua se desfaz na fumaça e Exu toma o lugar dela
+			_estatua.get_node("Corpo/Forma").set_deferred("disabled", true)
+			create_tween().tween_property(_estatua, "modulate:a", 0.0, 0.8)
 			_tremer()
 			_exu_aparece()
 			var ponto := _ponto_de_conversa(_exu_pos, Vector2(12, 6), 26.0, -42.0)

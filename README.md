@@ -68,7 +68,8 @@ Esta versão tem o **Prólogo** completo, em duas partes:
 - Os mapas ficam em `fases/enc_trilha.txt`, `fases/enc_mata.txt` e `fases/enc_orita.txt` (+ `_objetos`).
   Letras novas dos objetos: `@` pedra que se empurra, `&` ponto riscado, `!` cancela, `$` lamparina,
   `<` redemoinho que anda de lado, `^` redemoinho que anda para cima e para baixo, `?` placa,
-  `S` estátua do gorro, `x` onde Exu aparece, `>` saída (fim). Os textos ficam em `dialogos/encruzilhada.json`.
+  `S` estátua do gorro (no meio do cruzamento; Exu aparece no lugar dela), `x` lugar reserva de Exu,
+  `%` velas vermelha e preta nas quatro esquinas, `>` saída (fim). Os textos ficam em `dialogos/encruzilhada.json`.
 - A versão antiga da encruzilhada (plataforma) continua em `cenas/jogo.tscn`, mas a porteira agora leva para a nova.
 
 ## Estrutura das pastas

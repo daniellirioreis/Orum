@@ -28,15 +28,15 @@
 		{"quem": "Adé", "yo": "", "pt": "As três lamparinas acesas! A cancela se abriu."}
 	],
 	"estatua_vermelho": [
-		{"quem": "Adé", "yo": "", "pt": "Uma estátua de madeira no meio do riacho... O gorro dela é vermelho!"}
+		{"quem": "Adé", "yo": "", "pt": "Uma estátua de madeira bem no meio da encruzilhada... O gorro dela é vermelho!"}
 	],
 	"estatua_preto": [
-		{"quem": "Adé", "yo": "", "pt": "Uma estátua de madeira no meio do riacho... O gorro dela é preto!"}
+		{"quem": "Adé", "yo": "", "pt": "Uma estátua de madeira bem no meio da encruzilhada... O gorro dela é preto!"}
 	],
 	"estatua_entendeu": [
 		{"quem": "Adé", "yo": "", "pt": "Espera aí... Do outro lado o gorro era de outra cor!"},
 		{"quem": "Adé", "yo": "", "pt": "É a história do gorro de Exu! Os dois amigos brigaram, e os dois tinham razão: cada um só viu um lado."},
-		{"quem": "", "yo": "", "pt": "O chão treme. Uma fumaça vermelha e preta sobe no meio da encruzilhada.", "evento": "exu_chega"}
+		{"quem": "", "yo": "", "pt": "O chão treme. As velas das quatro esquinas tremulam, e uma fumaça vermelha e preta cobre a estátua no meio da encruzilhada.", "evento": "exu_chega"}
 	],
 	"exu": [
 		{"quem": "Èṣù", "yo": "Ẹ kú alẹ́, ọmọ mi.", "pt": "Boa noite, minha criança. Você aprendeu a olhar dos dois lados."},
