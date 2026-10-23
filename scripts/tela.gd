@@ -6,14 +6,6 @@ extends Control
 
 var _aviso: Label
 var _pronto := false
-var _dica: Label
-
-
-func _atualizar_dicas() -> void:
-	if tipo != "titulo":
-		return
-	_dica.text = Jogo.texto("Andar: {andar} · Falar: {interagir} · Atirar: {atirar} · Pausa: {pausa}") \
-		+ ("" if Jogo.usando_controle else " · F11: tela cheia")
 
 
 func _ready() -> void:
@@ -30,9 +22,6 @@ func _ready() -> void:
 		_texto("Ìtàn àwọn Òrìṣà · Histórias dos Orixás", 10, Color(1, 0.95, 0.88), 76)
 		_personagem("res://arte/ade.png", 16, Vector2(110, 204))
 		_personagem("res://arte/exu.png", 24, Vector2(148, 204))
-		_dica = _texto("", 7, Color(0.85, 0.8, 0.9), 210)
-		_atualizar_dicas()
-		Jogo.dispositivo_mudou.connect(_atualizar_dicas)
 	else:
 		_texto("Fim do Prólogo", 22, Color(0.98, 0.82, 0.45), 34)
 		_texto("Àṣẹ.", 14, Color(1, 0.95, 0.88), 66)
