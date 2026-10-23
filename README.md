@@ -150,6 +150,36 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
 - Arte nova: `arte/ox_*.png` (feita pelo `gerar_arte_mata.py`) e o Oxóssi animado em `arte/oxossi_anim.png`.
 - Para testar direto, abra `cenas/mata_oxossi.tscn` no Godot e aperte F6.
 
+**A Terra de Nanã (Nàná Bùrúkù, visão de cima)** — `cenas/mata_nana.tscn`, `scripts/mata_nana.gd`
+- Chove a fase inteira (mais forte na lagoa, com relâmpagos). O ritmo é de quem é mais velho: devagar, olhando.
+  Na lama, Adé anda mais devagar (`fator_chao` no `jogador_rpg.gd`). Quatro lugares:
+  - **O brejo**: a lama firme e a lama funda são iguaizinhas (só sobem bolhinhas da funda de vez em quando).
+    As **garças** pousam onde dá pé e voam quando Adé chega perto. Pisou na lama funda, a lama puxa Adé (perde um
+    búzio de axé) e ele volta para o começo do brejo. Na chegada, uma **velhinha** pede que Adé leve o **pote de barro**
+    dela (rachado) até a lagoa: "eu chego lá do meu jeito, devagarinho".
+  - **O bambuzal**: o taboal fecha o caminho. A **faca de ferro** do toco não serve: a lama treme, a faca escorrega e
+    afunda (na terra de Nanã, ferro não serve para nada). Com a lasca de um bambu rachado, a **lâmina de bambu**, a taboa abre.
+  - **O mangue**: a **maré** sobe e desce. Na baixa, dá para passar pelas raízes (e os **caranguejos** saem da lama
+    e beliscam); na alta, a água cobre as raízes e leva Adé de volta para o último chão firme. Numa ilhota, as
+    **flores lilás**. Do outro lado, a velhinha já está esperando...
+  - **A lagoa**: na pedra, a chuva vazaria pela rachadura do pote; Adé conserta o pote com o **barro** da margem,
+    deixa o pote na pedra até a chuva encher e faz a oferenda (pote com água da chuva e flores lilás) no **lugar de
+    Nanã**. A chuva engrossa, a velhinha chega devagar e se revela: era Nanã. Ela fala da lama de onde se moldou o
+    primeiro ser humano e para onde todos voltam, da memória e dos mais velhos (os retratos na parede da Vó), e dá
+    o **ibiri** a Adé: o troféu. Nanã volta para a lagoa, a chuva acalma e a saída do norte abre.
+- Fase repetida: igual à de Oxóssi (escolha na entrada, "Voltar ao mapa" na pausa) e, no fim, o reencontro com Nanã
+  e o abraço (`arte/nana_abraco.png`; falas `nana_reencontro` e `nana_despedida`).
+- No terreiro, a Vó assenta o ibiri no assentamento lilás de Nanã (falas `conta_nana` e `assenta_nana`).
+- Mapas: `fases/nana_brejo.txt`, `nana_bambuzal.txt`, `nana_mangue.txt`, `nana_lagoa.txt` (+ `_objetos`), gerados
+  pelo `gerar_mapas_nana.py`. Chão: `l` lama firme, `L` lama funda, `v` água escura, `z` raízes do mangue (maré).
+  Objetos: `V` velhinha, `g` garça, `s` sapo, `K` bambu, `j` bambu rachado, `F` toco com a faca, `T` taboa,
+  `k` caranguejo, `X` árvore do mangue, `u` flores lilás, `b` barro, `O` pedra do pote, `N` lugar de Nanã,
+  `x` de onde a velhinha chega, `w` vitória-régia, `>` saída. Textos em `dialogos/mata_nana.json`.
+- O terreno ganhou linhas novas em `arte/terreno_snes.png` (lama, água escura, bolhas, raízes e vitórias-régias,
+  feitas pelo `gerar_terreno_nana.py`); cada fase escolhe os seus terrenos em `terrenos` e `agua_chars`
+  (`scripts/terreiro.gd`). Arte nova: `arte/nana_*.png` (`gerar_arte_nana.py` e `gerar_nana_pessoas.py`).
+- Para testar direto, abra `cenas/mata_nana.tscn` no Godot e aperte F6.
+
 **A volta para o terreiro e o quarto de santo**
 - No mapa, apertar E na encruzilhada leva Adé de volta para casa. Na primeira vez ele volta a pé pela Oríta Mẹ́ta, fazendo
   o caminho inverso: o cruzamento (Exu está lá e conversa com ele), a mata das lamparinas e a trilha da pedra, até a

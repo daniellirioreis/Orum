@@ -175,6 +175,12 @@
 		{"quem": "Adé", "yo": "", "pt": "Ele me deu o ofá, Vó. Disse para eu trazer para cá."},
 		{"quem": "Vó", "yo": "Okê Arô!", "pt": "O caçador de uma flecha só... Você ouviu as minhas histórias direitinho, meu neto."}
 	],
+	"conta_nana": [
+		{"quem": "Adé", "yo": "", "pt": "Fui na terra de Nanã, Vó. Choveu o tempo todo! Tinha um brejo onde a lama puxa o pé... Só as garças sabiam onde pisar."},
+		{"quem": "Adé", "yo": "", "pt": "A faca de ferro afundou na lama, e eu cortei a taboa com uma lâmina de bambu. Depois atravessei o mangue esperando a maré baixar."},
+		{"quem": "Adé", "yo": "", "pt": "E a velhinha que me pediu para levar o pote dela... era Nanã, Vó! Ela me deu o ibiri."},
+		{"quem": "Vó", "yo": "Sálùbá!", "pt": "Nanã, a mais velha... Ela chega assim mesmo, meu neto: devagarinho, do jeito dela."}
+	],
 	"vo_leva_ao_quarto": [
 		{"quem": "Vó", "yo": "", "pt": "Isso não é brinquedo, é axé. Presente de orixá tem lugar certo."},
 		{"quem": "Vó", "yo": "", "pt": "Venha comigo ao quarto de santo. Lá cada orixá tem o seu assentamento."}
@@ -186,6 +192,10 @@
 	"assenta_oxossi": [
 		{"quem": "Adé", "yo": "", "pt": "Olhar com atenção, esperar a hora certa e repartir a fartura. Foi isso que Oxóssi me ensinou."},
 		{"quem": "Vó", "yo": "", "pt": "Então você já aprendeu muito, meu filho."}
+	],
+	"assenta_nana": [
+		{"quem": "Adé", "yo": "", "pt": "Ir devagar, respeitar os mais velhos e não esquecer de onde eu vim. Foi isso que Nanã me ensinou."},
+		{"quem": "Vó", "yo": "", "pt": "É por isso que os retratos ficam na parede, meu filho. Para a gente não esquecer."}
 	],
 	"vo_bencao": [
 		{"quem": "Vó", "yo": "", "pt": "Ainda tem muito assentamento esperando. Cada orixá tem uma história para te contar."},

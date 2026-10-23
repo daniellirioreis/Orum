@@ -23,6 +23,7 @@ const LOCAIS := {
 	"terreiro": {"nome": "Terreiro da Vó", "cena": "res://cenas/terreiro.tscn"},
 	"orita": {"nome": "Encruzilhada", "cena": "res://cenas/mapa_mundo.tscn"},
 	"oxossi": {"nome": "Mata de Oxóssi", "cena": "res://cenas/mata_oxossi.tscn"},
+	"nana": {"nome": "Terra de Nanã", "cena": "res://cenas/mata_nana.tscn"},
 }
 const METAS_SALVAS := ["mapa_aberto", "volta_feita"]
 var espaco_atual := -1
@@ -380,7 +381,7 @@ func _arquivo(espaco: int) -> String:
 	return "user://caminho_%d.json" % (espaco + 1)
 
 
-## Guarda o jogo no espaço escolhido. "local" é onde Adé está: terreiro, orita ou oxossi.
+## Guarda o jogo no espaço escolhido. "local" é onde Adé está: terreiro, orita, oxossi ou nana.
 func salvar(espaco: int, local: String) -> void:
 	var metas := {}
 	for m in METAS_SALVAS:

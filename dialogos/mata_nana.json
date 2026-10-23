@@ -1,0 +1,175 @@
+{
+	"nomes": {
+		"pote": "o pote de barro com água da chuva",
+		"flores": "flores lilás"
+	},
+	"revisita": [
+		{"quem": "Adé", "yo": "", "pt": "A terra de Nanã de novo... A chuva cai do mesmo jeito, mansinha."}
+	],
+	"chegada": [
+		{"quem": "Adé", "yo": "", "pt": "Que chuva fininha... Aqui tudo é lama, brejo e água parada."},
+		{"quem": "Adé", "yo": "", "pt": "Esta é a terra de Nanã, a mais velha de todos os orixás. A Vó diz que ela é a dona da lama do fundo das lagoas."}
+	],
+	"velhinha_pedido": [
+		{"quem": "Velhinha", "yo": "", "pt": "Ô menino! Chega aqui, meu filho."},
+		{"quem": "Adé", "yo": "", "pt": "A bênção, senhora. A senhora está bem? Debaixo dessa chuva..."},
+		{"quem": "Velhinha", "yo": "", "pt": "Chuva não faz mal a ninguém. Mas a lama está funda para essas pernas velhas."},
+		{"quem": "Velhinha", "yo": "", "pt": "Você leva o meu pote até a lagoa? Está rachado, coitado, mas é o meu pote."},
+		{"quem": "Adé", "yo": "", "pt": "Levo sim, senhora! E a senhora?"},
+		{"quem": "Velhinha", "yo": "", "pt": "Eu chego lá do meu jeito. Devagarinho.", "evento": "ganhar_pote"},
+		{"quem": "Velhinha", "yo": "", "pt": "Um conselho, meu filho: no brejo, a lama firme e a lama funda são iguaizinhas. Pise onde a garça pisa."},
+		{"quem": "Velhinha", "yo": "", "pt": "E outra coisa: na minha terra, ferro não serve para nada."}
+	],
+	"velhinha_depois": [
+		{"quem": "Velhinha", "yo": "", "pt": "Vá, meu filho. Pise onde a garça pisa. A gente se vê na lagoa."}
+	],
+	"placa_nana_brejo": [
+		{"quem": "", "yo": "", "pt": "\"O brejo engole quem anda com pressa. As garças sabem onde é firme.\""}
+	],
+	"afundou": [
+		{"quem": "Adé", "yo": "", "pt": "A lama me puxou! Ainda bem que deu para sair..."},
+		{"quem": "Adé", "yo": "", "pt": "A velhinha avisou: a lama funda é igualzinha à firme. Tenho que pisar onde as garças estão."}
+	],
+	"chegada_bambuzal": [
+		{"quem": "Adé", "yo": "", "pt": "Um bambuzal! E lá na frente... um taboal fechando o caminho."}
+	],
+	"placa_nana_bambuzal": [
+		{"quem": "", "yo": "", "pt": "\"Do outro lado do taboal fica o mangue. O que se corta na terra de Nanã, se corta sem ferir.\""}
+	],
+	"taboa_dura": [
+		{"quem": "Adé", "yo": "", "pt": "A taboa é dura e bem fechada. Com a mão não dá. Preciso de alguma coisa afiada."}
+	],
+	"faca_achou": [
+		{"quem": "Adé", "yo": "", "pt": "Uma faca velha, enfiada no toco... É de ferro, toda enferrujada."},
+		{"quem": "Adé", "yo": "", "pt": "Com ela eu corto a taboa!", "evento": "pegar_faca"}
+	],
+	"faca_falha": [
+		{"quem": "", "yo": "", "pt": "Adé ergue a faca de ferro... e a lama em volta começa a tremer.", "evento": "tremer"},
+		{"quem": "", "yo": "", "pt": "A faca escorrega da mão dele, cai na lama e afunda, sem deixar marca.", "evento": "faca_afunda"},
+		{"quem": "Adé", "yo": "", "pt": "A velhinha avisou... Na terra de Nanã, ferro não serve para nada."},
+		{"quem": "Adé", "yo": "", "pt": "Preciso cortar a taboa com alguma coisa que não seja de ferro."}
+	],
+	"toco_vazio": [
+		{"quem": "Adé", "yo": "", "pt": "Só o toco velho. A faca de ferro ficou com a lama."}
+	],
+	"lamina": [
+		{"quem": "Adé", "yo": "", "pt": "Um bambu rachado... A lasca de dentro é fina e tem o fio afiado."},
+		{"quem": "Adé", "yo": "", "pt": "Uma lâmina de bambu! Corta sem ser de ferro.", "evento": "ganhar_lamina"}
+	],
+	"lascas_depois": [
+		{"quem": "Adé", "yo": "", "pt": "O bambu já me deu a lâmina dele."}
+	],
+	"taboa_cortada": [
+		{"quem": "", "yo": "", "pt": "A lâmina de bambu corta a taboa rente ao chão, sem esforço. A lama fica quietinha."},
+		{"quem": "Adé", "yo": "", "pt": "Abriu! O caminho do mangue."}
+	],
+	"chegada_mangue": [
+		{"quem": "Adé", "yo": "", "pt": "O mangue... Olha as raízes saindo da lama, e a água subindo e descendo."},
+		{"quem": "Adé", "yo": "", "pt": "Quando a maré baixa, dá para passar pelas raízes. Quando sobe, cobre tudo."},
+		{"quem": "", "yo": "", "pt": "Espere a maré baixar e atravesse antes que ela volte. E cuidado com os caranguejos!"}
+	],
+	"placa_nana_mangue": [
+		{"quem": "", "yo": "", "pt": "\"A maré não espera ninguém. Mas sempre volta a baixar para quem sabe esperar.\""}
+	],
+	"mare_levou": [
+		{"quem": "Adé", "yo": "", "pt": "A maré subiu e me levou de volta! Tenho que atravessar enquanto a água está baixa."}
+	],
+	"flores": [
+		{"quem": "Adé", "yo": "", "pt": "Flores lilás, a cor de Nanã! Vou levar umas para a lagoa.", "evento": "ganhar_flores"}
+	],
+	"flores_depois": [
+		{"quem": "Adé", "yo": "", "pt": "Já peguei as flores. O resto fica para a mata."}
+	],
+	"velhinha_mangue": [
+		{"quem": "Velhinha", "yo": "", "pt": "Ô menino! Demorou, hein? Eu disse que chegava."},
+		{"quem": "Adé", "yo": "", "pt": "A senhora? Como a senhora atravessou o mangue antes de mim?"},
+		{"quem": "Velhinha", "yo": "", "pt": "Do meu jeito, devagarinho. A lagoa é logo ali. Leve o pote, meu filho."}
+	],
+	"velhinha_mangue_depois": [
+		{"quem": "Velhinha", "yo": "", "pt": "A lagoa é logo ali. Eu chego lá, não se preocupe."}
+	],
+	"chegada_lagoa": [
+		{"quem": "Adé", "yo": "", "pt": "A lagoa... A chuva aqui é mais forte. E ali na beira tem uma pedra com um pano lilás."},
+		{"quem": "Adé", "yo": "", "pt": "Deve ser o lugar de Nanã. Vou deixar uma oferenda: o pote cheio de água da chuva e flores lilás."}
+	],
+	"placa_nana_lagoa": [
+		{"quem": "", "yo": "", "pt": "\"Da lama da lagoa foi feito o primeiro de nós. Para ela voltamos, para nascer de novo.\""}
+	],
+	"barro_conserta": [
+		{"quem": "Adé", "yo": "", "pt": "Barro da beira da lagoa, mole com a chuva..."},
+		{"quem": "Adé", "yo": "", "pt": "Vou amassar bem e tampar a rachadura do pote.", "evento": "consertar_pote"},
+		{"quem": "Adé", "yo": "", "pt": "Pronto! O pote está inteiro de novo. Agora não vaza."}
+	],
+	"barro_depois": [
+		{"quem": "Adé", "yo": "", "pt": "O barro da lagoa: a mesma lama de onde a gente veio, diz a Vó."}
+	],
+	"pedra_rachado": [
+		{"quem": "Adé", "yo": "", "pt": "Se eu deixar o pote aqui na chuva... a água vaza toda pela rachadura."},
+		{"quem": "Adé", "yo": "", "pt": "Primeiro tenho que consertar o pote. Com barro, quem sabe?"}
+	],
+	"pedra_coloca": [
+		{"quem": "Adé", "yo": "", "pt": "Vou deixar o pote aqui na pedra, de boca para cima. A chuva enche ele."},
+		{"quem": "", "yo": "", "pt": "A chuva não tem pressa. Espere o pote encher."}
+	],
+	"pedra_depois": [
+		{"quem": "Adé", "yo": "", "pt": "A pedra onde o pote encheu de chuva."}
+	],
+	"lugar_falta": [
+		{"quem": "Adé", "yo": "", "pt": "Para a oferenda de Nanã ainda falta: {faltam}."}
+	],
+	"oferenda": [
+		{"quem": "Adé", "yo": "", "pt": "Aqui está, Nanã: água da chuva no pote de barro e flores lilás."},
+		{"quem": "Adé", "yo": "Sálùbá, Nàná!", "pt": "Saluba, Nanã!", "evento": "oferenda"},
+		{"quem": "", "yo": "", "pt": "A chuva engrossa. Alguém vem chegando, devagar, pelo caminho da lagoa.", "evento": "velhinha_vem"}
+	],
+	"lugar_depois": [
+		{"quem": "Adé", "yo": "", "pt": "O lugar de Nanã, com a oferenda."}
+	],
+	"velhinha_lagoa": [
+		{"quem": "Velhinha", "yo": "", "pt": "Cheguei, meu filho. Do meu jeito."},
+		{"quem": "Velhinha", "yo": "", "pt": "Você trouxe o meu pote... e ainda consertou com o barro da minha lagoa."},
+		{"quem": "Adé", "yo": "", "pt": "Da sua lagoa? Senhora... quem é a senhora?"},
+		{"quem": "Velhinha", "yo": "", "pt": "Eu sou mais velha que este mangue, meu filho. Mais velha que a chuva."}
+	],
+	"velhinha_lagoa_de_novo": [
+		{"quem": "Velhinha", "yo": "", "pt": "Cheguei, meu filho. Do meu jeito."},
+		{"quem": "Adé", "yo": "", "pt": "Eu sabia que era a senhora! Desde o brejo, eu conheci esse jeito de olhar."}
+	],
+	"nana": [
+		{"quem": "Adé", "yo": "Sálùbá, Nàná!", "pt": "Nanã! Saluba, Nanã!"},
+		{"quem": "Nàná", "yo": "", "pt": "Saluba, meu neto. Quem pisa na minha lama é meu neto."},
+		{"quem": "Nàná", "yo": "", "pt": "Eu sou a mais velha de todos. Antes do mundo ter gente, já tinha a lama do fundo da lagoa."},
+		{"quem": "Nàná", "yo": "", "pt": "Foi dessa lama que se moldou o primeiro ser humano. E é para ela que todo corpo volta, quando a vida termina."},
+		{"quem": "Adé", "yo": "", "pt": "Voltar para a lama... isso não dá medo?"},
+		{"quem": "Nàná", "yo": "", "pt": "A semente também volta para a terra, e nasce de novo. Quem volta para mim descansa. O que fica é a memória."},
+		{"quem": "Adé", "yo": "", "pt": "Eu tive um sonho, Nanã. Sonhei com todos os orixás, e quero encontrar cada um."},
+		{"quem": "Nàná", "yo": "", "pt": "Eu sei. Você atravessou o brejo olhando as garças, esperou a maré e não teve pressa."},
+		{"quem": "Nàná", "yo": "", "pt": "Sonho bom é assim: não tem pressa de chegar. Tem cuidado de lembrar de onde veio."},
+		{"quem": "Nàná", "yo": "", "pt": "Na casa da sua Vó tem retratos na parede, não tem? Os seus mais velhos."},
+		{"quem": "Adé", "yo": "", "pt": "Tem sim! A Vó conta a história de cada um."},
+		{"quem": "Nàná", "yo": "", "pt": "Então escute. Quem esquece os mais velhos fica sem chão, como quem pisa na lama funda."},
+		{"quem": "Nàná", "yo": "", "pt": "E você carregou o pote de uma velha sem perguntar quem ela era. Cortou a taboa sem ferro. Isso é respeito."},
+		{"quem": "Nàná", "yo": "", "pt": "Leve o meu ibiri para a casa da sua Vó. Ela vai saber onde ele fica.", "evento": "trofeu"},
+		{"quem": "Adé", "yo": "", "pt": "Obrigado, Nanã. Vou cuidar da minha Vó... e não vou esquecer de onde eu vim."},
+		{"quem": "Nàná", "yo": "", "pt": "A chuva vai acalmar e o caminho vai abrir. Vá devagar, meu neto."},
+		{"quem": "Adé", "yo": "Sálùbá, Nàná!", "pt": "Saluba, Nanã!"}
+	],
+	"nana_reencontro": [
+		{"quem": "Nàná", "yo": "", "pt": "Meu neto voltou para a lama da Vó."},
+		{"quem": "Adé", "yo": "", "pt": "Voltei, Nanã. Queria atravessar o brejo de novo... e ver a senhora mais uma vez."},
+		{"quem": "Nàná", "yo": "", "pt": "Desta vez seus pés já sabiam onde é firme."},
+		{"quem": "Adé", "yo": "", "pt": "Foi a senhora que me ensinou: ir devagar e lembrar de onde eu vim."},
+		{"quem": "Nàná", "yo": "", "pt": "Quem lembra nunca se perde."},
+		{"quem": "Adé", "yo": "", "pt": "Obrigado, Nanã, por me deixar conhecer a senhora. A senhora parece a minha Vó."},
+		{"quem": "Nàná", "yo": "", "pt": "Toda avó tem um pouco de Nanã, meu filho. O ibiri continua seu.", "evento": "trofeu"},
+		{"quem": "Adé", "yo": "", "pt": "Posso dar um abraço na senhora?"},
+		{"quem": "Nàná", "yo": "", "pt": "Venha cá, meu neto."}
+	],
+	"nana_despedida": [
+		{"quem": "Nàná", "yo": "", "pt": "Agora vá. A chuva abre o caminho para você, sempre que voltar."},
+		{"quem": "Adé", "yo": "Sálùbá, Nàná!", "pt": "Saluba, Nanã!"}
+	],
+	"nana_de_novo": [
+		{"quem": "Nàná", "yo": "", "pt": "Devagar, meu neto. A lama guarda tudo."}
+	]
+}

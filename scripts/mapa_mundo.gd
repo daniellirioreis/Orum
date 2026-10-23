@@ -40,7 +40,7 @@ const MADEIRA := Color(0.56, 0.35, 0.17)
 const MADEIRA_CLARA := Color(0.72, 0.5, 0.27)
 
 ## os campos que já têm fase
-const CENAS_DOS_CAMPOS := {"oxossi": "res://cenas/mata_oxossi.tscn"}
+const CENAS_DOS_CAMPOS := {"oxossi": "res://cenas/mata_oxossi.tscn", "nana": "res://cenas/mata_nana.tscn"}
 
 var _campos := {}                     # id → dados do campo (nome, yo, saudacao, campo)
 var _caminhos: Array = []             # {a, b, pontos: PackedVector2Array, aberto: 0..1}

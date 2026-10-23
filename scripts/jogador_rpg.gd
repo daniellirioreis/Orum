@@ -15,6 +15,7 @@ var pode_mover := true
 var limite_queda := 100000.0   # não usado aqui; existe para ser igual ao jogador de plataforma
 var direcao_olhar := "frente"
 var devagar := false
+var fator_chao := 1.0            # lama, areia funda...: a fase diminui (1.0 = chão firme)
 var animacao_especial := false   # batendo palmas etc.: quem troca os quadros é a cena
 var _tempo_anim := 0.0
 
@@ -28,7 +29,7 @@ func _physics_process(delta: float) -> void:
 		if entrada.length() > 1.0:
 			entrada = entrada.normalized()
 	devagar = pode_mover and Input.is_action_pressed("devagar")
-	velocity = entrada * VELOCIDADE * (LENTO if devagar else 1.0)
+	velocity = entrada * VELOCIDADE * (LENTO if devagar else 1.0) * fator_chao
 	move_and_slide()
 
 	if entrada != Vector2.ZERO:
@@ -47,7 +48,7 @@ func _animar(delta: float, andando: bool) -> void:
 	var anim: Dictionary = ANIMACOES[direcao_olhar]
 	if andando:
 		var quadros: Array = anim["andando"]
-		var fps: float = anim["fps"] * (0.5 if devagar else 1.0)
+		var fps: float = anim["fps"] * (0.5 if devagar else 1.0) * (0.7 if fator_chao < 1.0 else 1.0)
 		sprite.frame = quadros[int(_tempo_anim * fps) % quadros.size()]
 	else:
 		sprite.frame = anim["parado"][0]

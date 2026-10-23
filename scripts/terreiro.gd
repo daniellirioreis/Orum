@@ -106,7 +106,7 @@ const COR_ASSENTAMENTO := {
 	"iemanja": Color(0.55, 0.8, 1.0), "nana": Color(0.8, 0.6, 1.0), "omolu": Color(0.9, 0.75, 0.5),
 }
 ## Ícone de cada troféu: [folha, quadro de 12x12]
-const ICONE_TROFEU := {"oxossi": ["res://arte/ox_itens.png", 3]}
+const ICONE_TROFEU := {"oxossi": ["res://arte/ox_itens.png", 3], "nana": ["res://arte/nana_itens.png", 3]}
 
 ## Etapas: sonho → acordou → buscando → pronto → na_tronqueira → ritual → aberto
 var estado := "sonho"
@@ -1352,6 +1352,10 @@ func _mover_galinha(b: Dictionary, delta: float) -> void:
 # por isso os cantos saem arredondados.
 const TERRENOS := [["r", "t", "_"], ["="], ["~", "|"]]
 const AGUA_CHARS := ["~", "|"]
+## (outras fases trocam estes: cada terreno é [letras, linha na folha arte/terreno_snes.png])
+var terrenos: Array = [[TERRENOS[0], 1], [TERRENOS[1], 2], [TERRENOS[2], 3]]
+var agua_chars: Array = AGUA_CHARS
+var _ts_terreno: TileSet
 const SOBRE_TERRENO := ["M", "^", "B", "b", "E"]
 const CASA_CHARS := ["R", "h", "H", "J", "P"]
 
@@ -1363,14 +1367,16 @@ func _criar_tileset_terreno() -> TileSet:
 	fonte.texture = preload("res://arte/terreno_snes.png")
 	fonte.texture_region_size = Vector2i(TILE, TILE)
 	ts.add_source(fonte, 0)
-	for y in 5:
+	for y in fonte.texture.get_height() / TILE:
 		for x in 16:
 			fonte.create_tile(Vector2i(x, y))
 	return ts
 
 
 func _construir_terreno(mapa: PackedStringArray, origem: Vector2, topo: TileMapLayer) -> void:
-	var ts := _criar_tileset_terreno()
+	if _ts_terreno == null:
+		_ts_terreno = _criar_tileset_terreno()
+	var ts := _ts_terreno
 	var largura := 0
 	for linha in mapa:
 		largura = maxi(largura, linha.length())
@@ -1387,13 +1393,14 @@ func _construir_terreno(mapa: PackedStringArray, origem: Vector2, topo: TileMapL
 			grama.set_cell(Vector2i(x, y), 0, Vector2i((x * 7 + y * 13 + (x * y) % 5) % 4, 0))
 
 	# 2) terra, calçada e água, com bordas arredondadas
-	for i in TERRENOS.size():
+	for i in terrenos.size():
 		var camada := TileMapLayer.new()
 		camada.tile_set = ts
 		camada.position = origem - Vector2(TILE / 2.0, TILE / 2.0)
 		camada.z_index = -9 + i
 		add_child(camada)
-		var letras: Array = TERRENOS[i]
+		var letras: Array = terrenos[i][0]
+		var linha_folha: int = terrenos[i][1]
 		for vy in altura + 1:
 			for vx in largura + 1:
 				var indice := 0
@@ -1402,7 +1409,8 @@ func _construir_terreno(mapa: PackedStringArray, origem: Vector2, topo: TileMapL
 				if _letra(mapa, vx - 1, vy) in letras: indice += 4
 				if _letra(mapa, vx, vy) in letras: indice += 8
 				if indice > 0:
-					camada.set_cell(Vector2i(vx, vy), 0, Vector2i(indice, i + 1))
+					camada.set_cell(Vector2i(vx, vy), 0, Vector2i(indice, linha_folha))
+		_camada_terreno(origem, i, camada)
 
 	# 3) enfeites (tufos, flores, pedras de pisar)
 	var enfeites := TileMapLayer.new()
@@ -1446,12 +1454,17 @@ func _construir_terreno(mapa: PackedStringArray, origem: Vector2, topo: TileMapL
 					topo.set_cell(Vector2i(x, y), 0, Vector2i(INVISIVEL, 0))
 			elif c in SOBRE_TERRENO:
 				topo.set_cell(Vector2i(x, y), 0, Vector2i(_tile_para(mapa, x, y), 0))
-			elif c in AGUA_CHARS:
+			elif c in agua_chars:
 				topo.set_cell(Vector2i(x, y), 0, Vector2i(INVISIVEL, 0))
 			elif c == "a":
 				_criar_cenario_quadros("res://arte/arbusto.png", 2, 1 if (x * 3 + y) % 4 == 0 else 0, Vector2(14, 8), origem + Vector2(x * TILE + TILE / 2.0, (y + 1) * TILE))
 			elif c == "e":
 				_criar_cenario("res://arte/estaca.png", Vector2(10, 6), origem + Vector2(x * TILE + TILE / 2.0, (y + 1) * TILE + 2))
+
+
+## Cada camada de terreno pronta passa por aqui (a fase de Nanã guarda a da maré).
+func _camada_terreno(_origem: Vector2, _i: int, _camada: TileMapLayer) -> void:
+	pass
 
 
 func _criar_cenario_quadros(caminho: String, quadros: int, quadro: int, pe: Vector2, base: Vector2) -> void:
