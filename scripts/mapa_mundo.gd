@@ -94,12 +94,13 @@ func _ready() -> void:
 	add_child(_trilhas)
 
 	_ade = Sprite2D.new()
-	_ade.texture = preload("res://arte/ade_snes.png")
-	_ade.hframes = 9
-	_ade.offset = Vector2(0, -14)
+	_ade.texture = preload("res://arte/ade_mapa.png")   # Adé pequenininho, do tamanho do mapa
+	_ade.hframes = 6
+	_ade.offset = Vector2(0, -6)
 	_ade.position = NOS["orita"]
 	var sombra := Sprite2D.new()
 	sombra.texture = preload("res://arte/sombra.png")
+	sombra.scale = Vector2(0.75, 0.75)
 	sombra.show_behind_parent = true
 	_ade.add_child(sombra)
 	add_child(_ade)
@@ -240,16 +241,15 @@ func _andar(c: Dictionary) -> void:
 
 
 func _animar_ade(d: Vector2, andado: float) -> void:
-	var passo := int(andado / 6.0) % 4
-	var seq := [1, 0, 2, 0]
+	var passo := int(andado / 5.0) % 2
 	if absf(d.x) > absf(d.y):
-		_ade.frame = 6 + seq[passo]
+		_ade.frame = 4 + passo
 		_ade.flip_h = d.x < 0.0
 	elif d.y < 0.0:
-		_ade.frame = 3 + seq[passo]
+		_ade.frame = 2 + passo
 		_ade.flip_h = false
 	else:
-		_ade.frame = 0 + seq[passo]
+		_ade.frame = passo
 		_ade.flip_h = false
 
 
@@ -309,7 +309,7 @@ func _draw() -> void:
 	if not _andando:
 		var p: Vector2 = NOS[_no_atual]
 		var a := 0.35 + 0.3 * sin(_tempo * 5.0)
-		draw_arc(p + Vector2(0, 1), 8.0 + sin(_tempo * 5.0), 0, TAU, 24, Color(1, 1, 0.8, a), 1.0)
+		draw_arc(p + Vector2(0, 1), 6.0 + sin(_tempo * 5.0), 0, TAU, 24, Color(1, 1, 0.8, a), 1.0)
 	if not _ocupado and not _andando:
 		_desenhar_setas()
 
@@ -395,7 +395,7 @@ func _desenhar_setas() -> void:
 		if c["a"] != _no_atual and c["b"] != _no_atual:
 			continue
 		var v := _saida(c, _no_atual)
-		var ponta := p + v * 15.0 + (Vector2(0, -10) if v.y < -0.7 else Vector2.ZERO)
+		var ponta := p + v * 12.0 + (Vector2(0, -4) if v.y < -0.7 else Vector2.ZERO)
 		var lado := v.orthogonal() * 3.0
 		var pts := PackedVector2Array([ponta + v * 3.0, ponta - lado, ponta + lado])
 		draw_colored_polygon(pts, Color(1, 0.95, 0.6))
