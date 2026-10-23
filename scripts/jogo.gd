@@ -27,6 +27,21 @@ var espaco_atual := -1
 var opcoes := {"musica": 8, "efeitos": 8}
 var menu: CanvasLayer
 
+## Teclado ou controle: o último usado decide os nomes dos botões nos textos ({interagir}, {atirar}...).
+signal dispositivo_mudou
+var usando_controle := false
+const NOMES_BOTOES := {
+	# ação: [no teclado, no controle (nomes do padrão Xbox, pela posição do botão)]
+	"interagir": ["E", "A"],
+	"atirar": ["Espaço", "B"],
+	"devagar": ["Shift", "L ou R"],
+	"ver_mapa": ["M", "Y"],
+	"pausa": ["Esc", "Start"],
+	"andar": ["as setas", "o direcional"],
+	"setas": ["← ↑ → ↓", "✚"],
+	"confirmar": ["Enter", "A"],
+}
+
 var _musica: AudioStreamPlayer
 var _fade: ColorRect
 
@@ -101,6 +116,33 @@ func mudar_cena(caminho: String) -> void:
 	t2.tween_property(_fade, "color:a", 0.0, 0.35)
 
 
+## Nome do botão de uma ação, para mostrar na tela (muda se o jogador troca de teclado para controle).
+func botao(acao: String) -> String:
+	return NOMES_BOTOES.get(acao, [acao, acao])[1 if usando_controle else 0]
+
+
+## Troca {interagir}, {atirar}, {devagar}, {ver_mapa}, {pausa}, {andar}, {setas} e {confirmar} pelos botões certos.
+func texto(t: String) -> String:
+	if not "{" in t:
+		return t
+	for acao in NOMES_BOTOES:
+		t = t.replace("{%s}" % acao, botao(acao))
+	return t
+
+
+func _input(evento: InputEvent) -> void:
+	var controle := usando_controle
+	if evento is InputEventJoypadButton and evento.pressed:
+		controle = true
+	elif evento is InputEventJoypadMotion and absf(evento.axis_value) > 0.6:
+		controle = true
+	elif evento is InputEventKey and evento.pressed:
+		controle = false
+	if controle != usando_controle:
+		usando_controle = controle
+		dispositivo_mudou.emit()
+
+
 func _unhandled_input(evento: InputEvent) -> void:
 	if evento.is_action_pressed("sair") and not menu.aberto and _fade.color.a < 0.1:
 		var cena := get_tree().current_scene
@@ -125,12 +167,16 @@ func _configurar_controles() -> void:
 	# cima/baixo: para andar nas cenas vistas de cima (terreiro)
 	_acao("cima", [KEY_W, KEY_UP], [JOY_BUTTON_DPAD_UP], JOY_AXIS_LEFT_Y, -1.0)
 	_acao("baixo", [KEY_S, KEY_DOWN], [JOY_BUTTON_DPAD_DOWN], JOY_AXIS_LEFT_Y, 1.0)
-	_acao("interagir", [KEY_E, KEY_ENTER, KEY_KP_ENTER, KEY_X], [JOY_BUTTON_X, JOY_BUTTON_B])
+	# controle (pela posição do botão, igual em Xbox, PlayStation e Nintendo):
+	#   baixo (A / ✕) falar e confirmar · direita (B / ◯) atirar e voltar no menu · cima (Y / △) ver a ilha
+	#   L ou R andar devagar · Start pausa · Select/Back também mostra a ilha
+	_acao("interagir", [KEY_E, KEY_ENTER, KEY_KP_ENTER, KEY_X], [JOY_BUTTON_A])
 	_acao("sair", [KEY_ESCAPE], [JOY_BUTTON_START])
+	_acao("cancelar", [KEY_ESCAPE, KEY_BACKSPACE], [JOY_BUTTON_B])
 	# no mapa dos caminhos: afastar a câmera para ver a ilha inteira (e apertar de novo para voltar)
-	_acao("ver_mapa", [KEY_M, KEY_TAB, KEY_Q], [JOY_BUTTON_Y, JOY_BUTTON_LEFT_SHOULDER, JOY_BUTTON_RIGHT_SHOULDER])
+	_acao("ver_mapa", [KEY_M, KEY_TAB, KEY_Q], [JOY_BUTTON_Y, JOY_BUTTON_BACK])
 	# na mata de Oxóssi: atirar a flecha do ofá e andar devagar (sem espantar os bichos)
-	_acao("atirar", [KEY_SPACE, KEY_Z, KEY_J], [JOY_BUTTON_A])
+	_acao("atirar", [KEY_SPACE, KEY_Z, KEY_J], [JOY_BUTTON_B])
 	_acao("devagar", [KEY_SHIFT, KEY_C], [JOY_BUTTON_LEFT_SHOULDER, JOY_BUTTON_RIGHT_SHOULDER])
 	_acao("tela_cheia", [KEY_F11], [])
 

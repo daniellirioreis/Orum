@@ -430,7 +430,7 @@ func _veado_foge(v: Dictionary) -> void:
 	await c2.finished
 	_espantou = false
 	jogador.congelar(false)
-	_mostrar_aviso("Segure SHIFT (ou C) para andar devagar.")
+	_mostrar_aviso("Segure {devagar} para andar devagar.")
 
 
 func _colher_milho(pe: Area2D) -> void:
@@ -1341,7 +1341,7 @@ func _acordar_onca(o: Dictionary) -> void:
 	t.tween_property(o["s"], "scale", Vector2.ONE, 0.2)
 	if not _viu_onca:
 		_viu_onca = true
-		_mostrar_aviso("Uma onça! Perto dela, ande devagar (SHIFT ou C).")
+		_mostrar_aviso("Uma onça! Perto dela, ande devagar (segure {devagar}).")
 
 
 func _bote(o: Dictionary) -> void:

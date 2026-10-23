@@ -775,7 +775,7 @@ func _rotulo_hud(texto: String, tamanho: int, cor: Color) -> Label:
 
 
 func _mostrar_aviso(texto: String) -> void:
-	_aviso.text = texto
+	_aviso.text = Jogo.texto(texto)
 	var t := create_tween()
 	t.tween_property(_aviso, "modulate:a", 1.0, 0.25)
 	t.tween_interval(2.0)

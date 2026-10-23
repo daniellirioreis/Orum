@@ -113,13 +113,14 @@ func _input(ev: InputEvent) -> void:
 		_resposta = {"i": _cursor, "acao": "esq"}
 	elif _lateral and ev.is_action_pressed("direita"):
 		_resposta = {"i": _cursor, "acao": "dir"}
-	elif ev.is_action_pressed("interagir") or ev.is_action_pressed("atirar"):
+	elif ev.is_action_pressed("interagir") or (ev is InputEventKey and ev.pressed and not ev.echo \
+			and ev.physical_keycode == KEY_SPACE):
 		if _cursor in _desativadas:
 			Jogo.tocar_som("erro", -10.0)
 		else:
 			Jogo.tocar_som("buzio", -8.0)
 			_resposta = {"i": _cursor, "acao": "ok"}
-	elif ev.is_action_pressed("sair"):
+	elif ev.is_action_pressed("sair") or ev.is_action_pressed("cancelar"):
 		_resposta = {"i": -1, "acao": "cancelar"}
 	else:
 		return
@@ -183,7 +184,7 @@ func opcoes() -> void:
 			"Tela cheia:  " + ("sim" if get_window().mode == Window.MODE_FULLSCREEN else "não"),
 			"Voltar",
 		]
-		var r := await escolher("Opções", itens, i, true, [], "← → para ajustar")
+		var r := await escolher("Opções", itens, i, true, [], "← → para ajustar   ·   %s voltar" % ("B" if Jogo.usando_controle else "Esc"))
 		i = r["i"]
 		var passo := 0
 		match r["acao"]:

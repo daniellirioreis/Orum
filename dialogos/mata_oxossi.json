@@ -19,7 +19,7 @@
 	],
 	"placa_ox_campo": [
 		{"quem": "Placa", "yo": "", "pt": "Na mata, quem corre espanta a caça."},
-		{"quem": "Placa", "yo": "", "pt": "Perto dos bichos, ande devagar: segure SHIFT, C ou o botão L do controle."}
+		{"quem": "Placa", "yo": "", "pt": "Perto dos bichos, ande devagar: segure {devagar}."}
 	],
 	"veado_fugiu": [
 		{"quem": "", "yo": "", "pt": "O veado ouviu os passos apressados e correu! A mata se fecha..."},
@@ -34,7 +34,7 @@
 	"achou_ofa": [
 		{"quem": "Adé", "yo": "", "pt": "Um ofá! O arco e flecha do caçador, deixado em cima de um toco..."},
 		{"quem": "Adé", "yo": "", "pt": "Só tem uma flecha. Vou ter que mirar bem antes de soltar.", "evento": "ganhar_ofa"},
-		{"quem": "", "yo": "", "pt": "Aperte ESPAÇO (ou Z, ou o botão A) para atirar para onde Adé está olhando. Depois, vá buscar a flecha."}
+		{"quem": "", "yo": "", "pt": "Aperte {atirar} para atirar para onde Adé está olhando. Depois, vá buscar a flecha."}
 	],
 	"toco_vazio": [
 		{"quem": "Adé", "yo": "", "pt": "Era aqui que o ofá estava. De quem será que ele é?"}

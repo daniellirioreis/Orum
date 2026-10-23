@@ -146,6 +146,7 @@ func _ready() -> void:
 	_camera.make_current()
 
 	_criar_interface()
+	Jogo.dispositivo_mudou.connect(func(): if _modo_legenda != "": _mudar_legenda(_modo_legenda))
 	Jogo.tocar_musica()
 	if Jogo.has_meta("mapa_aberto"):
 		_mudar_legenda("andar")
@@ -312,14 +313,18 @@ func _animar_ade(d: Vector2, andado: float) -> void:
 		_ade.flip_h = false
 
 
+var _modo_legenda := ""
+
+
 func _mudar_legenda(modo: String) -> void:
+	_modo_legenda = modo
 	match modo:
 		"ilha":
-			_legenda.text = "M  voltar para perto do Adé"
+			_legenda.text = Jogo.texto("{ver_mapa}  voltar para perto do Adé")
 		"caixa":
-			_legenda.text = "E  continuar"
+			_legenda.text = Jogo.texto("{interagir}  continuar")
 		"andar":
-			_legenda.text = "← ↑ → ↓  andar      E  entrar      M  ver a ilha inteira"
+			_legenda.text = Jogo.texto("{setas}  andar      {interagir}  entrar      {ver_mapa}  ver a ilha inteira")
 		_:
 			_legenda.text = ""
 	_legenda.get_parent().get_child(_legenda.get_index() - 1).visible = _legenda.text != ""
@@ -340,7 +345,7 @@ func _ver_ilha(longe: bool) -> void:
 		t.tween_property(_camera, "zoom", Vector2(z, z), 0.6)
 		t.tween_property(_camera, "position", _tamanho / 2.0 + Vector2(0, -12), 0.6)
 		Jogo.tocar_som("caminho", -16.0)
-		_descricao.text = "A ilha inteira. Aperte M (ou Tab) para voltar."
+		_descricao.text = Jogo.texto("A ilha inteira. Aperte {ver_mapa} para voltar.")
 	else:
 		t.tween_property(_camera, "zoom", Vector2.ONE, 0.6)
 		t.tween_property(_camera, "position", _ade.position + Vector2(0, -8), 0.6)
@@ -408,7 +413,7 @@ func _abrir_caminhos() -> void:
 	_camera.limit_right = int(_tamanho.x); _camera.limit_bottom = int(_tamanho.y)
 	_camera.position_smoothing_enabled = true
 	await get_tree().create_timer(0.2).timeout
-	_abrir_caixa("Os caminhos estão abertos! Cada um leva a um orixá.\nAnde com as setas e escolha por onde começar.\nPara ver a ilha inteira, aperte M (ou Tab).")
+	_abrir_caixa("Os caminhos estão abertos! Cada um leva a um orixá.\nAnde com {andar} e escolha por onde começar.\nPara ver a ilha inteira, aperte {ver_mapa}.")
 	_mostrar_no("orita")
 
 
@@ -626,7 +631,7 @@ func _mostrar_no(id: String) -> void:
 	if id == "orita":
 		_nome.text = "Oríta Mẹ́ta · a encruzilhada"
 		_saudacao.text = "Laroyê!"
-		_descricao.text = "Aperte E para voltar ao terreiro da Vó." if Jogo.has_meta("mapa_aberto") else "Todo caminho começa e termina aqui."
+		_descricao.text = Jogo.texto("Aperte {interagir} para voltar ao terreiro da Vó.") if Jogo.has_meta("mapa_aberto") else "Todo caminho começa e termina aqui."
 		_icone.texture = null
 		return
 	var c: Dictionary = _campos[id]
@@ -674,7 +679,7 @@ func _entrar() -> void:
 func _abrir_caixa(texto: String) -> void:
 	_ocupado = true
 	_mudar_legenda("caixa")
-	_texto_caixa.text = texto
+	_texto_caixa.text = Jogo.texto(texto)
 	_caixa.visible = true
 	var y_tela := _ade.get_global_transform_with_canvas().origin.y     # a caixa não cobre o Adé
 	_caixa.position.y = 150.0 if y_tela < 130.0 else 36.0

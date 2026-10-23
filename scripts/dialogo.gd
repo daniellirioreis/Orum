@@ -58,9 +58,9 @@ func _mostrar_linha() -> void:
 	var linha: Dictionary = _linhas[_indice]
 	_nome.text = linha.get("quem", "")
 	_placa.visible = _nome.text != ""
-	_yoruba.text = linha.get("yo", "")
+	_yoruba.text = Jogo.texto(linha.get("yo", ""))
 	_yoruba.visible = _yoruba.text != ""
-	_legenda.text = linha.get("pt", "")
+	_legenda.text = Jogo.texto(linha.get("pt", ""))
 	# sem iorubá (narração), a legenda vira o texto principal
 	_legenda.add_theme_color_override("font_color", COR_LEGENDA if _yoruba.visible else COR_YORUBA)
 	_letras = 0.0

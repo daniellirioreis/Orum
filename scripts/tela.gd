@@ -6,6 +6,15 @@ extends Control
 
 var _aviso: Label
 var _pronto := false
+var _dica: Label
+
+
+func _atualizar_dicas() -> void:
+	if tipo != "titulo":
+		return
+	_aviso.text = Jogo.texto("Aperte {confirmar}")
+	_dica.text = Jogo.texto("Andar: {andar} · Falar: {interagir} · Atirar: {atirar} · Pausa: {pausa}") \
+		+ ("" if Jogo.usando_controle else " · F11: tela cheia")
 
 
 func _ready() -> void:
@@ -22,8 +31,10 @@ func _ready() -> void:
 		_texto("Ìtàn àwọn Òrìṣà · Histórias dos Orixás", 10, Color(1, 0.95, 0.88), 76)
 		_personagem("res://arte/ade.png", 16, Vector2(110, 204))
 		_personagem("res://arte/exu.png", 24, Vector2(148, 204))
-		_aviso = _texto("Aperte Enter", 9, Color(1, 1, 1), 112)
-		_texto("Andar: WASD · Falar: E · Pausa: Esc · F11: tela cheia", 7, Color(0.85, 0.8, 0.9), 210)
+		_aviso = _texto("", 9, Color(1, 1, 1), 112)
+		_dica = _texto("", 7, Color(0.85, 0.8, 0.9), 210)
+		_atualizar_dicas()
+		Jogo.dispositivo_mudou.connect(_atualizar_dicas)
 	else:
 		_texto("Fim do Prólogo", 22, Color(0.98, 0.82, 0.45), 34)
 		_texto("Àṣẹ.", 14, Color(1, 0.95, 0.88), 66)
@@ -52,7 +63,11 @@ func _unhandled_input(ev: InputEvent) -> void:
 		else:
 			Jogo.mudar_cena("res://cenas/titulo.tscn")
 	elif ev.is_action_pressed("sair") and tipo == "titulo":
-		get_tree().quit()
+		# Esc / Start no título abre o mesmo menu (o "Sair" fica dentro dele)
+		_pronto = false
+		get_viewport().set_input_as_handled()
+		await _menu_inicial()
+		_pronto = true
 
 
 func _texto(texto: String, tamanho: int, cor: Color, y: float) -> Label:

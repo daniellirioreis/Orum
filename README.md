@@ -27,16 +27,21 @@ Esta versão tem o **Prólogo** completo, em duas partes:
 
 ## Controles
 
-| Ação | Teclado | Controle |
+| Ação | Teclado | Controle (posição do botão) |
 |---|---|---|
-| Andar (terreiro, visto de cima) | W A S D ou setas | Direcional ou analógico |
-| Andar (fases de plataforma) | A / D ou setas | Direcional ou analógico |
-| Pular | Espaço, W, ↑ ou Z | A |
-| Falar / avançar diálogo | E, Enter ou X | X ou B |
-| Atirar a flecha (mata de Oxóssi) | Espaço, Z ou J | A |
-| Andar devagar, sem barulho (mata de Oxóssi) | segurar Shift ou C | L ou R |
-| Pausa (menu: continuar, opções, título, sair) | Esc | Start |
-| Tela cheia | F11 | |
+| Andar | W A S D ou setas | Direcional ou analógico |
+| Falar / confirmar / avançar diálogo | E, Enter ou X | A (Xbox) · ✕ (PlayStation) · botão de baixo |
+| Atirar a flecha (mata de Oxóssi) | Espaço, Z ou J | B · ◯ · botão da direita |
+| Andar devagar, sem barulho | segurar Shift ou C | segurar L ou R |
+| Ver a ilha inteira (mapa) | M, Tab ou Q | Y · △ · botão de cima (ou Select/Back) |
+| Pausa | Esc | Start |
+| Voltar nos menus | Esc ou Backspace | B · ◯ |
+| Pular (fases de plataforma antigas) | Espaço, W, ↑ ou Z | A |
+| Tela cheia | F11 | (no menu de Opções) |
+
+Os textos do jogo mostram os botões de quem está jogando: se o último toque foi no controle, aparece "Aperte A";
+no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}`, `{devagar}`, `{ver_mapa}`, `{pausa}`,
+`{andar}`, `{setas}` ou `{confirmar}`, e o jogo troca pelo botão certo (a lista fica em `NOMES_BOTOES`, no `scripts/jogo.gd`).
 
 ## O que tem nesta versão
 

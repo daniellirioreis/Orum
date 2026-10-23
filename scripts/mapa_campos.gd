@@ -124,7 +124,7 @@ func _montar() -> void:
 	titulo.add_theme_font_override("font", fonte_forte)
 	titulo.position = Vector2(6, 2)
 	_raiz.add_child(titulo)
-	_dica = _rotulo("← →  ver os campos   ·   E  fechar", 7, Color(1, 1, 1))
+	_dica = _rotulo(Jogo.texto("← →  ver os campos   ·   {interagir}  fechar"), 7, Color(1, 1, 1))
 	_dica.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_dica.size = Vector2(250, 10)
 	_dica.position = Vector2(0, 4)
