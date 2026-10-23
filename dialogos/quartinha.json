@@ -1,0 +1,45 @@
+{
+	"cedo": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Uma quartinha com uma vela vermelha e preta... É de Exu."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "A Vó disse que primeiro é preciso chamar Exu. Depois ele guarda o meu caminho."
+		}
+	],
+	"pergunta": [
+		{
+			"quem": "Èṣù",
+			"yo": "Ọmọ mi.",
+			"pt": "Você bateu palmas e eu vim, minha criança."
+		},
+		{
+			"quem": "Èṣù",
+			"yo": "",
+			"pt": "Quer que eu guarde o seu caminho?"
+		}
+	],
+	"guardou": [
+		{
+			"quem": "Èṣù",
+			"yo": "Ọ̀nà rẹ wà lọ́wọ́ mi.",
+			"pt": "Seu caminho está nas minhas mãos. E o seu axé está cheio de novo."
+		},
+		{
+			"quem": "Adé",
+			"yo": "Laroyê, Èṣù!",
+			"pt": "Obrigado, Exu!"
+		}
+	],
+	"nao": [
+		{
+			"quem": "Èṣù",
+			"yo": "",
+			"pt": "Tudo bem. Quando quiser, é só bater palmas na quartinha."
+		}
+	]
+}

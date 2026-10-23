@@ -15,6 +15,7 @@ var pode_mover := true
 var limite_queda := 100000.0   # não usado aqui; existe para ser igual ao jogador de plataforma
 var direcao_olhar := "frente"
 var devagar := false
+var animacao_especial := false   # batendo palmas etc.: quem troca os quadros é a cena
 var _tempo_anim := 0.0
 
 @onready var sprite: Sprite2D = $Sprite
@@ -37,7 +38,8 @@ func _physics_process(delta: float) -> void:
 		else:
 			direcao_olhar = "frente" if entrada.y > 0.0 else "costas"
 			sprite.flip_h = false
-	_animar(delta, entrada != Vector2.ZERO)
+	if not animacao_especial:
+		_animar(delta, entrada != Vector2.ZERO)
 
 
 func _animar(delta: float, andando: bool) -> void:

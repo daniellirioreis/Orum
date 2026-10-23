@@ -820,3 +820,15 @@ func _voltar_ao_terreiro(corpo: Node2D) -> void:
 	Jogo.set_meta("volta_feita", true)     # daqui para a frente, o mapa tem o atalho direto
 	Jogo.set_meta("retorno", true)
 	Jogo.mudar_cena("res://cenas/terreiro.tscn")
+
+
+# ------------------------------------------------------------------ quartinha de Exu (salvar)
+
+## Guardado aqui, o jogo continua no mapa, na encruzilhada.
+func _local_do_caminho() -> String:
+	return "orita"
+
+
+## Só depois que Exu chegou (ou na volta, quando ele já está no cruzamento).
+func _pode_guardar() -> bool:
+	return estado in ["livre", "volta"]

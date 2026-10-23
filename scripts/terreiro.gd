@@ -159,6 +159,8 @@ var _cor_fundo_antiga: Color
 var _retorno := false         # Adé voltou de um campo (pela encruzilhada ou pelo atalho do mapa)
 var _assentamentos := {}      # id do orixá → interativo do assentamento
 var _campos := {}             # id → nome, saudação (de dialogos/encruzilhada.json)
+var _quartinha: Area2D        # onde Exu guarda o caminho (o jogo salvo)
+var _falas_quartinha: Dictionary
 
 
 func _ready() -> void:
@@ -215,9 +217,8 @@ func _process(delta: float) -> void:
 	_animar_brincadeiras()
 
 
-func _unhandled_input(ev: InputEvent) -> void:
-	if ev.is_action_pressed("sair"):
-		Jogo.mudar_cena("res://cenas/titulo.tscn")
+func _unhandled_input(_ev: InputEvent) -> void:
+	pass   # o Esc (ou Start) abre o menu de pausa, que fica no Jogo (scripts/menu.gd)
 
 
 # ------------------------------------------------------------------ lugares e portas
@@ -572,29 +573,41 @@ func _fazer_ritual() -> void:
 
 
 func _exu_aparece() -> void:
+	exu = _exu_surge(marcas["e"])
+
+
+## Exu surge numa fumaça vermelha e preta, com uma luz vermelha. Devolve o sprite.
+func _exu_surge(pos: Vector2) -> Sprite2D:
 	Jogo.tocar_som("caminho", -2.0)
-	exu = Sprite2D.new()
-	exu.texture = preload("res://arte/exu_snes.png")
-	exu.hframes = 2
-	exu.offset = Vector2(0, -16)
-	exu.position = marcas["e"]
-	exu.modulate = Color(1, 1, 1, 0)
+	var e := Sprite2D.new()
+	e.texture = preload("res://arte/exu_snes.png")
+	e.hframes = 2
+	e.offset = Vector2(0, -16)
+	e.position = pos
+	e.modulate = Color(1, 1, 1, 0)
 	var sombra := Sprite2D.new()
 	sombra.texture = TEX_SOMBRA
 	sombra.show_behind_parent = true
-	exu.add_child(sombra)
-	mundo.add_child(exu)
+	e.add_child(sombra)
+	mundo.add_child(e)
 	var luz_exu := PointLight2D.new()
 	luz_exu.texture = _luz_tex
 	luz_exu.color = Color(1.0, 0.3, 0.25)
 	luz_exu.texture_scale = 1.2
 	luz_exu.energy = 0.0
 	luz_exu.position = Vector2(0, -16)
-	exu.add_child(luz_exu)
+	e.add_child(luz_exu)
 	create_tween().tween_property(luz_exu, "energy", 1.0, 1.0)
+	_fumaca_vermelha(pos + Vector2(0, -12))
+	create_tween().tween_property(e, "modulate:a", 1.0, 1.0)
+	var piscar := e.create_tween().set_loops()
+	piscar.tween_callback(func(): e.frame = (e.frame + 1) % 2).set_delay(0.6)
+	return e
 
+
+func _fumaca_vermelha(pos: Vector2) -> void:
 	var fumaca := CPUParticles2D.new()
-	fumaca.position = exu.position + Vector2(0, -12)
+	fumaca.position = pos
 	fumaca.z_index = 2
 	fumaca.amount = 40
 	fumaca.lifetime = 1.4
@@ -615,10 +628,7 @@ func _exu_aparece() -> void:
 	fumaca.color_ramp = cores
 	add_child(fumaca)
 	fumaca.emitting = true
-
-	create_tween().tween_property(exu, "modulate:a", 1.0, 1.0)
-	var piscar := create_tween().set_loops()
-	piscar.tween_callback(func(): exu.frame = (exu.frame + 1) % 2).set_delay(0.6)
+	get_tree().create_timer(2.0).timeout.connect(fumaca.queue_free)
 
 
 func _abrir_porteira() -> void:
@@ -991,6 +1001,8 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			_criar_roda_capoeira(base)
 		"&":
 			_criar_assentamentos(base)
+		"*":
+			_criar_quartinha(base)
 
 
 func _criar_cenario(caminho: String, pe: Vector2, base: Vector2) -> Sprite2D:
@@ -1500,14 +1512,24 @@ func _preparar_retorno() -> void:
 	vo.global_position = marcas["v"]
 	vo.modulate.a = 1.0
 	tronqueira.ativo = false
-	teleportar("quintal", porteira.global_position + Vector2(0, -22))
-	jogador.direcao_olhar = "costas"
 	_lista.visible = true
 	jogador.congelar(true)
+	var continuando := Jogo.has_meta("na_quartinha")
+	if continuando:
+		# continuando um jogo guardado: Adé aparece ao lado da quartinha de Exu
+		Jogo.remove_meta("na_quartinha")
+		teleportar("quintal", _quartinha.global_position + Vector2(0, 16))
+		jogador.direcao_olhar = "frente"
+	else:
+		teleportar("quintal", porteira.global_position + Vector2(0, -22))
+		jogador.direcao_olhar = "costas"
 	await get_tree().create_timer(0.6).timeout
-	$HUD.mostrar_titulo("Ilé", "De volta ao terreiro da Vó")
+	$HUD.mostrar_titulo("Ilé", "O terreiro da Vó" if continuando else "De volta ao terreiro da Vó")
 	await get_tree().create_timer(1.4).timeout
-	await _falar("retorno_chegada")
+	if continuando:
+		jogador.congelar(false)
+	else:
+		await _falar("retorno_chegada")
 
 
 func _trofeus_novos() -> Array:
@@ -1602,3 +1624,131 @@ func _vo_assenta(id: String) -> void:
 	forma.set_deferred("disabled", false)
 	vo.sprite.frame = 0
 	vo.sprite.flip_h = false
+
+
+
+# ------------------------------------------------------------------ a quartinha de Exu: onde se guarda o caminho (salvar)
+# Adé bate palmas três vezes, a vela vermelha e preta acende, Exu surge na fumaça e pergunta se Adé quer
+# que ele guarde o seu caminho. As falas ficam em dialogos/quartinha.json; os jogos salvos, no Jogo.
+
+func _criar_quartinha(base: Vector2) -> void:
+	_quartinha = _criar_interativo("res://arte/quartinha_exu.png", 3, base, Vector2(14, 6), -32.0)
+	_quartinha.olhar_para_jogador = false
+	_quartinha.interagiu.connect(_na_quartinha)
+
+
+## Onde o jogo continua se for guardado aqui (veja Jogo.LOCAIS). As outras cenas trocam isto.
+func _local_do_caminho() -> String:
+	return "terreiro"
+
+
+## Exu só guarda o caminho depois que ele já chegou (no terreiro: depois da volta de Adé).
+func _pode_guardar() -> bool:
+	return _retorno
+
+
+func _fala_quartinha(chave: String) -> void:
+	if _falas_quartinha.is_empty():
+		_falas_quartinha = JSON.parse_string(FileAccess.get_file_as_string("res://dialogos/quartinha.json"))
+	await _falar_linhas(_falas_quartinha[chave].duplicate(true))
+
+
+func _na_quartinha() -> void:
+	if not _pode_guardar():
+		await _fala_quartinha("cedo")
+		return
+	jogador.congelar(true)
+	_quartinha.ativo = false
+	await _bater_palmas()
+	# a vela acende
+	var vela := _quartinha.create_tween().set_loops()
+	vela.tween_callback(func(): _quartinha.sprite.frame = 1).set_delay(0.15)
+	vela.tween_callback(func(): _quartinha.sprite.frame = 2).set_delay(0.15)
+	var luz := _luz(_quartinha.global_position + Vector2(5, -18), Color(1.0, 0.5, 0.35), 2.0, 1.0, true)
+	Jogo.tocar_som("buzio", -4.0)
+	await get_tree().create_timer(0.6).timeout
+	# Exu surge na fumaça (se ele já estiver por perto, é ele mesmo quem vem)
+	var e: Sprite2D = exu if exu and is_instance_valid(exu) and exu.visible \
+		and exu.global_position.distance_to(_quartinha.global_position) < 160.0 else null
+	var veio := false
+	if e == null:
+		var lado := 20.0 if jogador.global_position.x <= _quartinha.global_position.x else -20.0
+		e = _exu_surge(_quartinha.global_position + Vector2(lado, 4))
+		veio = true
+		await get_tree().create_timer(1.1).timeout
+	jogador.olhar_para(e.global_position)
+	await _fala_quartinha("pergunta")
+	jogador.congelar(true)
+	var espaco: int = await Jogo.menu.escolher_caminho("Exu guarda o seu caminho", false)
+	if espaco >= 0:
+		Jogo.salvar(espaco, _local_do_caminho())
+		_axe_cheio()
+		Jogo.tocar_som("caminho", -6.0)
+		_mostrar_aviso("Caminho %d guardado." % (espaco + 1))
+		await _fala_quartinha("guardou")
+	else:
+		await _fala_quartinha("nao")
+	jogador.congelar(true)
+	if veio:
+		_fumaca_vermelha(e.global_position + Vector2(0, -12))
+		var t := create_tween()
+		t.tween_property(e, "modulate:a", 0.0, 0.7)
+		t.tween_callback(e.queue_free)
+		await t.finished
+	vela.kill()
+	_quartinha.sprite.frame = 0
+	_chamas = _chamas.filter(func(c): return c[0] != luz)
+	luz.queue_free()
+	_quartinha.ativo = true
+	jogador.congelar(false)
+
+
+## Enche o axé de novo (nas cenas que têm axé).
+func _axe_cheio() -> void:
+	if "axe" in self:
+		set("axe", 5)
+		for b in _axe_icones:
+			b.modulate = Color.WHITE
+
+
+## Adé bate palmas três vezes, de frente (arte/ade_palmas.png: mãos abertas, mãos juntas).
+func _bater_palmas() -> void:
+	var sp: Sprite2D = jogador.sprite
+	var tex := sp.texture
+	var quadros := sp.hframes
+	jogador.animacao_especial = true
+	sp.flip_h = false
+	sp.texture = preload("res://arte/ade_palmas.png")
+	sp.hframes = 2
+	for i in 3:
+		sp.frame = 0
+		await get_tree().create_timer(0.2).timeout
+		sp.frame = 1
+		Jogo.tocar_som("pulo", -6.0)
+		_estrelinhas(jogador.global_position + Vector2(0, -16))
+		await get_tree().create_timer(0.22).timeout
+	sp.frame = 0
+	await get_tree().create_timer(0.2).timeout
+	sp.texture = tex
+	sp.hframes = quadros
+	sp.frame = 0
+	jogador.direcao_olhar = "frente"
+	jogador.animacao_especial = false
+
+
+func _estrelinhas(pos: Vector2) -> void:
+	var f := CPUParticles2D.new()
+	f.position = pos
+	f.z_index = 12
+	f.amount = 6
+	f.lifetime = 0.35
+	f.one_shot = true
+	f.explosiveness = 1.0
+	f.spread = 180.0
+	f.gravity = Vector2.ZERO
+	f.initial_velocity_min = 18.0
+	f.initial_velocity_max = 30.0
+	f.color = Color(1, 1, 0.85)
+	add_child(f)
+	f.emitting = true
+	get_tree().create_timer(0.8).timeout.connect(f.queue_free)

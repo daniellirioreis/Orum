@@ -1356,3 +1356,14 @@ func _bote(o: Dictionary) -> void:
 	await t.finished
 	await get_tree().create_timer(0.5).timeout
 	o["estado"] = "volta"
+
+
+# ------------------------------------------------------------------ quartinha de Exu (salvar)
+
+## Guardado aqui, o jogo continua do começo da mata de Oxóssi.
+func _local_do_caminho() -> String:
+	return "oxossi"
+
+
+func _pode_guardar() -> bool:
+	return true

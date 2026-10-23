@@ -13,6 +13,20 @@ var trofeus := {}
 ## troféus que a Vó já colocou no assentamento do orixá, no quarto de santo
 var assentados := {}
 
+## Jogos salvos: três "caminhos", cada um num arquivo (user://caminho_1.json ...).
+## Quem guarda é Exu, na quartinha com a vela vermelha e preta (ver scripts/terreiro.gd).
+const ESPACOS := 3
+## Para onde cada lugar de salvar leva quando o jogo continua.
+const LOCAIS := {
+	"terreiro": {"nome": "Terreiro da Vó", "cena": "res://cenas/terreiro.tscn"},
+	"orita": {"nome": "Encruzilhada", "cena": "res://cenas/mapa_mundo.tscn"},
+	"oxossi": {"nome": "Mata de Oxóssi", "cena": "res://cenas/mata_oxossi.tscn"},
+}
+const METAS_SALVAS := ["mapa_aberto", "volta_feita"]
+var espaco_atual := -1
+var opcoes := {"musica": 8, "efeitos": 8}
+var menu: CanvasLayer
+
 var _musica: AudioStreamPlayer
 var _fade: ColorRect
 
@@ -30,6 +44,15 @@ func _ready() -> void:
 	_musica.volume_db = -8.0
 	_musica.finished.connect(_musica.play)  # repete em loop
 	add_child(_musica)
+	for bus in ["Musica", "Efeitos"]:
+		if AudioServer.get_bus_index(bus) < 0:
+			AudioServer.add_bus()
+			AudioServer.set_bus_name(AudioServer.bus_count - 1, bus)
+	_musica.bus = "Musica"
+	_ler_opcoes()
+
+	menu = preload("res://scripts/menu.gd").new()
+	add_child(menu)
 
 	var camada := CanvasLayer.new()
 	camada.layer = 100
@@ -47,6 +70,10 @@ func reiniciar() -> void:
 	falou_com_exu = false
 	trofeus = {}
 	assentados = {}
+	espaco_atual = -1
+	for m in ["mapa_aberto", "volta_feita", "no_mapa", "volta", "retorno", "na_quartinha"]:
+		if has_meta(m):
+			remove_meta(m)
 
 
 func tocar_musica() -> void:
@@ -58,6 +85,7 @@ func tocar_som(nome: String, volume_db := 0.0) -> void:
 	var p := AudioStreamPlayer.new()
 	p.stream = load("res://sons/%s.wav" % nome)
 	p.volume_db = volume_db
+	p.bus = "Efeitos"
 	p.finished.connect(p.queue_free)
 	add_child(p)
 	p.play()
@@ -74,6 +102,12 @@ func mudar_cena(caminho: String) -> void:
 
 
 func _unhandled_input(evento: InputEvent) -> void:
+	if evento.is_action_pressed("sair") and not menu.aberto and _fade.color.a < 0.1:
+		var cena := get_tree().current_scene
+		if cena and not cena.scene_file_path.ends_with("titulo.tscn"):
+			get_viewport().set_input_as_handled()
+			menu.pausa()
+			return
 	if evento.is_action_pressed("tela_cheia"):
 		var janela := get_window()
 		if janela.mode == Window.MODE_FULLSCREEN:
@@ -117,3 +151,100 @@ func _acao(nome: String, teclas: Array, botoes: Array, eixo := -1, direcao := 0.
 		eva.axis = eixo
 		eva.axis_value = direcao
 		InputMap.action_add_event(nome, eva)
+
+
+# ------------------------------------------------------------------ opções (volume e tela)
+
+func _ler_opcoes() -> void:
+	var cfg := ConfigFile.new()
+	if cfg.load("user://opcoes.cfg") == OK:
+		for k in opcoes:
+			opcoes[k] = int(cfg.get_value("som", k, opcoes[k]))
+	_aplicar_opcoes()
+
+
+func mudar_opcao(nome: String, valor: int) -> void:
+	opcoes[nome] = valor
+	_aplicar_opcoes()
+	var cfg := ConfigFile.new()
+	for k in opcoes:
+		cfg.set_value("som", k, opcoes[k])
+	cfg.save("user://opcoes.cfg")
+
+
+func _aplicar_opcoes() -> void:
+	for par in [["Musica", "musica"], ["Efeitos", "efeitos"]]:
+		var i := AudioServer.get_bus_index(par[0])
+		var v: float = opcoes[par[1]] / 10.0
+		AudioServer.set_bus_mute(i, v <= 0.0)
+		AudioServer.set_bus_volume_db(i, linear_to_db(maxf(v, 0.001)))
+
+
+# ------------------------------------------------------------------ os caminhos guardados (jogos salvos)
+
+func _arquivo(espaco: int) -> String:
+	return "user://caminho_%d.json" % (espaco + 1)
+
+
+## Guarda o jogo no espaço escolhido. "local" é onde Adé está: terreiro, orita ou oxossi.
+func salvar(espaco: int, local: String) -> void:
+	var metas := {}
+	for m in METAS_SALVAS:
+		metas[m] = has_meta(m)
+	var dados := {
+		"versao": 1,
+		"local": local,
+		"trofeus": trofeus,
+		"assentados": assentados,
+		"buzios": buzios,
+		"metas": metas,
+		"data": Time.get_datetime_string_from_system(false, true),
+	}
+	var f := FileAccess.open(_arquivo(espaco), FileAccess.WRITE)
+	if f:
+		f.store_string(JSON.stringify(dados, "\t"))
+		f.close()
+		espaco_atual = espaco
+
+
+func _ler(espaco: int) -> Dictionary:
+	if not FileAccess.file_exists(_arquivo(espaco)):
+		return {}
+	var d = JSON.parse_string(FileAccess.get_file_as_string(_arquivo(espaco)))
+	return d if d is Dictionary else {}
+
+
+## Uma linha curta para mostrar no menu: onde, quantos troféus e quando.
+func resumo(espaco: int) -> Dictionary:
+	var d := _ler(espaco)
+	if d.is_empty():
+		return {}
+	var data: String = d.get("data", "")
+	var curta := data
+	if data.length() >= 16:     # "2026-10-23 10:40:12" → "23/10 10:40"
+		curta = "%s/%s %s" % [data.substr(8, 2), data.substr(5, 2), data.substr(11, 5)]
+	return {"onde": LOCAIS.get(d.get("local", ""), {"nome": "?"})["nome"],
+		"trofeus": d.get("trofeus", {}).size(), "data": curta}
+
+
+## Continua o jogo de onde Exu guardou.
+func carregar(espaco: int) -> void:
+	var d := _ler(espaco)
+	if d.is_empty():
+		return
+	reiniciar()
+	espaco_atual = espaco
+	trofeus = d.get("trofeus", {})
+	assentados = d.get("assentados", {})
+	buzios = int(d.get("buzios", 0))
+	for m in d.get("metas", {}):
+		if d["metas"][m]:
+			set_meta(m, true)
+	var local: String = d.get("local", "orita")
+	match local:
+		"terreiro":
+			set_meta("retorno", true)
+			set_meta("na_quartinha", true)
+		"orita":
+			set_meta("no_mapa", "orita")
+	mudar_cena(LOCAIS.get(local, LOCAIS["orita"])["cena"])

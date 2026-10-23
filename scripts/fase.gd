@@ -56,9 +56,8 @@ func _ready() -> void:
 	$HUD.mostrar_titulo(titulo_fase, subtitulo_fase)
 
 
-func _unhandled_input(ev: InputEvent) -> void:
-	if ev.is_action_pressed("sair"):
-		Jogo.mudar_cena("res://cenas/titulo.tscn")
+func _unhandled_input(_ev: InputEvent) -> void:
+	pass   # o Esc (ou Start) abre o menu de pausa, que fica no Jogo (scripts/menu.gd)
 
 
 func _ao_evento(nome: String) -> void:
