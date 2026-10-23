@@ -349,14 +349,14 @@ func _desenhar_trilhas() -> void:
 		else:
 			fins[c["b"] if c.get("inverso", false) else c["a"]] = true
 	for id in fins:
-		_trilhas.draw_circle(NOS[id], 8.5, TRILHA_BORDA)
+		_trilhas.draw_circle(NOS[id], 6.0, TRILHA_BORDA)
 	for camada in 4:
 		if camada == 1:
 			for id in fins:
-				_trilhas.draw_circle(NOS[id], 7.5, TRILHA_TERRA)
+				_trilhas.draw_circle(NOS[id], 5.0, TRILHA_TERRA)
 		if camada == 2:
 			for id in fins:
-				_trilhas.draw_circle(NOS[id] + Vector2(-0.5, -1), 5.0, TRILHA_CLARA)
+				_trilhas.draw_circle(NOS[id] + Vector2(-0.5, -1), 3.2, TRILHA_CLARA)
 		for v in visiveis:
 			var c: Dictionary = v[0]
 			var pts: PackedVector2Array = c["pontos"]
@@ -366,34 +366,34 @@ func _desenhar_trilhas() -> void:
 				var depois := pts[mini(pts.size() - 1, i + 1)]
 				var normal := (depois - antes).normalized().orthogonal()
 				var ponte: bool = c["ponte"].has(i)
-				var largura := 3.5 + 0.5 * sin(i * 0.37 + pts[0].x)
+				var largura := 2.2 + 0.4 * sin(i * 0.37 + pts[0].x)   # trilha estreita, do tamanho do Adé do mapa
 				match camada:
 					0:
-						_trilhas.draw_circle(p, largura + 1.5, TRILHA_BORDA)
+						_trilhas.draw_circle(p, largura + 1.0, TRILHA_BORDA)
 					1:
-						_trilhas.draw_circle(p, largura + 0.5, MADEIRA if ponte else TRILHA_TERRA)
+						_trilhas.draw_circle(p, largura, MADEIRA if ponte else TRILHA_TERRA)
 					2:
 						if ponte:
 							if i % 3 == 0:     # vão entre as tábuas
-								for k in range(-4, 5):
+								for k in range(-3, 4):
 									_trilhas.draw_rect(Rect2((p + normal * k).round(), Vector2.ONE), TRILHA_BORDA)
 							else:
 								_trilhas.draw_rect(Rect2((p + normal * -2).round(), Vector2(1, 1)), MADEIRA_CLARA)
 						else:
-							_trilhas.draw_circle(p + Vector2(-0.5, -0.8), largura - 1.5, TRILHA_CLARA)
+							_trilhas.draw_circle(p + Vector2(-0.5, -0.5), maxf(0.8, largura - 1.3), TRILHA_CLARA)
 					3:
 						if ponte:
-							for lado in [-5, 5]:   # corrimão
+							for lado in [-4, 4]:   # corrimão
 								_trilhas.draw_rect(Rect2((p + normal * lado).round(), Vector2.ONE), Color(0.25, 0.14, 0.06))
 							continue
 						var h: int = (i * 73 + int(pts[0].x) * 31) % 17
 						if h == 0 or h == 7:
-							_trilhas.draw_rect(Rect2((p + normal * (h % 3 - 1) * 1.5).round(), Vector2.ONE), TRILHA_CISCO)
+							_trilhas.draw_rect(Rect2((p + normal * (h % 3 - 1)).round(), Vector2.ONE), TRILHA_CISCO)
 						elif h == 3:
-							_trilhas.draw_rect(Rect2((p + normal * 1.5).round(), Vector2.ONE), TRILHA_PEDRINHA)
+							_trilhas.draw_rect(Rect2((p + normal).round(), Vector2.ONE), TRILHA_PEDRINHA)
 						if i % 9 == 4:     # tufo de capim na beirada
 							var lado := 1.0 if (i / 9) % 2 == 0 else -1.0
-							var t := (p + normal * lado * (largura + 2.0)).round()
+							var t := (p + normal * lado * (largura + 2.5)).round()
 							_trilhas.draw_rect(Rect2(t, Vector2(1, 2)), TUFO)
 							_trilhas.draw_rect(Rect2(t + Vector2(1, 1), Vector2(1, 1)), TUFO)
 							_trilhas.draw_rect(Rect2(t + Vector2(-1, 1), Vector2(1, 1)), TUFO)
