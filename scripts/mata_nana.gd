@@ -47,6 +47,10 @@ var _garcas: Array = []         # {s, casa, foi, fase, lugar}
 var _sapos: Array = []          # {s, casa, lugar, pulando}
 var _lama_funda: Array = []     # células L do brejo (para as bolhas)
 var _proxima_bolha := 0.5
+var _lama_beira: Array = []     # células L encostadas no caminho firme (onde as bolhas mais aparecem)
+var _bolhas_vivas := 0
+var _bolha_em := {}
+const MAX_BOLHAS := 16
 var _tempo_no_fundo := 0.0
 var _afundou_uma_vez := false
 var _velhinha: Area2D
@@ -264,6 +268,13 @@ func _guardar_celulas() -> void:
 		for x in brejo[y].length():
 			if brejo[y][x] == "L":
 				_lama_funda.append(Vector2i(x, y))
+				var beira := false
+				for dy in [-1, 0, 1]:
+					for dx in [-1, 0, 1]:
+						if _letra(brejo, x + dx, y + dy) == "l":
+							beira = true
+				if beira:
+					_lama_beira.append(Vector2i(x, y))
 	var mangue: PackedStringArray = _mapas["nana_mangue"]
 	for y in mangue.size():
 		for x in mangue[y].length():
@@ -410,30 +421,51 @@ func _lama_espirra(pos: Vector2) -> void:
 	get_tree().create_timer(1.2).timeout.connect(f.queue_free)
 
 
-## Bolhinhas sobem da lama funda de vez em quando (quem olha com calma percebe).
+## Bolhas sobem da lama funda, sobretudo na beira do caminho firme e perto de Adé: elas crescem devagar,
+## ficam um tempo e só depois estouram — quem olha com calma vê por onde NÃO pisar até a próxima garça.
 func _bolhas(delta: float) -> void:
 	if lugar_atual != "nana_brejo" or _lama_funda.is_empty():
 		return
 	_proxima_bolha -= delta
-	if _proxima_bolha > 0.0:
+	if _proxima_bolha > 0.0 or _bolhas_vivas >= MAX_BOLHAS:
 		return
-	_proxima_bolha = randf_range(0.25, 0.6)
-	var cel: Vector2i = _lama_funda[randi() % _lama_funda.size()]
+	_proxima_bolha = randf_range(0.12, 0.28)
+	var origem: Vector2 = lugares["nana_brejo"]["origem"]
+	var cel: Vector2i
+	var perto := _lama_beira.filter(func(c: Vector2i):
+		return (origem + Vector2(c) * TILE + Vector2(8, 8)).distance_to(jogador.global_position) < 90.0)
+	if not perto.is_empty() and randf() < 0.8:
+		cel = perto[randi() % perto.size()]
+	else:
+		cel = _lama_funda[randi() % _lama_funda.size()]
+	var chave := "%d,%d" % [cel.x, cel.y]
+	if _bolha_em.has(chave):
+		return
+	_bolha_em[chave] = true
+	_bolhas_vivas += 1
 	var s := Sprite2D.new()
-	var at := AtlasTexture.new()
-	at.atlas = TEX_TERRENO
-	at.region = Rect2(0, 7 * TILE, TILE, TILE)
-	s.texture = at
-	s.position = lugares["nana_brejo"]["origem"] + Vector2(cel.x * TILE + TILE / 2.0, cel.y * TILE + TILE / 2.0) \
-		+ Vector2(randf_range(-4, 4), randf_range(-4, 4))
+	s.texture = preload("res://arte/nana_bolha.png")
+	s.hframes = 5
+	s.position = origem + Vector2(cel.x * TILE + TILE / 2.0, cel.y * TILE + TILE / 2.0) \
+		+ Vector2(randf_range(-2, 2), randf_range(-2, 2))
 	s.z_index = -4
 	add_child(s)
 	var t := create_tween()
-	for q in [1, 2]:
-		t.tween_interval(0.35)
-		t.tween_callback(func(): at.region = Rect2(q * TILE, 7 * TILE, TILE, TILE))
-	t.tween_interval(0.2)
-	t.tween_callback(s.queue_free)
+	for q in [1, 2, 3]:                    # cresce devagar...
+		t.tween_interval(0.4)
+		t.tween_callback(func(): s.frame = q)
+	# ...fica um tempo inchada, balançando...
+	t.tween_property(s, "scale", Vector2(1.12, 0.92), 0.35).set_trans(Tween.TRANS_SINE)
+	t.tween_property(s, "scale", Vector2(0.94, 1.08), 0.35).set_trans(Tween.TRANS_SINE)
+	t.tween_property(s, "scale", Vector2(1.1, 0.94), 0.35).set_trans(Tween.TRANS_SINE)
+	t.tween_property(s, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_SINE)
+	# ...e estoura
+	t.tween_callback(func(): s.frame = 4)
+	t.tween_property(s, "modulate:a", 0.0, 0.3)
+	t.tween_callback(func():
+		_bolhas_vivas -= 1
+		_bolha_em.erase(chave)
+		s.queue_free())
 
 
 # ------------------------------------------------------------------ garças e sapos

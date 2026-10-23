@@ -153,7 +153,8 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
 **A Terra de Nanã (Nàná Bùrúkù, visão de cima)** — `cenas/mata_nana.tscn`, `scripts/mata_nana.gd`
 - Chove a fase inteira (mais forte na lagoa, com relâmpagos). O ritmo é de quem é mais velho: devagar, olhando.
   Na lama, Adé anda mais devagar (`fator_chao` no `jogador_rpg.gd`). Quatro lugares:
-  - **O brejo**: a lama firme e a lama funda são iguaizinhas (só sobem bolhinhas da funda de vez em quando).
+  - **O brejo**: a lama firme e a lama funda são iguaizinhas. Da lama funda sobem bolhas (`arte/nana_bolha.png`, `gerar_bolha.py`),
+    sobretudo na beira do caminho firme perto de Adé: crescem devagar, ficam um tempo e só então estouram — elas mostram onde não pisar.
     As **garças** pousam onde dá pé e voam quando Adé chega perto. Pisou na lama funda, a lama puxa Adé (perde um
     búzio de axé) e ele volta para o começo do brejo. Na chegada, uma **velhinha** pede que Adé leve o **pote de barro**
     dela (rachado) até a lagoa: "eu chego lá do meu jeito, devagarinho".
