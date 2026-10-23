@@ -1518,7 +1518,7 @@ func _preparar_retorno() -> void:
 	if continuando:
 		# continuando um jogo guardado: Adé aparece ao lado da quartinha de Exu
 		Jogo.remove_meta("na_quartinha")
-		teleportar("quintal", _quartinha.global_position + Vector2(0, 16))
+		teleportar("quintal", _lugar_livre_perto("quintal", _quartinha.global_position))
 		jogador.direcao_olhar = "frente"
 	else:
 		teleportar("quintal", porteira.global_position + Vector2(0, -22))
@@ -1752,3 +1752,26 @@ func _estrelinhas(pos: Vector2) -> void:
 	add_child(f)
 	f.emitting = true
 	get_tree().create_timer(0.8).timeout.connect(f.queue_free)
+
+
+## Um ponto livre (chão andável, sem muro nem objeto) ao lado de "pos", para Adé aparecer sem ficar preso.
+func _lugar_livre_perto(lugar: String, pos: Vector2) -> Vector2:
+	var origem: Vector2 = lugares[lugar]["origem"]
+	var espaco := get_world_2d().direct_space_state
+	for d in [Vector2(0, -18), Vector2(18, 0), Vector2(-18, 0), Vector2(0, 18), Vector2(18, -18), Vector2(-18, -18),
+			Vector2(0, -34), Vector2(34, 0), Vector2(-34, 0)]:
+		var p: Vector2 = pos + d
+		var rel := p - origem
+		if not (_letra(_mapas[lugar], floori(rel.x / TILE), floori((rel.y - 1) / TILE)) in ANDAVEL):
+			continue
+		var livre := true
+		for canto in [Vector2(-6, -1), Vector2(6, -1), Vector2(-6, -7), Vector2(6, -7)]:
+			var q := PhysicsPointQueryParameters2D.new()
+			q.position = p + canto
+			q.collision_mask = 1
+			if not espaco.intersect_point(q, 1).is_empty():
+				livre = false
+				break
+		if livre:
+			return p
+	return pos + Vector2(0, -18)
