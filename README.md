@@ -77,7 +77,9 @@ Esta versão tem o **Prólogo** completo, em duas partes:
 - Apertando E num campo: por enquanto aparece "Em breve!" — é aqui que as próximas fases vão se ligar.
 - A arte da ilha vem do `gerar_mapa_mundo.py` (`arte/mundo_0.png` a `mundo_3.png`: o mar, o rio e a cachoeira
   mexem entre os quatro quadros; as nuvens são `mundo_nuvem*.png` e `mundo_tempestade.png`, que andam devagar e piscam com raios).
-  As posições dos pontos e os caminhos ficam em `NOS` e `ARESTAS`, no topo do script.
+  Os pontos e as trilhas (que fazem curvas e passam por uma ponte no rio de Oxum) ficam em `NOS` e `CAMINHOS`,
+  no topo do `gerar_mapa_mundo.py`; ele grava `fases/mapa_mundo.json`, que o jogo lê. Para escolher o caminho,
+  vale a seta mais parecida com a direção para onde a trilha sai do ponto.
 - Os mapas ficam em `fases/enc_trilha.txt`, `fases/enc_mata.txt` e `fases/enc_orita.txt` (+ `_objetos`).
   Letras novas dos objetos: `@` pedra que se empurra, `&` ponto riscado, `!` cancela, `$` lamparina,
   `<` redemoinho que anda de lado, `^` redemoinho que anda para cima e para baixo, `?` placa,

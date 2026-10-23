@@ -3,22 +3,14 @@ extends Node2D
 ## para qual campo de orixá ele vai — andando pelo mapa, de ponto em ponto, como nos mapas-múndi
 ## dos jogos de 16 bits.
 ##
-## A ilha (arte/mundo_0.png a mundo_3.png: o mar, o rio e a cachoeira mexem entre eles) é feita pelo gerar_mapa_mundo.py. Os caminhos, os pontos
-## e o Adé são desenhados aqui. Os textos de cada campo vêm de dialogos/encruzilhada.json ("campos").
+## A ilha (arte/mundo_0.png a mundo_3.png: o mar, o rio e a cachoeira mexem entre eles) e as trilhas
+## (fases/mapa_mundo.json) são feitas pelo gerar_mapa_mundo.py. As trilhas, os pontos e o Adé são desenhados aqui. Os textos de cada campo vêm de dialogos/encruzilhada.json ("campos").
 ##
 ## Controles: setas para andar de um ponto a outro, E / Enter para entrar no campo.
 
-const NOS := {
-	"orita": Vector2(128, 122), "oxala": Vector2(128, 58), "iansa": Vector2(220, 58), "omolu": Vector2(36, 58),
-	"oxossi": Vector2(36, 122), "ogum": Vector2(174, 122), "xango": Vector2(220, 122),
-	"nana": Vector2(36, 186), "oxum": Vector2(128, 186), "iemanja": Vector2(220, 186),
-}
-## caminhos (a ordem importa só para a animação de abertura: começam todos da encruzilhada)
-const ARESTAS := [
-	["orita", "oxala"], ["orita", "ogum"], ["orita", "oxum"], ["orita", "oxossi"],
-	["oxala", "iansa"], ["oxala", "omolu"], ["ogum", "xango"], ["oxum", "iemanja"], ["oxum", "nana"],
-	["oxossi", "omolu"], ["oxossi", "nana"], ["xango", "iansa"], ["xango", "iemanja"],
-]
+## Os pontos de cada campo e as trilhas entre eles vêm de fases/mapa_mundo.json
+## (gravado pelo gerar_mapa_mundo.py junto com a arte da ilha, para os dois baterem).
+const ARQUIVO_MAPA := "res://fases/mapa_mundo.json"
 ## cor do ponto de cada campo (as cores de cada orixá)
 const CORES := {
 	"orita": [Color(0.85, 0.12, 0.12), Color(0.1, 0.08, 0.12)],
@@ -35,12 +27,22 @@ const CORES := {
 const ORDEM_ICONES := ["oxala", "iansa", "xango", "iemanja", "oxum", "nana", "omolu", "oxossi", "ogum"]
 const VELOCIDADE := 70.0
 const COR_CAMINHO := Color(0.95, 0.83, 0.56)
-const COR_CAMINHO_ESCURO := Color(0.32, 0.2, 0.1)
-const COR_PEGADA := Color(0.82, 0.66, 0.38)
+const COR_CAMINHO_ESCURO := Color(0.3, 0.19, 0.1)
+## cores da trilha de terra
+const TRILHA_BORDA := Color(0.3, 0.19, 0.1)
+const TRILHA_TERRA := Color(0.78, 0.6, 0.36)
+const TRILHA_CLARA := Color(0.89, 0.74, 0.5)
+const TRILHA_CISCO := Color(0.6, 0.43, 0.24)
+const TRILHA_PEDRINHA := Color(0.96, 0.9, 0.76)
+const TUFO := Color(0.2, 0.48, 0.22)
+const MADEIRA := Color(0.56, 0.35, 0.17)
+const MADEIRA_CLARA := Color(0.72, 0.5, 0.27)
 
 var _campos := {}                     # id → dados do campo (nome, yo, saudacao, campo)
 var _caminhos: Array = []             # {a, b, pontos: PackedVector2Array, aberto: 0..1}
 var _vistos := {}                     # pontos que já apareceram (na abertura)
+var NOS := {}                         # id → posição do ponto
+var _trilhas: Node2D                  # desenha as trilhas (só redesenha quando muda)
 var _no_atual := "orita"
 var _andando := false
 var _ocupado := true                  # durante a abertura e as mensagens
@@ -75,10 +77,21 @@ func _ready() -> void:
 
 	_criar_nuvens()
 
-	var curva := 1.0
-	for par in ARESTAS:
-		_caminhos.append({"a": par[0], "b": par[1], "pontos": _curva(NOS[par[0]], NOS[par[1]], curva), "aberto": 0.0})
-		curva = -curva
+	var mapa: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(ARQUIVO_MAPA))
+	for id in mapa["nos"]:
+		NOS[id] = Vector2(mapa["nos"][id][0], mapa["nos"][id][1])
+	for c in mapa["caminhos"]:
+		var pts := PackedVector2Array()
+		for p in c["pontos"]:
+			pts.append(Vector2(p[0], p[1]))
+		var ponte := {}
+		for i in c["ponte"]:
+			ponte[int(i)] = true
+		_caminhos.append({"a": c["a"], "b": c["b"], "pontos": pts, "ponte": ponte, "aberto": 0.0})
+	_trilhas = Node2D.new()
+	_trilhas.z_index = -5
+	_trilhas.draw.connect(_desenhar_trilhas)
+	add_child(_trilhas)
 
 	_ade = Sprite2D.new()
 	_ade.texture = preload("res://arte/ade_snes.png")
@@ -96,6 +109,7 @@ func _ready() -> void:
 	if Jogo.has_meta("mapa_aberto"):
 		for c in _caminhos:
 			c["aberto"] = 1.0
+		_trilhas.queue_redraw()
 		for id in NOS:
 			_vistos[id] = true
 		_ocupado = false
@@ -105,17 +119,6 @@ func _ready() -> void:
 		_abrir_caminhos()
 
 
-## Caminho levemente curvo entre dois pontos (fica mais bonito que uma linha reta).
-func _curva(a: Vector2, b: Vector2, lado: float) -> PackedVector2Array:
-	var pts := PackedVector2Array()
-	var normal := (b - a).normalized().orthogonal()
-	var n := int(a.distance_to(b) / 2.0)
-	for i in n + 1:
-		var t := float(i) / n
-		pts.append(a.lerp(b, t) + normal * sin(t * PI) * 5.0 * lado)
-	return pts
-
-
 func _process(delta: float) -> void:
 	_tempo += delta
 	_fundo.texture = _texturas[int(_tempo * 4.0) % _texturas.size()]
@@ -123,16 +126,8 @@ func _process(delta: float) -> void:
 	queue_redraw()
 	if _ocupado or _andando:
 		return
-	var dir := Vector2i.ZERO
-	if Input.is_action_pressed("cima"):
-		dir = Vector2i(0, -1)
-	elif Input.is_action_pressed("baixo"):
-		dir = Vector2i(0, 1)
-	elif Input.is_action_pressed("esquerda"):
-		dir = Vector2i(-1, 0)
-	elif Input.is_action_pressed("direita"):
-		dir = Vector2i(1, 0)
-	if dir != Vector2i.ZERO:
+	var dir := Vector2(Input.get_axis("esquerda", "direita"), Input.get_axis("cima", "baixo"))
+	if dir != Vector2.ZERO:
 		var c = _caminho_na_direcao(_no_atual, dir)
 		if c != null:
 			_andar(c)
@@ -189,20 +184,27 @@ func _mexer_nuvens(delta: float) -> void:
 
 # ------------------------------------------------------------------ andar pelos caminhos
 
-func _direcao(de: String, para: String) -> Vector2i:
-	var d: Vector2 = NOS[para] - NOS[de]
-	if absf(d.x) > absf(d.y):
-		return Vector2i(int(signf(d.x)), 0)
-	return Vector2i(0, int(signf(d.y)))
+## Para onde a trilha sai de um ponto (olhando os primeiros pixels dela).
+func _saida(c: Dictionary, no: String) -> Vector2:
+	var pts: PackedVector2Array = c["pontos"]
+	var k := mini(7, pts.size() - 1)
+	if c["a"] == no:
+		return (pts[k] - pts[0]).normalized()
+	return (pts[pts.size() - 1 - k] - pts[pts.size() - 1]).normalized()
 
 
-func _caminho_na_direcao(no: String, dir: Vector2i):
+## A trilha que sai do ponto mais na direção apertada (as trilhas fazem curvas, então vale a mais parecida).
+func _caminho_na_direcao(no: String, dir: Vector2):
+	var melhor = null
+	var nota := 0.45
 	for c in _caminhos:
-		if c["a"] == no and _direcao(no, c["b"]) == dir:
-			return c
-		if c["b"] == no and _direcao(no, c["a"]) == dir:
-			return c
-	return null
+		if c["a"] != no and c["b"] != no:
+			continue
+		var d := _saida(c, no).dot(dir.normalized())
+		if d > nota:
+			nota = d
+			melhor = c
+	return melhor
 
 
 func _andar(c: Dictionary) -> void:
@@ -296,15 +298,12 @@ func _abrir_caminhos() -> void:
 
 func _abrir_um(v: float, c: Dictionary) -> void:
 	c["aberto"] = v
+	_trilhas.queue_redraw()
 
 
 # ------------------------------------------------------------------ desenho dos caminhos e pontos
 
 func _draw() -> void:
-	for c in _caminhos:
-		_desenhar_caminho(c, true)
-	for c in _caminhos:
-		_desenhar_caminho(c, false)
 	for id in NOS:
 		if _vistos.has(id):
 			_desenhar_no(id)
@@ -312,20 +311,60 @@ func _draw() -> void:
 		_desenhar_setas()
 
 
-func _desenhar_caminho(c: Dictionary, contorno: bool) -> void:
-	var pts: PackedVector2Array = c["pontos"]
-	var n := int(round(c["aberto"] * (pts.size() - 1)))
-	if n <= 0:
-		return
-	for k in n + 1:
-		var i: int = (pts.size() - 1 - k) if c.get("inverso", false) else k
-		var p := pts[i]
-		if contorno:
-			draw_rect(Rect2(p - Vector2(3, 3), Vector2(7, 7)), COR_CAMINHO_ESCURO)
-		else:
-			draw_rect(Rect2(p - Vector2(2, 2), Vector2(5, 5)), COR_CAMINHO)
-			if k % 4 == 0:
-				draw_rect(Rect2(p, Vector2(1, 1)), COR_PEGADA)
+## Trilhas de terra batida: borda escura, terra, o meio mais claro, ciscos, pedrinhas,
+## tufos de capim na beirada e pontes de madeira onde passam pelo rio.
+func _desenhar_trilhas() -> void:
+	var visiveis := []
+	for c in _caminhos:
+		var pts: PackedVector2Array = c["pontos"]
+		var n := int(round(c["aberto"] * (pts.size() - 1)))
+		if n <= 0:
+			continue
+		var lista := []
+		for k in n + 1:
+			lista.append((pts.size() - 1 - k) if c.get("inverso", false) else k)
+		visiveis.append([c, lista])
+	for camada in 4:
+		for v in visiveis:
+			var c: Dictionary = v[0]
+			var pts: PackedVector2Array = c["pontos"]
+			for i: int in v[1]:
+				var p := pts[i].round()
+				var antes := pts[maxi(0, i - 1)]
+				var depois := pts[mini(pts.size() - 1, i + 1)]
+				var normal := (depois - antes).normalized().orthogonal()
+				var ponte: bool = c["ponte"].has(i)
+				var largura := 3.5 + 0.5 * sin(i * 0.37 + pts[0].x)
+				match camada:
+					0:
+						_trilhas.draw_circle(p, largura + 1.5, TRILHA_BORDA)
+					1:
+						_trilhas.draw_circle(p, largura + 0.5, MADEIRA if ponte else TRILHA_TERRA)
+					2:
+						if ponte:
+							if i % 3 == 0:     # vão entre as tábuas
+								for k in range(-4, 5):
+									_trilhas.draw_rect(Rect2((p + normal * k).round(), Vector2.ONE), TRILHA_BORDA)
+							else:
+								_trilhas.draw_rect(Rect2((p + normal * -2).round(), Vector2(1, 1)), MADEIRA_CLARA)
+						else:
+							_trilhas.draw_circle(p + Vector2(-0.5, -0.8), largura - 1.5, TRILHA_CLARA)
+					3:
+						if ponte:
+							for lado in [-5, 5]:   # corrimão
+								_trilhas.draw_rect(Rect2((p + normal * lado).round(), Vector2.ONE), Color(0.25, 0.14, 0.06))
+							continue
+						var h: int = (i * 73 + int(pts[0].x) * 31) % 17
+						if h == 0 or h == 7:
+							_trilhas.draw_rect(Rect2((p + normal * (h % 3 - 1) * 1.5).round(), Vector2.ONE), TRILHA_CISCO)
+						elif h == 3:
+							_trilhas.draw_rect(Rect2((p + normal * 1.5).round(), Vector2.ONE), TRILHA_PEDRINHA)
+						if i % 9 == 4:     # tufo de capim na beirada
+							var lado := 1.0 if (i / 9) % 2 == 0 else -1.0
+							var t := (p + normal * lado * (largura + 2.0)).round()
+							_trilhas.draw_rect(Rect2(t, Vector2(1, 2)), TUFO)
+							_trilhas.draw_rect(Rect2(t + Vector2(1, 1), Vector2(1, 1)), TUFO)
+							_trilhas.draw_rect(Rect2(t + Vector2(-1, 1), Vector2(1, 1)), TUFO)
 
 
 func _desenhar_no(id: String) -> void:
@@ -351,11 +390,11 @@ func _desenhar_setas() -> void:
 	if fmod(_tempo, 0.8) > 0.55:
 		return
 	var p: Vector2 = NOS[_no_atual]
-	for d in [Vector2i(0, -1), Vector2i(0, 1), Vector2i(-1, 0), Vector2i(1, 0)]:
-		if _caminho_na_direcao(_no_atual, d) == null:
+	for c in _caminhos:
+		if c["a"] != _no_atual and c["b"] != _no_atual:
 			continue
-		var v := Vector2(d)
-		var ponta := p + v * 15.0 + (Vector2(0, -12) if d.y == -1 else Vector2.ZERO)
+		var v := _saida(c, _no_atual)
+		var ponta := p + v * 15.0 + (Vector2(0, -10) if v.y < -0.7 else Vector2.ZERO)
 		var lado := v.orthogonal() * 3.0
 		var pts := PackedVector2Array([ponta + v * 3.0, ponta - lado, ponta + lado])
 		draw_colored_polygon(pts, Color(1, 0.95, 0.6))
