@@ -121,8 +121,78 @@ func _process(delta: float) -> void:
 		f[0].frame = q
 		f[1].frame = q
 	_mover_kiumbas(delta)
+	_mover_rio(delta)
 	if _estatua and estado == "caminho":
 		_estatua.sprite.frame = 0 if jogador.global_position.x < _estatua.global_position.x else 1
+
+
+# ------------------------------------------------------------------ o riacho corre
+## A água do riacho (encruzilhada e mata de Oxóssi) corre da esquerda para a direita: riscos de luz descem com a correnteza e
+## folhinhas passam boiando.
+const SHADER_RIO := """
+shader_type canvas_item;
+varying vec2 mundo;
+void vertex() {
+	mundo = (MODEL_MATRIX * vec4(VERTEX, 0.0, 1.0)).xy;
+}
+void fragment() {
+	vec4 c = COLOR;
+	vec2 p = floor(mundo);
+	float corre = p.x - TIME * 14.0;                       // a correnteza
+	float faixa = sin(p.y * 0.9 + sin(corre * 0.05) * 1.3);
+	float risco = sin(corre * 0.21 + p.y * 1.7) * faixa;
+	float luz = step(0.78, risco) * 0.13 + step(0.93, risco) * 0.13;
+	float brilho = step(0.985, sin(p.x * 0.7 + p.y * 2.3 - TIME * 3.0)) * 0.12;
+	float sombra = step(risco, -0.85) * 0.05;
+	c.rgb += vec3(luz * 0.8 + brilho, luz + brilho, luz + brilho) * c.a - vec3(sombra) * c.a;
+	COLOR = c;
+}
+"""
+var _rio: Array = []            # folhinhas boiando: {s, y, xmin, xmax, vel, fase}
+
+
+func _camada_terreno(origem: Vector2, i: int, camada: TileMapLayer) -> void:
+	if i != 2:
+		return
+	var sh := Shader.new()
+	sh.code = SHADER_RIO
+	var m := ShaderMaterial.new()
+	m.shader = sh
+	camada.material = m
+	# folhinhas boiando no riacho (só onde tem água)
+	for nome in lugares:
+		if lugares[nome]["origem"] != origem:
+			continue
+		var mapa: PackedStringArray = _mapas[nome] if _mapas.has(nome) else PackedStringArray()
+		for y in mapa.size():
+			var xs: Array = []
+			for x in mapa[y].length():
+				if mapa[y][x] == "~":
+					xs.append(x)
+			if xs.is_empty():
+				continue
+			for k in 3:
+				var f := Sprite2D.new()
+				f.texture = preload("res://arte/ox_folha.png")
+				f.hframes = 3
+				f.frame = randi() % 3
+				f.z_index = -5
+				f.scale = Vector2(1.4, 1.4)
+				add_child(f)
+				_rio.append({"s": f, "y": origem.y + y * TILE + 8.0, "xmin": origem.x + xs[0] * TILE,
+					"xmax": origem.x + (xs[-1] + 1) * TILE, "vel": randf_range(10, 16), "fase": randf() * TAU,
+					"x": origem.x + randf_range(xs[0], xs[-1] + 1) * TILE})
+
+
+func _mover_rio(delta: float) -> void:
+	for f in _rio:
+		f["x"] += f["vel"] * delta
+		if f["x"] > f["xmax"] - 2:
+			f["x"] = f["xmin"] + 2
+			f["fase"] = randf() * TAU
+		var s: Sprite2D = f["s"]
+		s.position = Vector2(roundf(f["x"]), roundf(f["y"] + sin(_tempo * 1.3 + f["fase"]) * 3.0))
+		s.rotation = sin(_tempo * 0.9 + f["fase"]) * 0.6
 
 
 # ------------------------------------------------------------------ lugares

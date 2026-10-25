@@ -160,7 +160,7 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   `ox_sol.png`) e folhinhas caem girando (`ox_folha.png`). Na clareira não tem copa: o céu abre.
 - **A flecha não se perde**: se ela cai num lugar onde Adé não chega (do outro lado do riacho, atrás da moita), um
   passarinho da mata desce, pega a flecha no bico e larga do lado de Adé.
-- **O riacho corre**: a água do riacho do ofá corre para a direita (shader `SHADER_RIO`) e folhinhas passam boiando.
+- **O riacho corre**: a água do riacho do ofá (e do riacho da encruzilhada) corre para a direita (shader `SHADER_RIO`) e folhinhas passam boiando.
 - Para testar direto, abra `cenas/mata_oxossi.tscn` no Godot e aperte F6.
 
 **A Terra de Nanã (Ilẹ̀ Ẹrẹ̀ Nàná, "a terra da lama de Nanã", visão de cima)** — `cenas/mata_nana.tscn`, `scripts/mata_nana.gd`
