@@ -216,6 +216,9 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
 - **Som da chuva**: sempre que chove (no terreiro ou na terra de Nanã), toca o barulho da chuva caindo em laço
   (`sons/chuva.wav`), mais alto lá fora e abafado dentro de casa; na lagoa de Nanã ele engrossa com a chuva.
   Os relâmpagos agora têm trovão (`sons/trovao.wav`). Os dois sons são feitos pelo `gerar_som_chuva.py`.
+- **Ọ̀run, o lar dos orixás**: o mapa dos mundos se chama Ọ̀run. Na primeira vez que Adé entra nele, aparece o letreiro
+  "Ọ̀run · O lar dos orixás", como na chegada de cada mundo. A fonte padrão do projeto é a Noto Sans
+  (`gui/theme/custom_font`), para os acentos do iorubá em cima de maiúsculas (Ọ̀) aparecerem.
 - **Nome do cômodo**: ao passar por uma porta do terreiro, uma plaquinha no alto da tela diz onde Adé entrou (Barracão,
   Cozinha, Despensa, Quarto de santo, Quintal). Os nomes ficam em `NOMES_DOS_LUGARES`, no `scripts/terreiro.gd`.
 - **Rosto de quem fala**: a caixa de diálogo mostra o retrato (32×32) de quem está falando, numa moldura à esquerda

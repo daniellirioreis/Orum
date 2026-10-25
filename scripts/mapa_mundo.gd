@@ -150,6 +150,14 @@ func _ready() -> void:
 	_criar_interface()
 	Jogo.dispositivo_mudou.connect(func(): if _modo_legenda != "": _mudar_legenda(_modo_legenda))
 	Jogo.tocar_musica("musica_mapa")
+	if not Jogo.has_meta("viu_orun"):
+		# a primeira vez no mapa: o letreiro diz onde Adé está, como na chegada de cada mundo
+		Jogo.set_meta("viu_orun", true)
+		var hud := preload("res://scripts/hud.gd").new()
+		hud.esconder_contador = true
+		hud.layer = 7
+		add_child(hud)
+		hud.mostrar_titulo.call_deferred("Ọ̀run", "O lar dos orixás")
 	if Jogo.has_meta("mapa_aberto"):
 		_mudar_legenda("andar")
 		for c in _caminhos:

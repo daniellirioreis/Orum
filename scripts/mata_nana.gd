@@ -128,7 +128,7 @@ func _inicio() -> void:
 	if Jogo.trofeus.has("nana"):
 		_repetindo = true
 		await _falar("revisita")
-		var r: Dictionary = await Jogo.menu.escolher("A Terra de Nanã", ["Fazer a fase de novo", "Voltar ao mapa"])
+		var r: Dictionary = await Jogo.menu.escolher("A Terra de Nanã", ["Fazer a fase de novo", "Voltar ao Ọ̀run"])
 		if r["acao"] == "ok" and r["i"] == 1:
 			voltar_ao_mapa()
 			return
@@ -1441,7 +1441,7 @@ func _nana_vai_embora() -> void:
 	_abrir_saida()
 	estado = "livre"
 	jogador.congelar(false)
-	_mostrar_aviso("A chuva acalmou e um caminho abriu ao norte. Volte para o mapa.")
+	_mostrar_aviso("A chuva acalmou e um caminho abriu ao norte. Volte para o Ọ̀run.")
 
 
 func _abrir_saida() -> void:
@@ -1521,7 +1521,7 @@ func _ao_evento(nome: String) -> void:
 			super._ao_evento(nome)
 
 
-## Numa terra já vencida, o menu de pausa oferece "Voltar ao mapa".
+## Numa terra já vencida, o menu de pausa oferece "Voltar ao Ọ̀run".
 func pode_voltar_ao_mapa() -> bool:
 	return Jogo.trofeus.has("nana") and estado != "saindo"
 

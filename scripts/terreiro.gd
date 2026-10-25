@@ -1756,7 +1756,7 @@ func _vo_no_retorno() -> void:
 	vo.animar = true
 	vo.olhar_para_jogador = true
 	jogador.congelar(false)
-	_mostrar_aviso("Quando quiser, saia pela porteira: Exu leva você ao mapa.")
+	_mostrar_aviso("Quando quiser, saia pela porteira: Exu leva você ao Ọ̀run.")
 
 
 func _celula_da_porta(numero: String, lugar: String) -> Vector2i:

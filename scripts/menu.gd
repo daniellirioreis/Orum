@@ -223,14 +223,14 @@ func pausa() -> void:
 	var pode_mapa: bool = cena != null and cena.has_method("pode_voltar_ao_mapa") and cena.pode_voltar_ao_mapa()
 	var itens := ["Continuar", "Configurações", "Voltar ao título", "Sair do jogo"]
 	if pode_mapa:
-		itens.insert(1, "Voltar ao mapa")
+		itens.insert(1, "Voltar ao Ọ̀run")
 	while true:
 		var r := await escolher("Pausa", itens, escolha)
 		escolha = maxi(r["i"], 0)
 		if r["acao"] == "cancelar" or r["i"] == 0:
 			break
 		var item: String = itens[r["i"]]
-		if item == "Voltar ao mapa":
+		if item == "Voltar ao Ọ̀run":
 			get_tree().paused = false
 			cena.voltar_ao_mapa()
 			return

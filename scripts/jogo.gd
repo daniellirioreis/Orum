@@ -25,7 +25,7 @@ const LOCAIS := {
 	"oxossi": {"nome": "Mata de Oxóssi", "cena": "res://cenas/mata_oxossi.tscn"},
 	"nana": {"nome": "Terra de Nanã", "cena": "res://cenas/mata_nana.tscn"},
 }
-const METAS_SALVAS := ["mapa_aberto", "volta_feita"]
+const METAS_SALVAS := ["mapa_aberto", "volta_feita", "viu_orun"]
 var espaco_atual := -1
 var opcoes := {"musica": 8, "efeitos": 8}
 var menu: CanvasLayer
@@ -88,7 +88,7 @@ func reiniciar() -> void:
 	assentados = {}
 	tempo_terreiro = ""
 	espaco_atual = -1
-	for m in ["mapa_aberto", "volta_feita", "no_mapa", "volta", "retorno", "na_quartinha"]:
+	for m in ["mapa_aberto", "volta_feita", "no_mapa", "volta", "retorno", "na_quartinha", "viu_orun"]:
 		if has_meta(m):
 			remove_meta(m)
 
