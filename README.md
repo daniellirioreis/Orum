@@ -221,7 +221,8 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   (Ọlọ́jà, o dono do mercado): barracas com toldo de pano (adire azul-índigo, vermelho e amarelo, verde), cabaças e
   cestos (`mercado()` no `gerar_mapa_mundo.py`).
 - **O mundo de Iansã no Ọ̀run**: lá no alto, um planalto de pedra avermelhada em camadas que é a continuação da serra
-  de Xangô (o "pescoço" do planalto desce e encosta no topo da serra, atrás do palácio); paredão alto virado para o sul,
+  de Xangô: a serra sobe em degraus de arenito até o pé do paredão dele, e o "pescoço" do planalto encosta no topo
+  da serra atrás do palácio, formando uma montanha só; paredão alto virado para o sul,
   com a trilha subindo por uma escada, e picos de pedra na beirada onde a ventania bate. Em cima: uma manada de búfalos
   (`arte/mundo_bufalo.png`), uns pastando e outros andando devagar; riscos de vento brancos com um caracol na ponta
   (`arte/mundo_vento.png`); bambuzais altos com as folhas agitadas pelo vento (e folhas arrancadas voando) e fitas;
