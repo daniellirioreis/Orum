@@ -91,6 +91,7 @@ func _ready() -> void:
 	_criar_nuvens_de_oxala()
 	_criar_vento_de_iansa()
 	_criar_bufalos()
+	_criar_bichos_dos_mundos()
 
 	var mapa: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(ARQUIVO_MAPA))
 	if mapa.has("tamanho"):
@@ -112,6 +113,8 @@ func _ready() -> void:
 			escada[int(e[0])] = Color8(int(e[1]), int(e[2]), int(e[3]))
 		_caminhos.append({"a": c["a"], "b": c["b"], "pontos": pts, "ponte": ponte, "esconder": esconder,
 			"escada": escada, "aberto": 0.0})
+	for f in mapa.get("fumacas", []):     # a fumaça da panela no mercado de Exu
+		_criar_fumaca(Vector2(f[0], f[1]))
 	for e in mapa.get("enfeites", []):
 		var en := Sprite2D.new()           # coisas que ficam por cima da trilha (o portal de mariwô)
 		en.texture = load(e[0])
@@ -183,6 +186,7 @@ func _process(delta: float) -> void:
 	_mexer_vento_de_iansa()
 	_mexer_bufalos()
 	_mexer_riscos_de_vento(delta)
+	_mexer_poeira_e_nevoa(delta)
 	if _camera.zoom.x >= 0.999:
 		_camera.position = _ade.position + Vector2(0, -8)
 	for en in _enfeites:
@@ -364,6 +368,119 @@ func _criar_folhas_de_bambu() -> void:
 		add_child(f)
 
 
+## Os outros mundos também mexem: passarinhos na mata de Oxóssi e um antílope, a garça e a névoa de Nanã,
+## urubus e redemoinhos de poeira na terra seca de Omolu, pombas em volta do templo de Oxalá.
+var _poeiras: Array = []
+var _nevoas: Array = []
+const NEVOA_X := Vector2(14, 176)
+
+
+func _voador(tex: Texture2D, centro: Vector2, raio: Vector2, vel: float, fase: float, extra := {}) -> void:
+	var g := Sprite2D.new()
+	g.texture = tex
+	g.hframes = 2
+	g.z_index = 3
+	add_child(g)
+	var d := {"no": g, "centro": centro, "raio": raio, "vel": vel, "fase": fase}
+	d.merge(extra)
+	_gaivotas.append(d)
+
+
+func _bicho(tex: Texture2D, de: Vector2, ate, fase: float) -> void:
+	var b := Sprite2D.new()
+	b.texture = tex
+	b.hframes = 4
+	b.offset = Vector2(0, -tex.get_height() / 2.0 + 1)
+	b.position = de
+	b.z_index = 0
+	add_child(b)
+	_bufalos.append({"no": b, "de": de, "ate": ate, "fase": fase})
+
+
+func _criar_bichos_dos_mundos() -> void:
+	var passaro := preload("res://arte/mundo_passaro.png")
+	for i in 6:                         # Oxóssi: bando de passarinhos sobre a mata
+		_voador(passaro, Vector2(66 + (i % 3) * 6, 244 + (i % 2) * 8), Vector2(34 + i * 3, 22 + i * 2), 0.7 + i * 0.05,
+			i * 0.35, {"some": true, "asas": 9.0})
+	_bicho(preload("res://arte/mundo_antilope.png"), Vector2(156, 272), Vector2(176, 276), 0.0)
+	_bicho(preload("res://arte/mundo_antilope.png"), Vector2(158, 212), null, 1.1)
+	_bicho(preload("res://arte/mundo_garca.png"), Vector2(70, 372), Vector2(100, 380), 0.4)   # Nanã: as garças
+	_bicho(preload("res://arte/mundo_garca.png"), Vector2(52, 366), null, 2.0)
+	var urubu := preload("res://arte/mundo_urubu.png")
+	for i in 3:                         # Omolu: urubus rodando lá no alto
+		_voador(urubu, Vector2(236, 334), Vector2(34 + i * 10, 12 + i * 3), 0.28 + i * 0.05, i * 2.1, {"asas": 1.5})
+	var gaivota := preload("res://arte/mundo_gaivota.png")
+	for i in 3:                         # Oxalá: pombas voando em volta do templo
+		_voador(gaivota, Vector2(244, 82), Vector2(44 + i * 6, 16 + i * 2), 0.5 + i * 0.1, i * 2.0, {"asas": 7.0})
+	for i in 2:                         # Omolu: redemoinhos de poeira no chão rachado
+		var r := Sprite2D.new()
+		r.texture = preload("res://arte/mundo_redemoinho.png")
+		r.hframes = 4
+		r.offset = Vector2(0, -8)
+		r.z_index = 1
+		r.modulate = Color(1.0, 0.78, 0.5, 0.75)
+		add_child(r)
+		_poeiras.append({"no": r, "fase": i * 3.0, "vel": 0.18 + i * 0.07})
+	var img := Image.create(36, 9, false, Image.FORMAT_RGBA8)      # Nanã: a névoa baixa sobre a lama
+	for y in 9:
+		for x in 36:
+			var d := Vector2((x - 17.5) / 18.0, (y - 4.0) / 4.5).length()
+			if d < 1.0 and (x + y) % 2 == 0:
+				img.set_pixel(x, y, Color(0.86, 0.9, 0.92, (1.0 - d) * 0.9))
+	var tex := ImageTexture.create_from_image(img)
+	var rnd := RandomNumberGenerator.new()
+	rnd.seed = 11
+	for i in 6:
+		var n := Sprite2D.new()
+		n.texture = tex
+		n.z_index = 1
+		add_child(n)
+		_nevoas.append({"no": n, "x": lerpf(NEVOA_X.x, NEVOA_X.y, i / 6.0), "y": rnd.randf_range(350, 402),
+			"vel": rnd.randf_range(3.0, 6.0)})
+
+
+func _criar_fumaca(onde: Vector2) -> void:
+	var img := Image.create(3, 3, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0.85, 0.85, 0.85, 0.8))
+	img.set_pixel(0, 0, Color(0, 0, 0, 0)); img.set_pixel(2, 2, Color(0, 0, 0, 0))
+	var f := CPUParticles2D.new()
+	f.texture = ImageTexture.create_from_image(img)
+	f.position = onde
+	f.z_index = 2
+	f.amount = 6
+	f.lifetime = 2.2
+	f.direction = Vector2(0.2, -1)
+	f.spread = 12.0
+	f.gravity = Vector2(3, 0)
+	f.initial_velocity_min = 6.0
+	f.initial_velocity_max = 9.0
+	f.scale_amount_min = 0.8
+	f.scale_amount_max = 1.6
+	var fade := Gradient.new()
+	fade.set_color(0, Color(1, 1, 1, 0.8))
+	fade.set_color(1, Color(1, 1, 1, 0))
+	f.color_ramp = fade
+	add_child(f)
+
+
+func _mexer_poeira_e_nevoa(delta: float) -> void:
+	for r in _poeiras:
+		var t: float = _tempo * r["vel"] + r["fase"]
+		var s: Sprite2D = r["no"]
+		s.position = (Vector2(236, 356) + Vector2(sin(t) * 58.0, sin(t * 1.4 + 0.5) * 12.0)).round()
+		s.frame = int(_tempo * 8.0 + r["fase"]) % 4
+		s.modulate.a = 0.6 + 0.3 * absf(sin(t * 0.8))
+	var largura := NEVOA_X.y - NEVOA_X.x
+	for c in _nevoas:
+		c["x"] += c["vel"] * delta
+		if c["x"] > NEVOA_X.y:
+			c["x"] -= largura
+		var n: Sprite2D = c["no"]
+		n.position = Vector2(c["x"], c["y"] + sin(_tempo * 0.4 + c["vel"]) * 1.5).round()
+		var borda := minf(c["x"] - NEVOA_X.x, NEVOA_X.y - c["x"])
+		n.modulate.a = clampf(borda / 30.0, 0.0, 0.95)
+
+
 ## A manada de búfalos de Iansã na planície: uns pastando (baixam a cabeça de vez em quando), outros andando devagar.
 var _bufalos: Array = []
 ## Os riscos de vento de Iansã: linhas brancas com um caracol na ponta, cruzando a planície para a direita.
@@ -456,7 +573,9 @@ func _mexer_gaivotas() -> void:
 		var antes := s.position
 		s.position = (g["centro"] + Vector2(cos(t) * g["raio"].x, sin(t) * g["raio"].y)).round()
 		s.flip_h = s.position.x < antes.x
-		s.frame = int(_tempo * 5.0 + g["fase"]) % 2
+		s.frame = int(_tempo * g.get("asas", 5.0) + g["fase"]) % 2
+		if g.get("some", false):            # os passarinhos pousam na mata (somem) e levantam voo de novo
+			s.modulate.a = clampf(sin(_tempo * 0.35 + g["fase"]) * 3.0, 0.0, 1.0)
 
 
 func _mexer_nuvens(delta: float) -> void:

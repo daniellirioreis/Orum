@@ -230,6 +230,13 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   que caem das nuvens até o chão (com clarão) e os chifres de búfalo na chegada (`_criar_bufalos()`,
   `_mexer_riscos_de_vento()`, `_criar_vento_de_iansa()`, `_criar_ceu_de_tempestade()`, `_criar_folhas_de_bambu()` e
   `_raio_caindo()` no `scripts/mapa_mundo.gd`).
+- **Os outros mundos do Ọ̀run também mexem**: na mata de Oxóssi as copas balançam, um bando de passarinhos
+  amarelos levanta voo e pousa, e antílopes pastam e andam nas clareiras (`arte/mundo_passaro.png`,
+  `arte/mundo_antilope.png`); em Nanã a lama borbulha nas poças, as taboas balançam, uma névoa baixa passa e garças
+  andam e bicam a lama (`arte/mundo_garca.png`); em Omolu a palha dos varais e as fitinhas balançam, redemoinhos de
+  poeira cruzam o chão e urubus rodam lá no alto (`arte/mundo_urubu.png`); em Oxalá as pombas batem as asas, algumas
+  voam em volta do templo e as flores balançam; no mercado de Exu os toldos tremulam e sobe fumaça da panela no fogo
+  (`_criar_bichos_dos_mundos()`, `_mexer_poeira_e_nevoa()` e `_criar_fumaca()` no `scripts/mapa_mundo.gd`).
 - **O palácio de Xangô** (`palacio_de_xango()` no `gerar_mapa_mundo.py`): no alto da serra, o palácio do rei de Ọ̀yọ́
   (o Àfin), nascendo da própria pedra vermelha da serra (muralha e torres de rocha, sem emenda), com as pontas de madeira, duas torres com
   bandeiras vermelho e branco, o salão do rei com telhado alto de palha e o portão com colunas de madeira e o oxê.
