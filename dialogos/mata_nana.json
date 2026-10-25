@@ -110,7 +110,7 @@
 		{"quem": "Adé", "yo": "", "pt": "Primeiro tenho que consertar o pote. O barro bom deve estar naquela ilhota, no meio da lagoa."}
 	],
 	"caiu_na_lagoa": [
-		{"quem": "Adé", "yo": "", "pt": "Tchibum! Caí na lagoa..."},
+		{"quem": "Adé", "yo": "", "pt": "Tchibum! Caí na lagoa...", "rosto": "assustado"},
 		{"quem": "", "yo": "", "pt": "Espere a vitória-régia chegar perto antes de pisar. E não fique parado nas folhas mais escuras: elas afundam!"}
 	],
 	"pedra_coloca": [
@@ -142,11 +142,11 @@
 		{"quem": "Adé", "yo": "", "pt": "Eu sabia que era a senhora! Desde o brejo, eu conheci esse jeito de olhar."}
 	],
 	"nana": [
-		{"quem": "Adé", "yo": "Sálùbá, Nàná!", "pt": "Nanã! Saluba, Nanã!"},
+		{"quem": "Adé", "yo": "Sálùbá, Nàná!", "pt": "Nanã! Saluba, Nanã!", "rosto": "feliz"},
 		{"quem": "Nàná", "yo": "", "pt": "Saluba, meu neto. Quem pisa na minha lama é meu neto."},
 		{"quem": "Nàná", "yo": "", "pt": "Eu sou a mais velha de todos. Antes do mundo ter gente, já tinha a lama do fundo da lagoa."},
 		{"quem": "Nàná", "yo": "", "pt": "Foi dessa lama que se moldou o primeiro ser humano. E é para ela que todo corpo volta, quando a vida termina."},
-		{"quem": "Adé", "yo": "", "pt": "Voltar para a lama... isso não dá medo?"},
+		{"quem": "Adé", "yo": "", "pt": "Voltar para a lama... isso não dá medo?", "rosto": "assustado"},
 		{"quem": "Nàná", "yo": "", "pt": "A semente também volta para a terra, e nasce de novo. Quem volta para mim descansa. O que fica é a memória."},
 		{"quem": "Adé", "yo": "", "pt": "Eu tive um sonho, Nanã. Sonhei com todos os orixás, e quero encontrar cada um."},
 		{"quem": "Nàná", "yo": "", "pt": "Eu sei. Você atravessou o brejo olhando as garças, esperou a maré e não teve pressa."},
@@ -156,7 +156,7 @@
 		{"quem": "Nàná", "yo": "", "pt": "Então escute. Quem esquece os mais velhos fica sem chão, como quem pisa na lama funda."},
 		{"quem": "Nàná", "yo": "", "pt": "E você carregou o pote de uma velha sem perguntar quem ela era. Cortou a taboa sem ferro. Isso é respeito."},
 		{"quem": "Nàná", "yo": "", "pt": "Leve o meu ibiri para a casa da sua Vó. Ela vai saber onde ele fica.", "evento": "trofeu"},
-		{"quem": "Adé", "yo": "", "pt": "Obrigado, Nanã. Vou cuidar da minha Vó... e não vou esquecer de onde eu vim."},
+		{"quem": "Adé", "yo": "", "pt": "Obrigado, Nanã. Vou cuidar da minha Vó... e não vou esquecer de onde eu vim.", "rosto": "feliz"},
 		{"quem": "Nàná", "yo": "", "pt": "A chuva vai acalmar e o caminho vai abrir. Vá devagar, meu neto."},
 		{"quem": "Adé", "yo": "Sálùbá, Nàná!", "pt": "Saluba, Nanã!"}
 	],
@@ -166,7 +166,7 @@
 		{"quem": "Nàná", "yo": "", "pt": "Desta vez seus pés já sabiam onde é firme."},
 		{"quem": "Adé", "yo": "", "pt": "Foi a senhora que me ensinou: ir devagar e lembrar de onde eu vim."},
 		{"quem": "Nàná", "yo": "", "pt": "Quem lembra nunca se perde."},
-		{"quem": "Adé", "yo": "", "pt": "Obrigado, Nanã, por me deixar conhecer a senhora. A senhora parece a minha Vó."},
+		{"quem": "Adé", "yo": "", "pt": "Obrigado, Nanã, por me deixar conhecer a senhora. A senhora parece a minha Vó.", "rosto": "feliz"},
 		{"quem": "Nàná", "yo": "", "pt": "Toda avó tem um pouco de Nanã, meu filho. O ibiri continua seu.", "evento": "trofeu"},
 		{"quem": "Adé", "yo": "", "pt": "Posso dar um abraço na senhora?"},
 		{"quem": "Nàná", "yo": "", "pt": "Venha cá, meu neto."}

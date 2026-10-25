@@ -36,7 +36,7 @@
 		{"quem": "Adé", "yo": "", "pt": "Uma estátua de madeira bem no meio da encruzilhada... O gorro dela é preto!"}
 	],
 	"estatua_entendeu": [
-		{"quem": "Adé", "yo": "", "pt": "Espera aí... Do outro lado o gorro era de outra cor!"},
+		{"quem": "Adé", "yo": "", "pt": "Espera aí... Do outro lado o gorro era de outra cor!", "rosto": "assustado"},
 		{"quem": "Adé", "yo": "", "pt": "É a história do gorro de Exu! Os dois amigos brigaram, e os dois tinham razão: cada um só viu um lado."},
 		{"quem": "", "yo": "", "pt": "O chão treme. As velas das quatro esquinas tremulam, e uma fumaça vermelha e preta cobre a estátua no meio da encruzilhada.", "evento": "exu_chega"}
 	],
@@ -52,7 +52,7 @@
 		{"quem": "Èṣù", "yo": "Ọ̀nà ti ṣí.", "pt": "Os caminhos estão abertos. Há há há! Pode fechar a boca, menino, que entra mosquito.", "evento": "abrir_caminhos"},
 		{"quem": "Èṣù", "yo": "", "pt": "Daqui saem caminhos para todos os lados. Cada um leva ao campo de um orixá. Nenhum leva pra cozinha da Tia Dora, já vou avisando."},
 		{"quem": "Èṣù", "yo": "", "pt": "Eu não vou escolher por você. Olhe bem, de mais de um lado... e escolha o seu caminho. Não vale tirar no par ou ímpar."},
-		{"quem": "Adé", "yo": "Laroyê, Èṣù!", "pt": "Obrigado, Exu! Eu vou escolher."}
+		{"quem": "Adé", "yo": "Laroyê, Èṣù!", "pt": "Obrigado, Exu! Eu vou escolher.", "rosto": "feliz"}
 	],
 	"exu_depois": [
 		{"quem": "Èṣù", "yo": "Hi hi hi!", "pt": "A escolha é sua, minha criança. Vai ficar aí parado me olhando? Eu sei que sou bonito, mas o caminho é pra lá."}

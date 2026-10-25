@@ -26,6 +26,20 @@ var _nome: Label
 var _yoruba: Label
 var _legenda: Label
 var _seta: Label
+var _moldura: Panel             # o rosto de quem fala, do lado esquerdo da caixa
+var _rosto: TextureRect
+var _largura := 0.0
+
+## Rostos (arte/retratos.png, 32x32): linha = personagem, coluna = expressão. Uma fala pode pedir
+## "rosto": "feliz" (por exemplo); a gargalhada de Exu já usa o rosto rindo.
+const RETRATOS := {"Adé": 0, "Vó": 1, "Vó e Adé": 1, "Èṣù": 2, "Ọ̀ṣọ́ọ̀sì": 3, "Nàná": 4, "Velhinha": 5,
+	"Tia Dora": 6, "Ogã Bené": 7, "Lia": 8, "Mestre Tião": 9, "Menina": 10, "Crianças": 11, "???": 12, "Placa": 13}
+const EXPRESSOES := [["normal", "feliz", "assustado"], ["normal", "feliz", "assustado"],
+	["normal", "rindo", "bravo"], ["normal", "feliz", "assustado"], ["normal", "feliz", "bravo"],
+	["normal", "feliz", "assustado"], ["normal", "feliz", "assustado"], ["normal", "feliz", "assustado"],
+	["normal", "feliz", "assustado"], ["normal", "feliz", "assustado"], ["normal", "feliz", "assustado"],
+	["normal", "feliz"], ["normal"], ["normal"]]
+const TAM_ROSTO := 32
 
 
 func _ready() -> void:
@@ -42,6 +56,7 @@ func posicionar(no_topo: bool) -> void:
 	_painel.position.y = y
 	_placa.position.y = y - 9.0
 	_seta.position.y = y + 46.0
+	_moldura.position.y = y + 11.0
 
 
 func iniciar(linhas: Array) -> void:
@@ -59,6 +74,7 @@ func _mostrar_linha() -> void:
 	var linha: Dictionary = _linhas[_indice]
 	_nome.text = linha.get("quem", "")
 	_placa.visible = _nome.text != ""
+	_mostrar_rosto(linha)
 	_yoruba.text = Jogo.texto(linha.get("yo", ""))
 	_yoruba.visible = _yoruba.text != ""
 	_legenda.text = Jogo.texto(linha.get("pt", ""))
@@ -80,6 +96,30 @@ func _rir(texto: String) -> void:
 		risada.emit(true)
 	elif "hi hi hi" in t:
 		risada.emit(false)
+
+
+func _mostrar_rosto(linha: Dictionary) -> void:
+	var quem: String = linha.get("quem", "")
+	var tem := RETRATOS.has(quem)
+	_moldura.visible = tem and ativo
+	var margem := 8.0 + (TAM_ROSTO + 8.0 if tem else 0.0)
+	var estilo: StyleBoxFlat = _painel.get_theme_stylebox("panel")
+	estilo.content_margin_left = margem
+	_placa.position.x = 16.0 + (TAM_ROSTO + 8.0 if tem else 0.0)
+	for l in [_yoruba, _legenda]:
+		l.custom_minimum_size.x = _largura - 18.0 - (TAM_ROSTO + 8.0 if tem else 0.0)
+	if not tem:
+		return
+	var linha_folha: int = RETRATOS[quem]
+	var expr: String = linha.get("rosto", "normal")
+	var t := (str(linha.get("yo", "")) + " " + str(linha.get("pt", ""))).to_lower()
+	if quem == "Èṣù" and ("há há há" in t or "hi hi hi" in t) and not linha.has("rosto"):
+		expr = "rindo"
+	var col: int = maxi(0, EXPRESSOES[linha_folha].find(expr))
+	var atlas := AtlasTexture.new()
+	atlas.atlas = preload("res://arte/retratos.png")
+	atlas.region = Rect2(col * TAM_ROSTO, linha_folha * TAM_ROSTO, TAM_ROSTO, TAM_ROSTO)
+	_rosto.texture = atlas
 
 
 func _process(delta: float) -> void:
@@ -122,6 +162,7 @@ func _fechar() -> void:
 	ativo = false
 	_painel.visible = false
 	_placa.visible = false
+	_moldura.visible = false
 	_seta.visible = false
 	# pequena pausa para o mesmo botão não fazer Adé pular
 	await get_tree().create_timer(0.12).timeout
@@ -137,6 +178,7 @@ func _congelar_jogador(valor: bool) -> void:
 
 func _montar_interface() -> void:
 	var largura := float(Jogo.TELA.x) - 16.0
+	_largura = largura
 	_painel = PanelContainer.new()
 	var estilo := StyleBoxFlat.new()
 	estilo.bg_color = Color(0.06, 0.08, 0.3, 0.96)
@@ -186,6 +228,25 @@ func _montar_interface() -> void:
 	_nome = _rotulo(8, COR_NOME)
 	_placa.add_child(_nome)
 	_placa.visible = false
+
+	# moldura do rosto
+	_moldura = Panel.new()
+	var estilo_rosto := StyleBoxFlat.new()
+	estilo_rosto.bg_color = Color(0.16, 0.2, 0.5, 1.0)
+	estilo_rosto.border_color = Color(0.95, 0.95, 1.0)
+	estilo_rosto.set_border_width_all(1)
+	estilo_rosto.set_corner_radius_all(2)
+	_moldura.add_theme_stylebox_override("panel", estilo_rosto)
+	_moldura.position = Vector2(14, ALTURA_TELA - 66.0 + 11.0)
+	_moldura.size = Vector2(TAM_ROSTO + 4, TAM_ROSTO + 4)
+	_moldura.z_index = 1
+	add_child(_moldura)
+	_rosto = TextureRect.new()
+	_rosto.position = Vector2(2, 2)
+	_rosto.size = Vector2(TAM_ROSTO, TAM_ROSTO)
+	_rosto.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_moldura.add_child(_rosto)
+	_moldura.visible = false
 
 	_seta = _rotulo(9, COR_NOME)
 	_seta.text = "▼"

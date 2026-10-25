@@ -9,7 +9,7 @@
 		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Desta vez você seguiu o rastro como quem já conhece a mata."},
 		{"quem": "Adé", "yo": "", "pt": "Foi você que me ensinou a olhar: o rastro, o vento, o silêncio."},
 		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "E você aprendeu. Quem aprende a olhar nunca mais anda perdido."},
-		{"quem": "Adé", "yo": "", "pt": "Obrigado, Oxóssi. Por me ensinar a ter paciência... e por me deixar te conhecer."},
+		{"quem": "Adé", "yo": "", "pt": "Obrigado, Oxóssi. Por me ensinar a ter paciência... e por me deixar te conhecer.", "rosto": "feliz"},
 		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "O ofá é seu, minha criança. Onde ele estiver, a mata vai estar com você.", "evento": "trofeu"},
 		{"quem": "Adé", "yo": "", "pt": "Posso te dar um abraço?"},
 		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Venha cá."}
@@ -28,7 +28,7 @@
 		{"quem": "Placa", "yo": "", "pt": "Siga o rastro do veado: duas unhas, lado a lado. O rastro de três dedinhos é de pássaro, e engana."}
 	],
 	"rastro_errado": [
-		{"quem": "Adé", "yo": "", "pt": "Ué... eu já passei por aqui. A mata me fez andar em círculos!"},
+		{"quem": "Adé", "yo": "", "pt": "Ué... eu já passei por aqui. A mata me fez andar em círculos!", "rosto": "assustado"},
 		{"quem": "", "yo": "", "pt": "Olhe bem o chão: o rastro do veado tem duas unhas, lado a lado."}
 	],
 	"rastro_fim": [
@@ -74,7 +74,7 @@
 		{"quem": "", "yo": "", "pt": "Cuidado com a sombra no chão: é ali que o pássaro vai mergulhar!"}
 	],
 	"flecha_desviou": [
-		{"quem": "Adé", "yo": "", "pt": "A flecha desviou!"},
+		{"quem": "Adé", "yo": "", "pt": "A flecha desviou!", "rosto": "assustado"},
 		{"quem": "Adé", "yo": "", "pt": "Na história, os caçadores atiraram vinte, quarenta, cinquenta flechas... e erraram todas."},
 		{"quem": "Adé", "yo": "", "pt": "Mas a mãe do caçador de uma flecha só fez uma oferenda a Exu, e aí a flecha acertou."},
 		{"quem": "Adé", "yo": "", "pt": "Aquela pedra num alguidar... é um assentamento de Exu!"}
@@ -83,7 +83,7 @@
 		{"quem": "Adé", "yo": "", "pt": "Uma pedra de Exu num alguidar. Para fazer a oferenda, ainda falta: {faltam}."}
 	],
 	"assentamento_depois": [
-		{"quem": "Adé", "yo": "Laroyê, Èṣù!", "pt": "Obrigado, Exu, por abrir o caminho do caçador."}
+		{"quem": "Adé", "yo": "Laroyê, Èṣù!", "pt": "Obrigado, Exu, por abrir o caminho do caçador.", "rosto": "feliz"}
 	],
 	"oferenda": [
 		{"quem": "Adé", "yo": "Laroyê, Èṣù!", "pt": "Laroyê, Exu! Trago milho, coco e mel. Abra o caminho do caçador.", "evento": "oferenda"},
@@ -95,7 +95,7 @@
 		{"quem": "Adé", "yo": "", "pt": "Você espantou o pássaro! Mas... não matou ele?"},
 		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "O caçador não tira da mata mais do que precisa. Aquele pássaro só precisava ir embora."},
 		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "E você fez o que a mãe do caçador fez: pediu licença a Exu antes. Por isso a flecha acertou."},
-		{"quem": "Adé", "yo": "Okê Arô, Ọ̀ṣọ́ọ̀sì!", "pt": "Salve, Oxóssi! Eu sou Adé, neto da Vó do terreiro."},
+		{"quem": "Adé", "yo": "Okê Arô, Ọ̀ṣọ́ọ̀sì!", "pt": "Salve, Oxóssi! Eu sou Adé, neto da Vó do terreiro.", "rosto": "feliz"},
 		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Eu sei quem você é. Vi você seguir o rastro, passar em silêncio pelos veados e mirar antes de soltar."},
 		{"quem": "Adé", "yo": "", "pt": "Eu tive um sonho, Oxóssi. Sonhei com todos os orixás juntos, e quero encontrar cada um de vocês."},
 		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Um sonho é como uma caça: não se acha correndo de um lado para o outro."},
@@ -105,9 +105,9 @@
 		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Eu guardo a mata e a fartura. O caçador não caça para si: leva o alimento para a aldeia inteira."},
 		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Seu sonho também é assim. Não é só seu: você carrega o terreiro da sua Vó e todos que ainda vão ouvir estas histórias."},
 		{"quem": "Adé", "yo": "", "pt": "Então eu vou com calma... uma flecha de cada vez."},
-		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "Ó dára, ọmọ mi.", "pt": "Muito bem, minha criança."},
+		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "Ó dára, ọmọ mi.", "pt": "Muito bem, minha criança.", "rosto": "feliz"},
 		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "O ofá que você achou no toco era meu. Agora é seu. Leve para o terreiro da sua Vó e conte o que aprendeu aqui.", "evento": "trofeu"},
-		{"quem": "Adé", "yo": "", "pt": "Obrigado, Oxóssi! Vou guardar no terreiro, perto do congá."},
+		{"quem": "Adé", "yo": "", "pt": "Obrigado, Oxóssi! Vou guardar no terreiro, perto do congá.", "rosto": "feliz"},
 		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "A mata vai abrir um caminho para você voltar. Siga o seu sonho de olhos abertos."},
 		{"quem": "Adé", "yo": "Okê Arô!", "pt": "Salve o caçador!"}
 	],
