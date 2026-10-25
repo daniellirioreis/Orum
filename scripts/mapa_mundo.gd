@@ -88,6 +88,7 @@ func _ready() -> void:
 
 	_criar_nuvens()
 	_criar_gaivotas()
+	_criar_nuvens_de_oxala()
 
 	var mapa: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(ARQUIVO_MAPA))
 	if mapa.has("tamanho"):
@@ -176,6 +177,7 @@ func _process(delta: float) -> void:
 	_fundo.texture = _texturas[int(_tempo * 4.0) % _texturas.size()]
 	_mexer_nuvens(delta)
 	_mexer_gaivotas()
+	_mexer_nuvens_de_oxala(delta)
 	if _camera.zoom.x >= 0.999:
 		_camera.position = _ade.position + Vector2(0, -8)
 	for en in _enfeites:
@@ -233,6 +235,37 @@ func _criar_nuvens() -> void:
 		_nuvens.append({"no": n, "base": lista[i][1], "amplitude": lista[i][2], "velocidade": lista[i][3], "fase": i * 1.7})
 		if "tempestade" in lista[i][0]:
 			_tempestade.append(n)
+
+
+## O reino de Oxalá fica no meio das nuvens: muitas nuvens passam devagar por cima do morro branco,
+## da esquerda para a direita; somem na beirada e voltam do outro lado.
+var _nuvens_oxala: Array = []
+const OXALA_X := Vector2(150, 342)       # de onde até onde elas passam
+const OXALA_Y := Vector2(46, 176)
+
+
+func _criar_nuvens_de_oxala() -> void:
+	var rnd := RandomNumberGenerator.new()
+	rnd.seed = 5
+	for i in 11:
+		var n := Sprite2D.new()
+		n.texture = load("res://arte/mundo_nuvem.png" if i % 3 == 0 else "res://arte/mundo_nuvem_p.png")
+		n.z_index = 2
+		add_child(n)
+		_nuvens_oxala.append({"no": n, "x": lerpf(OXALA_X.x, OXALA_X.y, float(i) / 11.0 + rnd.randf() * 0.05),
+			"y": rnd.randf_range(OXALA_Y.x, OXALA_Y.y), "vel": rnd.randf_range(5.0, 10.0), "fase": rnd.randf() * TAU})
+
+
+func _mexer_nuvens_de_oxala(delta: float) -> void:
+	var largura := OXALA_X.y - OXALA_X.x
+	for c in _nuvens_oxala:
+		c["x"] += c["vel"] * delta
+		if c["x"] > OXALA_X.y:
+			c["x"] -= largura
+		var n: Sprite2D = c["no"]
+		n.position = Vector2(c["x"], c["y"] + sin(_tempo * 0.6 + c["fase"]) * 1.5).round()
+		var borda := minf(c["x"] - OXALA_X.x, OXALA_X.y - c["x"])        # aparece e some devagar nas pontas
+		n.modulate.a = clampf(borda / 30.0, 0.0, 0.9)
 
 
 ## Gaivotas voando em roda sobre o mar de Iemanjá (no canto de baixo, à direita).
