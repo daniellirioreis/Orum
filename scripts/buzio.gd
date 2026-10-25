@@ -25,7 +25,7 @@ func _ao_tocar(corpo: Node2D) -> void:
 		return
 	_coletado = true
 	Jogo.buzios += 1
-	Jogo.tocar_som("buzio", -4.0)
+	Jogo.tocar_som("pegar_buzio", -4.0)
 	var t := create_tween().set_parallel()
 	t.tween_property(sprite, "position:y", sprite.position.y - 12.0, 0.3)
 	t.tween_property(sprite, "modulate:a", 0.0, 0.3)

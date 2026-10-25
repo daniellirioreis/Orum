@@ -299,6 +299,16 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			super._criar_objeto(lugar, c, celula, base, chao)
 
 
+## Na lama o passo chapinha; em cima da vitória-régia, faz "plop".
+func som_do_chao(pos: Vector2) -> Array:
+	var l := _letra_em(pos)
+	if l in LAMA or l == "m":
+		return ["passo_lama", -14.0]
+	if l == "y":
+		return ["folha_pisa", -16.0]
+	return super.som_do_chao(pos)
+
+
 ## A camada da maré (água por cima das raízes do mangue) começa invisível.
 func _camada_terreno(origem: Vector2, i: int, camada: TileMapLayer) -> void:
 	if i >= 2:
@@ -416,12 +426,6 @@ func _guardar_celulas() -> void:
 				_celulas_mare.append(Vector2i(x, y))
 
 
-func _letra_em(pos: Vector2) -> String:
-	var origem: Vector2 = lugares[lugar_atual]["origem"]
-	var rel := pos - origem
-	return _letra(_mapas[lugar_atual], floori(rel.x / TILE), floori(rel.y / TILE))
-
-
 ## Aguapé boiando na água escura, com flor lilás de vez em quando.
 func _criar_aguape(base: Vector2, celula: Vector2i) -> void:
 	var s := Sprite2D.new()
@@ -482,7 +486,7 @@ func _acender_slot(id: String, texto := "") -> void:
 	var t := create_tween()
 	t.tween_property(icone, "scale", Vector2(1.6, 1.6), 0.12)
 	t.tween_property(icone, "scale", Vector2.ONE, 0.18)
-	Jogo.tocar_som("buzio", -2.0)
+	Jogo.tocar_som("pegar_item", -4.0)
 	if texto != "":
 		_mostrar_aviso("Você pegou: " + texto)
 
@@ -514,7 +518,7 @@ func _afundar_ade() -> void:
 	_voltando = true
 	_tempo_no_fundo = 0.0
 	jogador.congelar(true)
-	Jogo.tocar_som("erro", -6.0)
+	Jogo.tocar_som("lama_afunda", -2.0)
 	var sp: Sprite2D = jogador.sprite
 	var y0 := sp.position.y
 	_lama_espirra(jogador.global_position)
@@ -647,7 +651,7 @@ func _mover_garcas(_delta: float) -> void:
 		s.frame = 1 if fmod(_tempo + g["fase"], 5.0) < 1.2 else 0      # de vez em quando, pesca
 		if g["lugar"] == lugar_atual and jogador.pode_mover and s.position.distance_to(jogador.global_position) < 20.0:
 			g["foi"] = true
-			Jogo.tocar_som("texto", -14.0)
+			Jogo.tocar_som("asas", -8.0)
 			var lado := 1.0 if s.position.x >= jogador.global_position.x else -1.0
 			s.flip_h = lado < 0.0
 			var t := create_tween()
@@ -732,7 +736,7 @@ func _pular(p: Dictionary) -> void:
 		return
 	s.frame = 2
 	s.z_index = 2
-	Jogo.tocar_som("pulo", -16.0)
+	som_perto("sapo_pulo", s.position, -8.0)
 	var de := s.position
 	var t := create_tween()
 	t.tween_method(func(u: float):
@@ -746,6 +750,7 @@ func _pular(p: Dictionary) -> void:
 	_lama_espirra(alvo + Vector2(0, 2))
 	if lugar_atual == p["lugar"] and jogador.global_position.distance_to(alvo) < 11.0 and _invulneravel <= 0.0 \
 			and jogador.pode_mover and not _voltando:
+		Jogo.tocar_som("sapo_coaxa", -4.0)
 		_tomar_dano(alvo)
 	p["no_ar"] = false
 	p["espera"] = randf_range(1.2, 2.6)
@@ -855,7 +860,7 @@ func _cair_na_lagoa() -> void:
 	_voltando = true
 	_tempo_na_agua = 0.0
 	jogador.congelar(true)
-	Jogo.tocar_som("erro", -4.0)
+	Jogo.tocar_som("agua_cai", -2.0)
 	_respingo(jogador.global_position)
 	var sp: Sprite2D = jogador.sprite
 	var y0 := sp.position.y
@@ -908,6 +913,7 @@ func _mover_sapos() -> void:
 		s.frame = 1 if fmod(_tempo + p["fase"], 3.0) < 0.4 else 0       # o papo incha: coaxando
 		if p["lugar"] == lugar_atual and s.position.distance_to(jogador.global_position) < 22.0:
 			p["pulando"] = true
+			Jogo.tocar_som("sapo_pulo", -12.0)
 			var lado := 1.0 if s.position.x >= jogador.global_position.x else -1.0
 			var destino: Vector2 = p["casa"] + Vector2(lado * 18.0, randf_range(-6, 6))
 			if destino.distance_to(p["casa"]) < 4.0 or s.position.distance_to(p["casa"]) > 4.0:
@@ -1059,7 +1065,7 @@ func _bloquear_mare(alta: bool) -> void:
 func _mare_leva_ade() -> void:
 	_voltando = true
 	jogador.congelar(true)
-	Jogo.tocar_som("erro", -4.0)
+	Jogo.tocar_som("agua_cai", -2.0)
 	_respingo(jogador.global_position)
 	var c := create_tween()
 	c.tween_property(_cortina, "color:a", 1.0, 0.4)
@@ -1128,6 +1134,7 @@ func _mover_caranguejos() -> void:
 		s.frame = int(_tempo * 8.0 + c["fase"] * 3.0) % 2
 		if c["lugar"] == lugar_atual and _invulneravel <= 0.0 and not _voltando and jogador.pode_mover \
 				and c["a"].overlaps_body(jogador):
+			Jogo.tocar_som("caranguejo", -4.0)
 			_tomar_dano(c["a"].global_position)
 
 
@@ -1486,7 +1493,7 @@ func _ao_evento(nome: String) -> void:
 			_nana.erase("faca")
 			_nana["faca_foi"] = true
 			_lama_espirra(jogador.global_position + Vector2(8, 0))
-			Jogo.tocar_som("erro", -8.0)
+			Jogo.tocar_som("lama_afunda", -8.0)
 		"ganhar_lamina":
 			_nana["lamina"] = true
 			# a lasca vai para o inventário: o bambu rachado some do chão
@@ -1503,7 +1510,7 @@ func _ao_evento(nome: String) -> void:
 			_nana["pote"] = "vazio"
 			_barro.sprite.frame = 1
 			_slots_nana["pote"].modulate = Color.WHITE
-			Jogo.tocar_som("buzio", -6.0)
+			Jogo.tocar_som("pegar_item", -4.0)
 		"oferenda":
 			_fazer_oferenda()
 		"velhinha_vem":

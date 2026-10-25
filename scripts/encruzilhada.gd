@@ -499,7 +499,8 @@ func _tomar_dano(de: Vector2) -> void:
 	_invulneravel = 1.4
 	axe -= 1
 	_atualizar_axe()
-	Jogo.tocar_som("erro", -4.0)
+	Jogo.tocar_som("dano", -3.0)
+	get_tree().create_timer(0.18).timeout.connect(func(): Jogo.tocar_som("perde_axe", -8.0))
 	var dir := jogador.global_position - de
 	if dir.length() < 1.0:
 		dir = Vector2(0, 1)
@@ -526,7 +527,7 @@ func _sem_axe() -> void:
 	_sem_axe_agora = true
 	_voltando = true
 	jogador.congelar(true)
-	Jogo.tocar_som("erro", 0.0)
+	Jogo.tocar_som("perde_axe", -2.0)
 	var sp: Sprite2D = jogador.sprite
 	var piscar := create_tween()
 	for i in 4:
@@ -603,7 +604,7 @@ func _exu_troca_buzios() -> bool:
 	Jogo.buzios -= k * BUZIOS_POR_AXE
 	axe = k
 	_atualizar_axe()
-	Jogo.tocar_som("buzio", 0.0)
+	Jogo.tocar_som("troca_exu", -2.0)
 	await _falar_linhas([{"quem": "Èṣù", "yo": "Hi hi hi!", "pt": "Feito! O axé volta pra quem sabe guardar o que junta. Mas da próxima vez eu cobro em farofa."}])
 	jogador.congelar(true)
 	return true

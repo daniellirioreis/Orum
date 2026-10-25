@@ -251,6 +251,7 @@ func pausa() -> void:
 ## Fim de jogo (acabaram os búzios de axé): voltar ao último caminho guardado ou ao título.
 func fim_de_jogo() -> void:
 	get_tree().paused = true
+	Jogo.tocar_som("game_over", -2.0)
 	var ultimo := Jogo.ultimo_salvo()
 	var rodape := "Nenhum caminho guardado ainda."
 	if ultimo >= 0:

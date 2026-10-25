@@ -215,6 +215,16 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
 - **Som da chuva**: sempre que chove (no terreiro ou na terra de Nanã), toca o barulho da chuva caindo em laço
   (`sons/chuva.wav`), mais alto lá fora e abafado dentro de casa; na lagoa de Nanã ele engrossa com a chuva.
   Os relâmpagos agora têm trovão (`sons/trovao.wav`). Os dois sons são feitos pelo `gerar_som_chuva.py`.
+- **Efeitos sonoros por ação** (31 sons novos em `sons/`, no estilo SNES, feitos pelo `gerar_sfx.py`):
+  - Adé: passos que mudam com o chão (`passo_grama`, `passo_terra`, `passo_lama`, `passo_madeira`; andando devagar não
+    faz barulho), `flecha_atira`, `flecha_acerta`, `flecha_mato`, `pegar_item`, `pegar_buzio`, `dano`, `perde_axe`,
+    `agua_cai`, `lama_afunda`, `folha_pisa` (vitória-régia).
+  - Bichos: `sapo_pulo`, `sapo_coaxa`, `cobra_sibilo` (quando Adé chega perto), `javali_bufo`, `javali_corre`,
+    `onca_rosna`, `onca_bote`, `caranguejo`, `colmeia_zumbido`, `colmeia_quebra`, `passaro_grito`, `asas`,
+    `veado_foge`, `passarinho_pio`.
+  - Cenário: `tronco_cai`, `game_over`, `troca_exu`.
+  - O passo vem de `som_do_chao(pos)` da cena (o terreiro decide pela letra do mapa; a fase de Nanã põe lama e
+    vitória-régia); `som_perto(nome, pos)` toca mais baixo quanto mais longe de Adé.
 - **Exu brincalhão**: as falas de Exu zoam Adé de brincadeira, sem perder o ensinamento. Nas maiores zoações ele
   ri: "Há há há!" (gargalhada) ou "Hi hi hi!" (risinho). Quando a fala tem a risada, o `scripts/dialogo.gd` avisa
   (sinal `risada`) e Exu gargalha na tela: olhos fechados, boca aberta, o corpo sacudindo (quadros 2-3 de

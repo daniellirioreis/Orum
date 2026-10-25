@@ -345,7 +345,7 @@ func _ganhar_item(id: String, texto: String) -> void:
 	var t := create_tween()
 	t.tween_property(icone, "scale", Vector2(1.6, 1.6), 0.12)
 	t.tween_property(icone, "scale", Vector2.ONE, 0.18)
-	Jogo.tocar_som("buzio", -2.0)
+	Jogo.tocar_som("pegar_item", -4.0)
 	_mostrar_aviso("Você pegou: " + texto)
 
 
@@ -493,7 +493,7 @@ func _veado_foge(v: Dictionary) -> void:
 	if fuga == Vector2.ZERO:
 		fuga = Vector2.UP
 	s.flip_h = fuga.x < 0.0
-	Jogo.tocar_som("erro", -6.0)
+	Jogo.tocar_som("veado_foge", -6.0)
 	var corre := create_tween().set_loops(8)
 	corre.tween_callback(func(): s.frame = 3).set_delay(0.08)
 	corre.tween_callback(func(): s.frame = 4).set_delay(0.08)
@@ -555,7 +555,7 @@ func _atirar() -> void:
 	add_child(s)
 	_flecha = {"s": s, "dir": dir, "voando": true, "andou": 0.0, "no_chao": false}
 	_ox_slots["ofa"].modulate = Color(1, 1, 1, 0.5)
-	Jogo.tocar_som("pulo", -6.0)
+	Jogo.tocar_som("flecha_atira", -4.0)
 
 
 func _mover_flecha(delta: float) -> void:
@@ -649,14 +649,15 @@ func _flecha_cai() -> void:
 		# caiu do outro lado (do riacho, da moita): um passarinho da mata vai buscar
 		_flecha["no_chao"] = false
 		s.z_index = -3
-		Jogo.tocar_som("texto", -8.0)
+		Jogo.tocar_som("flecha_mato", -8.0)
 		_passarinho_busca_flecha()
 	elif _no_chao_firme(s.position):
 		_flecha["no_chao"] = true
 		s.z_index = -3
-		Jogo.tocar_som("texto", -8.0)
+		Jogo.tocar_som("flecha_mato", -8.0)
 	else:
 		# caiu na água ou no mato fechado: a mata devolve a flecha
+		Jogo.tocar_som("folha_pisa" if _letra_em(s.position) == "~" else "flecha_mato", -6.0)
 		await get_tree().create_timer(0.4).timeout
 		_recolher_flecha()
 		if not _avisou_volta:
@@ -713,6 +714,7 @@ func _passarinho_busca_flecha() -> void:
 		_avisou_passarinho = true
 		_mostrar_aviso("A flecha caiu do outro lado... um passarinho foi buscar!")
 	var t := create_tween()
+	Jogo.tocar_som("asas", -12.0)
 	t.tween_property(b, "position", f.position + Vector2(0, -3), 1.4).set_trans(Tween.TRANS_SINE)
 	await t.finished
 	if _flecha.is_empty() or not _flecha.has("passarinho"):
@@ -720,7 +722,8 @@ func _passarinho_busca_flecha() -> void:
 	await get_tree().create_timer(0.35).timeout
 	_flecha["passarinho"]["bico"] = true
 	f.z_index = 21
-	Jogo.tocar_som("texto", -14.0)
+	Jogo.tocar_som("passarinho_pio", -6.0)
+	Jogo.tocar_som("asas", -12.0)
 	var destino := _lugar_perto_de_ade()
 	b.flip_h = destino.x < b.position.x
 	t = create_tween()
@@ -781,16 +784,18 @@ func _recolher_flecha() -> void:
 	_flecha["s"].queue_free()
 	_flecha = {}
 	_ox_slots["ofa"].modulate = Color.WHITE
-	Jogo.tocar_som("buzio", -10.0)
+	Jogo.tocar_som("pegar_item", -12.0)
 
 
 func _flecha_acertou(a: Dictionary) -> void:
 	match a["tipo"]:
 		"corda":
 			a["feito"] = true
+			Jogo.tocar_som("flecha_acerta", -4.0)
 			_flecha_cai()
 			_derrubar_tronco()
 		"cobra":
+			Jogo.tocar_som("flecha_acerta", -4.0)
 			_flecha_cai()
 			_cobra_foge(a["cobra"])
 			a["feito"] = true
@@ -800,7 +805,8 @@ func _flecha_acertou(a: Dictionary) -> void:
 			_quebrar_colmeia()
 		"javali":
 			_flecha_cai()
-			Jogo.tocar_som("erro", -8.0)
+			Jogo.tocar_som("flecha_acerta", -6.0)
+			Jogo.tocar_som("javali_bufo", -4.0)
 			_mostrar_aviso("A flecha bateu no couro grosso do javali...")
 			_javali["bravo"] = 1.0
 		"onca":
@@ -809,7 +815,7 @@ func _flecha_acertou(a: Dictionary) -> void:
 			_mostrar_aviso("Oxóssi não caça por caçar. Deixe a onça dormir!")
 		"passaro":
 			_flecha_cai()
-			Jogo.tocar_som("erro", -6.0)
+			Jogo.tocar_som("passaro_grito", -8.0)
 			_passaro["tremer"] = 0.3
 			if not _ox.has("desviou"):
 				_ox["desviou"] = true
@@ -840,7 +846,7 @@ func _derrubar_tronco() -> void:
 	var lugar: String = _tronco["lugar"]
 	var celula: Vector2i = _tronco["celula"]
 	var base: Vector2 = _tronco["no"].position
-	Jogo.tocar_som("caminho", -4.0)
+	Jogo.tocar_som("tronco_cai", -2.0)
 	_tronco["forma"].set_deferred("disabled", true)
 	var s: Sprite2D = _tronco["s"]
 	# o tronco tomba para a frente, por cima do riacho
@@ -910,6 +916,11 @@ func _mover_cobras(_delta: float) -> void:
 		c["a"].position = c["de"].lerp(c["ate"], u)
 		c["s"].flip_h = c["a"].position.x < antes.x
 		c["s"].frame = int(_tempo * 5.0 + c["fase"] * 3.0) % 2
+		# chegou perto: a cobra sibila (de novo só depois de um tempinho)
+		c["sibilo"] = maxf(0.0, c.get("sibilo", 0.0) - _delta)
+		if c["lugar"] == lugar_atual and c["sibilo"] <= 0.0 and c["a"].position.distance_to(jogador.global_position) < 44.0:
+			c["sibilo"] = 3.0
+			Jogo.tocar_som("cobra_sibilo", -8.0)
 		if c["lugar"] == lugar_atual and _invulneravel <= 0.0 and not _voltando and jogador.pode_mover \
 				and c["a"].overlaps_body(jogador):
 			_tomar_dano(c["a"].global_position)
@@ -982,7 +993,7 @@ func _mover_javali(delta: float) -> void:
 				_javali["bravo"] = 0.0
 				_javali["carga"] = d.normalized()
 				_javali["tempo_carga"] = 0.45
-				Jogo.tocar_som("erro", -10.0)
+				Jogo.tocar_som("javali_corre", -6.0)
 	if _javali["lugar"] == lugar_atual and _invulneravel <= 0.0 and not _voltando and jogador.pode_mover \
 			and a.overlaps_body(jogador):
 		_tomar_dano(a.global_position)
@@ -992,7 +1003,8 @@ func _mover_javali(delta: float) -> void:
 func _quebrar_colmeia() -> void:
 	var col: Sprite2D = _colmeia["s"]
 	col.frame = 1
-	Jogo.tocar_som("caminho", -8.0)
+	Jogo.tocar_som("flecha_acerta", -4.0)
+	Jogo.tocar_som("colmeia_quebra", -4.0)
 	# as abelhas saem e vão para cima do javali
 	var abelhas := CPUParticles2D.new()
 	abelhas.position = col.position
@@ -1086,12 +1098,13 @@ func _mergulho() -> void:
 	sombra.position = alvo
 	sombra.scale = Vector2(1, 1)
 	sombra.modulate = Color(0, 0, 0, 0.0)
+	Jogo.tocar_som("passaro_grito", -8.0)
 	var t := create_tween()
 	t.tween_property(sombra, "scale", Vector2(3.2, 3.2), 0.9)
 	t.parallel().tween_property(sombra, "modulate:a", 0.6, 0.9)
 	t.tween_property(s, "position", alvo + Vector2(0, 2), 0.22).set_ease(Tween.EASE_IN)
 	await t.finished
-	Jogo.tocar_som("caminho", -10.0)
+	Jogo.tocar_som("asas", -4.0)
 	if jogador.global_position.distance_to(alvo) < 16.0 and _invulneravel <= 0.0 and jogador.pode_mover:
 		_tomar_dano(alvo + Vector2(0, -8))
 	var volta := create_tween()
@@ -1168,7 +1181,7 @@ func _oxossi_chega() -> void:
 		await get_tree().create_timer(0.45 if q < 6 else 0.9).timeout
 	# ...e solta
 	_oxossi.frame = 7
-	Jogo.tocar_som("pulo", -2.0)
+	Jogo.tocar_som("flecha_atira", -2.0)
 	var s: Sprite2D = _passaro["s"]
 	var flecha := Sprite2D.new()
 	flecha.texture = preload("res://arte/ox_flecha.png")
@@ -1183,7 +1196,8 @@ func _oxossi_chega() -> void:
 	_oxossi.frame = 8
 	# a flecha passa raspando: o pássaro grita, perde penas e vai embora para sempre
 	_passaro["foi"] = true
-	Jogo.tocar_som("erro", -2.0)
+	Jogo.tocar_som("passaro_grito", -2.0)
+	Jogo.tocar_som("asas", -6.0)
 	_tremer()
 	_penas(s.position + Vector2(0, -20))
 	var some := create_tween()
@@ -1443,7 +1457,9 @@ func _passarinho_voa(b: Dictionary) -> void:
 	var s: Sprite2D = b["s"]
 	var lado := 1.0 if s.position.x > jogador.global_position.x else -1.0
 	s.flip_h = lado < 0.0
-	Jogo.tocar_som("texto", -18.0)
+	Jogo.tocar_som("asas", -14.0)
+	if randf() < 0.5:
+		Jogo.tocar_som("passarinho_pio", -14.0)
 	var t := create_tween()
 	t.tween_property(s, "position", s.position + Vector2(lado * randf_range(60, 90), randf_range(-90, -60)), 1.2)
 	t.parallel().tween_property(s, "modulate:a", 0.0, 1.2).set_delay(0.5)
@@ -1598,7 +1614,7 @@ func _acordar_onca(o: Dictionary) -> void:
 		return
 	o["estado"] = "acordada"
 	o["tempo"] = 0.7
-	Jogo.tocar_som("erro", -4.0)
+	Jogo.tocar_som("onca_rosna", -2.0)
 	var t := create_tween()                      # o rugido: a onça se estica
 	t.tween_property(o["s"], "scale", Vector2(1.12, 1.12), 0.15)
 	t.tween_property(o["s"], "scale", Vector2.ONE, 0.2)
@@ -1614,6 +1630,7 @@ func _bote(o: Dictionary) -> void:
 	var dir := (alvo - a.position)
 	if dir.length() > 80.0:
 		alvo = a.position + dir.normalized() * 80.0
+	Jogo.tocar_som("onca_bote", -2.0)
 	var t := create_tween()
 	t.tween_property(a, "position", alvo, 0.3).set_ease(Tween.EASE_OUT)
 	await t.finished
@@ -1708,7 +1725,17 @@ func _ajustar_copa(nome: String) -> void:
 		_folhas_caindo.emitting = nome != "ox_clareira"
 
 
+var _zumbido := 0.0
+
+
 func _animar_mata_alta(_delta: float) -> void:
+	# perto da colmeia, as abelhas zumbem
+	_zumbido -= _delta
+	if not _colmeia.is_empty() and not _colmeia["caiu"] and _colmeia["lugar"] == lugar_atual and _zumbido <= 0.0:
+		var d: float = _colmeia["s"].position.distance_to(jogador.global_position)
+		if d < 70.0:
+			_zumbido = 1.0
+			Jogo.tocar_som("colmeia_zumbido", -14.0 - d / 10.0)
 	for m in _manchas_sol:                  # o sol balança no chão (a copa mexe com o vento)
 		var sp: Sprite2D = m[0]
 		sp.modulate.a = 0.55 + 0.35 * sin(_tempo * 0.8 + m[1])

@@ -42,7 +42,7 @@ func _ao_tocar(corpo: Node2D) -> void:
 		return
 	_pego = true
 	brilho.visible = false
-	Jogo.tocar_som("buzio", -2.0)
+	Jogo.tocar_som("pegar_item", -4.0)
 	coletado.emit(id)
 	var t := create_tween().set_parallel()
 	t.tween_property(sprite, "position:y", sprite.position.y - 14.0, 0.4)

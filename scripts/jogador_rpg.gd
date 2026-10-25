@@ -18,6 +18,7 @@ var devagar := false
 var fator_chao := 1.0            # lama, areia funda...: a fase diminui (1.0 = chão firme)
 var animacao_especial := false   # batendo palmas etc.: quem troca os quadros é a cena
 var _tempo_anim := 0.0
+var _ultimo_passo := -1
 
 @onready var sprite: Sprite2D = $Sprite
 
@@ -49,9 +50,22 @@ func _animar(delta: float, andando: bool) -> void:
 	if andando:
 		var quadros: Array = anim["andando"]
 		var fps: float = anim["fps"] * (0.5 if devagar else 1.0) * (0.7 if fator_chao < 1.0 else 1.0)
-		sprite.frame = quadros[int(_tempo_anim * fps) % quadros.size()]
+		var i := int(_tempo_anim * fps)
+		sprite.frame = quadros[i % quadros.size()]
+		if i != _ultimo_passo:
+			_ultimo_passo = i
+			if i % 2 == 0 and not devagar:     # devagar = passos de caçador, sem barulho
+				_som_do_passo()
 	else:
 		sprite.frame = anim["parado"][0]
+
+
+func _som_do_passo() -> void:
+	var cena := get_tree().current_scene
+	if cena and cena.has_method("som_do_chao"):
+		var som: Array = cena.som_do_chao(global_position)
+		if not som.is_empty():
+			Jogo.tocar_som(som[0], som[1] + randf_range(-1.5, 1.5))
 
 
 ## Olha para um ponto (usado nas conversas).

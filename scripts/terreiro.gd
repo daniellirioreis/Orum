@@ -481,7 +481,7 @@ func _ganhar(id: String) -> void:
 	t.tween_property(icone, "scale", Vector2(1.6, 1.6), 0.12)
 	t.tween_property(icone, "scale", Vector2.ONE, 0.18)
 	_atualizar_hud()
-	Jogo.tocar_som("buzio", -2.0)
+	Jogo.tocar_som("pegar_item", -4.0)
 	_mostrar_aviso("Você pegou: " + _dados["pegou"][id])
 	if coletados.size() == ITENS.size():
 		estado = "pronto"
@@ -1503,6 +1503,33 @@ func _construir_terreno(mapa: PackedStringArray, origem: Vector2, topo: TileMapL
 
 
 ## Cada camada de terreno pronta passa por aqui (a fase de Nanã guarda a da maré).
+func _letra_em(pos: Vector2) -> String:
+	var origem: Vector2 = lugares[lugar_atual]["origem"]
+	var rel := pos - origem
+	return _letra(_mapas[lugar_atual], floori(rel.x / TILE), floori(rel.y / TILE))
+
+
+## Som que toca perto de Adé (mais baixo quanto mais longe; longe da tela, não toca).
+func som_perto(nome: String, pos: Vector2, volume_db := 0.0) -> void:
+	var d := pos.distance_to(jogador.global_position)
+	if d < 160.0:
+		Jogo.tocar_som(nome, volume_db - d / 20.0)
+
+
+## O passo de Adé muda com o chão: [som, volume]. Vazio = sem som.
+func som_do_chao(pos: Vector2) -> Array:
+	if not lugares.has(lugar_atual) or not _mapas.has(lugar_atual):
+		return []
+	if lugares[lugar_atual]["dentro"]:
+		return ["passo_madeira", -16.0]
+	var l := _letra_em(pos)
+	if l in agua_chars:
+		return []
+	if l in ["t", "r", "_", "="]:
+		return ["passo_terra", -15.0]
+	return ["passo_grama", -14.0]
+
+
 func _camada_terreno(_origem: Vector2, _i: int, _camada: TileMapLayer) -> void:
 	pass
 
