@@ -64,6 +64,8 @@ var _texturas: Array = []
 var _ade: Sprite2D
 var _nome: Label
 var _saudacao: Label
+var _trofeu: Label            # "★ Troféu: ..." numa linha própria (a faixa cresce quando tem troféu)
+var _faixa: Panel
 var _descricao: Label
 var _icone: TextureRect
 var _caixa: PanelContainer
@@ -549,6 +551,7 @@ func _criar_interface() -> void:
 	faixa.size = Vector2(248, 28)
 	faixa.add_theme_stylebox_override("panel", _estilo())
 	camada.add_child(faixa)
+	_faixa = faixa
 	_icone = TextureRect.new()
 	_icone.position = Vector2(8, 9)
 	camada.add_child(_icone)
@@ -565,6 +568,11 @@ func _criar_interface() -> void:
 	_descricao.size = Vector2(222, 12)
 	_descricao.clip_text = true
 	camada.add_child(_descricao)
+	_trofeu = _rotulo(fonte, 7, Color(1, 0.82, 0.35))
+	_trofeu.position = Vector2(27, 27)
+	_trofeu.size = Vector2(222, 11)
+	_trofeu.clip_text = true
+	camada.add_child(_trofeu)
 
 	_caixa = PanelContainer.new()
 	_caixa.position = Vector2(12, 160)
@@ -633,13 +641,13 @@ func _mostrar_no(id: String) -> void:
 		_saudacao.text = "Laroyê!"
 		_descricao.text = Jogo.texto("Aperte {interagir} para voltar ao terreiro da Vó.") if Jogo.has_meta("mapa_aberto") else "Todo caminho começa e termina aqui."
 		_icone.texture = null
+		_mostrar_trofeu("")
 		return
 	var c: Dictionary = _campos[id]
 	_nome.text = "%s · %s" % [c["nome"], c["yo"]]
 	_saudacao.text = c["saudacao"]
-	if Jogo.trofeus.has(id):
-		_saudacao.text += "  ★ " + Jogo.trofeus[id]
 	_descricao.text = c["campo"]
+	_mostrar_trofeu(Jogo.trofeus.get(id, ""))
 	var atlas := AtlasTexture.new()
 	atlas.atlas = preload("res://arte/mapa_icones.png")
 	atlas.region = Rect2(ORDEM_ICONES.find(id) * 16, 0, 16, 16)
@@ -647,10 +655,17 @@ func _mostrar_no(id: String) -> void:
 	_icone.position = Vector2(8, 9)
 
 
+## O troféu ganho do orixá aparece numa linha própria, embaixo da descrição; sem troféu, a faixa volta ao normal.
+func _mostrar_trofeu(trofeu: String) -> void:
+	_trofeu.text = ("★ Troféu: " + trofeu) if trofeu != "" else ""
+	_faixa.size.y = 38 if trofeu != "" else 28
+
+
 func _esconder_no() -> void:
 	_nome.text = ""
 	_saudacao.text = ""
 	_descricao.text = ""
+	_mostrar_trofeu("")
 	_icone.texture = null
 
 
