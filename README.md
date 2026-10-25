@@ -165,6 +165,9 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
     dela (rachado) até a lagoa: "eu chego lá do meu jeito, devagarinho".
   - **O bambuzal**: o taboal fecha o caminho. A **faca de ferro** do toco não serve: a lama treme, a faca escorrega e
     afunda (na terra de Nanã, ferro não serve para nada). Com a lasca de um bambu rachado, a **lâmina de bambu**, a taboa abre.
+    O bambu rachado some do chão quando a lâmina vai para o inventário. No bambuzal pulam **sapos** (`G` no mapa):
+    coaxam, a sombra aparece onde vão cair e eles pulam — perto de Adé, pulam em cima dele (leva um búzio de axé);
+    é só sair de baixo da sombra. Cada sapo fica perto do seu canto.
   - **O mangue**: a **maré** sobe e desce. Na baixa, dá para passar pelas raízes (e os **caranguejos** saem da lama
     e beliscam); na alta, a água cobre as raízes e leva Adé de volta para o último chão firme. Numa ilhota, as
     **flores lilás**. Do outro lado, a velhinha já está esperando...

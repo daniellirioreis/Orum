@@ -138,6 +138,7 @@ func _process(delta: float) -> void:
 	_chao_de_ade(delta)
 	_mover_garcas(delta)
 	_mover_sapos()
+	_mover_puladores(delta)
 	_bolhas(delta)
 	_pingos_na_agua(delta)
 	_mover_mare(delta)
@@ -202,6 +203,8 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 				v.interagiu.connect(_falar_com_velhinha_do_mangue)
 		"g":
 			_criar_garca(lugar, base)
+		"G":
+			_criar_sapo_pulador(lugar, base)
 		"s":
 			_criar_sapo(lugar, base)
 		"K":
@@ -631,11 +634,108 @@ func _mover_garcas(_delta: float) -> void:
 func _criar_sapo(lugar: String, base: Vector2) -> void:
 	var s := Sprite2D.new()
 	s.texture = preload("res://arte/nana_sapo.png")
-	s.hframes = 2
+	s.hframes = 3
 	s.offset = Vector2(0, -5)
 	s.position = base - Vector2(0, 2)
 	mundo.add_child(s)
 	_sapos.append({"s": s, "casa": s.position, "lugar": lugar, "pulando": false, "fase": randf() * 6.0})
+
+
+## Sapos-puladores do bambuzal: de tempos em tempos coaxam, a sombra aparece no chão onde vão cair e eles pulam;
+## se Adé estiver perto, pulam em cima dele — cair debaixo do sapo leva um búzio de axé. Basta sair da sombra.
+var _puladores: Array = []      # {s, sombra, casa, lugar, espera, no_ar}
+const PULO_ALCANCE := 44.0
+
+
+func _criar_sapo_pulador(lugar: String, base: Vector2) -> void:
+	var s := Sprite2D.new()
+	s.texture = preload("res://arte/nana_sapo.png")
+	s.hframes = 3
+	s.offset = Vector2(0, -5)
+	s.position = base - Vector2(0, 2)
+	s.scale = Vector2(1.25, 1.25)        # um pouco maior que os sapos de enfeite
+	mundo.add_child(s)
+	var sombra := Sprite2D.new()
+	sombra.texture = TEX_SOMBRA
+	sombra.modulate = Color(0, 0, 0, 0)
+	sombra.z_index = -3
+	add_child(sombra)
+	_puladores.append({"s": s, "sombra": sombra, "casa": s.position, "lugar": lugar,
+		"espera": randf_range(0.8, 2.5), "no_ar": false})
+
+
+func _mover_puladores(delta: float) -> void:
+	for p in _puladores:
+		if p["no_ar"] or p["lugar"] != lugar_atual:
+			continue
+		var s: Sprite2D = p["s"]
+		if not jogador.pode_mover or _voltando:
+			s.frame = 0
+			continue
+		p["espera"] -= delta
+		s.frame = 1 if p["espera"] < 0.5 else 0          # coaxa antes de pular
+		if p["espera"] <= 0.0:
+			_pular(p)
+
+
+func _pular(p: Dictionary) -> void:
+	var s: Sprite2D = p["s"]
+	var ade := jogador.global_position
+	var alvo: Vector2
+	var longe_de_casa: bool = s.position.distance_to(p["casa"]) > 90.0
+	if longe_de_casa:
+		alvo = s.position + (p["casa"] - s.position).limit_length(PULO_ALCANCE)   # não vai longe: volta para o seu canto
+	elif s.position.distance_to(ade) < 80.0:
+		alvo = s.position + (ade - s.position).limit_length(PULO_ALCANCE)      # pula em cima de Adé
+	else:
+		var casa: Vector2 = p["casa"]
+		alvo = casa + Vector2(randf_range(-28, 28), randf_range(-20, 20))       # passeia perto de casa
+		alvo = s.position + (alvo - s.position).limit_length(PULO_ALCANCE)
+	if not _pode_pousar(alvo):
+		p["espera"] = randf_range(0.4, 0.9)
+		return
+	p["no_ar"] = true
+	s.flip_h = alvo.x < s.position.x
+	var sombra: Sprite2D = p["sombra"]
+	sombra.position = alvo
+	sombra.scale = Vector2(0.6, 0.6)
+	# a sombra aparece onde o sapo vai cair (dá tempo de sair)
+	var aviso := create_tween()
+	aviso.tween_property(sombra, "modulate:a", 0.45, 0.35)
+	aviso.parallel().tween_property(sombra, "scale", Vector2(1.1, 1.1), 0.35)
+	await aviso.finished
+	if not is_instance_valid(s):
+		return
+	s.frame = 2
+	s.z_index = 2
+	Jogo.tocar_som("pulo", -16.0)
+	var de := s.position
+	var t := create_tween()
+	t.tween_method(func(u: float):
+		s.position = de.lerp(alvo, u) + Vector2(0, -sin(u * PI) * 18.0), 0.0, 1.0, 0.45)
+	await t.finished
+	if not is_instance_valid(s):
+		return
+	s.frame = 0
+	s.z_index = 0
+	create_tween().tween_property(sombra, "modulate:a", 0.0, 0.15)
+	_lama_espirra(alvo + Vector2(0, 2))
+	if lugar_atual == p["lugar"] and jogador.global_position.distance_to(alvo) < 11.0 and _invulneravel <= 0.0 \
+			and jogador.pode_mover and not _voltando:
+		_tomar_dano(alvo)
+	p["no_ar"] = false
+	p["espera"] = randf_range(1.2, 2.6)
+
+
+## O sapo só pousa onde dá pé: chão de lama ou grama, sem bambu, árvore ou parede.
+func _pode_pousar(pos: Vector2) -> bool:
+	var letra := _letra_em(pos + Vector2(0, -2))
+	if not (letra in ANDAVEL):
+		return false
+	var q := PhysicsPointQueryParameters2D.new()
+	q.position = pos + Vector2(0, -2)
+	q.collision_mask = 1
+	return get_world_2d().direct_space_state.intersect_point(q, 1).is_empty()
 
 
 func _mover_sapos() -> void:
@@ -1177,7 +1277,12 @@ func _ao_evento(nome: String) -> void:
 			Jogo.tocar_som("erro", -8.0)
 		"ganhar_lamina":
 			_nana["lamina"] = true
-			_lascas.sprite.frame = 1
+			# a lasca vai para o inventário: o bambu rachado some do chão
+			_lascas.ativo = false
+			_lascas.get_node("Corpo/Forma").set_deferred("disabled", true)
+			var some := create_tween()
+			some.tween_property(_lascas, "modulate:a", 0.0, 0.4)
+			some.tween_callback(_lascas.queue_free)
 			_acender_slot("lamina", "uma lâmina de bambu")
 		"ganhar_flores":
 			_nana["flores"] = true
