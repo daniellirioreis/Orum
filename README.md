@@ -220,7 +220,7 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   `TRILHA_*` no `scripts/mapa_mundo.gd` e `LATERITA` no gerador) e, em volta do largo, fica o mercado de Exu
   (Ọlọ́jà, o dono do mercado): barracas com toldo de pano (adire azul-índigo, vermelho e amarelo, verde), cabaças e
   cestos (`mercado()` no `gerar_mapa_mundo.py`).
-- **O mundo de Iansã no Ọ̀run**: planalto de pedra avermelhada de tempestade, com o vento passando em ondas pelo capim
+- **O mundo de Iansã no Ọ̀run**: a planície e o planalto viraram uma terra alta só, de pedra avermelhada de tempestade, com o vento passando em ondas pelo capim
   (os tufos deitam quando a onda passa), bambuzais balançando com fitas vermelhas e cor de coral, os chifres de búfalo
   formando um arco na chegada (`arte/mundo_chifres.png`, enfeite como o portal de Ogum), redemoinhos de vento andando
   pelo planalto (`arte/mundo_redemoinho.png`) e chuva caindo das nuvens de tempestade (`_criar_vento_de_iansa()`).
