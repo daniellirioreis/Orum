@@ -222,7 +222,7 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   cestos (`mercado()` no `gerar_mapa_mundo.py`).
 - **Paisagens do Ọ̀run** (`bioma()` e `paisagens()` no `gerar_mapa_mundo.py`): floresta verde-escura a oeste (Oxum e
   Oxóssi), mata ciliar verde ao longo do rio e da lagoa, savana dourada no meio (acácias, baobás, cupinzeiros e capim)
-  e savana seca avermelhada no norte e no leste, com morros de granito. A pedreira de Xangô ficou enorme, em três
+  e savana seca avermelhada no norte e no leste, com morros de granito. A pedreira de Xangô virou uma serra comprida de pedra vermelha (arenito), em três
   andares, e muitas nuvens passam devagar pelo reino de Oxalá (`_criar_nuvens_de_oxala()` no `scripts/mapa_mundo.gd`).
 - **A praia de Iemanjá no Ọ̀run** (`praia_de_iemanja()` no `gerar_mapa_mundo.py`): praia larga com ondas chegando e
   areia molhada, trapiche de madeira com o lugar de Iemanjá na ponta (flores e velas azuis e brancas), barquinhos e
