@@ -89,6 +89,7 @@ func _ready() -> void:
 	_criar_nuvens()
 	_criar_gaivotas()
 	_criar_nuvens_de_oxala()
+	_criar_vento_de_iansa()
 
 	var mapa: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(ARQUIVO_MAPA))
 	if mapa.has("tamanho"):
@@ -178,6 +179,7 @@ func _process(delta: float) -> void:
 	_mexer_nuvens(delta)
 	_mexer_gaivotas()
 	_mexer_nuvens_de_oxala(delta)
+	_mexer_vento_de_iansa()
 	if _camera.zoom.x >= 0.999:
 		_camera.position = _ade.position + Vector2(0, -8)
 	for en in _enfeites:
@@ -266,6 +268,47 @@ func _mexer_nuvens_de_oxala(delta: float) -> void:
 		n.position = Vector2(c["x"], c["y"] + sin(_tempo * 0.6 + c["fase"]) * 1.5).round()
 		var borda := minf(c["x"] - OXALA_X.x, OXALA_X.y - c["x"])        # aparece e some devagar nas pontas
 		n.modulate.a = clampf(borda / 30.0, 0.0, 0.9)
+
+
+## Iansã: redemoinhos de vento andando pelo planalto dela, e chuva caindo das nuvens de tempestade.
+var _redemoinhos: Array = []
+
+
+func _criar_vento_de_iansa() -> void:
+	for i in 3:
+		var r := Sprite2D.new()
+		r.texture = preload("res://arte/mundo_redemoinho.png")
+		r.hframes = 4
+		r.offset = Vector2(0, -8)
+		r.z_index = 1
+		add_child(r)
+		_redemoinhos.append({"no": r, "fase": i * 2.2, "vel": 0.22 + i * 0.07})
+	var gota := Image.create(1, 3, false, Image.FORMAT_RGBA8)
+	gota.fill(Color(0.8, 0.86, 1.0, 0.75))
+	var tex_gota := ImageTexture.create_from_image(gota)
+	for n in _tempestade:                               # a cortina de chuva embaixo de cada nuvem de tempestade
+		var chuva := CPUParticles2D.new()
+		chuva.texture = tex_gota
+		chuva.position = Vector2(0, 6)
+		chuva.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+		chuva.emission_rect_extents = Vector2(11, 1)
+		chuva.amount = 18
+		chuva.lifetime = 0.35
+		chuva.direction = Vector2(0.25, 1)
+		chuva.spread = 4.0
+		chuva.gravity = Vector2.ZERO
+		chuva.initial_velocity_min = 70.0
+		chuva.initial_velocity_max = 90.0
+		chuva.show_behind_parent = true
+		n.add_child(chuva)
+
+
+func _mexer_vento_de_iansa() -> void:
+	for r in _redemoinhos:
+		var t: float = _tempo * r["vel"] + r["fase"]
+		var s: Sprite2D = r["no"]
+		s.position = (Vector2(428, 116) + Vector2(sin(t) * 38.0, sin(t * 1.7 + 1.0) * 20.0)).round()
+		s.frame = int(_tempo * 10.0 + r["fase"]) % 4
 
 
 ## Gaivotas voando em roda sobre o mar de Iemanjá (no canto de baixo, à direita).

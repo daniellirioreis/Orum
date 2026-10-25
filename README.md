@@ -220,6 +220,10 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   `TRILHA_*` no `scripts/mapa_mundo.gd` e `LATERITA` no gerador) e, em volta do largo, fica o mercado de Exu
   (Ọlọ́jà, o dono do mercado): barracas com toldo de pano (adire azul-índigo, vermelho e amarelo, verde), cabaças e
   cestos (`mercado()` no `gerar_mapa_mundo.py`).
+- **O mundo de Iansã no Ọ̀run**: planalto de pedra avermelhada de tempestade, com o vento passando em ondas pelo capim
+  (os tufos deitam quando a onda passa), bambuzais balançando com fitas vermelhas e cor de coral, os chifres de búfalo
+  formando um arco na chegada (`arte/mundo_chifres.png`, enfeite como o portal de Ogum), redemoinhos de vento andando
+  pelo planalto (`arte/mundo_redemoinho.png`) e chuva caindo das nuvens de tempestade (`_criar_vento_de_iansa()`).
 - **O palácio de Xangô** (`palacio_de_xango()` no `gerar_mapa_mundo.py`): no alto da serra, o palácio do rei de Ọ̀yọ́
   (o Àfin), nascendo da própria pedra vermelha da serra (muralha e torres de rocha, sem emenda), com as pontas de madeira, duas torres com
   bandeiras vermelho e branco, o salão do rei com telhado alto de palha e o portão com colunas de madeira e o oxê.
