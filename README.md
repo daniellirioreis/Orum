@@ -216,6 +216,10 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
 - **Som da chuva**: sempre que chove (no terreiro ou na terra de Nanã), toca o barulho da chuva caindo em laço
   (`sons/chuva.wav`), mais alto lá fora e abafado dentro de casa; na lagoa de Nanã ele engrossa com a chuva.
   Os relâmpagos agora têm trovão (`sons/trovao.wav`). Os dois sons são feitos pelo `gerar_som_chuva.py`.
+- **Ọ̀run com cara de terra iorubá**: as trilhas e o largo da encruzilhada são de terra vermelha (laterita; cores
+  `TRILHA_*` no `scripts/mapa_mundo.gd` e `LATERITA` no gerador) e, em volta do largo, fica o mercado de Exu
+  (Ọlọ́jà, o dono do mercado): barracas com toldo de pano (adire azul-índigo, vermelho e amarelo, verde), cabaças e
+  cestos (`mercado()` no `gerar_mapa_mundo.py`).
 - **A praia de Iemanjá no Ọ̀run** (`praia_de_iemanja()` no `gerar_mapa_mundo.py`): praia larga com ondas chegando e
   areia molhada, trapiche de madeira com o lugar de Iemanjá na ponta (flores e velas azuis e brancas), barquinhos e
   flores de presente balançando no mar, jangada, peixe pulando, coqueiros, estrelas-do-mar e um farol nas pedras com a
