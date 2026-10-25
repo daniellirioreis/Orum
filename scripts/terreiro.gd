@@ -270,6 +270,7 @@ func _ao_pisar_porta(corpo: Node2D, numero: String, lugar: String) -> void:
 			t.tween_property(_cortina, "color:a", 1.0, 0.18)
 			await t.finished
 			teleportar(destino[0], _chegada(destino[0], destino[1]))
+			_mostrar_nome_do_lugar(destino[0])
 			await get_tree().create_timer(0.08).timeout
 			var t2 := create_tween()
 			t2.tween_property(_cortina, "color:a", 0.0, 0.22)
@@ -277,6 +278,52 @@ func _ao_pisar_porta(corpo: Node2D, numero: String, lugar: String) -> void:
 			jogador.congelar(false)
 			_trocando = false
 			return
+
+
+## Ao passar por uma porta, uma plaquinha no alto da tela diz em que cômodo Adé entrou.
+const NOMES_DOS_LUGARES := {"barracao": "Barracão", "cozinha": "Cozinha", "despensa": "Despensa",
+	"quarto": "Quarto de santo", "quintal": "Quintal"}
+var _placa_lugar: PanelContainer
+var _tween_placa: Tween
+
+
+func _mostrar_nome_do_lugar(nome: String) -> void:
+	if not NOMES_DOS_LUGARES.has(nome):
+		return
+	if not _placa_lugar:
+		var camada := CanvasLayer.new()
+		camada.layer = 6
+		add_child(camada)
+		_placa_lugar = PanelContainer.new()
+		var estilo := StyleBoxFlat.new()
+		estilo.bg_color = Color(0.06, 0.08, 0.3, 0.92)
+		estilo.border_color = Color(0.95, 0.95, 1.0)
+		estilo.set_border_width_all(1)
+		estilo.set_corner_radius_all(3)
+		estilo.content_margin_left = 10
+		estilo.content_margin_right = 10
+		estilo.content_margin_top = 1
+		estilo.content_margin_bottom = 2
+		_placa_lugar.add_theme_stylebox_override("panel", estilo)
+		var rotulo := Label.new()
+		rotulo.add_theme_font_override("font", preload("res://fontes/NotoSans-SemiBold.ttf"))
+		rotulo.add_theme_font_size_override("font_size", 10)
+		rotulo.add_theme_color_override("font_color", Color(1.0, 0.86, 0.45))
+		rotulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_placa_lugar.add_child(rotulo)
+		camada.add_child(_placa_lugar)
+	var rotulo: Label = _placa_lugar.get_child(0)
+	rotulo.text = NOMES_DOS_LUGARES[nome]
+	_placa_lugar.reset_size()
+	_placa_lugar.position = Vector2((Jogo.TELA.x - _placa_lugar.size.x) / 2.0, 26.0)
+	if _tween_placa:
+		_tween_placa.kill()
+	_placa_lugar.modulate.a = 0.0
+	_tween_placa = create_tween()
+	_tween_placa.tween_interval(0.2)
+	_tween_placa.tween_property(_placa_lugar, "modulate:a", 1.0, 0.25)
+	_tween_placa.tween_interval(1.6)
+	_tween_placa.tween_property(_placa_lugar, "modulate:a", 0.0, 0.5)
 
 
 ## Onde Adé aparece ao chegar por uma porta: no primeiro bloco livre ao lado dela.

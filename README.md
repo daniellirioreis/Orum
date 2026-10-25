@@ -216,6 +216,8 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
 - **Som da chuva**: sempre que chove (no terreiro ou na terra de Nanã), toca o barulho da chuva caindo em laço
   (`sons/chuva.wav`), mais alto lá fora e abafado dentro de casa; na lagoa de Nanã ele engrossa com a chuva.
   Os relâmpagos agora têm trovão (`sons/trovao.wav`). Os dois sons são feitos pelo `gerar_som_chuva.py`.
+- **Nome do cômodo**: ao passar por uma porta do terreiro, uma plaquinha no alto da tela diz onde Adé entrou (Barracão,
+  Cozinha, Despensa, Quarto de santo, Quintal). Os nomes ficam em `NOMES_DOS_LUGARES`, no `scripts/terreiro.gd`.
 - **Rosto de quem fala**: a caixa de diálogo mostra o retrato (32×32) de quem está falando, numa moldura à esquerda
   (`arte/retratos.png`, feito pelo `gerar_retratos.py`: uma linha por personagem, uma coluna por expressão). Uma fala
   pode pedir a expressão com `"rosto": "feliz"` (ou `"assustado"`, `"rindo"`, `"bravo"`); a gargalhada de Exu já usa o
