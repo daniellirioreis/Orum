@@ -98,7 +98,7 @@
 		{"quem": "", "yo": "", "pt": "\"Da lama da lagoa foi feito o primeiro de nós. Para ela voltamos, para nascer de novo.\""}
 	],
 	"barro_conserta": [
-		{"quem": "Adé", "yo": "", "pt": "Barro da beira da lagoa, mole com a chuva..."},
+		{"quem": "Adé", "yo": "", "pt": "Uma poça de barro mole, bem no meio da lagoa... É o barro bom, que a chuva amoleceu."},
 		{"quem": "Adé", "yo": "", "pt": "Vou amassar bem e tampar a rachadura do pote.", "evento": "consertar_pote"},
 		{"quem": "Adé", "yo": "", "pt": "Pronto! O pote está inteiro de novo. Agora não vaza."}
 	],

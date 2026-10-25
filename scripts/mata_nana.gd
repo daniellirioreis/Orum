@@ -73,6 +73,8 @@ var _barro: Area2D
 var _pedra: Area2D
 var _pote_na_pedra: Sprite2D
 var _balao_pedra: Sprite2D
+var _balao_barro: Sprite2D
+var _proxima_bolha_barro := 1.0
 var _enchendo := 0.0
 var _lugar_nana: Area2D
 var _chegada_velhinha := Vector2.ZERO
@@ -147,6 +149,7 @@ func _process(delta: float) -> void:
 	_mover_caranguejos()
 	_encher_pote(delta)
 	_atualizar_balao_pedra()
+	_animar_poca_barro(delta)
 	_perto_da_velhinha_do_mangue()
 	if _nana_sprite and _anim_nana == "parada":
 		_nana_sprite.frame = int(_tempo * 2.5) % 4
@@ -232,8 +235,15 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			var moita := _criar_interativo("res://arte/nana_flores.png", 2, base, Vector2(12, 6), -22.0)
 			moita.interagiu.connect(_colher_flores.bind(moita))
 		"b":
-			_barro = _criar_interativo("res://arte/nana_barro.png", 2, base, Vector2(14, 6), -18.0)
+			# a poça de barro mole da ilhota (Adé pisa por cima; o barro bom está ali)
+			_barro = _criar_interativo("res://arte/nana_poca_barro.png", 2, base + Vector2(8, -1), Vector2(2, 2), -22.0)
+			_barro.z_index = -3
+			(_barro.get_node("Alcance").shape as CircleShape2D).radius = 24.0
 			_barro.interagiu.connect(_no_barro)
+			_balao_barro = Sprite2D.new()
+			_balao_barro.texture = preload("res://arte/balao.png")
+			_balao_barro.z_index = 5
+			add_child(_balao_barro)
 		"O":
 			_pedra = _criar_interativo("res://arte/obj_pedras.png", 1, base, Vector2(14, 6), -24.0)
 			_pedra.interagiu.connect(_na_pedra)
@@ -1133,6 +1143,18 @@ func _colher_flores(moita: Area2D) -> void:
 
 func _no_barro() -> void:
 	if _nana.get("pote", "") == "rachado":
+		# Adé se abaixa e pega um punhado de barro
+		jogador.congelar(true)
+		jogador.olhar_para(_barro.position)
+		var sp: Sprite2D = jogador.sprite
+		var abaixa := create_tween()
+		abaixa.tween_property(sp, "scale", Vector2(1.1, 0.82), 0.18)
+		abaixa.parallel().tween_property(sp, "position:y", sp.position.y + 3.0, 0.18)
+		abaixa.tween_interval(0.35)
+		abaixa.tween_property(sp, "scale", Vector2.ONE, 0.18)
+		abaixa.parallel().tween_property(sp, "position:y", sp.position.y, 0.18)
+		_lama_espirra(_barro.position + Vector2(0, -2))
+		await abaixa.finished
 		await _falar("barro_conserta")
 	else:
 		await _falar("barro_depois")
@@ -1164,6 +1186,33 @@ func _na_pedra() -> void:
 			_acender_slot("pote", _dados["nomes"]["pote"])
 		_:
 			await _falar("pedra_depois")
+
+
+## A poça de barro: balão boiando enquanto o pote está rachado, e bolhinhas subindo de vez em quando.
+func _animar_poca_barro(delta: float) -> void:
+	if not _barro or lugar_atual != "nana_lagoa":
+		if _balao_barro:
+			_balao_barro.visible = false
+		return
+	_balao_barro.visible = _nana.get("pote", "") == "rachado" and not $Dialogo.ativo and not _barro.balao.visible
+	_balao_barro.position = _barro.position + Vector2(0, -22 + round(sin(_tempo * 3.0 + 1.0) * 1.5))
+	_proxima_bolha_barro -= delta
+	if _proxima_bolha_barro > 0.0:
+		return
+	_proxima_bolha_barro = randf_range(0.9, 2.0)
+	var b := Sprite2D.new()
+	b.texture = preload("res://arte/nana_bolha.png")
+	b.hframes = 5
+	b.scale = Vector2(0.7, 0.7)
+	b.position = _barro.position + Vector2(randf_range(-9, 9), randf_range(-11, -5))
+	b.z_index = -2
+	add_child(b)
+	var t := create_tween()
+	for q in [1, 2, 3, 4]:
+		t.tween_interval(0.35)
+		t.tween_callback(func(): b.frame = q)
+	t.tween_property(b, "modulate:a", 0.0, 0.2)
+	t.tween_callback(b.queue_free)
 
 
 ## O balão da pedra aparece enquanto Adé tem o que fazer nela (deixar o pote, buscar o pote cheio),

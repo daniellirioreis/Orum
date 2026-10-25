@@ -177,6 +177,8 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
     voltam a boiar). Pisou fora da folha, tchibum: perde um búzio de axé e volta ao último chão firme.
     As folhas grandes têm o mesmo desenho das vitórias-régias pequenas da lagoa (`arte/nana_vitoria_grande.png`).
     Enquanto há algo para fazer na pedra do pote, um balão fica boiando em cima dela.
+    O barro é uma **poça de barro mole** na ilhota (`arte/nana_poca_barro.png`, mesma cor da lama), com bolhinhas e um
+    balão boiando enquanto o pote está rachado; Adé se abaixa, pega um punhado e a poça fica com a marca das mãos dele.
     Na pedra, a chuva vazaria pela rachadura do pote; Adé conserta o pote com o **barro** da ilhota,
     deixa o pote na pedra até a chuva encher e faz a oferenda (pote com água da chuva e flores lilás) no **lugar de
     Nanã**. A chuva engrossa, a velhinha chega devagar e se revela: era Nanã. Ela fala da lama de onde se moldou o
