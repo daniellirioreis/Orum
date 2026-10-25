@@ -50,7 +50,8 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
 ## O que tem nesta versão
 
 **No terreiro (visão de cima)**
-- Abertura com o sonho: sete silhuetas de orixás, cada uma com sua cor.
+- Abertura com o sonho: nove silhuetas, os orixás que têm mundo no mapa, em sombra com o formato do desenho de cada um
+  e a aura e o contorno de luz na cor dele (`arte/sonho_orixas.png`, feito pelo `gerar_sonho_sombras.py`).
 - A casa com barracão (congá, atabaques, esteira), cozinha, despensa e o quintal com horta, árvores,
   a tronqueira e a porteira.
 - As pessoas da casa: a Vó (mãe de santo), a Tia Dora (cozinha), o Ogã Bené (atabaques) e a Lia (cambone).

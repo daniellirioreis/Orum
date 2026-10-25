@@ -316,12 +316,12 @@ func _sonho() -> void:
 	ceu.position = Vector2(-64, 0)
 	raiz.add_child(ceu)
 	var figuras := []
-	for i in 7:
+	for i in 9:                     # os orixás que têm mundo, em sombra (Oxalá no meio)
 		var s := Sprite2D.new()
 		s.texture = preload("res://arte/sonho_orixas.png")
-		s.hframes = 7
+		s.hframes = 9
 		s.frame = i
-		s.position = Vector2(tela.x / 2.0 + (i - 3) * 34, 84 + (6 if i % 2 else 0))
+		s.position = Vector2(tela.x / 2.0 + (i - 4) * 27, 84 + (6 if i % 2 else 0))
 		s.modulate.a = 0.0
 		raiz.add_child(s)
 		figuras.append(s)
