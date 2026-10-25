@@ -220,6 +220,8 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   `TRILHA_*` no `scripts/mapa_mundo.gd` e `LATERITA` no gerador) e, em volta do largo, fica o mercado de Exu
   (Ọlọ́jà, o dono do mercado): barracas com toldo de pano (adire azul-índigo, vermelho e amarelo, verde), cabaças e
   cestos (`mercado()` no `gerar_mapa_mundo.py`).
+- **O rio de Oxum no Ọ̀run** (`aguas_de_oxum()` e `RIO_AGUA`): mais largo e sem borda de areia (a água encosta direto no
+  chão; só a lagoa mantém a margem dourada). Onde o rio chega no mar, a água vira espuma indo e vindo.
 - **O reino de Omolu no Ọ̀run** (`baixada_seca()` e `palha_de_omolu()` no `gerar_mapa_mundo.py`): no nível do chão,
   uma baixada rasa de terra seca e quente (mais clara no meio, com o ar tremendo de calor), que encosta na lama de Nanã
   (mãe e filho se encontram: no meio, a lama vai secando e rachando);
