@@ -481,7 +481,7 @@ func _abrir_caminhos() -> void:
 	_camera.limit_right = int(_tamanho.x); _camera.limit_bottom = int(_tamanho.y)
 	_camera.position_smoothing_enabled = true
 	await get_tree().create_timer(0.2).timeout
-	_abrir_caixa("Os caminhos estão abertos! Cada um leva a um orixá.\nAnde com {andar} e escolha por onde começar.\nPara ver a ilha inteira, aperte {ver_mapa}.")
+	_abrir_caixa("Os caminhos estão abertos! Cada braço da cruz leva aos orixás daquele lado.\nAnde com {andar} e escolha por onde começar.\nPara ver a ilha inteira, aperte {ver_mapa}.")
 	_mostrar_no("orita")
 
 
@@ -701,8 +701,24 @@ func _rotulo(fonte: Font, tamanho: int, cor: Color) -> Label:
 	return l
 
 
+## As bifurcações: os quatro caminhos que saem da encruzilhada se dividem aqui, cada um para os mundos do seu lado.
+const BIFURCACOES := {
+	"bif_norte": ["O caminho do Norte", "Daqui se vai a Oxalá e a Iansã."],
+	"bif_oeste": ["O caminho do Oeste", "Daqui se vai a Oxum e a Oxóssi."],
+	"bif_leste": ["O caminho do Leste", "Daqui se vai a Ogum e a Xangô."],
+	"bif_sul": ["O caminho do Sul", "Daqui se vai a Nanã, a Omolu e a Iemanjá."],
+}
+
+
 func _mostrar_no(id: String) -> void:
 	_faixa.visible = true
+	if BIFURCACOES.has(id):
+		_nome.text = BIFURCACOES[id][0]
+		_saudacao.text = ""
+		_descricao.text = BIFURCACOES[id][1]
+		_icone.texture = null
+		_mostrar_trofeu("")
+		return
 	if id == "orita":
 		_nome.text = "Oríta Mẹ́ta · a encruzilhada"
 		_saudacao.text = "Laroyê!"
@@ -750,6 +766,8 @@ func _entrar() -> void:
 			Jogo.set_meta("volta", true)
 			Jogo.mudar_cena("res://cenas/encruzilhada.tscn")
 		return
+	if BIFURCACOES.has(_no_atual):
+		return                                  # na bifurcação não tem o que entrar: é só escolher a direção
 	if CENAS_DOS_CAMPOS.has(_no_atual):
 		_ocupado = true
 		Jogo.tocar_som("caminho", -6.0)

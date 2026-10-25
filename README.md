@@ -220,6 +220,10 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   `TRILHA_*` no `scripts/mapa_mundo.gd` e `LATERITA` no gerador) e, em volta do largo, fica o mercado de Exu
   (Ọlọ́jà, o dono do mercado): barracas com toldo de pano (adire azul-índigo, vermelho e amarelo, verde), cabaças e
   cestos (`mercado()` no `gerar_mapa_mundo.py`).
+- **Os caminhos do Ọ̀run saem todos da encruzilhada**: cada braço da cruz leva a uma bifurcação (`bif_norte`,
+  `bif_oeste`, `bif_leste`, `bif_sul` em `NOS` no `gerar_mapa_mundo.py`), e dela aos mundos daquele lado: Norte → Oxalá e
+  Iansã; Oeste → Oxum e Oxóssi; Leste → Ogum e Xangô; Sul → Nanã, Omolu e Iemanjá. Um mundo não se liga direto a outro.
+  Na bifurcação a faixa de cima diz que caminho é aquele (`BIFURCACOES` no `scripts/mapa_mundo.gd`).
 - **Paisagens do Ọ̀run** (`bioma()` e `paisagens()` no `gerar_mapa_mundo.py`): floresta verde-escura a oeste (Oxum e
   Oxóssi), mata ciliar verde ao longo do rio e da lagoa, savana dourada no meio (acácias, baobás, cupinzeiros e capim)
   e savana seca avermelhada no norte e no leste, com morros de granito. A pedreira de Xangô virou uma serra comprida de pedra vermelha (arenito), em três
