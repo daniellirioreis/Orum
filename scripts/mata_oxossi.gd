@@ -212,8 +212,10 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			_criar_pavao(lugar, base)
 		"Q":
 			_criar_onca(lugar, base)
-		"U":
-			_criar_tronco_gigante(base, celula)
+		"C":
+			_criar_copa_alta(lugar, base, celula)
+		"Z":
+			_criar_mancha_sol(lugar, base)
 		">":
 			var area := _area(base - Vector2(0, TILE / 2.0), Vector2(14, 12))
 			area.body_entered.connect(_sair)
@@ -1433,41 +1435,58 @@ func _bote(o: Dictionary) -> void:
 	o["estado"] = "volta"
 
 
-# ------------------------------------------------------------------ a mata alta: troncos gigantes, copa, folhas e luz
-# A mata é fechada: entre as árvores baixas sobem troncos gigantes (sumaúma, jequitibá) cuja copa fica lá no alto,
-# fora da tela. Por cima da tela, a franja escura da copa; do alto caem folhinhas girando, e fachos de sol entram
-# pelos buracos da copa. Na clareira a copa abre: a luz entra forte.
-var _troncos: Array = []        # [sprite, base]
-var _camada_copa: CanvasLayer
-var _copa: TextureRect
+# ------------------------------------------------------------------ a mata fechada: copas vistas de cima
+# A câmera olha de cima: as copas das árvores altas passam por cima de tudo (até de Adé) e tapam pedaços da mata,
+# com a sombra delas no chão. Quando Adé passa embaixo, a copa fica meio transparente. Entre as copas, manchas de sol
+# balançam no chão, e folhinhas caem do alto. Na clareira não tem copa: é ali que o céu aparece.
+var _copas: Array = []          # {s, sombra, centro, rx, ry, lugar}
+var _manchas_sol: Array = []    # [sprite, fase]
+var _camada_folhas: CanvasLayer
 var _folhas_caindo: CPUParticles2D
-var _raios: Array = []          # [sprite, fase, alfa]
+const COPA_ESCALA := 1.3                 # bem grandes: é o alto da árvore, mais perto da câmera
+const COPA_TAMANHOS := [Vector2(38, 30), Vector2(31, 26), Vector2(42, 23)]   # meia-largura e meia-altura (sem escala)
 
 
-func _criar_tronco_gigante(base: Vector2, celula: Vector2i) -> void:
-	var s := _criar_cenario("res://arte/ox_tronco_gigante.png", Vector2(24, 10), base)
-	s.hframes = 2
-	s.frame = (celula.x + celula.y) % 2
-	_troncos.append([s, base])
+func _criar_copa_alta(lugar: String, base: Vector2, celula: Vector2i) -> void:
+	var v := (celula.x * 7 + celula.y * 3) % 3
+	var centro := base - Vector2(0, TILE / 2.0)
+	var sombra := Sprite2D.new()
+	sombra.texture = preload("res://arte/ox_copa_sombra.png")
+	sombra.position = centro + Vector2(12, 18)
+	sombra.scale = COPA_TAMANHOS[v] * COPA_ESCALA / Vector2(40, 22)
+	sombra.z_index = -3
+	add_child(sombra)
+	var s := Sprite2D.new()
+	s.texture = preload("res://arte/ox_copas.png")
+	s.hframes = 3
+	s.frame = v
+	s.flip_h = celula.x % 2 == 0
+	s.position = centro
+	s.scale = Vector2.ONE * COPA_ESCALA
+	s.z_index = 20                          # por cima de tudo: é o alto da árvore
+	add_child(s)
+	_copas.append({"s": s, "sombra": sombra, "centro": centro, "rx": COPA_TAMANHOS[v].x * COPA_ESCALA, "ry": COPA_TAMANHOS[v].y * COPA_ESCALA,
+		"lugar": lugar})
+
+
+func _criar_mancha_sol(lugar: String, base: Vector2) -> void:
+	var aditivo := CanvasItemMaterial.new()
+	aditivo.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	var m := Sprite2D.new()
+	m.texture = preload("res://arte/ox_sol.png")
+	m.material = aditivo
+	m.position = base - Vector2(0, TILE / 2.0) + Vector2(randf_range(-4, 4), randf_range(-4, 4))
+	m.scale = Vector2(randf_range(0.8, 1.4), randf_range(0.8, 1.2))
+	m.z_index = -3
+	add_child(m)
+	_manchas_sol.append([m, randf() * TAU])
 
 
 func _criar_copa() -> void:
-	_camada_copa = CanvasLayer.new()
-	_camada_copa.layer = 3                 # por cima da mata, por baixo do HUD e dos diálogos
-	add_child(_camada_copa)
-	var aditivo := CanvasItemMaterial.new()
-	aditivo.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
-	# os fachos de luz entre as copas
-	for i in 5:
-		var r := Sprite2D.new()
-		r.texture = preload("res://arte/ox_raio.png")
-		r.material = aditivo
-		r.rotation = deg_to_rad(-28.0)
-		r.position = Vector2(30 + i * 52 + randf_range(-10, 10), 70)
-		r.scale = Vector2(randf_range(0.8, 1.4), 1.2)
-		_camada_copa.add_child(r)
-		_raios.append([r, randf() * TAU, 0.0])
-	# folhinhas caindo do alto
+	# folhinhas caindo das copas (na tela, de cima para baixo)
+	_camada_folhas = CanvasLayer.new()
+	_camada_folhas.layer = 3                # por cima da mata, por baixo do HUD e dos diálogos
+	add_child(_camada_folhas)
 	_folhas_caindo = CPUParticles2D.new()
 	_folhas_caindo.texture = preload("res://arte/ox_folha.png")
 	var anim := CanvasItemMaterial.new()
@@ -1479,7 +1498,7 @@ func _criar_copa() -> void:
 	_folhas_caindo.position = Vector2(Jogo.TELA.x / 2.0, -6)
 	_folhas_caindo.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
 	_folhas_caindo.emission_rect_extents = Vector2(Jogo.TELA.x * 0.6, 4)
-	_folhas_caindo.amount = 9
+	_folhas_caindo.amount = 8
 	_folhas_caindo.lifetime = 7.0
 	_folhas_caindo.preprocess = 7.0
 	_folhas_caindo.direction = Vector2(0.3, 1)
@@ -1493,41 +1512,27 @@ func _criar_copa() -> void:
 	_folhas_caindo.angle_max = 180.0
 	_folhas_caindo.scale_amount_min = 1.0
 	_folhas_caindo.scale_amount_max = 1.6
-	_camada_copa.add_child(_folhas_caindo)
-	# a franja escura da copa, em cima da tela
-	_copa = TextureRect.new()
-	_copa.texture = preload("res://arte/ox_copa.png")
-	_copa.position = Vector2(0, -2)
-	_copa.size = Vector2(Jogo.TELA.x, 44)
-	_copa.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_camada_copa.add_child(_copa)
+	_camada_folhas.add_child(_folhas_caindo)
 
 
-## Na clareira a copa abre: a franja quase some e a luz entra forte; no resto da mata, copa fechada e luz fraca.
+## Na clareira não tem copa: as folhas quase não caem.
 func _ajustar_copa(nome: String) -> void:
-	if not _copa:
-		return
-	var clareira := nome == "ox_clareira"
-	_copa.position.y = -26.0 if clareira else -2.0
-	_copa.modulate.a = 0.7 if clareira else 1.0
-	_folhas_caindo.amount = 5 if clareira else 9
-	for r in _raios:
-		r[2] = 0.75 if clareira else 0.32
+	if _folhas_caindo:
+		_folhas_caindo.emitting = nome != "ox_clareira"
 
 
 func _animar_mata_alta(_delta: float) -> void:
-	# fachos de luz balançando devagar (a copa mexe com o vento)
-	for r in _raios:
-		var sp: Sprite2D = r[0]
-		sp.modulate.a = r[2] * (0.7 + 0.3 * sin(_tempo * 0.6 + r[1]))
-		sp.rotation = deg_to_rad(-28.0 + sin(_tempo * 0.25 + r[1]) * 2.0)
-	# quando Adé passa atrás de um tronco gigante, o tronco fica meio transparente
-	var ade := jogador.global_position
-	for t in _troncos:
-		var s: Sprite2D = t[0]
-		var b: Vector2 = t[1]
-		var atras := absf(ade.x - b.x) < 16.0 and ade.y < b.y - 4.0 and ade.y > b.y - 112.0
-		s.modulate.a = lerpf(s.modulate.a, 0.45 if atras else 1.0, 0.2)
+	for m in _manchas_sol:                  # o sol balança no chão (a copa mexe com o vento)
+		var sp: Sprite2D = m[0]
+		sp.modulate.a = 0.55 + 0.35 * sin(_tempo * 0.8 + m[1])
+	var ade := jogador.global_position + Vector2(0, -10)
+	for c in _copas:                        # Adé embaixo de uma copa: ela fica meio transparente
+		if c["lugar"] != lugar_atual:
+			continue
+		var d: Vector2 = ade - c["centro"]
+		var dentro: bool = pow(d.x / (c["rx"] + 6.0), 2) + pow(d.y / (c["ry"] + 8.0), 2) < 1.0
+		var s: Sprite2D = c["s"]
+		s.modulate.a = lerpf(s.modulate.a, 0.35 if dentro else 1.0, 0.18)
 
 
 # ------------------------------------------------------------------ quartinha de Exu (salvar)

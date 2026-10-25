@@ -153,11 +153,10 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   (sem/com espiga), `O` toco com o ofá, `T` tronco amarrado, `s` cobra, `j` javali, `H` árvore com colmeia, `k` coco,
   `B` pássaro, `X` assentamento de Exu, `x` de onde Oxóssi chega, `>` saída. Textos em `dialogos/mata_oxossi.json`.
 - Arte nova: `arte/ox_*.png` (feita pelo `gerar_arte_mata.py`) e o Oxóssi animado em `arte/oxossi_anim.png`.
-- **A mata alta**: entre as árvores baixas sobem troncos gigantes (`U` no mapa, `arte/ox_tronco_gigante.png`) com
-  sapopemas e cipós; o tronco some para cima no escuro e a copa fica fora da tela. Por cima da tela fica a franja
-  escura da copa (`ox_copa.png`), folhinhas caem girando (`ox_folha.png`) e fachos de sol entram pelos buracos
-  (`ox_raio.png`). Na clareira a copa abre e a luz entra forte. Quando Adé passa atrás de um tronco, ele fica meio
-  transparente. Arte feita pelo `gerar_mata_alta.py`.
+- **A mata fechada vista de cima**: as copas das árvores altas (`C` no mapa, `arte/ox_copas.png`, 3 formatos) passam
+  por cima de tudo, até de Adé, e tapam pedaços da tela; a sombra delas fica no chão (`ox_copa_sombra.png`). Quando
+  Adé anda embaixo de uma copa, ela fica meio transparente. Entre as copas, manchas de sol balançam no chão (`Z`,
+  `ox_sol.png`) e folhinhas caem girando (`ox_folha.png`). Na clareira não tem copa: o céu abre.
 - Para testar direto, abra `cenas/mata_oxossi.tscn` no Godot e aperte F6.
 
 **A Terra de Nanã (Nàná Bùrúkù, visão de cima)** — `cenas/mata_nana.tscn`, `scripts/mata_nana.gd`
