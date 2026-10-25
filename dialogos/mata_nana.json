@@ -91,6 +91,7 @@
 	],
 	"chegada_lagoa": [
 		{"quem": "Adé", "yo": "", "pt": "A lagoa... A chuva aqui é mais forte. E ali na beira tem uma pedra com um pano lilás."},
+		{"quem": "Adé", "yo": "", "pt": "E no meio da lagoa tem uma ilhota de barro... Essas vitórias-régias gigantes, boiando de um lado para o outro, será que aguentam o meu peso?"},
 		{"quem": "Adé", "yo": "", "pt": "Deve ser o lugar de Nanã. Vou deixar uma oferenda: o pote cheio de água da chuva e flores lilás."}
 	],
 	"placa_nana_lagoa": [
@@ -106,7 +107,11 @@
 	],
 	"pedra_rachado": [
 		{"quem": "Adé", "yo": "", "pt": "Se eu deixar o pote aqui na chuva... a água vaza toda pela rachadura."},
-		{"quem": "Adé", "yo": "", "pt": "Primeiro tenho que consertar o pote. Com barro, quem sabe?"}
+		{"quem": "Adé", "yo": "", "pt": "Primeiro tenho que consertar o pote. O barro bom deve estar naquela ilhota, no meio da lagoa."}
+	],
+	"caiu_na_lagoa": [
+		{"quem": "Adé", "yo": "", "pt": "Tchibum! Caí na lagoa..."},
+		{"quem": "", "yo": "", "pt": "Espere a vitória-régia chegar perto antes de pisar. E não fique parado nas folhas mais escuras: elas afundam!"}
 	],
 	"pedra_coloca": [
 		{"quem": "Adé", "yo": "", "pt": "Vou deixar o pote aqui na pedra, de boca para cima. A chuva enche ele."},

@@ -84,7 +84,7 @@ var _chuva_forte := false
 
 func _ready() -> void:
 	lugares = LUGARES_NANA
-	terrenos = [[["t", "_"], 1], [LAMA + ["m"], 5], [["v"], 6], [["z", "v"], 6]]
+	terrenos = [[["t", "_"], 1], [LAMA + ["m"], 5], [["v", "y"], 6], [["z", "v", "y"], 6]]
 	agua_chars = ["v"]
 	tex_moita = "res://arte/nana_moita.png"
 	cor_fora = CHUVA["nana_brejo"][0]
@@ -139,6 +139,7 @@ func _process(delta: float) -> void:
 	_mover_garcas(delta)
 	_mover_sapos()
 	_mover_puladores(delta)
+	_mover_folhas(delta)
 	_bolhas(delta)
 	_pingos_na_agua(delta)
 	_mover_mare(delta)
@@ -205,6 +206,8 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			_criar_garca(lugar, base)
 		"G":
 			_criar_sapo_pulador(lugar, base)
+		"W", "E":
+			_criar_folha(lugar, celula, base, c == "E")
 		"s":
 			_criar_sapo(lugar, base)
 		"K":
@@ -384,7 +387,7 @@ func _guardar_celulas() -> void:
 		var lista := []
 		for y in m.size():
 			for x in m[y].length():
-				if m[y][x] == "v":
+				if m[y][x] == "v" or m[y][x] == "y":
 					lista.append(Vector2i(x, y))
 		_agua_de[lugar] = lista
 	var mangue: PackedStringArray = _mapas["nana_mangue"]
@@ -484,6 +487,8 @@ func _chao_de_ade(delta: float) -> void:
 			_tempo_no_fundo = 0.0
 	elif lugar_atual == "nana_mangue" and letra != "z" and letra != " ":
 		_ultimo_firme = jogador.global_position
+	elif lugar_atual == "nana_lagoa":
+		_na_travessia(letra, delta)
 
 
 func _afundar_ade() -> void:
@@ -725,6 +730,144 @@ func _pular(p: Dictionary) -> void:
 		_tomar_dano(alvo)
 	p["no_ar"] = false
 	p["espera"] = randf_range(1.2, 2.6)
+
+
+## ------------------------------------------------------------------ a travessia de vitórias-régias (lagoa)
+## Na água "y" não tem parede: só dá para ficar em cima das vitórias-régias gigantes, que andam de um lado para o
+## outro (cada fileira num ritmo) e levam Adé junto. As marcadas com "E" afundam se Adé ficar parado em cima
+## (vão escurecendo; depois voltam a boiar). Pisou fora, tchibum: perde um búzio de axé e volta ao último chão firme.
+var _folhas: Array = []         # {s, de, ate, vel, fase, afunda, peso, sumida, x_antes}
+var _chao_firme_lagoa := Vector2.ZERO
+var _tempo_na_agua := 0.0
+const FOLHA_MEIA_LARGURA := 13.0
+const FOLHA_MEIA_ALTURA := 7.0
+
+
+func _criar_folha(lugar: String, celula: Vector2i, base: Vector2, afunda: bool) -> void:
+	# a fileira vai de uma ponta à outra da água "y" desta linha
+	var mapa: PackedStringArray = _mapas[lugar]
+	var ini := celula.x
+	while _letra(mapa, ini - 1, celula.y) == "y":
+		ini -= 1
+	var fim := celula.x
+	while _letra(mapa, fim + 1, celula.y) == "y":
+		fim += 1
+	var origem: Vector2 = lugares[lugar]["origem"]
+	var y := origem.y + celula.y * TILE + TILE / 2.0
+	var de := origem.x + ini * TILE + 10.0
+	var ate := origem.x + (fim + 1) * TILE - 10.0
+	var s := Sprite2D.new()
+	s.texture = preload("res://arte/nana_vitoria_grande.png")
+	s.hframes = 3
+	s.frame = 1 if afunda == false and celula.y % 2 == 0 else 0
+	s.position = Vector2(base.x, y)
+	s.z_index = -2
+	add_child(s)
+	var vel := 16.0 + (celula.y % 3) * 7.0
+	_folhas.append({"s": s, "de": de, "ate": ate, "vel": vel, "fase": randf(), "afunda": afunda,
+		"peso": 0.0, "sumida": 0.0, "x_antes": s.position.x, "lugar": lugar,
+		"xmin": origem.x + ini * TILE + 5.0, "xmax": origem.x + (fim + 1) * TILE - 5.0})
+
+
+func _mover_folhas(delta: float) -> void:
+	for f in _folhas:
+		var s: Sprite2D = f["s"]
+		f["x_antes"] = s.position.x
+		if jogador.pode_mover or f["lugar"] != lugar_atual:
+			var dist: float = maxf(1.0, f["ate"] - f["de"])
+			f["fase"] += f["vel"] * delta / dist
+			s.position.x = lerpf(f["de"], f["ate"], pingpong(f["fase"], 1.0))
+		# afundando / voltando a boiar
+		if f["sumida"] > 0.0:
+			f["sumida"] -= delta
+			if f["sumida"] <= 0.0:
+				f["peso"] = 0.0
+				create_tween().tween_property(s, "modulate:a", 1.0, 0.6)
+		elif not _ade_em_cima(f):
+			f["peso"] = maxf(0.0, f["peso"] - delta * 0.5)
+		var p: float = f["peso"]
+		if f["sumida"] <= 0.0:
+			s.frame = 2 if p > 0.35 else (1 if not f["afunda"] and s.frame == 1 else 0)
+			s.scale = Vector2(1.0 - p * 0.15, 1.0 - p * 0.15)
+			s.modulate = Color(1.0 - p * 0.35, 1.0 - p * 0.3, 1.0 - p * 0.2, s.modulate.a)
+
+
+func _ade_em_cima(f: Dictionary) -> bool:
+	if f["lugar"] != lugar_atual or f["sumida"] > 0.0:
+		return false
+	var d: Vector2 = (jogador.global_position + Vector2(0, -3)) - f["s"].position
+	return absf(d.x) <= FOLHA_MEIA_LARGURA and absf(d.y) <= FOLHA_MEIA_ALTURA
+
+
+## Em cima da água da travessia: a folha leva Adé junto; sem folha embaixo, ele cai.
+func _na_travessia(letra: String, delta: float) -> void:
+	if letra != "y":
+		if letra != " " and letra != "v":
+			_chao_firme_lagoa = jogador.global_position
+		_tempo_na_agua = 0.0
+		return
+	var folha: Dictionary = {}
+	for f in _folhas:
+		if _ade_em_cima(f):
+			folha = f
+			break
+	if folha.is_empty():
+		_tempo_na_agua += delta
+		if _tempo_na_agua > 0.12:              # um tiquinho de folga entre uma folha e outra
+			_cair_na_lagoa()
+		return
+	_tempo_na_agua = 0.0
+	# a folha anda e leva Adé junto
+	jogador.global_position.x = clampf(jogador.global_position.x + folha["s"].position.x - folha["x_antes"],
+		folha["xmin"], folha["xmax"])          # a folha não leva Adé para dentro da margem
+	if folha["afunda"]:
+		folha["peso"] += delta / 2.2                # uns 2 segundos parado em cima e ela afunda
+		if folha["peso"] >= 1.0:
+			folha["sumida"] = 1.6
+			var s: Sprite2D = folha["s"]
+			create_tween().tween_property(s, "modulate:a", 0.0, 0.25)
+			_respingo(s.position)
+			_cair_na_lagoa()
+
+
+func _cair_na_lagoa() -> void:
+	if _voltando:
+		return
+	_voltando = true
+	_tempo_na_agua = 0.0
+	jogador.congelar(true)
+	Jogo.tocar_som("erro", -4.0)
+	_respingo(jogador.global_position)
+	var sp: Sprite2D = jogador.sprite
+	var y0 := sp.position.y
+	var t := create_tween()
+	t.tween_property(sp, "position:y", y0 + 10.0, 0.35).set_ease(Tween.EASE_IN)
+	t.parallel().tween_property(sp, "modulate:a", 0.0, 0.35)
+	await t.finished
+	var c := create_tween()
+	c.tween_property(_cortina, "color:a", 1.0, 0.3)
+	await c.finished
+	sp.position.y = y0
+	sp.modulate.a = 1.0
+	axe -= 1
+	_atualizar_axe()
+	var volta: Vector2 = _chao_firme_lagoa if _chao_firme_lagoa != Vector2.ZERO else _ponto_volta.get("nana_lagoa", jogador.global_position)
+	teleportar("nana_lagoa", volta)
+	await get_tree().create_timer(0.25).timeout
+	var c2 := create_tween()
+	c2.tween_property(_cortina, "color:a", 0.0, 0.35)
+	await c2.finished
+	if axe <= 0:
+		_sem_axe()
+		return
+	_voltando = false
+	_invulneravel = 0.8
+	if not _nana.has("caiu_na_lagoa"):
+		_nana["caiu_na_lagoa"] = true
+		await _falar("caiu_na_lagoa")
+	else:
+		jogador.congelar(false)
+		_mostrar_aviso("Tchibum! Espere a vitória-régia chegar perto.")
 
 
 ## O sapo só pousa onde dá pé: chão de lama ou grama, sem bambu, árvore ou parede.

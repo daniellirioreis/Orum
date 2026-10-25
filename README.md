@@ -171,7 +171,11 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   - **O mangue**: a **maré** sobe e desce. Na baixa, dá para passar pelas raízes (e os **caranguejos** saem da lama
     e beliscam); na alta, a água cobre as raízes e leva Adé de volta para o último chão firme. Numa ilhota, as
     **flores lilás**. Do outro lado, a velhinha já está esperando...
-  - **A lagoa**: na pedra, a chuva vazaria pela rachadura do pote; Adé conserta o pote com o **barro** da margem,
+  - **A lagoa**: o barro bom fica numa **ilhota no meio da lagoa**. Para chegar lá, Adé atravessa uma fileira de
+    **vitórias-régias gigantes** (`W`/`E` no mapa, água `y` sem parede) que andam de um lado para o outro, cada fileira
+    num ritmo, e levam Adé junto; as mais escuras (`E`) afundam se ele ficar parado em cima uns 2 segundos (depois
+    voltam a boiar). Pisou fora da folha, tchibum: perde um búzio de axé e volta ao último chão firme.
+    Na pedra, a chuva vazaria pela rachadura do pote; Adé conserta o pote com o **barro** da ilhota,
     deixa o pote na pedra até a chuva encher e faz a oferenda (pote com água da chuva e flores lilás) no **lugar de
     Nanã**. A chuva engrossa, a velhinha chega devagar e se revela: era Nanã. Ela fala da lama de onde se moldou o
     primeiro ser humano e para onde todos voltam, da memória e dos mais velhos (os retratos na parede da Vó), e dá
