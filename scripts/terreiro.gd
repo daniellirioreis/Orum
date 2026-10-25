@@ -1554,7 +1554,7 @@ func _construir_terreno(mapa: PackedStringArray, origem: Vector2, topo: TileMapL
 		casa.offset = Vector2(0, -casa.texture.get_height() / 2.0)
 		casa.position = base_casa
 		mundo.add_child(casa)
-		_fumaca(origem + Vector2(casa_ini.x * TILE + 163, casa_ini.y * TILE + 12))   # a boca da chaminé (arte/casa.png)
+		_fumaca(origem + Vector2(casa_ini.x * TILE + 211, casa_ini.y * TILE + 34))
 
 	# 5) por cima: muro, barranco e escada (com colisão); água e casa bloqueiam passagem
 	for y in altura:
