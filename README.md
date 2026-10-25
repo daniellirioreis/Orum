@@ -215,13 +215,15 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
 - **Som da chuva**: sempre que chove (no terreiro ou na terra de Nanã), toca o barulho da chuva caindo em laço
   (`sons/chuva.wav`), mais alto lá fora e abafado dentro de casa; na lagoa de Nanã ele engrossa com a chuva.
   Os relâmpagos agora têm trovão (`sons/trovao.wav`). Os dois sons são feitos pelo `gerar_som_chuva.py`.
-- **Efeitos sonoros por ação** (31 sons novos em `sons/`, no estilo SNES, feitos pelo `gerar_sfx.py`):
+- **Efeitos sonoros por ação** (36 sons novos em `sons/`, no estilo SNES, feitos pelo `gerar_sfx.py`):
   - Adé: passos que mudam com o chão (`passo_grama`, `passo_terra`, `passo_lama`, `passo_madeira`; andando devagar não
     faz barulho), `flecha_atira`, `flecha_acerta`, `flecha_mato`, `pegar_item`, `pegar_buzio`, `dano`, `perde_axe`,
     `agua_cai`, `lama_afunda`, `folha_pisa` (vitória-régia).
   - Bichos: `sapo_pulo`, `sapo_coaxa`, `cobra_sibilo` (quando Adé chega perto), `javali_bufo`, `javali_corre`,
     `onca_rosna`, `onca_bote`, `caranguejo`, `colmeia_zumbido`, `colmeia_quebra`, `passaro_grito`, `asas`,
     `veado_foge`, `passarinho_pio`.
+  - Encruzilhada: `redemoinho` (o vento do redemoinho mais perto), `kiumba_ve` (o kiumba viu Adé), `kiumba_some`
+    (recua na luz ou some quando Exu chega), `tocha_acende`, `pedra_arrasta`; a pedra que cai no riacho faz `agua_cai`.
   - Cenário: `tronco_cai`, `game_over`, `troca_exu`.
   - O passo vem de `som_do_chao(pos)` da cena (o terreiro decide pela letra do mapa; a fase de Nanã põe lama e
     vitória-régia); `som_perto(nome, pos)` toca mais baixo quanto mais longe de Adé.

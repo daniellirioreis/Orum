@@ -113,6 +113,7 @@ func _process(delta: float) -> void:
 		r["sprite"].frame = int(_tempo * 12.0 + r["fase"] * 10.0) % 4
 		if _invulneravel <= 0.0 and not _voltando and jogador.pode_mover and r["no"].overlaps_body(jogador):
 			_tomar_dano(r["no"].global_position)
+	_vento_dos_redemoinhos(delta)
 	for i in _velas.size():
 		_velas[i].frame = int(_tempo * 5.0 + i * 1.7) % 2
 	for f in _fogos:
@@ -294,7 +295,7 @@ func _empurrar(p: Dictionary, dir: Vector2i) -> void:
 	var vai_afundar := _letra(_mapas[lugar], dest.x, dest.y) == "~" and not _pontes.has(_chave(lugar, dest))
 	p["movendo"] = true
 	p["celula"] = dest
-	Jogo.tocar_som("pulo", -16.0)
+	Jogo.tocar_som("pedra_arrasta", -8.0)
 	var t := create_tween()
 	t.tween_property(p["no"], "position", _base_celula(lugar, dest), 0.2)
 	await t.finished
@@ -313,7 +314,7 @@ func _afundar(p: Dictionary) -> void:
 	var t := create_tween()
 	t.tween_property(s, "offset:y", -6.0, 0.25)
 	t.parallel().tween_property(s, "modulate", Color(0.62, 0.72, 0.88), 0.25)
-	Jogo.tocar_som("caminho", -10.0)
+	Jogo.tocar_som("agua_cai", -6.0)
 	_respingo(p["no"].global_position + Vector2(0, -6))
 	var cel: Vector2i = p["celula"]
 	_pontes[_chave(p["lugar"], cel)] = true
@@ -435,7 +436,7 @@ func _acender(t: Dictionary) -> void:
 	t["acesa"] = true
 	t["no"].sprite.frame = 1
 	t["luz"] = _luz(t["no"].position + Vector2(0, -22), Color(1.0, 0.62, 0.3), 3.0, 1.5, true)
-	Jogo.tocar_som("buzio", -4.0)
+	Jogo.tocar_som("tocha_acende", -4.0)
 	_sequencia.append(t["lado"])
 	var n := _sequencia.size()
 	if _sequencia[n - 1] != ORDEM_TOCHAS[n - 1]:
@@ -492,7 +493,25 @@ func _criar_redemoinho(lugar: String, celula: Vector2i, base: Vector2, de_lado: 
 	while _letra(mapa, fim.x + passo.x, fim.y + passo.y) in ANDAVEL:
 		fim += passo
 	_redemoinhos.append({"no": a, "sprite": s, "de": _base_celula(lugar, ini), "ate": _base_celula(lugar, fim),
-		"vel": randf_range(38.0, 50.0), "fase": randf()})
+		"vel": randf_range(38.0, 50.0), "fase": randf(), "lugar": lugar})
+
+
+## O vento do redemoinho mais perto de Adé (só um de cada vez, para não embolar).
+var _som_redemoinho := 0.0
+
+
+func _vento_dos_redemoinhos(delta: float) -> void:
+	_som_redemoinho -= delta
+	if _som_redemoinho > 0.0:
+		return
+	var perto: Area2D = null
+	for r in _redemoinhos:
+		if r["lugar"] == lugar_atual and (perto == null or r["no"].position.distance_to(jogador.global_position)
+				< perto.position.distance_to(jogador.global_position)):
+			perto = r["no"]
+	if perto and perto.position.distance_to(jogador.global_position) < 110.0:
+		_som_redemoinho = 1.0
+		som_perto("redemoinho", perto.position, -6.0)
 
 
 func _tomar_dano(de: Vector2) -> void:
@@ -708,6 +727,9 @@ func _mover_kiumbas(delta: float) -> void:
 		var vel := KIUMBA_VEL
 		var ade := jogador.global_position
 		var ve := no.position.distance_to(ade) < KIUMBA_VE and not _na_luz(k["lugar"], ade)
+		if ve and not k.get("viu", false) and jogador.pode_mover:
+			Jogo.tocar_som("kiumba_ve", -6.0)        # o kiumba viu Adé
+		k["viu"] = ve
 		if ve and jogador.pode_mover and not _voltando:
 			alvo = ade
 		else:
@@ -730,6 +752,8 @@ func _mover_kiumbas(delta: float) -> void:
 
 func _kiumba_recua(k: Dictionary) -> void:
 	k["sumiu"] = true
+	k["viu"] = false
+	Jogo.tocar_som("kiumba_some", -6.0)
 	var no: Area2D = k["no"]
 	var t := create_tween()
 	t.tween_property(no, "modulate:a", 0.0, 0.25)
@@ -741,6 +765,8 @@ func _kiumba_recua(k: Dictionary) -> void:
 
 ## Quando Exu chega, as sombras e os redemoinhos se desfazem: ele é o guardião da encruzilhada.
 func _espantar_sombras() -> void:
+	if not _kiumbas.is_empty() or not _redemoinhos.is_empty():
+		Jogo.tocar_som("kiumba_some", -4.0)
 	for k in _kiumbas:
 		k["sumiu"] = true
 		var t := create_tween()
