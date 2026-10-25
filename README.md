@@ -216,6 +216,11 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
 - **Som da chuva**: sempre que chove (no terreiro ou na terra de Nanã), toca o barulho da chuva caindo em laço
   (`sons/chuva.wav`), mais alto lá fora e abafado dentro de casa; na lagoa de Nanã ele engrossa com a chuva.
   Os relâmpagos agora têm trovão (`sons/trovao.wav`). Os dois sons são feitos pelo `gerar_som_chuva.py`.
+- **A praia de Iemanjá no Ọ̀run** (`praia_de_iemanja()` no `gerar_mapa_mundo.py`): praia larga com ondas chegando e
+  areia molhada, trapiche de madeira com o lugar de Iemanjá na ponta (flores e velas azuis e brancas), barquinhos e
+  flores de presente balançando no mar, jangada, peixe pulando, coqueiros, estrelas-do-mar e um farol nas pedras com a
+  luz girando. O ponto de Iemanjá fica na areia, no começo do trapiche. Gaivotas (`arte/mundo_gaivota.png`) voam em
+  roda sobre o mar (`_criar_gaivotas()` no `scripts/mapa_mundo.gd`).
 - **Ọ̀run, o lar dos orixás**: o mapa dos mundos se chama Ọ̀run. Sempre que Adé chega nele, aparece o letreiro
   "Ọ̀run · O lar dos orixás", como na chegada de cada mundo. A fonte padrão do projeto é a Noto Sans
   (`gui/theme/custom_font`), para os acentos do iorubá em cima de maiúsculas (Ọ̀) aparecerem.

@@ -87,6 +87,7 @@ func _ready() -> void:
 	add_child(_fundo)
 
 	_criar_nuvens()
+	_criar_gaivotas()
 
 	var mapa: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(ARQUIVO_MAPA))
 	if mapa.has("tamanho"):
@@ -174,6 +175,7 @@ func _process(delta: float) -> void:
 	_tempo += delta
 	_fundo.texture = _texturas[int(_tempo * 4.0) % _texturas.size()]
 	_mexer_nuvens(delta)
+	_mexer_gaivotas()
 	if _camera.zoom.x >= 0.999:
 		_camera.position = _ade.position + Vector2(0, -8)
 	for en in _enfeites:
@@ -231,6 +233,31 @@ func _criar_nuvens() -> void:
 		_nuvens.append({"no": n, "base": lista[i][1], "amplitude": lista[i][2], "velocidade": lista[i][3], "fase": i * 1.7})
 		if "tempestade" in lista[i][0]:
 			_tempestade.append(n)
+
+
+## Gaivotas voando em roda sobre o mar de Iemanjá (no canto de baixo, à direita).
+var _gaivotas: Array = []
+
+
+func _criar_gaivotas() -> void:
+	for i in 3:
+		var g := Sprite2D.new()
+		g.texture = preload("res://arte/mundo_gaivota.png")
+		g.hframes = 2
+		g.z_index = 3
+		add_child(g)
+		_gaivotas.append({"no": g, "centro": Vector2(462 + i * 14, 400 + i * 10), "raio": Vector2(30 + i * 8, 14 + i * 4),
+			"vel": 0.45 + i * 0.12, "fase": i * 2.1})
+
+
+func _mexer_gaivotas() -> void:
+	for g in _gaivotas:
+		var t: float = _tempo * g["vel"] + g["fase"]
+		var s: Sprite2D = g["no"]
+		var antes := s.position
+		s.position = (g["centro"] + Vector2(cos(t) * g["raio"].x, sin(t) * g["raio"].y)).round()
+		s.flip_h = s.position.x < antes.x
+		s.frame = int(_tempo * 5.0 + g["fase"]) % 2
 
 
 func _mexer_nuvens(delta: float) -> void:
