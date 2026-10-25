@@ -220,6 +220,9 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   `TRILHA_*` no `scripts/mapa_mundo.gd` e `LATERITA` no gerador) e, em volta do largo, fica o mercado de Exu
   (Ọlọ́jà, o dono do mercado): barracas com toldo de pano (adire azul-índigo, vermelho e amarelo, verde), cabaças e
   cestos (`mercado()` no `gerar_mapa_mundo.py`).
+- **O reino de Omolu no Ọ̀run** (`baixada_seca()` e `palha_de_omolu()` no `gerar_mapa_mundo.py`): no nível do chão,
+  uma baixada rasa de terra seca e quente (mais clara no meio, com o ar tremendo de calor), vizinha da lama de Nanã;
+  cabanas e montes de palha, e varais com palha da costa secando, com fitinhas vermelha, preta e branca.
 - **Os caminhos do Ọ̀run saem todos da encruzilhada**: cada braço da cruz leva a uma bifurcação (`bif_norte`,
   `bif_oeste`, `bif_leste`, `bif_sul` em `NOS` no `gerar_mapa_mundo.py`), e dela aos mundos daquele lado: Norte → Oxalá e
   Iansã; Oeste → Oxum e Oxóssi; Leste → Ogum e Xangô; Sul → Nanã, Omolu e Iemanjá. Um mundo não se liga direto a outro.
