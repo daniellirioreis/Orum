@@ -58,9 +58,7 @@ func _ready() -> void:
 	_configurar_controles()
 
 	_musica = AudioStreamPlayer.new()
-	_musica.stream = load("res://sons/musica.wav")
 	_musica.volume_db = -8.0
-	_musica.finished.connect(_musica.play)  # repete em loop
 	add_child(_musica)
 	for bus in ["Musica", "Efeitos"]:
 		if AudioServer.get_bus_index(bus) < 0:
@@ -95,9 +93,32 @@ func reiniciar() -> void:
 			remove_meta(m)
 
 
-func tocar_musica() -> void:
-	if not _musica.playing:
-		_musica.play()
+## Cada mundo tem a sua trilha (sons/<nome>.wav); o terreiro, a tela de título e as fases usam "musica".
+## Trocando de trilha, a velha some e a nova entra devagar. As trilhas repetem sem emenda.
+var _musica_atual := ""
+var _tween_musica: Tween
+
+
+func tocar_musica(nome := "musica") -> void:
+	if nome == _musica_atual and _musica.playing:
+		return
+	var estava := _musica.playing
+	_musica_atual = nome
+	if _tween_musica:
+		_tween_musica.kill()
+	_tween_musica = create_tween()
+	if estava:
+		_tween_musica.tween_property(_musica, "volume_db", -40.0, 0.6)
+	_tween_musica.tween_callback(func():
+		var stream: AudioStream = load("res://sons/%s.wav" % nome)
+		if stream is AudioStreamWAV:
+			stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
+			stream.loop_begin = 0
+			stream.loop_end = int(stream.get_length() * stream.mix_rate)
+		_musica.stream = stream
+		_musica.volume_db = -40.0
+		_musica.play())
+	_tween_musica.tween_property(_musica, "volume_db", -8.0, 0.8 if estava else 0.4)
 
 
 func tocar_som(nome: String, volume_db := 0.0) -> void:

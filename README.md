@@ -216,6 +216,10 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
 - **Som da chuva**: sempre que chove (no terreiro ou na terra de Nanã), toca o barulho da chuva caindo em laço
   (`sons/chuva.wav`), mais alto lá fora e abafado dentro de casa; na lagoa de Nanã ele engrossa com a chuva.
   Os relâmpagos agora têm trovão (`sons/trovao.wav`). Os dois sons são feitos pelo `gerar_som_chuva.py`.
+- **Trilha de cada mundo** (feitas pelo `gerar_musicas.py`, em laço sem emenda): `sons/musica_encruzilhada.wav`
+  (Exu: noite, 12/8 com agogô e um baixo com nota "torta"), `musica_oxossi.wav` (galope inspirado no agueré, com
+  flauta), `musica_nana.wav` (lenta, inspirada no sató, com coro grave e marimba) e `musica_mapa.wav` (viagem leve).
+  O terreiro e a tela de título continuam com `musica.wav`. `Jogo.tocar_musica("nome")` troca de trilha devagar.
 - **Efeitos sonoros por ação** (36 sons novos em `sons/`, no estilo SNES, feitos pelo `gerar_sfx.py`):
   - Adé: passos que mudam com o chão (`passo_grama`, `passo_terra`, `passo_lama`, `passo_madeira`; andando devagar não
     faz barulho), `flecha_atira`, `flecha_acerta`, `flecha_mato`, `pegar_item`, `pegar_buzio`, `dano`, `perde_axe`,

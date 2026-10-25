@@ -60,7 +60,7 @@ func _ready() -> void:
 	lugares = LUGARES_ENC
 	cor_fora = COR_NOITE
 	estado = "caminho"
-	Jogo.tocar_musica()
+	Jogo.tocar_musica("musica_encruzilhada")
 	_cor_fundo_antiga = RenderingServer.get_default_clear_color()
 	RenderingServer.set_default_clear_color(Color.BLACK)
 	_dados = JSON.parse_string(FileAccess.get_file_as_string("res://dialogos/encruzilhada.json"))

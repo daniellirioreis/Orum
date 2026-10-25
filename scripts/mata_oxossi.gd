@@ -76,7 +76,7 @@ func _ready() -> void:
 	lugares = LUGARES_MATA
 	cor_fora = COR_MATA
 	estado = "caminho"
-	Jogo.tocar_musica()
+	Jogo.tocar_musica("musica_oxossi")
 	_cor_fundo_antiga = RenderingServer.get_default_clear_color()
 	RenderingServer.set_default_clear_color(Color.BLACK)
 	_dados = JSON.parse_string(FileAccess.get_file_as_string("res://dialogos/mata_oxossi.json"))

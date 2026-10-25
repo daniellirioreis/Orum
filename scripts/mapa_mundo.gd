@@ -149,7 +149,7 @@ func _ready() -> void:
 
 	_criar_interface()
 	Jogo.dispositivo_mudou.connect(func(): if _modo_legenda != "": _mudar_legenda(_modo_legenda))
-	Jogo.tocar_musica()
+	Jogo.tocar_musica("musica_mapa")
 	if Jogo.has_meta("mapa_aberto"):
 		_mudar_legenda("andar")
 		for c in _caminhos:
