@@ -162,7 +162,7 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
 - **O riacho corre**: a água do riacho do ofá corre para a direita (shader `SHADER_RIO`) e folhinhas passam boiando.
 - Para testar direto, abra `cenas/mata_oxossi.tscn` no Godot e aperte F6.
 
-**A Terra de Nanã (Nàná Bùrúkù, visão de cima)** — `cenas/mata_nana.tscn`, `scripts/mata_nana.gd`
+**A Terra de Nanã (Ilẹ̀ Ẹrẹ̀ Nàná, "a terra da lama de Nanã", visão de cima)** — `cenas/mata_nana.tscn`, `scripts/mata_nana.gd`
 - Chove a fase inteira (mais forte na lagoa, com relâmpagos). O ritmo é de quem é mais velho: devagar, olhando.
   Na lama, Adé anda mais devagar (`fator_chao` no `jogador_rpg.gd`). Quatro lugares:
   - **O brejo**: a lama firme e a lama funda são iguaizinhas. Da lama funda sobem bolhas (`arte/nana_bolha.png`, `gerar_bolha.py`),

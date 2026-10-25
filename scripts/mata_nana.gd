@@ -1,5 +1,5 @@
 extends "res://scripts/encruzilhada.gd"
-## Nàná Bùrúkù — a terra de Nanã (visão de cima, como a encruzilhada e a mata de Oxóssi).
+## Ilẹ̀ Ẹrẹ̀ Nàná — a terra da lama de Nanã (visão de cima, como a encruzilhada e a mata de Oxóssi).
 ## Chove a fase inteira; na lagoa, a chuva engrossa. O ritmo é de quem é mais velho: devagar, olhando.
 ##
 ## Quatro lugares:
@@ -123,7 +123,7 @@ func _ready() -> void:
 func _inicio() -> void:
 	jogador.congelar(true)
 	await get_tree().create_timer(0.8).timeout
-	$HUD.mostrar_titulo("Nàná Bùrúkù", "A Terra de Nanã")
+	$HUD.mostrar_titulo("Ilẹ̀ Ẹrẹ̀ Nàná", "A Terra da Lama de Nanã")
 	await get_tree().create_timer(1.6).timeout
 	if Jogo.trofeus.has("nana"):
 		_repetindo = true
