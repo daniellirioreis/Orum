@@ -1018,7 +1018,7 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 				_luz(base + Vector2(0, -38), Color(1.0, 0.8, 0.5), 0.75, 2.2, true)
 			"F":
 				_luz(base + Vector2(-8, -10), Color(1.0, 0.55, 0.25), 0.7, 1.2, true)
-				_fumaca(base + Vector2(15, -40))
+				_cano_da_chamine(lugar, base)
 			"C":
 				_luz(base + Vector2(0, -24), Color(1.0, 0.85, 0.6), 0.7, 1.6, true)
 		return
@@ -1259,6 +1259,30 @@ func _criar_vagalumes(lugar := "quintal") -> void:
 	cores.set_color(cores.get_point_count() - 1, Color(0.85, 1.0, 0.45, 0.0))
 	v.color_ramp = cores
 	add_child(v)
+
+
+## O cano da chaminé do fogão a lenha sobe pela parede até o teto (a fumaça sai lá fora, no telhado).
+func _cano_da_chamine(lugar: String, base: Vector2) -> void:
+	var topo: float = lugares[lugar]["origem"].y
+	var x0 := base.x + 12.0                    # o cano do desenho do fogão fica entre x+12 e x+18
+	var alto := int(base.y - 39.0 - topo)
+	if alto <= 0:
+		return
+	var img := Image.create(7, alto, false, Image.FORMAT_RGBA8)
+	var cores := [Color8(36, 30, 38), Color8(140, 132, 140), Color8(120, 112, 120), Color8(104, 96, 102),
+		Color8(86, 80, 88), Color8(66, 60, 68), Color8(36, 30, 38)]
+	for y in alto:
+		for x in 7:
+			var c: Color = cores[x]
+			if y % 12 == 0 and x > 0 and x < 6:
+				c = Color8(70, 64, 72)          # as emendas do cano
+			img.set_pixel(x, y, c)
+	var cano := Sprite2D.new()
+	cano.texture = ImageTexture.create_from_image(img)
+	cano.centered = false
+	cano.position = Vector2(x0 - 0.5, topo)
+	cano.z_index = -6                        # na parede, atrás do fogão e de quem passa
+	add_child(cano)
 
 
 func _fumaca(pos: Vector2) -> void:
