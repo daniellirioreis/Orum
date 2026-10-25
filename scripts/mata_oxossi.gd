@@ -46,6 +46,7 @@ var _espantou := false
 var _flecha := {}               # {s, dir, voando, andou, no_chao}
 var _alvos: Array = []          # {tipo, no, lugar, ...}
 var _avisou_volta := false
+var _avisou_passarinho := false
 # bichos
 var _cobras: Array = []         # {a, s, de, ate, vel, fase, foi}
 var _javali := {}
@@ -542,6 +543,8 @@ func _atirar() -> void:
 	if not _ox.has("tem_ofa") or not _flecha.is_empty():
 		if _ox.has("tem_ofa") and not _flecha.is_empty() and _flecha["no_chao"]:
 			_mostrar_aviso("Primeiro vá buscar a flecha!")
+		elif _ox.has("tem_ofa") and not _flecha.is_empty() and _flecha.has("passarinho"):
+			_mostrar_aviso("Espere: o passarinho está trazendo a flecha!")
 		return
 	var dir: Vector2 = jogador.direcao()
 	var s := Sprite2D.new()
@@ -559,6 +562,9 @@ func _mover_flecha(delta: float) -> void:
 	if _flecha.is_empty():
 		return
 	var s: Sprite2D = _flecha["s"]
+	if _flecha.has("passarinho"):
+		_mover_passarinho_da_flecha()
+		return
 	if _flecha["no_chao"]:
 		if jogador.pode_mover and s.global_position.distance_to(jogador.global_position + Vector2(0, -4)) < 13.0:
 			_recolher_flecha()
@@ -639,7 +645,13 @@ func _flecha_cai() -> void:
 	var t := create_tween()
 	t.tween_property(s, "position:y", s.position.y + 8.0, 0.12)
 	await t.finished
-	if _no_chao_firme(s.position):
+	if _no_chao_firme(s.position) and not _alcancavel(s.position):
+		# caiu do outro lado (do riacho, da moita): um passarinho da mata vai buscar
+		_flecha["no_chao"] = false
+		s.z_index = -3
+		Jogo.tocar_som("texto", -8.0)
+		_passarinho_busca_flecha()
+	elif _no_chao_firme(s.position):
 		_flecha["no_chao"] = true
 		s.z_index = -3
 		Jogo.tocar_som("texto", -8.0)
@@ -650,6 +662,110 @@ func _flecha_cai() -> void:
 		if not _avisou_volta:
 			_avisou_volta = true
 			_mostrar_aviso("A flecha caiu longe... e voltou para o ofá.")
+
+
+## Adé consegue andar até ali? (procura um caminho de bloco em bloco, pelo que é parede de verdade agora:
+## depois que o tronco vira ponte, o outro lado do riacho passa a ser alcançável)
+func _celula_livre(lugar: String, cel: Vector2i) -> bool:
+	var origem: Vector2 = lugares[lugar]["origem"]
+	var tam: Vector2 = tamanhos[lugar]
+	if cel.x < 0 or cel.y < 0 or cel.x >= int(tam.x / TILE) or cel.y >= int(tam.y / TILE):
+		return false
+	var q := PhysicsPointQueryParameters2D.new()
+	q.position = origem + Vector2(cel) * TILE + Vector2(TILE / 2.0, TILE / 2.0)
+	q.collision_mask = 1
+	return get_world_2d().direct_space_state.intersect_point(q, 1).is_empty()
+
+
+func _alcancavel(p: Vector2) -> bool:
+	var origem: Vector2 = lugares[lugar_atual]["origem"]
+	var de := Vector2i(((jogador.global_position - origem) / TILE).floor())
+	var ate := Vector2i(((p - origem) / TILE).floor())
+	var vistos := {de: true}
+	var fila: Array = [de]
+	while not fila.is_empty():
+		var c: Vector2i = fila.pop_front()
+		if c == ate:
+			return true
+		for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+			var n: Vector2i = c + d
+			if not vistos.has(n) and (n == ate or _celula_livre(lugar_atual, n)):
+				vistos[n] = true
+				fila.append(n)
+	return false
+
+
+## Um passarinho desce, pega a flecha no bico, atravessa e larga perto de Adé.
+func _passarinho_busca_flecha() -> void:
+	var f: Sprite2D = _flecha["s"]
+	var b := Sprite2D.new()
+	b.texture = preload("res://arte/ox_passarinhos.png")
+	b.hframes = 4
+	b.vframes = 3
+	b.offset = Vector2(0, -4)
+	b.z_index = 21                          # voa por cima das copas
+	var lado := -1.0 if f.position.x > jogador.global_position.x else 1.0
+	b.position = f.position + Vector2(-lado * 110.0, -90.0)
+	b.flip_h = lado > 0.0
+	add_child(b)
+	_flecha["passarinho"] = {"s": b, "cor": randi() % 3, "bico": false}
+	if not _avisou_passarinho:
+		_avisou_passarinho = true
+		_mostrar_aviso("A flecha caiu do outro lado... um passarinho foi buscar!")
+	var t := create_tween()
+	t.tween_property(b, "position", f.position + Vector2(0, -3), 1.4).set_trans(Tween.TRANS_SINE)
+	await t.finished
+	if _flecha.is_empty() or not _flecha.has("passarinho"):
+		return
+	await get_tree().create_timer(0.35).timeout
+	_flecha["passarinho"]["bico"] = true
+	f.z_index = 21
+	Jogo.tocar_som("texto", -14.0)
+	var destino := _lugar_perto_de_ade()
+	b.flip_h = destino.x < b.position.x
+	t = create_tween()
+	t.tween_property(b, "position", destino + Vector2(0, -16), 1.6).set_trans(Tween.TRANS_SINE)
+	await t.finished
+	if _flecha.is_empty():
+		b.queue_free()
+		return
+	# larga a flecha no chão e vai embora
+	var cor: int = _flecha["passarinho"]["cor"]
+	var cai := create_tween()
+	cai.tween_property(f, "position", destino, 0.25).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	_flecha.erase("passarinho")
+	_flecha["no_chao"] = true
+	f.z_index = -3
+	var vai := create_tween()
+	b.flip_h = not b.flip_h
+	vai.tween_property(b, "position", b.position + Vector2(-90.0 if b.flip_h else 90.0, -90.0), 1.3)
+	vai.parallel().tween_property(b, "modulate:a", 0.0, 1.3).set_delay(0.5)
+	vai.tween_callback(b.queue_free)
+	while is_instance_valid(b):            # bate as asas enquanto vai embora
+		b.frame = cor * 4 + 2 + int(_tempo * 14.0) % 2
+		await get_tree().process_frame
+
+
+func _mover_passarinho_da_flecha() -> void:
+	var p: Dictionary = _flecha["passarinho"]
+	var b: Sprite2D = p["s"]
+	b.frame = p["cor"] * 4 + 2 + int(_tempo * 14.0) % 2
+	if p["bico"]:
+		var f: Sprite2D = _flecha["s"]
+		f.position = b.position + Vector2(0, 2)
+
+
+## Um bloco livre ao lado de Adé (para o passarinho largar a flecha).
+func _lugar_perto_de_ade() -> Vector2:
+	var origem: Vector2 = lugares[lugar_atual]["origem"]
+	var pe := jogador.global_position
+	var lado := -1.0 if jogador.direcao().x < 0.0 else 1.0
+	for o in [Vector2(20 * lado, 0), Vector2(-20 * lado, 0), Vector2(0, 20), Vector2(0, -20), Vector2(16, 16), Vector2(-16, 16)]:
+		var p: Vector2 = pe + o
+		var cel := Vector2i(((p - origem) / TILE).floor())
+		if _celula_livre(lugar_atual, cel):
+			return p
+	return pe + Vector2(0, 4)
 
 
 func _no_chao_firme(p: Vector2) -> bool:
