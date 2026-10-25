@@ -636,6 +636,7 @@ func _rotulo(fonte: Font, tamanho: int, cor: Color) -> Label:
 
 
 func _mostrar_no(id: String) -> void:
+	_faixa.visible = true
 	if id == "orita":
 		_nome.text = "Oríta Mẹ́ta · a encruzilhada"
 		_saudacao.text = "Laroyê!"
@@ -661,7 +662,9 @@ func _mostrar_trofeu(trofeu: String) -> void:
 	_faixa.size.y = 38 if trofeu != "" else 28
 
 
+## Andando pelo caminho (fora de um lugar), a faixa de cima some: não fica uma caixa vazia.
 func _esconder_no() -> void:
+	_faixa.visible = false
 	_nome.text = ""
 	_saudacao.text = ""
 	_descricao.text = ""
