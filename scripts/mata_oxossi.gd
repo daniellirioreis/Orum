@@ -98,6 +98,8 @@ func _ready() -> void:
 	_criar_interface()
 	_criar_inventario()
 	$Dialogo.evento.connect(_ao_evento)
+	_criar_copa()
+	_ajustar_copa("ox_rastro")
 	_entrar_lugar("ox_rastro")
 	_novos_rastros()
 	_inicio()
@@ -131,6 +133,7 @@ func _process(delta: float) -> void:
 	_mover_bandos(delta)
 	_mover_pavoes(delta)
 	_mover_oncas(delta)
+	_animar_mata_alta(delta)
 	if _oxossi and _anim_oxossi == "parado":
 		_oxossi.frame = int(_tempo * 3.0) % 4
 
@@ -144,6 +147,7 @@ func _unhandled_input(ev: InputEvent) -> void:
 
 func teleportar(nome: String, posicao: Vector2) -> void:
 	super.teleportar(nome, posicao)
+	_ajustar_copa(nome)
 	if nome == "ox_clareira" and not _viu_clareira:
 		_viu_clareira = true
 		_chegar_na_clareira.call_deferred()
@@ -208,6 +212,8 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			_criar_pavao(lugar, base)
 		"Q":
 			_criar_onca(lugar, base)
+		"U":
+			_criar_tronco_gigante(base, celula)
 		">":
 			var area := _area(base - Vector2(0, TILE / 2.0), Vector2(14, 12))
 			area.body_entered.connect(_sair)
@@ -1425,6 +1431,103 @@ func _bote(o: Dictionary) -> void:
 	await t.finished
 	await get_tree().create_timer(0.5).timeout
 	o["estado"] = "volta"
+
+
+# ------------------------------------------------------------------ a mata alta: troncos gigantes, copa, folhas e luz
+# A mata é fechada: entre as árvores baixas sobem troncos gigantes (sumaúma, jequitibá) cuja copa fica lá no alto,
+# fora da tela. Por cima da tela, a franja escura da copa; do alto caem folhinhas girando, e fachos de sol entram
+# pelos buracos da copa. Na clareira a copa abre: a luz entra forte.
+var _troncos: Array = []        # [sprite, base]
+var _camada_copa: CanvasLayer
+var _copa: TextureRect
+var _folhas_caindo: CPUParticles2D
+var _raios: Array = []          # [sprite, fase, alfa]
+
+
+func _criar_tronco_gigante(base: Vector2, celula: Vector2i) -> void:
+	var s := _criar_cenario("res://arte/ox_tronco_gigante.png", Vector2(24, 10), base)
+	s.hframes = 2
+	s.frame = (celula.x + celula.y) % 2
+	_troncos.append([s, base])
+
+
+func _criar_copa() -> void:
+	_camada_copa = CanvasLayer.new()
+	_camada_copa.layer = 3                 # por cima da mata, por baixo do HUD e dos diálogos
+	add_child(_camada_copa)
+	var aditivo := CanvasItemMaterial.new()
+	aditivo.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	# os fachos de luz entre as copas
+	for i in 5:
+		var r := Sprite2D.new()
+		r.texture = preload("res://arte/ox_raio.png")
+		r.material = aditivo
+		r.rotation = deg_to_rad(-28.0)
+		r.position = Vector2(30 + i * 52 + randf_range(-10, 10), 70)
+		r.scale = Vector2(randf_range(0.8, 1.4), 1.2)
+		_camada_copa.add_child(r)
+		_raios.append([r, randf() * TAU, 0.0])
+	# folhinhas caindo do alto
+	_folhas_caindo = CPUParticles2D.new()
+	_folhas_caindo.texture = preload("res://arte/ox_folha.png")
+	var anim := CanvasItemMaterial.new()
+	anim.particles_animation = true
+	anim.particles_anim_h_frames = 3
+	anim.particles_anim_v_frames = 1
+	_folhas_caindo.material = anim
+	_folhas_caindo.anim_offset_max = 1.0
+	_folhas_caindo.position = Vector2(Jogo.TELA.x / 2.0, -6)
+	_folhas_caindo.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	_folhas_caindo.emission_rect_extents = Vector2(Jogo.TELA.x * 0.6, 4)
+	_folhas_caindo.amount = 9
+	_folhas_caindo.lifetime = 7.0
+	_folhas_caindo.preprocess = 7.0
+	_folhas_caindo.direction = Vector2(0.3, 1)
+	_folhas_caindo.spread = 25.0
+	_folhas_caindo.gravity = Vector2(4, 9)
+	_folhas_caindo.initial_velocity_min = 10.0
+	_folhas_caindo.initial_velocity_max = 22.0
+	_folhas_caindo.angular_velocity_min = -160.0
+	_folhas_caindo.angular_velocity_max = 160.0
+	_folhas_caindo.angle_min = -180.0
+	_folhas_caindo.angle_max = 180.0
+	_folhas_caindo.scale_amount_min = 1.0
+	_folhas_caindo.scale_amount_max = 1.6
+	_camada_copa.add_child(_folhas_caindo)
+	# a franja escura da copa, em cima da tela
+	_copa = TextureRect.new()
+	_copa.texture = preload("res://arte/ox_copa.png")
+	_copa.position = Vector2(0, -2)
+	_copa.size = Vector2(Jogo.TELA.x, 44)
+	_copa.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_camada_copa.add_child(_copa)
+
+
+## Na clareira a copa abre: a franja quase some e a luz entra forte; no resto da mata, copa fechada e luz fraca.
+func _ajustar_copa(nome: String) -> void:
+	if not _copa:
+		return
+	var clareira := nome == "ox_clareira"
+	_copa.position.y = -26.0 if clareira else -2.0
+	_copa.modulate.a = 0.7 if clareira else 1.0
+	_folhas_caindo.amount = 5 if clareira else 9
+	for r in _raios:
+		r[2] = 0.75 if clareira else 0.32
+
+
+func _animar_mata_alta(_delta: float) -> void:
+	# fachos de luz balançando devagar (a copa mexe com o vento)
+	for r in _raios:
+		var sp: Sprite2D = r[0]
+		sp.modulate.a = r[2] * (0.7 + 0.3 * sin(_tempo * 0.6 + r[1]))
+		sp.rotation = deg_to_rad(-28.0 + sin(_tempo * 0.25 + r[1]) * 2.0)
+	# quando Adé passa atrás de um tronco gigante, o tronco fica meio transparente
+	var ade := jogador.global_position
+	for t in _troncos:
+		var s: Sprite2D = t[0]
+		var b: Vector2 = t[1]
+		var atras := absf(ade.x - b.x) < 16.0 and ade.y < b.y - 4.0 and ade.y > b.y - 112.0
+		s.modulate.a = lerpf(s.modulate.a, 0.45 if atras else 1.0, 0.2)
 
 
 # ------------------------------------------------------------------ quartinha de Exu (salvar)
