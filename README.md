@@ -220,11 +220,15 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   `TRILHA_*` no `scripts/mapa_mundo.gd` e `LATERITA` no gerador) e, em volta do largo, fica o mercado de Exu
   (Ọlọ́jà, o dono do mercado): barracas com toldo de pano (adire azul-índigo, vermelho e amarelo, verde), cabaças e
   cestos (`mercado()` no `gerar_mapa_mundo.py`).
-- **O mundo de Iansã no Ọ̀run**: embaixo, no nível do chão, a planície de terra avermelhada de tempestade, do lado de
-  Oxalá até o mar. Uma manada de búfalos (`arte/mundo_bufalo.png`), uns pastando e outros andando devagar; riscos de
-  vento brancos com um caracol na ponta cruzando a planície (`arte/mundo_vento.png`); redemoinhos andando, chuva das
-  nuvens de tempestade, raios, bambuzais com fitas e os chifres de búfalo na chegada (`_criar_bufalos()`,
-  `_mexer_riscos_de_vento()` e `_criar_vento_de_iansa()` no `scripts/mapa_mundo.gd`).
+- **O mundo de Iansã no Ọ̀run**: lá no alto, um planalto de pedra avermelhada em camadas que é a continuação da serra
+  de Xangô (o "pescoço" do planalto desce e encosta no topo da serra, atrás do palácio); paredão alto virado para o sul,
+  com a trilha subindo por uma escada, e picos de pedra na beirada onde a ventania bate. Em cima: uma manada de búfalos
+  (`arte/mundo_bufalo.png`), uns pastando e outros andando devagar; riscos de vento brancos com um caracol na ponta
+  (`arte/mundo_vento.png`); bambuzais altos com as folhas agitadas pelo vento (e folhas arrancadas voando) e fitas;
+  redemoinhos, chuva das nuvens de tempestade, uma sombra escura de céu carregado sobre o planalto, raios em zigue-zague
+  que caem das nuvens até o chão (com clarão) e os chifres de búfalo na chegada (`_criar_bufalos()`,
+  `_mexer_riscos_de_vento()`, `_criar_vento_de_iansa()`, `_criar_ceu_de_tempestade()`, `_criar_folhas_de_bambu()` e
+  `_raio_caindo()` no `scripts/mapa_mundo.gd`).
 - **O palácio de Xangô** (`palacio_de_xango()` no `gerar_mapa_mundo.py`): no alto da serra, o palácio do rei de Ọ̀yọ́
   (o Àfin), nascendo da própria pedra vermelha da serra (muralha e torres de rocha, sem emenda), com as pontas de madeira, duas torres com
   bandeiras vermelho e branco, o salão do rei com telhado alto de palha e o portão com colunas de madeira e o oxê.

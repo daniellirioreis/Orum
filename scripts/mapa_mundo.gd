@@ -231,7 +231,7 @@ func _criar_nuvens() -> void:
 		["res://arte/mundo_tempestade.png", Vector2(440, 64), 6.0, 0.8],
 		["res://arte/mundo_tempestade.png", Vector2(420, 100), 4.0, 1.0],
 		["res://arte/mundo_tempestade.png", Vector2(346, 88), 6.0, 0.85],     # a tempestade cobre a planície toda
-		["res://arte/mundo_tempestade.png", Vector2(370, 126), 5.0, 0.95],
+		["res://arte/mundo_tempestade.png", Vector2(448, 140), 5.0, 0.95],
 	]
 	for i in lista.size():
 		var n := Sprite2D.new()
@@ -288,6 +288,8 @@ func _criar_vento_de_iansa() -> void:
 		r.z_index = 1
 		add_child(r)
 		_redemoinhos.append({"no": r, "fase": i * 2.2, "vel": 0.22 + i * 0.07})
+	_criar_ceu_de_tempestade()
+	_criar_folhas_de_bambu()
 	var gota := Image.create(1, 3, false, Image.FORMAT_RGBA8)
 	gota.fill(Color(0.8, 0.86, 1.0, 0.75))
 	var tex_gota := ImageTexture.create_from_image(gota)
@@ -308,6 +310,60 @@ func _criar_vento_de_iansa() -> void:
 		n.add_child(chuva)
 
 
+## O céu de tempestade: uma sombra escura sobre a planície de Iansã (em camadas, borda macia), que clareia a cada raio.
+const SOMBRA_ALFA := 1.0
+var _sombra_tempestade: Node2D
+
+
+func _criar_ceu_de_tempestade() -> void:
+	_sombra_tempestade = Node2D.new()
+	_sombra_tempestade.z_index = 1
+	add_child(_sombra_tempestade)
+	for escala in [1.0, 0.86, 0.72, 0.58]:
+		var pts := PackedVector2Array()
+		for i in 40:
+			var a := TAU * i / 40.0
+			var r: float = escala * (1.0 + 0.08 * sin(a * 5.0 + escala * 4.0))     # borda irregular, como nuvem
+			pts.append(Vector2(412, 108) + Vector2(cos(a) * 90.0, sin(a) * 42.0) * r)
+		var camada := Polygon2D.new()
+		camada.polygon = pts
+		camada.color = Color(0.12, 0.1, 0.24, 0.07)
+		_sombra_tempestade.add_child(camada)
+
+
+## Folhas arrancadas do bambuzal pelo vento, voando para a direita.
+const BAMBUZAIS := [Vector2(392, 90), Vector2(470, 86), Vector2(460, 138), Vector2(336, 94), Vector2(412, 70)]
+
+
+func _criar_folhas_de_bambu() -> void:
+	var img := Image.create(3, 2, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0.62, 0.82, 0.28))
+	img.set_pixel(0, 1, Color(0, 0, 0, 0))
+	img.set_pixel(2, 0, Color(0, 0, 0, 0))
+	var tex := ImageTexture.create_from_image(img)
+	for b in BAMBUZAIS:
+		var f := CPUParticles2D.new()
+		f.texture = tex
+		f.position = b
+		f.z_index = 2
+		f.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+		f.emission_rect_extents = Vector2(6, 6)
+		f.amount = 6
+		f.lifetime = 1.8
+		f.direction = Vector2(1, -0.15)
+		f.spread = 20.0
+		f.gravity = Vector2(0, 6)
+		f.initial_velocity_min = 22.0
+		f.initial_velocity_max = 36.0
+		f.angular_velocity_min = -300.0
+		f.angular_velocity_max = 300.0
+		var fade := Gradient.new()
+		fade.set_color(0, Color(1, 1, 1, 1))
+		fade.set_color(1, Color(1, 1, 1, 0))
+		f.color_ramp = fade
+		add_child(f)
+
+
 ## A manada de búfalos de Iansã na planície: uns pastando (baixam a cabeça de vez em quando), outros andando devagar.
 var _bufalos: Array = []
 ## Os riscos de vento de Iansã: linhas brancas com um caracol na ponta, cruzando a planície para a direita.
@@ -317,8 +373,8 @@ var _proximo_risco := 0.5
 
 func _criar_bufalos() -> void:
 	var lista := [  # [posição, pasta (parado) ou anda até onde]
-		[Vector2(352, 118), null], [Vector2(374, 96), null], [Vector2(452, 98), null],
-		[Vector2(330, 140), Vector2(392, 140)], [Vector2(420, 132), Vector2(476, 126)], [Vector2(362, 78), Vector2(418, 82)],
+		[Vector2(356, 98), null], [Vector2(374, 96), null], [Vector2(452, 98), null],
+		[Vector2(396, 158), Vector2(440, 158)], [Vector2(420, 132), Vector2(476, 126)], [Vector2(392, 118), Vector2(446, 112)],
 	]
 	for i in lista.size():
 		var b := Sprite2D.new()
@@ -374,7 +430,7 @@ func _mexer_vento_de_iansa() -> void:
 	for r in _redemoinhos:
 		var t: float = _tempo * r["vel"] + r["fase"]
 		var s: Sprite2D = r["no"]
-		s.position = (Vector2(402, 114) + Vector2(sin(t) * 70.0, sin(t * 1.7 + 1.0) * 22.0)).round()
+		s.position = (Vector2(428, 110) + Vector2(sin(t) * 50.0, sin(t * 1.7 + 1.0) * 16.0)).round()
 		s.frame = int(_tempo * 10.0 + r["fase"]) % 4
 
 
@@ -416,6 +472,69 @@ func _mexer_nuvens(delta: float) -> void:
 		t.tween_property(nuvem, "modulate", Color.WHITE, 0.08)
 		t.tween_property(nuvem, "modulate", Color(1.8, 1.8, 1.4), 0.05)
 		t.tween_property(nuvem, "modulate", Color.WHITE, 0.2)
+		_raio_caindo(nuvem.position + Vector2(randf_range(-8, 8), 4))
+
+
+## O raio de Iansã: um zigue-zague que sai da nuvem e bate no chão, clareando a planície escura por um instante.
+func _raio_caindo(de: Vector2) -> void:
+	var pontos := PackedVector2Array([de])
+	var altura := randf_range(28.0, 42.0)
+	var p := de
+	while p.y < de.y + altura:
+		p += Vector2(randf_range(-5, 5), randf_range(5, 9))
+		pontos.append(p.round())
+	var raio := Node2D.new()
+	raio.z_index = 3
+	add_child(raio)
+	for camada in [[3.0, Color(0.7, 0.75, 1.0, 0.55)], [1.0, Color(1.0, 1.0, 0.85)]]:   # brilho azulado + miolo branco
+		var l := Line2D.new()
+		l.points = pontos
+		l.width = camada[0]
+		l.default_color = camada[1]
+		l.joint_mode = Line2D.LINE_JOINT_SHARP
+		raio.add_child(l)
+	if randf() < 0.6:                                    # às vezes o raio se divide num galho
+		var k := randi_range(1, maxi(1, pontos.size() - 2))
+		var g := PackedVector2Array([pontos[k]])
+		var q := pontos[k]
+		var lado := 1.0 if randf() < 0.5 else -1.0
+		for i in 3:
+			q += Vector2(lado * randf_range(3, 6), randf_range(3, 6))
+			g.append(q.round())
+		var lg := Line2D.new()
+		lg.points = g
+		lg.width = 1.0
+		lg.default_color = Color(0.9, 0.92, 1.0, 0.8)
+		raio.add_child(lg)
+	var clarao := Sprite2D.new()                         # o estouro no chão
+	clarao.texture = _textura_clarao()
+	clarao.position = p
+	raio.add_child(clarao)
+	var t := create_tween()
+	t.tween_interval(0.06)
+	t.tween_property(raio, "modulate:a", 0.2, 0.03)
+	t.tween_property(raio, "modulate:a", 1.0, 0.03)
+	t.tween_property(raio, "modulate:a", 0.0, 0.18)
+	t.tween_callback(raio.queue_free)
+	if _sombra_tempestade:
+		var s := create_tween()
+		s.tween_property(_sombra_tempestade, "modulate:a", 0.15, 0.05)
+		s.tween_property(_sombra_tempestade, "modulate:a", SOMBRA_ALFA, 0.5)
+
+
+var _tex_clarao: ImageTexture
+
+
+func _textura_clarao() -> ImageTexture:
+	if _tex_clarao == null:
+		var img := Image.create(9, 5, false, Image.FORMAT_RGBA8)
+		for y in 5:
+			for x in 9:
+				var d := Vector2((x - 4) / 4.5, (y - 2) / 2.5).length()
+				if d < 1.0:
+					img.set_pixel(x, y, Color(1.0, 1.0, 0.8, 1.0 - d))
+		_tex_clarao = ImageTexture.create_from_image(img)
+	return _tex_clarao
 
 
 # ------------------------------------------------------------------ andar pelos caminhos
