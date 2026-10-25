@@ -134,6 +134,7 @@ func _process(delta: float) -> void:
 	_mover_pavoes(delta)
 	_mover_oncas(delta)
 	_animar_mata_alta(delta)
+	_mover_rio(delta)
 	if _oxossi and _anim_oxossi == "parado":
 		_oxossi.frame = int(_tempo * 3.0) % 4
 
@@ -151,6 +152,75 @@ func teleportar(nome: String, posicao: Vector2) -> void:
 	if nome == "ox_clareira" and not _viu_clareira:
 		_viu_clareira = true
 		_chegar_na_clareira.call_deferred()
+
+
+# ------------------------------------------------------------------ o riacho corre
+## A água do riacho corre da esquerda para a direita: riscos de luz descem com a correnteza e
+## folhinhas passam boiando.
+const SHADER_RIO := """
+shader_type canvas_item;
+varying vec2 mundo;
+void vertex() {
+	mundo = (MODEL_MATRIX * vec4(VERTEX, 0.0, 1.0)).xy;
+}
+void fragment() {
+	vec4 c = COLOR;
+	vec2 p = floor(mundo);
+	float corre = p.x - TIME * 14.0;                       // a correnteza
+	float faixa = sin(p.y * 0.9 + sin(corre * 0.05) * 1.3);
+	float risco = sin(corre * 0.21 + p.y * 1.7) * faixa;
+	float luz = step(0.78, risco) * 0.13 + step(0.93, risco) * 0.13;
+	float brilho = step(0.985, sin(p.x * 0.7 + p.y * 2.3 - TIME * 3.0)) * 0.12;
+	float sombra = step(risco, -0.85) * 0.05;
+	c.rgb += vec3(luz * 0.8 + brilho, luz + brilho, luz + brilho) * c.a - vec3(sombra) * c.a;
+	COLOR = c;
+}
+"""
+var _rio: Array = []            # folhinhas boiando: {s, y, xmin, xmax, vel, fase}
+
+
+func _camada_terreno(origem: Vector2, i: int, camada: TileMapLayer) -> void:
+	if i != 2:
+		return
+	var sh := Shader.new()
+	sh.code = SHADER_RIO
+	var m := ShaderMaterial.new()
+	m.shader = sh
+	camada.material = m
+	# folhinhas boiando no riacho (só onde tem água)
+	for nome in lugares:
+		if lugares[nome]["origem"] != origem:
+			continue
+		var mapa: PackedStringArray = _mapas[nome] if _mapas.has(nome) else PackedStringArray()
+		for y in mapa.size():
+			var xs: Array = []
+			for x in mapa[y].length():
+				if mapa[y][x] == "~":
+					xs.append(x)
+			if xs.is_empty():
+				continue
+			for k in 3:
+				var f := Sprite2D.new()
+				f.texture = preload("res://arte/ox_folha.png")
+				f.hframes = 3
+				f.frame = randi() % 3
+				f.z_index = -5
+				f.scale = Vector2(1.4, 1.4)
+				add_child(f)
+				_rio.append({"s": f, "y": origem.y + y * TILE + 8.0, "xmin": origem.x + xs[0] * TILE,
+					"xmax": origem.x + (xs[-1] + 1) * TILE, "vel": randf_range(10, 16), "fase": randf() * TAU,
+					"x": origem.x + randf_range(xs[0], xs[-1] + 1) * TILE})
+
+
+func _mover_rio(delta: float) -> void:
+	for f in _rio:
+		f["x"] += f["vel"] * delta
+		if f["x"] > f["xmax"] - 2:
+			f["x"] = f["xmin"] + 2
+			f["fase"] = randf() * TAU
+		var s: Sprite2D = f["s"]
+		s.position = Vector2(roundf(f["x"]), roundf(f["y"] + sin(_tempo * 1.3 + f["fase"]) * 3.0))
+		s.rotation = sin(_tempo * 0.9 + f["fase"]) * 0.6
 
 
 # ------------------------------------------------------------------ objetos dos mapas
@@ -1443,7 +1513,7 @@ var _copas: Array = []          # {s, sombra, centro, rx, ry, lugar}
 var _manchas_sol: Array = []    # [sprite, fase]
 var _camada_folhas: CanvasLayer
 var _folhas_caindo: CPUParticles2D
-const COPA_ESCALA := 1.3                 # bem grandes: é o alto da árvore, mais perto da câmera
+const COPA_ESCALA := 1.42                # bem grandes: é o alto da árvore, mais perto da câmera
 const COPA_TAMANHOS := [Vector2(38, 30), Vector2(31, 26), Vector2(42, 23)]   # meia-largura e meia-altura (sem escala)
 
 
@@ -1463,6 +1533,7 @@ func _criar_copa_alta(lugar: String, base: Vector2, celula: Vector2i) -> void:
 	s.flip_h = celula.x % 2 == 0
 	s.position = centro
 	s.scale = Vector2.ONE * COPA_ESCALA
+	s.self_modulate = Color(0.8, 0.87, 0.8)  # mais escuras: a mata é fechada
 	s.z_index = 20                          # por cima de tudo: é o alto da árvore
 	add_child(s)
 	_copas.append({"s": s, "sombra": sombra, "centro": centro, "rx": COPA_TAMANHOS[v].x * COPA_ESCALA, "ry": COPA_TAMANHOS[v].y * COPA_ESCALA,

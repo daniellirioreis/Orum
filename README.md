@@ -157,6 +157,7 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   por cima de tudo, até de Adé, e tapam pedaços da tela; a sombra delas fica no chão (`ox_copa_sombra.png`). Quando
   Adé anda embaixo de uma copa, ela fica meio transparente. Entre as copas, manchas de sol balançam no chão (`Z`,
   `ox_sol.png`) e folhinhas caem girando (`ox_folha.png`). Na clareira não tem copa: o céu abre.
+- **O riacho corre**: a água do riacho do ofá corre para a direita (shader `SHADER_RIO`) e folhinhas passam boiando.
 - Para testar direto, abra `cenas/mata_oxossi.tscn` no Godot e aperte F6.
 
 **A Terra de Nanã (Nàná Bùrúkù, visão de cima)** — `cenas/mata_nana.tscn`, `scripts/mata_nana.gd`
