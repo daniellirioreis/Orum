@@ -90,6 +90,7 @@ func _ready() -> void:
 	_criar_gaivotas()
 	_criar_nuvens_de_oxala()
 	_criar_vento_de_iansa()
+	_criar_bufalos()
 
 	var mapa: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(ARQUIVO_MAPA))
 	if mapa.has("tamanho"):
@@ -180,6 +181,8 @@ func _process(delta: float) -> void:
 	_mexer_gaivotas()
 	_mexer_nuvens_de_oxala(delta)
 	_mexer_vento_de_iansa()
+	_mexer_bufalos()
+	_mexer_riscos_de_vento(delta)
 	if _camera.zoom.x >= 0.999:
 		_camera.position = _ade.position + Vector2(0, -8)
 	for en in _enfeites:
@@ -227,6 +230,8 @@ func _criar_nuvens() -> void:
 		["res://arte/mundo_tempestade.png", Vector2(480, 84), 4.0, 1.1],
 		["res://arte/mundo_tempestade.png", Vector2(440, 64), 6.0, 0.8],
 		["res://arte/mundo_tempestade.png", Vector2(420, 100), 4.0, 1.0],
+		["res://arte/mundo_tempestade.png", Vector2(346, 88), 6.0, 0.85],     # a tempestade cobre a planície toda
+		["res://arte/mundo_tempestade.png", Vector2(370, 126), 5.0, 0.95],
 	]
 	for i in lista.size():
 		var n := Sprite2D.new()
@@ -275,7 +280,7 @@ var _redemoinhos: Array = []
 
 
 func _criar_vento_de_iansa() -> void:
-	for i in 3:
+	for i in 4:
 		var r := Sprite2D.new()
 		r.texture = preload("res://arte/mundo_redemoinho.png")
 		r.hframes = 4
@@ -303,11 +308,73 @@ func _criar_vento_de_iansa() -> void:
 		n.add_child(chuva)
 
 
+## A manada de búfalos de Iansã na planície: uns pastando (baixam a cabeça de vez em quando), outros andando devagar.
+var _bufalos: Array = []
+## Os riscos de vento de Iansã: linhas brancas com um caracol na ponta, cruzando a planície para a direita.
+var _riscos: Array = []
+var _proximo_risco := 0.5
+
+
+func _criar_bufalos() -> void:
+	var lista := [  # [posição, pasta (parado) ou anda até onde]
+		[Vector2(352, 118), null], [Vector2(374, 96), null], [Vector2(452, 98), null],
+		[Vector2(330, 140), Vector2(392, 140)], [Vector2(420, 132), Vector2(476, 126)], [Vector2(362, 78), Vector2(418, 82)],
+	]
+	for i in lista.size():
+		var b := Sprite2D.new()
+		b.texture = preload("res://arte/mundo_bufalo.png")
+		b.hframes = 4
+		b.offset = Vector2(0, -5)
+		b.position = lista[i][0]
+		b.flip_h = i % 2 == 1
+		b.z_index = 0
+		add_child(b)
+		_bufalos.append({"no": b, "de": lista[i][0], "ate": lista[i][1], "fase": i * 1.3})
+
+
+func _mexer_bufalos() -> void:
+	for f in _bufalos:
+		var b: Sprite2D = f["no"]
+		if f["ate"] == null:
+			b.frame = 1 if fmod(_tempo * 0.5 + f["fase"], 3.0) < 1.8 else 0     # pastando, de cabeça baixa
+			continue
+		var de: Vector2 = f["de"]
+		var ate: Vector2 = f["ate"]
+		var u := pingpong(_tempo * 6.0 / de.distance_to(ate) + f["fase"], 1.0)    # anda bem devagar, vai e volta
+		var antes := b.position
+		b.position = de.lerp(ate, u).round()
+		if b.position.x != antes.x:
+			b.flip_h = b.position.x < antes.x
+		b.frame = 2 + int(_tempo * 3.0 + f["fase"]) % 2
+
+
+func _mexer_riscos_de_vento(delta: float) -> void:
+	_proximo_risco -= delta
+	if _proximo_risco <= 0.0:
+		_proximo_risco = randf_range(0.6, 1.4)
+		var v := Sprite2D.new()
+		v.texture = preload("res://arte/mundo_vento.png")
+		v.position = Vector2(randf_range(300, 400), randf_range(76, 156))
+		v.z_index = 3
+		v.modulate.a = 0.0
+		add_child(v)
+		_riscos.append({"no": v, "vida": 0.0, "dura": randf_range(1.6, 2.4), "vel": randf_range(55.0, 80.0)})
+	for r in _riscos.duplicate():
+		r["vida"] += delta
+		var v: Sprite2D = r["no"]
+		v.position.x += r["vel"] * delta
+		var u: float = r["vida"] / r["dura"]                 # aparece, atravessa e some
+		v.modulate.a = clampf(minf(u * 4.0, (1.0 - u) * 3.0), 0.0, 0.85)
+		if u >= 1.0:
+			v.queue_free()
+			_riscos.erase(r)
+
+
 func _mexer_vento_de_iansa() -> void:
 	for r in _redemoinhos:
 		var t: float = _tempo * r["vel"] + r["fase"]
 		var s: Sprite2D = r["no"]
-		s.position = (Vector2(428, 116) + Vector2(sin(t) * 38.0, sin(t * 1.7 + 1.0) * 20.0)).round()
+		s.position = (Vector2(402, 114) + Vector2(sin(t) * 70.0, sin(t * 1.7 + 1.0) * 22.0)).round()
 		s.frame = int(_tempo * 10.0 + r["fase"]) % 4
 
 
