@@ -72,6 +72,7 @@ var _falou_mangue := false
 var _barro: Area2D
 var _pedra: Area2D
 var _pote_na_pedra: Sprite2D
+var _balao_pedra: Sprite2D
 var _enchendo := 0.0
 var _lugar_nana: Area2D
 var _chegada_velhinha := Vector2.ZERO
@@ -145,6 +146,7 @@ func _process(delta: float) -> void:
 	_mover_mare(delta)
 	_mover_caranguejos()
 	_encher_pote(delta)
+	_atualizar_balao_pedra()
 	_perto_da_velhinha_do_mangue()
 	if _nana_sprite and _anim_nana == "parada":
 		_nana_sprite.frame = int(_tempo * 2.5) % 4
@@ -235,6 +237,13 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 		"O":
 			_pedra = _criar_interativo("res://arte/obj_pedras.png", 1, base, Vector2(14, 6), -24.0)
 			_pedra.interagiu.connect(_na_pedra)
+			(_pedra.get_node("Alcance").shape as CircleShape2D).radius = 26.0
+			# um balão sempre boiando em cima da pedra enquanto tem algo para fazer nela
+			_balao_pedra = Sprite2D.new()
+			_balao_pedra.texture = preload("res://arte/balao.png")
+			_balao_pedra.position = base + Vector2(0, -26)
+			_balao_pedra.z_index = 5
+			add_child(_balao_pedra)
 		"N":
 			_lugar_nana = _criar_interativo("res://arte/nana_lugar.png", 2, base, Vector2(22, 8), -30.0)
 			_lugar_nana.interagiu.connect(_no_lugar_de_nana)
@@ -739,8 +748,8 @@ func _pular(p: Dictionary) -> void:
 var _folhas: Array = []         # {s, de, ate, vel, fase, afunda, peso, sumida, x_antes}
 var _chao_firme_lagoa := Vector2.ZERO
 var _tempo_na_agua := 0.0
-const FOLHA_MEIA_LARGURA := 13.0
-const FOLHA_MEIA_ALTURA := 7.0
+const FOLHA_MEIA_LARGURA := 10.0
+const FOLHA_MEIA_ALTURA := 6.0
 
 
 func _criar_folha(lugar: String, celula: Vector2i, base: Vector2, afunda: bool) -> void:
@@ -754,8 +763,8 @@ func _criar_folha(lugar: String, celula: Vector2i, base: Vector2, afunda: bool) 
 		fim += 1
 	var origem: Vector2 = lugares[lugar]["origem"]
 	var y := origem.y + celula.y * TILE + TILE / 2.0
-	var de := origem.x + ini * TILE + 10.0
-	var ate := origem.x + (fim + 1) * TILE - 10.0
+	var de := origem.x + ini * TILE + 9.0
+	var ate := origem.x + (fim + 1) * TILE - 9.0
 	var s := Sprite2D.new()
 	s.texture = preload("res://arte/nana_vitoria_grande.png")
 	s.hframes = 3
@@ -1155,6 +1164,17 @@ func _na_pedra() -> void:
 			_acender_slot("pote", _dados["nomes"]["pote"])
 		_:
 			await _falar("pedra_depois")
+
+
+## O balão da pedra aparece enquanto Adé tem o que fazer nela (deixar o pote, buscar o pote cheio),
+## some enquanto a chuva enche o pote e depois que o pote cheio já foi pego.
+func _atualizar_balao_pedra() -> void:
+	if not _balao_pedra:
+		return
+	var estado_pote: String = _nana.get("pote", "")
+	_balao_pedra.visible = estado_pote in ["rachado", "vazio", "pronto"] and lugar_atual == "nana_lagoa" \
+		and not $Dialogo.ativo and not _pedra.balao.visible
+	_balao_pedra.position.y = _pedra.position.y - 26 + round(sin(_tempo * 3.0) * 1.5)
 
 
 func _encher_pote(delta: float) -> void:

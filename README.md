@@ -175,6 +175,8 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
     **vitórias-régias gigantes** (`W`/`E` no mapa, água `y` sem parede) que andam de um lado para o outro, cada fileira
     num ritmo, e levam Adé junto; as mais escuras (`E`) afundam se ele ficar parado em cima uns 2 segundos (depois
     voltam a boiar). Pisou fora da folha, tchibum: perde um búzio de axé e volta ao último chão firme.
+    As folhas grandes têm o mesmo desenho das vitórias-régias pequenas da lagoa (`arte/nana_vitoria_grande.png`).
+    Enquanto há algo para fazer na pedra do pote, um balão fica boiando em cima dela.
     Na pedra, a chuva vazaria pela rachadura do pote; Adé conserta o pote com o **barro** da ilhota,
     deixa o pote na pedra até a chuva encher e faz a oferenda (pote com água da chuva e flores lilás) no **lugar de
     Nanã**. A chuva engrossa, a velhinha chega devagar e se revela: era Nanã. Ela fala da lama de onde se moldou o
