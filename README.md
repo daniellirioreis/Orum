@@ -221,7 +221,7 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   (Ọlọ́jà, o dono do mercado): barracas com toldo de pano (adire azul-índigo, vermelho e amarelo, verde), cabaças e
   cestos (`mercado()` no `gerar_mapa_mundo.py`).
 - **O palácio de Xangô** (`palacio_de_xango()` no `gerar_mapa_mundo.py`): no alto da serra, o palácio do rei de Ọ̀yọ́
-  (o Àfin), com muralha de terra vermelha, ameias arredondadas e as pontas de madeira saindo da parede, duas torres com
+  (o Àfin), nascendo da própria pedra vermelha da serra (muralha e torres de rocha, sem emenda), com as pontas de madeira, duas torres com
   bandeiras vermelho e branco, o salão do rei com telhado alto de palha e o portão com colunas de madeira e o oxê.
 - **A maré em todas as praias do Ọ̀run** (no `base()` do `gerar_mapa_mundo.py`): a onda sobe pela areia e volta, cada
   trecho num tempo (a onda corre ao longo da costa), deixando a areia molhada e mais escura por onde passou.
