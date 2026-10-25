@@ -227,8 +227,6 @@ func _criar_nuvens() -> void:
 		["res://arte/mundo_tempestade.png", Vector2(480, 84), 4.0, 1.1],
 		["res://arte/mundo_tempestade.png", Vector2(440, 64), 6.0, 0.8],
 		["res://arte/mundo_tempestade.png", Vector2(420, 100), 4.0, 1.0],
-		["res://arte/mundo_tempestade.png", Vector2(346, 88), 6.0, 0.85],     # a tempestade cobre o mundo todo de Iansã
-		["res://arte/mundo_tempestade.png", Vector2(370, 120), 5.0, 0.95],
 	]
 	for i in lista.size():
 		var n := Sprite2D.new()
@@ -277,7 +275,7 @@ var _redemoinhos: Array = []
 
 
 func _criar_vento_de_iansa() -> void:
-	for i in 4:
+	for i in 3:
 		var r := Sprite2D.new()
 		r.texture = preload("res://arte/mundo_redemoinho.png")
 		r.hframes = 4
@@ -309,7 +307,7 @@ func _mexer_vento_de_iansa() -> void:
 	for r in _redemoinhos:
 		var t: float = _tempo * r["vel"] + r["fase"]
 		var s: Sprite2D = r["no"]
-		s.position = (Vector2(402, 114) + Vector2(sin(t) * 70.0, sin(t * 1.7 + 1.0) * 22.0)).round()
+		s.position = (Vector2(428, 116) + Vector2(sin(t) * 38.0, sin(t * 1.7 + 1.0) * 20.0)).round()
 		s.frame = int(_tempo * 10.0 + r["fase"]) % 4
 
 
