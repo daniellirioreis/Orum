@@ -69,6 +69,7 @@ var _flores: Sprite2D
 var _mar_desenho: Node2D
 var _furou_uma_vez := false
 var _bateu_uma_vez := false
+var _proa := PI                 # para onde a proa aponta (0 = para cima; começa apontando mar adentro, para baixo)
 
 
 func _ready() -> void:
@@ -180,7 +181,10 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			(rede.get_node("Alcance").shape as CircleShape2D).radius = 30.0
 			rede.interagiu.connect(_na_rede)
 		"J":
-			_jangada_praia = _criar_interativo("res://arte/iemanja_jangada.png", 1, base + Vector2(0, 4), Vector2(40, 10), -48.0)
+			_jangada_praia = _criar_interativo("res://arte/iemanja_jangada_cima.png", 16, base + Vector2(0, 12), Vector2(30, 12), -36.0)
+			_jangada_praia.sprite.vframes = 2
+			_jangada_praia.sprite.offset.y = -_jangada_praia.sprite.texture.get_height() / 4.0
+			_jangada_praia.sprite.frame = 4              # na areia, com a ponta virada para o mar
 			(_jangada_praia.get_node("Alcance").shape as CircleShape2D).radius = 34.0
 			_jangada_praia.interagiu.connect(_na_jangada)
 		"b":
@@ -598,6 +602,7 @@ func _entrar_no_mar() -> void:
 	_jangada_praia.visible = false
 	_pos = _inicio_mar
 	_vel = Vector2.ZERO
+	_proa = PI
 	_jangada.position = _pos
 	_jangada.visible = true
 	teleportar("iemanja_mar", _pos + Vector2(0, -7))
@@ -617,8 +622,9 @@ func _entrar_no_mar() -> void:
 
 func _preparar_mar() -> void:
 	_jangada = Sprite2D.new()
-	_jangada.texture = preload("res://arte/iemanja_jangada.png")
-	_jangada.offset = Vector2(0, -16)
+	_jangada.texture = preload("res://arte/iemanja_jangada_cima.png")
+	_jangada.hframes = 16                          # a proa em 16 direções (0 = para cima, girando no sentido do relógio)
+	_jangada.vframes = 2                           # e 2 quadros de balanço
 	_jangada.z_index = -1                          # Adé fica em pé por cima da jangada
 	_jangada.visible = false
 	mundo.add_child(_jangada)
@@ -700,14 +706,19 @@ func _navegar(delta: float) -> void:
 				_respingo(_pos)
 		if r["y"] < origem.y + 2.0 * TILE:
 			_rolos.erase(r)
-	_jangada.position = _pos.round()
-	jogador.global_position = (_pos + Vector2(0, -7)).round()
-	if _vel.length() > 8.0:
-		jogador.olhar_para(jogador.global_position + _vel)
-	_rastro.position = _pos + Vector2(0, 2)
-	_rastro.direction = -_vel.normalized() if _vel.length() > 1.0 else Vector2.UP
+	# a proa vira devagar para o lado em que a jangada anda (como um barco de verdade)
+	if _vel.length() > 6.0:
+		var alvo := atan2(_vel.x, -_vel.y)
+		_proa = rotate_toward(_proa, alvo, 4.0 * delta)
+	var frente := Vector2(sin(_proa), -cos(_proa))
+	var q := int(round(fposmod(_proa, TAU) / (TAU / 16.0))) % 16
+	_jangada.frame = q + 16 * (int(_tempo * 2.0) % 2)
+	_jangada.position = (_pos + Vector2(0, sin(_tempo * 2.2) * 0.6)).round()
+	jogador.global_position = (_pos + Vector2(0, 3)).round()
+	jogador.olhar_para(jogador.global_position + frente * 10.0)
+	_rastro.position = _pos - frente * 13.0          # a espuma sai de trás (da popa)
+	_rastro.direction = -frente
 	_rastro.emitting = _vel.length() > 18.0
-	_jangada.rotation = sin(_tempo * 2.2) * 0.03       # a jangada balança de leve
 	# as flores
 	if remando and _pos.distance_to(_flores_pos) < 36.0 and not _iem.has("flores"):
 		if not _iem.has("viu_flores"):

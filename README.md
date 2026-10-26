@@ -174,7 +174,8 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   águas-vivas queimam. Adé procura uma **jangada** para entrar no mar: ela está lá embaixo, na beira d'água, mas o
   **remo** ficou enrolado na rede de pesca.
 - **O mar ao luar** (navegando, também de cima para baixo: a praia fica em cima): Adé rema a jangada com as setas (ela
-  tem embalo), descendo mar adentro até a **pedra das flores brancas**. Os rolos de onda vêm subindo do mar aberto: remando de frente e com força, a jangada fura a onda; parada ou de lado, a onda
+  tem embalo; vista de cima, a ponta vira devagar para onde ela anda, em 16 direções, e ela balança nas ondinhas —
+  `arte/iemanja_jangada_cima.png`, feita pelo `gerar_jangada.py`), descendo mar adentro até a **pedra das flores brancas**. Os rolos de onda vêm subindo do mar aberto: remando de frente e com força, a jangada fura a onda; parada ou de lado, a onda
   empurra para trás. Pedras e recifes (bater custa um búzio de axé) e correntezas que puxam para os lados (os riscos
   de brilho na água mostram para onde). Encostando na pedra, Adé pega as flores. (O mergulho, o jardim de corais, as
   águas escuras e Aiocá vêm a seguir; por enquanto, com as flores, a fase volta ao Ọ̀run.)
