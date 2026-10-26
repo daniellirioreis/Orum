@@ -220,7 +220,7 @@ func _montar_hud() -> void:
 	_hud.add_child(_hud_mao)
 	_hud_bolsa = TextureRect.new()
 	var a := AtlasTexture.new()
-	a.atlas = preload("res://arte/bornal_itens.png")
+	a.atlas = load("res://arte/bornal_itens.png")
 	a.region = Rect2(5 * 12, 0, 12, 12)
 	_hud_bolsa.texture = a
 	_hud_bolsa.position = Vector2(tela.x - 40, 33)
@@ -337,7 +337,7 @@ func _montar_tela() -> void:
 	_raiz.add_child(painel)
 	var bolsa := TextureRect.new()
 	var a := AtlasTexture.new()
-	a.atlas = preload("res://arte/bornal_itens.png")
+	a.atlas = load("res://arte/bornal_itens.png")
 	a.region = Rect2(5 * 12, 0, 12, 12)
 	bolsa.texture = a
 	bolsa.position = Vector2(84, 20)
