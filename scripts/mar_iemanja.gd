@@ -36,6 +36,7 @@ const CORRENTEZA := 26.0
 const ROLO_VEL := 24.0         # os rolos de onda descendo
 const ROLO_CADA := 3.4
 
+var _tartaruga := {}            # a tartaruga velha: anda devagar pela beira, para e olha para Adé
 var _iem := {}                  # flags da fase: flores, remo...
 var _slots_iem := {}            # id → ícone do inventário
 var _moldura_trofeu: TextureRect
@@ -176,6 +177,7 @@ func _exu_explica() -> void:
 func _process(delta: float) -> void:
 	super._process(delta)
 	if lugar_atual == "iemanja_praia":
+		_mover_tartaruga(delta)
 		_mover_ondas(delta)
 		_chao_de_ade()
 		_mover_caranguejos()
@@ -221,9 +223,16 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			rede.interagiu.connect(_na_rede)
 		"Y":
 			# a tartaruga velha da beira: sabe onde o mar deixou o remo
-			var tt := _criar_interativo("res://arte/iemanja_tartaruga.png", 2, base, Vector2(14, 8), -24.0)
-			tt.animar = true
+			var tt := _criar_interativo("res://arte/iemanja_tartaruga.png", 6, base, Vector2(18, 8), -26.0)
+			tt.animar = false
+			tt.sprite.offset.y += 3
+			var sombra := Sprite2D.new()
+			sombra.texture = preload("res://arte/sombra.png")
+			sombra.scale = Vector2(1.6, 1.0)
+			tt.add_child(sombra)
+			tt.move_child(sombra, 0)
 			tt.interagiu.connect(_na_tartaruga)
+			_tartaruga = {"no": tt, "casa": base.x, "alvo": base.x + 20.0, "espera": 1.0, "piscar": 2.0, "escondida": 0.0}
 		# --- a gruta do costão
 		"X":
 			var pa := _criar_cenario("res://arte/iemanja_rocha.png", Vector2(16, 14), base + Vector2(0, 2))
@@ -1044,3 +1053,55 @@ func _ao_afundar_pedra(p: Dictionary) -> void:
 	elif not _iem.has("ponte"):
 		_iem["ponte"] = true
 		await _falar("pedra_ponte")
+
+
+# ------------------------------------------------------------------ a tartaruga velha
+
+## Longe de Adé, ela passeia devagar pela areia molhada; quando ele chega perto, ela para, vira para ele,
+## respira e pisca. Se ele vem correndo para cima dela, ela se esconde no casco um pouquinho.
+func _mover_tartaruga(delta: float) -> void:
+	if _tartaruga.is_empty():
+		return
+	var tt: Area2D = _tartaruga["no"]
+	var s: Sprite2D = tt.sprite
+	var dist := tt.global_position.distance_to(jogador.global_position)
+	if _tartaruga["escondida"] > 0.0:
+		_tartaruga["escondida"] -= delta
+		s.frame = 5
+		return
+	var chegando: float = (_tartaruga.get("dist", dist) - dist) / maxf(delta, 0.001)
+	_tartaruga["dist"] = dist
+	if dist < 26.0 and chegando > 35.0 and jogador.pode_mover:
+		_tartaruga["escondida"] = 1.6
+		som_perto("caranguejo", tt.global_position, -14.0)
+		if not _iem.has("susto_tartaruga") and not $Dialogo.ativo:
+			_iem["susto_tartaruga"] = true
+			_falar_depois.call_deferred("tartaruga_susto")
+		return
+	var em_conversa: bool = $Dialogo.ativo
+	if dist < 56.0 or em_conversa:
+		# parada, olhando para Adé: respira devagar e pisca de vez em quando
+		tt.olhar_para_jogador = true
+		_tartaruga["piscar"] -= delta
+		if _tartaruga["piscar"] < 0.0:
+			s.frame = 2
+			if _tartaruga["piscar"] < -0.16:
+				_tartaruga["piscar"] = randf_range(1.8, 3.6)
+		else:
+			s.frame = int(_tempo * 1.2) % 2
+		return
+	tt.olhar_para_jogador = false
+	if _tartaruga["espera"] > 0.0:
+		_tartaruga["espera"] -= delta
+		s.frame = int(_tempo * 1.2) % 2
+		return
+	var alvo: float = _tartaruga["alvo"]
+	var dx := alvo - tt.global_position.x
+	if absf(dx) < 1.0:
+		# chegou: descansa um pouco e escolhe o próximo ponto, sempre perto de casa
+		_tartaruga["espera"] = randf_range(1.5, 3.5)
+		_tartaruga["alvo"] = _tartaruga["casa"] + randf_range(-28.0, 28.0)
+		return
+	tt.global_position.x += signf(dx) * minf(absf(dx), 7.0 * delta)
+	s.flip_h = dx < 0.0
+	s.frame = 3 + int(_tempo * 3.0) % 2

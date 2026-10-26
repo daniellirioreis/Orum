@@ -196,7 +196,13 @@
 		{
 			"quem": "Tartaruga",
 			"yo": "",
-			"pt": "O remo... a maré cheia levou. Eu vi, menino, eu vejo tudo, já nadei este mar por cem anos."
+			"pt": "A bênção de Iemanjá, menino. Ela é a mãe de todos nós... de você, de mim e de todos os peixinhos do mar.",
+			"rosto": "feliz"
+		},
+		{
+			"quem": "Tartaruga",
+			"yo": "",
+			"pt": "O remo... a maré cheia levou. Eu vi, menino, eu vejo tudo. Já nadei este mar por cem anos."
 		},
 		{
 			"quem": "Tartaruga",
@@ -206,7 +212,13 @@
 		{
 			"quem": "Tartaruga",
 			"yo": "",
-			"pt": "Lá dentro é escuro e a onda espirra entre as pedras. Vá devagar, e respeite o tempo do mar."
+			"pt": "Lá dentro é escuro, a onda espirra entre as pedras e as poças são fundas. Pense antes de empurrar as pedras, e respeite o tempo do mar."
+		},
+		{
+			"quem": "Tartaruga",
+			"yo": "",
+			"pt": "Devagar se vai longe, menino. Pergunte a qualquer tartaruga!",
+			"rosto": "feliz"
 		}
 	],
 	"tartaruga_depois": [
@@ -220,7 +232,14 @@
 		{
 			"quem": "Tartaruga",
 			"yo": "",
-			"pt": "Achou o remo! Agora a jangada é sua. Que Iemanjá te leve com cuidado, menino."
+			"pt": "Achou o remo! Eu sabia. Agora a jangada é sua.",
+			"rosto": "feliz"
+		},
+		{
+			"quem": "Tartaruga",
+			"yo": "",
+			"pt": "Que Iemanjá te leve com cuidado, menino. Odoyá!",
+			"rosto": "feliz"
 		}
 	],
 	"remo_achou": [
@@ -313,6 +332,19 @@
 			"quem": "Adé",
 			"yo": "",
 			"pt": "Se eu empurrar outra pedra por cima dessa, aí sim vira um caminho."
+		}
+	],
+	"tartaruga_susto": [
+		{
+			"quem": "Tartaruga",
+			"yo": "",
+			"pt": "Ai, ai! Que menino apressado! Quase me matou de susto...",
+			"rosto": "assustada"
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Desculpa, dona Tartaruga! Eu não vi a senhora."
 		}
 	]
 }
