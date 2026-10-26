@@ -26,10 +26,11 @@ const LOCAIS := {
 	"nana": {"nome": "Terra de Nanã", "cena": "res://cenas/mata_nana.tscn"},
 	"iemanja": {"nome": "Mar de Iemanjá", "cena": "res://cenas/mar_iemanja.tscn"},
 }
-const METAS_SALVAS := ["mapa_aberto", "volta_feita", "iemanja_remo", "iemanja_flores", "iemanja_alfazema"]
+const METAS_SALVAS := ["mapa_aberto", "volta_feita", "iemanja_remo", "iemanja_flores", "iemanja_alfazema", "bornal_dica"]
 var espaco_atual := -1
 var opcoes := {"musica": 8, "efeitos": 8}
 var menu: CanvasLayer
+var bornal: CanvasLayer          # o bornal de Adé (scripts/bornal.gd)
 
 ## Teclado ou controle: o último usado decide os nomes dos botões nos textos ({interagir}, {atirar}...).
 signal dispositivo_mudou
@@ -40,6 +41,7 @@ const NOMES_BOTOES := {
 	"atirar": ["Espaço", "B"],
 	"devagar": ["Shift", "L ou R"],
 	"ver_mapa": ["M", "Y"],
+	"bornal": ["Tab", "Select"],
 	"pausa": ["Esc", "Start"],
 	"andar": ["as setas", "o direcional"],
 	"setas": ["← ↑ → ↓", "✚"],
@@ -70,6 +72,8 @@ func _ready() -> void:
 
 	menu = preload("res://scripts/menu.gd").new()
 	add_child(menu)
+	bornal = preload("res://scripts/bornal.gd").new()
+	add_child(bornal)
 
 	var camada := CanvasLayer.new()
 	camada.layer = 100
@@ -89,7 +93,9 @@ func reiniciar() -> void:
 	assentados = {}
 	tempo_terreiro = ""
 	espaco_atual = -1
-	for m in ["mapa_aberto", "volta_feita", "no_mapa", "volta", "retorno", "na_quartinha", "iemanja_remo", "iemanja_flores", "iemanja_alfazema"]:
+	if bornal:
+		bornal.esvaziar()
+	for m in ["mapa_aberto", "volta_feita", "no_mapa", "volta", "retorno", "na_quartinha", "iemanja_remo", "iemanja_flores", "iemanja_alfazema", "bornal_dica"]:
 		if has_meta(m):
 			remove_meta(m)
 
@@ -137,6 +143,7 @@ func mudar_cena(caminho: String) -> void:
 	var t := create_tween()
 	t.tween_property(_fade, "color:a", 1.0, 0.35)
 	await t.finished
+	bornal.mostrar_hud(false)        # cada cena liga a barra do bornal se usar (terreiro e fases)
 	get_tree().change_scene_to_file(caminho)
 	var t2 := create_tween()
 	t2.tween_property(_fade, "color:a", 0.0, 0.35)
@@ -145,7 +152,7 @@ func mudar_cena(caminho: String) -> void:
 ## Nome do botão de uma ação, para mostrar na tela (muda se o jogador troca de teclado para controle).
 func botao(acao: String) -> String:
 	var mapa := {"interagir": "interagir", "confirmar": "interagir", "atirar": "atirar", "devagar": "devagar",
-		"ver_mapa": "ver_mapa", "pausa": "sair"}
+		"ver_mapa": "ver_mapa", "pausa": "sair", "bornal": "bornal"}
 	if mapa.has(acao):          # lê do controle configurado (o jogador pode ter trocado os botões)
 		var n := nome_controle(mapa[acao], usando_controle)
 		if n != "":
@@ -206,7 +213,9 @@ func _configurar_controles() -> void:
 	_acao("sair", [KEY_ESCAPE], [JOY_BUTTON_START])
 	_acao("cancelar", [KEY_ESCAPE, KEY_BACKSPACE], [JOY_BUTTON_B])
 	# no mapa dos caminhos: afastar a câmera para ver a ilha inteira (e apertar de novo para voltar)
-	_acao("ver_mapa", [KEY_M, KEY_TAB, KEY_Q], [JOY_BUTTON_Y, JOY_BUTTON_BACK])
+	_acao("ver_mapa", [KEY_M, KEY_Q], [JOY_BUTTON_Y])
+	# o bornal de Adé: abrir, escolher um item e usar, dar ou arriar
+	_acao("bornal", [KEY_TAB, KEY_I], [JOY_BUTTON_BACK, JOY_BUTTON_X])
 	# na mata de Oxóssi: atirar a flecha do ofá e andar devagar (sem espantar os bichos)
 	_acao("atirar", [KEY_SPACE, KEY_Z, KEY_J], [JOY_BUTTON_B])
 	_acao("devagar", [KEY_SHIFT, KEY_C], [JOY_BUTTON_LEFT_SHOULDER, JOY_BUTTON_RIGHT_SHOULDER])
@@ -238,7 +247,7 @@ func _acao(nome: String, teclas: Array, botoes: Array, eixo := -1, direcao := 0.
 ## As ações que o jogador pode trocar, com o nome que aparece no menu.
 const CONTROLAVEIS := [
 	["interagir", "Falar / confirmar"], ["atirar", "Atirar"], ["devagar", "Andar devagar"],
-	["ver_mapa", "Ver a ilha"], ["sair", "Pausa"],
+	["ver_mapa", "Ver a ilha"], ["bornal", "Abrir o bornal"], ["sair", "Pausa"],
 	["cima", "Cima"], ["baixo", "Baixo"], ["esquerda", "Esquerda"], ["direita", "Direita"],
 ]
 const NOMES_JOY := {
@@ -415,6 +424,7 @@ func salvar(espaco: int, local: String) -> void:
 		"assentados": assentados,
 		"buzios": buzios,
 		"metas": metas,
+		"bornal": bornal.para_salvar(),
 		"tempo": tempo_terreiro,
 		"data": Time.get_datetime_string_from_system(false, true),
 	}
@@ -474,6 +484,7 @@ func carregar(espaco: int) -> void:
 	for m in d.get("metas", {}):
 		if d["metas"][m]:
 			set_meta(m, true)
+	bornal.carregar(d.get("bornal", {}))
 	var local: String = d.get("local", "orita")
 	match local:
 		"terreiro":

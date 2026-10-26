@@ -81,6 +81,7 @@ func _ready() -> void:
 	_preparar_tochas()
 	_luz_de_ade()
 	$HUD.esconder_contador = true
+	Jogo.bornal.mostrar_hud(true)
 
 	_criar_interface()
 	for n in _hud_oferendas:

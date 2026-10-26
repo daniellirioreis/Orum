@@ -321,5 +321,48 @@
 		{"quem": "", "yo": "", "pt": "Atrás dos potes, um vidrinho roxo de perfume de alfazema. Tem o cheirinho da Vó!", "evento": "pegar_alfazema"},
 		{"quem": "Adé", "yo": "", "pt": "Agora tenho o remo e a alfazema! Vou voltar pro mar de Iemanjá e levar a jangada até a pedra das flores brancas...", "rosto": "feliz"},
 		{"quem": "Adé", "yo": "", "pt": "...e depois descobrir onde estão a pérola e o espelho."}
+	],
+
+	"tia_quer_lenha": [
+		{"quem": "Tia Dora", "yo": "", "pt": "Trouxe a lenha, meu bem? Me dá aqui, que o fogo está quase apagando!"}
+	],
+	"tia_manjar_dar": [
+		{"quem": "Tia Dora", "yo": "", "pt": "Trouxe alguma coisa aí no bornal? Me dá que eu já vou separando!", "rosto": "feliz"}
+	],
+	"tia_recebe_coco": [
+		{"quem": "Tia Dora", "yo": "", "pt": "Um coco bem maduro! Esse vai dar um manjar cheiroso.", "rosto": "feliz"}
+	],
+	"tia_recebe_leite": [
+		{"quem": "Tia Dora", "yo": "", "pt": "Leite fresquinho! Muito bem, menino.", "rosto": "feliz"}
+	],
+	"tia_recebe_acucar": [
+		{"quem": "Tia Dora", "yo": "", "pt": "O açúcar! Nem muito, nem pouco... só pra adoçar a boca de Iemanjá.", "rosto": "feliz"}
+	],
+	"vo_manjar_ver": [
+		{"quem": "Vó", "yo": "", "pt": "Que cheirinho bom é esse, meu neto? O que você tem aí no bornal?", "rosto": "feliz"}
+	],
+	"recusa_tia": [
+		{"quem": "Tia Dora", "yo": "", "pt": "{item}? Pra que eu quero isso na cozinha, menino?"}
+	],
+	"recusa_tia_remo": [
+		{"quem": "Tia Dora", "yo": "", "pt": "Um remo?! Aqui na cozinha a gente não navega, menino! Hahaha!", "rosto": "feliz"}
+	],
+	"recusa_tia_alfazema": [
+		{"quem": "Tia Dora", "yo": "", "pt": "Que cheirinho bom! Mas isso é da Vó, e de Iemanjá. Guarda bem guardado."}
+	],
+	"recusa_vo": [
+		{"quem": "Vó", "yo": "", "pt": "Guarda isso com você, meu neto. A Vó não precisa disso agora."}
+	],
+	"recusa_vo_alfazema": [
+		{"quem": "Vó", "yo": "", "pt": "Não, meu neto, essa alfazema agora é sua. Leve para a mãe Iemanjá.", "rosto": "feliz"}
+	],
+	"recusa_oga": [
+		{"quem": "Ogã Bené", "yo": "", "pt": "Ô menino, eu só preciso dos meus atabaques! Isso aí leva pra quem precisa."}
+	],
+	"recusa_lia": [
+		{"quem": "Lia", "yo": "", "pt": "Isso não é pra mim, Adé. Mas obrigada pela lembrança!", "rosto": "feliz"}
+	],
+	"recusa_tronqueira": [
+		{"quem": "Adé", "yo": "", "pt": "Ainda não é a hora de arriar nada aqui. A Vó precisa estar junto."}
 	]
 }

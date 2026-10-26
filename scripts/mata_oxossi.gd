@@ -24,6 +24,8 @@ const LUGARES_MATA := {
 const COR_MATA := Color(0.84, 0.95, 0.8)        # sombra verde das folhas
 const COR_POR_DO_SOL := Color(1.0, 0.85, 0.72)
 const OFERENDAS := ["milho", "coco", "mel"]
+## O nome de cada coisa da mata no bornal (o coco daqui é diferente do coco do quintal da Vó).
+const BORNAL_ID := {"milho": "milho", "coco": "coco_mata", "mel": "mel"}
 const RODADAS := 3                              # acertos seguidos para sair do labirinto
 const VEADO_OUVE := 46.0                        # de quão longe o veado ouve passos apressados
 const FLECHA_VEL := 230.0
@@ -95,6 +97,7 @@ func _ready() -> void:
 	mundo.add_child(jogador)
 	_ponto_volta["ox_rastro"] = jogador.global_position
 	$HUD.esconder_contador = true
+	Jogo.bornal.mostrar_hud(true)
 
 	_criar_interface()
 	_criar_inventario()
@@ -107,6 +110,7 @@ func _ready() -> void:
 
 
 func _inicio() -> void:
+	Jogo.bornal.comecar_fase("oxossi")      # a mata começa do zero: o bornal fica sem as coisas daqui
 	jogador.congelar(true)
 	await get_tree().create_timer(0.8).timeout
 	$HUD.mostrar_titulo("Igbó Ọ̀ṣọ́ọ̀sì", "A Mata de Oxóssi")
@@ -204,6 +208,7 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 		"X":
 			_assentamento = _criar_interativo("res://arte/ox_assentamento.png", 2, base, Vector2(16, 8), -26.0)
 			_assentamento.interagiu.connect(_no_assentamento)
+			_registrar_alvo(_assentamento, "assentamento", "altar", "Arriar no assentamento de Exu", 36.0)
 		"x":
 			_oxossi_pos = base
 		"b":
@@ -275,8 +280,7 @@ func _ganhar_item(id: String, texto: String) -> void:
 	var t := create_tween()
 	t.tween_property(icone, "scale", Vector2(1.6, 1.6), 0.12)
 	t.tween_property(icone, "scale", Vector2.ONE, 0.18)
-	Jogo.tocar_som("pegar_item", -4.0)
-	_mostrar_aviso("Você pegou: " + texto)
+	_pegar_item(BORNAL_ID.get(id, id))
 
 
 func _criar_coletavel(lugar: String, id: String, base: Vector2, tex: Texture2D) -> void:
@@ -470,6 +474,10 @@ func _pegar_ofa(toco: Area2D) -> void:
 
 
 func _atirar() -> void:
+	if _ox.has("tem_ofa") and Jogo.bornal.equipado != "ofa":
+		if Jogo.bornal.tem("ofa"):
+			_mostrar_aviso(Jogo.texto("O ofá está no bornal: abra ({bornal}) e ponha na mão."))
+		return
 	if not _ox.has("tem_ofa") or not _flecha.is_empty():
 		if _ox.has("tem_ofa") and not _flecha.is_empty() and _flecha["no_chao"]:
 			_mostrar_aviso("Primeiro vá buscar a flecha!")
@@ -484,7 +492,7 @@ func _atirar() -> void:
 	s.z_index = 8
 	add_child(s)
 	_flecha = {"s": s, "dir": dir, "voando": true, "andou": 0.0, "no_chao": false}
-	_ox_slots["ofa"].modulate = Color(1, 1, 1, 0.5)
+	Jogo.bornal.mao_apagada(true)
 	Jogo.tocar_som("flecha_atira", -4.0)
 
 
@@ -713,7 +721,7 @@ func _recolher_flecha() -> void:
 		return
 	_flecha["s"].queue_free()
 	_flecha = {}
-	_ox_slots["ofa"].modulate = Color.WHITE
+	Jogo.bornal.mao_apagada(false)
 	Jogo.tocar_som("pegar_item", -12.0)
 
 
@@ -1050,6 +1058,9 @@ func _chegar_na_clareira() -> void:
 	await _falar("clareira")
 
 
+var _ox_arriados := {}           # as oferendas que Adé já arriou no assentamento
+
+
 func _no_assentamento() -> void:
 	if _ox.has("oferenda"):
 		await _falar("assentamento_depois")
@@ -1059,14 +1070,46 @@ func _no_assentamento() -> void:
 		if not _ox.has(id):
 			faltam.append(_dados["nomes"][id])
 	if faltam.is_empty():
-		await _falar("oferenda")
-		if _pendente == "oxossi_chega":
-			_pendente = ""
-			await _oxossi_chega()
+		await _falar("assentamento_arriar")
+		_dica_bornal("Arriar no assentamento de Exu")
 	else:
 		var linha: Dictionary = _dados["assentamento_falta"][0].duplicate()
 		linha["pt"] = linha["pt"].replace("{faltam}", _juntar(faltam))
 		await _falar_linhas([linha])
+
+
+func _aceita_dar(_id: String, _alvo: String) -> bool:
+	return false
+
+
+func _ao_dar(_id: String, _alvo: String) -> void:
+	pass
+
+
+func _aceita_arriar(id: String, alvo: String) -> bool:
+	return alvo == "assentamento" and not _ox.has("oferenda") and id in BORNAL_ID.values()
+
+
+## Cada oferenda arriada fica no alguidar; com as três, Adé saúda Exu.
+func _ao_arriar(id: String, _alvo: String) -> void:
+	var interno: String = BORNAL_ID.find_key(id)
+	_ox_arriados[interno] = true
+	var i := OFERENDAS.find(interno)
+	var sp := Sprite2D.new()
+	sp.texture = Jogo.bornal.icone(id)
+	sp.position = _assentamento.position + Vector2(-9 + i * 9, -4)
+	sp.z_index = 1
+	sp.modulate.a = 0.0
+	mundo.add_child(sp)
+	create_tween().tween_property(sp, "modulate:a", 1.0, 0.25)
+	Jogo.tocar_som("buzio", -6.0)
+	if _ox_arriados.size() < OFERENDAS.size():
+		return
+	await get_tree().create_timer(0.6).timeout
+	await _falar("oferenda")
+	if _pendente == "oxossi_chega":
+		_pendente = ""
+		await _oxossi_chega()
 
 
 func _fazer_oferenda() -> void:
@@ -1245,6 +1288,8 @@ func _abrir_saida() -> void:
 
 
 func _ganhar_trofeu() -> void:
+	Jogo.bornal.tirar("ofa")       # o ofá do toco era de Oxóssi: agora ele dá o ofá a Adé, como presente
+	Jogo.bornal.mao_apagada(false)
 	Jogo.trofeus["oxossi"] = "Ofá de Oxóssi"
 	_ox["trofeu"] = true
 	var icone: TextureRect = _ox_slots["ofa"]
@@ -1302,7 +1347,9 @@ func _ao_evento(nome: String) -> void:
 	match nome:
 		"ganhar_ofa":
 			_ox["tem_ofa"] = true
-			_ox_slots["ofa"].modulate = Color.WHITE
+			_pegar_item("ofa")
+			if Jogo.bornal.equipado != "ofa":
+				Jogo.bornal.equipar("ofa")      # o ofá já vai para a mão de Adé
 			for n in mundo.get_children():
 				var sp = n.get("sprite") if n is Area2D else null
 				if sp is Sprite2D and sp.texture == preload("res://arte/ox_toco.png"):

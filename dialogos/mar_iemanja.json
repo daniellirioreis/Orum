@@ -375,5 +375,35 @@
 			"yo": "",
 			"pt": "Quem conhece bem esta praia deve saber onde dá pra passar."
 		}
+	],
+	"jangada_remo_dica": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "A jangada! O remo está no meu bornal. É só usar o remo aqui."
+		}
+	],
+	"recusa_tartaruga": [
+		{
+			"quem": "Tartaruga",
+			"yo": "",
+			"pt": "Hmmm... guarde isso, menino. Uma tartaruga velha não precisa de nada, só do mar.",
+			"rosto": "feliz"
+		}
+	],
+	"recusa_tartaruga_remo": [
+		{
+			"quem": "Tartaruga",
+			"yo": "",
+			"pt": "O remo é seu agora, menino. Tartaruga não rema: tartaruga nada!",
+			"rosto": "feliz"
+		}
+	],
+	"recusa_jangada": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Isso não faz a jangada andar... preciso do remo."
+		}
 	]
 }

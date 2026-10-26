@@ -105,6 +105,7 @@ func _ready() -> void:
 	_ponto_volta["iemanja_praia"] = jogador.global_position
 	_ultimo_seco = jogador.global_position
 	$HUD.esconder_contador = true
+	Jogo.bornal.mostrar_hud(true)
 
 	_criar_interface()
 	_criar_inventario()
@@ -160,6 +161,8 @@ func _inicio() -> void:
 ## Acende no inventário o que Adé já trouxe (flores e alfazema) e deixa o remo com ele.
 func _retomar() -> void:
 	_iem["remo"] = true
+	if not Jogo.bornal.tem("remo"):
+		Jogo.bornal.pegar("remo")
 	_falou_tartaruga = true
 	if _remo:
 		_remo.visible = false
@@ -169,6 +172,10 @@ func _retomar() -> void:
 		if _flores:
 			_flores.frame = 1
 		_slots_iem["flores"].modulate = Color.WHITE
+		if not Jogo.bornal.tem("flores_iemanja"):
+			Jogo.bornal.pegar("flores_iemanja")
+	if Jogo.has_meta("iemanja_alfazema") and not Jogo.bornal.tem("alfazema"):
+		Jogo.bornal.pegar("alfazema")
 	if Jogo.has_meta("iemanja_alfazema"):
 		_slots_iem["alfazema"].modulate = Color.WHITE
 
@@ -247,6 +254,7 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			tt.add_child(sombra)
 			tt.move_child(sombra, 0)
 			tt.interagiu.connect(_na_tartaruga)
+			_registrar_alvo(tt, "tartaruga", "pessoa", "Dar à Tartaruga")
 			_tartaruga = {"no": tt, "casa": base.x, "alvo": base.x + 20.0, "espera": 1.0, "piscar": 2.0, "escondida": 0.0}
 		# --- a gruta do costão
 		"X":
@@ -279,6 +287,7 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			_jangada_praia.sprite.frame = 4              # na areia, com a ponta virada para o mar
 			(_jangada_praia.get_node("Alcance").shape as CircleShape2D).radius = 34.0
 			_jangada_praia.interagiu.connect(_na_jangada)
+			_registrar_alvo(_jangada_praia, "jangada", "coisa", "Usar na jangada", 44.0)
 		"b":
 			_criar_cenario("res://arte/iemanja_cesto.png", Vector2(10, 5), base)
 		"g":
@@ -802,10 +811,20 @@ func _chegada(lugar: String, celula: Vector2i) -> Vector2:
 
 
 func _na_jangada() -> void:
-	if not _iem.has("remo"):
+	if not Jogo.bornal.tem("remo"):
 		await _falar("jangada_sem_remo")
 		return
-	if not Jogo.has_meta("iemanja_alfazema"):
+	await _falar("jangada_remo_dica")
+	_dica_bornal("o remo → Usar na jangada")
+
+
+## Adé usa o remo do bornal na jangada.
+func _aceita_usar(id: String, alvo: String) -> bool:
+	return id == "remo" and alvo == "jangada"
+
+
+func _ao_usar(_id: String, _alvo: String) -> void:
+	if not Jogo.bornal.tem("alfazema"):
 		# sem a alfazema, a oferenda fica faltando: Adé não entra no mar e vai ao terreiro pedir à Vó
 		await _falar("jangada_sem_alfazema")
 		jogador.congelar(true)
@@ -1030,12 +1049,12 @@ func _ao_evento(nome: String) -> void:
 	match nome:
 		"pegar_flores":
 			_iem["flores"] = true
-			_acender_slot("flores", "Flores brancas")
+			_acender_slot("flores", "")
+			_pegar_item("flores_iemanja", _flores.global_position if _flores else Vector2(-1, -1))
 		"pegar_remo":
 			_iem["remo"] = true
 			Jogo.set_meta("iemanja_remo", true)
-			Jogo.tocar_som("pegar_item", -4.0)
-			_mostrar_aviso("O remo da jangada")
+			_pegar_item("remo", _remo.global_position + Vector2(0, -6) if _remo else Vector2(-1, -1))
 		_:
 			super._ao_evento(nome)
 

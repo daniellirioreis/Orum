@@ -108,6 +108,7 @@ func _ready() -> void:
 	mundo.add_child(jogador)
 	_ponto_volta["nana_brejo"] = jogador.global_position
 	$HUD.esconder_contador = true
+	Jogo.bornal.mostrar_hud(true)
 
 	_criar_interface()
 	_criar_inventario()
@@ -121,6 +122,7 @@ func _ready() -> void:
 
 
 func _inicio() -> void:
+	Jogo.bornal.comecar_fase("nana")       # a terra de Nanã começa do zero: o bornal fica sem as coisas daqui
 	jogador.congelar(true)
 	await get_tree().create_timer(0.8).timeout
 	$HUD.mostrar_titulo("Ilẹ̀ Ẹrẹ̀ Nàná", "A Terra da Lama de Nanã")
@@ -204,6 +206,7 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			if lugar == "nana_brejo":
 				_velhinha = v
 				v.interagiu.connect(_falar_com_velhinha)
+				_registrar_alvo(v, "velhinha", "pessoa", "Dar à velhinha")
 			else:
 				_velhinha_mangue = v
 				v.interagiu.connect(_falar_com_velhinha_do_mangue)
@@ -229,6 +232,7 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			var t := _criar_interativo("res://arte/nana_taboa.png", 2, base, Vector2(16, 10), -34.0)
 			t.interagiu.connect(_na_taboa)
 			_taboas.append(t)
+			_registrar_alvo(t, "taboa", "coisa", "Usar na taboa", 30.0)
 		"k":
 			_criar_caranguejo(lugar, celula, base)
 		"u":
@@ -239,6 +243,7 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			_barro = _criar_interativo("res://arte/nana_poca_barro.png", 2, base + Vector2(8, -1), Vector2(2, 2), -22.0)
 			_barro.z_index = -3
 			(_barro.get_node("Alcance").shape as CircleShape2D).radius = 24.0
+			_registrar_alvo(_barro, "barro", "coisa", "Usar no barro", 30.0)
 			_barro.interagiu.connect(_no_barro)
 			_balao_barro = Sprite2D.new()
 			_balao_barro.texture = preload("res://arte/balao.png")
@@ -247,6 +252,7 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 		"O":
 			_pedra = _criar_interativo("res://arte/obj_pedras.png", 1, base, Vector2(14, 6), -24.0)
 			_pedra.interagiu.connect(_na_pedra)
+			_registrar_alvo(_pedra, "pedra", "coisa", "Usar na pedra", 32.0)
 			(_pedra.get_node("Alcance").shape as CircleShape2D).radius = 26.0
 			# um balão sempre boiando em cima da pedra enquanto tem algo para fazer nela
 			_balao_pedra = Sprite2D.new()
@@ -257,6 +263,7 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 		"N":
 			_lugar_nana = _criar_interativo("res://arte/nana_lugar.png", 2, base, Vector2(22, 8), -30.0)
 			_lugar_nana.interagiu.connect(_no_lugar_de_nana)
+			_registrar_alvo(_lugar_nana, "lugar", "altar", "Arriar no lugar de Nanã", 36.0)
 			_luz(base + Vector2(0, -12), Color(0.8, 0.6, 1.0), 0.5, 1.2, false)
 		"x":
 			_chegada_velhinha = base
@@ -976,10 +983,9 @@ func _no_bambu_rachado() -> void:
 func _na_taboa() -> void:
 	if _nana.has("taboa_cortada"):
 		return
-	if _nana.has("lamina"):
-		await _cortar_taboa()
-	elif _nana.has("faca"):
-		await _falar("faca_falha")
+	if Jogo.bornal.tem("lamina") or Jogo.bornal.tem("faca"):
+		await _falar("taboa_bornal")
+		_dica_bornal("Usar na taboa")
 	else:
 		await _falar("taboa_dura")
 
@@ -1150,6 +1156,15 @@ func _colher_flores(moita: Area2D) -> void:
 
 func _no_barro() -> void:
 	if _nana.get("pote", "") == "rachado":
+		await _falar("barro_dica")
+		_dica_bornal("Usar no barro")
+	else:
+		await _falar("barro_depois")
+
+
+## Adé usa o pote rachado no barro: se abaixa, pega um punhado de barro e conserta.
+func _consertar_no_barro() -> void:
+	if true:
 		# Adé se abaixa e pega um punhado de barro
 		jogador.congelar(true)
 		jogador.olhar_para(_barro.position)
@@ -1163,14 +1178,30 @@ func _no_barro() -> void:
 		_lama_espirra(_barro.position + Vector2(0, -2))
 		await abaixa.finished
 		await _falar("barro_conserta")
-	else:
-		await _falar("barro_depois")
 
 
 func _na_pedra() -> void:
 	match _nana.get("pote", ""):
 		"rachado":
 			await _falar("pedra_rachado")
+		"vazio":
+			await _falar("pedra_dica")
+			_dica_bornal("Usar na pedra")
+		"na_pedra":
+			_mostrar_aviso("Ainda está enchendo... A chuva não tem pressa.")
+		"pronto":
+			_nana["pote"] = "cheio"
+			_pote_na_pedra.queue_free()
+			_pote_na_pedra = null
+			_acender_slot("pote")
+			_pegar_item("pote_cheio", _pedra.position + Vector2(0, -12))
+		_:
+			await _falar("pedra_depois")
+
+
+## Adé usa o pote consertado na pedra: deixa o pote de boca para cima, e a chuva enche.
+func _pote_na_pedra_de_novo() -> void:
+	match _nana.get("pote", ""):
 		"vazio":
 			await _falar("pedra_coloca")
 			_nana["pote"] = "na_pedra"
@@ -1184,15 +1215,6 @@ func _na_pedra() -> void:
 			_pote_na_pedra.position = _pedra.position + Vector2(0, -7)
 			_pote_na_pedra.z_index = 1
 			mundo.add_child(_pote_na_pedra)
-		"na_pedra":
-			_mostrar_aviso("Ainda está enchendo... A chuva não tem pressa.")
-		"pronto":
-			_nana["pote"] = "cheio"
-			_pote_na_pedra.queue_free()
-			_pote_na_pedra = null
-			_acender_slot("pote", _dados["nomes"]["pote"])
-		_:
-			await _falar("pedra_depois")
 
 
 ## A poça de barro: balão boiando enquanto o pote está rachado, e bolhinhas subindo de vez em quando.
@@ -1257,10 +1279,8 @@ func _no_lugar_de_nana() -> void:
 	if not _nana.has("flores"):
 		faltam.append(_dados["nomes"]["flores"])
 	if faltam.is_empty():
-		await _falar("oferenda")
-		if _pendente == "velhinha_vem":
-			_pendente = ""
-			await _velhinha_vem()
+		await _falar("lugar_arriar")
+		_dica_bornal("Arriar no lugar de Nanã")
 	else:
 		var linha: Dictionary = _dados["lugar_falta"][0].duplicate()
 		linha["pt"] = linha["pt"].replace("{faltam}", _juntar(faltam))
@@ -1458,6 +1478,7 @@ func _abrir_saida() -> void:
 
 
 func _ganhar_trofeu() -> void:
+	Jogo.bornal.tirar("lamina")       # a lâmina de bambu fica na terra de Nanã
 	Jogo.trofeus["nana"] = "Ibiri de Nanã"
 	_nana["trofeu"] = true
 	var icone: TextureRect = _slots_nana["ibiri"]
@@ -1482,16 +1503,17 @@ func _ao_evento(nome: String) -> void:
 	match nome:
 		"ganhar_pote":
 			_nana["pote"] = "rachado"
-			_acender_slot("pote", "o pote de barro da velhinha (rachado)")
+			_acender_slot("pote")
+			_pegar_item("pote_rachado", _velhinha.position + Vector2(0, -16) if _velhinha else Vector2(-1, -1))
 			_slots_nana["pote"].modulate = Color(1, 1, 1, 0.75)
 		"pegar_faca":
 			_nana["faca"] = true
 			_toco_faca.sprite.frame = 1
-			Jogo.tocar_som("buzio", -8.0)
-			_mostrar_aviso("Você pegou: uma faca de ferro velha")
+			_pegar_item("faca", _toco_faca.position + Vector2(0, -10))
 		"faca_afunda":
 			_nana.erase("faca")
 			_nana["faca_foi"] = true
+			Jogo.bornal.tirar("faca")
 			_lama_espirra(jogador.global_position + Vector2(8, 0))
 			Jogo.tocar_som("lama_afunda", -8.0)
 		"ganhar_lamina":
@@ -1502,13 +1524,16 @@ func _ao_evento(nome: String) -> void:
 			var some := create_tween()
 			some.tween_property(_lascas, "modulate:a", 0.0, 0.4)
 			some.tween_callback(_lascas.queue_free)
-			_acender_slot("lamina", "uma lâmina de bambu")
+			_acender_slot("lamina")
+			_pegar_item("lamina", _lascas.position + Vector2(0, -8))
 		"ganhar_flores":
 			_nana["flores"] = true
-			_acender_slot("flores", _dados["nomes"]["flores"])
+			_acender_slot("flores")
+			_pegar_item("flores_nana")
 		"consertar_pote":
 			_nana["pote"] = "vazio"
 			_barro.sprite.frame = 1
+			Jogo.bornal.trocar("pote_rachado", "pote")
 			_slots_nana["pote"].modulate = Color.WHITE
 			Jogo.tocar_som("pegar_item", -4.0)
 		"oferenda":
@@ -1550,3 +1575,65 @@ func _local_do_caminho() -> String:
 
 func _pode_guardar() -> bool:
 	return true
+
+
+# ------------------------------------------------------------------ o bornal na terra de Nanã
+
+var _nana_arriados := {}
+
+
+func _aceita_dar(_id: String, _alvo: String) -> bool:
+	return false
+
+
+func _ao_dar(_id: String, _alvo: String) -> void:
+	pass
+
+
+func _aceita_usar(id: String, alvo: String) -> bool:
+	match alvo:
+		"taboa":
+			return id in ["lamina", "faca"] and not _nana.has("taboa_cortada")
+		"barro":
+			return id == "pote_rachado"
+		"pedra":
+			return id == "pote" and _nana.get("pote", "") == "vazio"
+	return false
+
+
+func _ao_usar(id: String, alvo: String) -> void:
+	match alvo:
+		"taboa":
+			if id == "lamina":
+				await _cortar_taboa()
+			else:
+				await _falar("faca_falha")
+		"barro":
+			await _consertar_no_barro()
+		"pedra":
+			Jogo.bornal.tirar("pote", _na_tela(_pedra.position + Vector2(0, -8)))
+			await _pote_na_pedra_de_novo()
+
+
+func _aceita_arriar(id: String, alvo: String) -> bool:
+	return alvo == "lugar" and not _nana.has("oferenda") and id in ["pote_cheio", "flores_nana"]
+
+
+## O pote com a água da chuva e as flores lilás ficam no lugar de Nanã; com os dois, Adé saúda Nanã.
+func _ao_arriar(id: String, _alvo: String) -> void:
+	_nana_arriados[id] = true
+	var sp := Sprite2D.new()
+	sp.texture = Jogo.bornal.icone(id)
+	sp.position = _lugar_nana.position + Vector2(-6 if id == "pote_cheio" else 6, -6)
+	sp.z_index = 1
+	sp.modulate.a = 0.0
+	mundo.add_child(sp)
+	create_tween().tween_property(sp, "modulate:a", 1.0, 0.25)
+	Jogo.tocar_som("buzio", -6.0)
+	if _nana_arriados.size() < 2:
+		return
+	await get_tree().create_timer(0.6).timeout
+	await _falar("oferenda")
+	if _pendente == "velhinha_vem":
+		_pendente = ""
+		await _velhinha_vem()

@@ -199,6 +199,7 @@ func _ready() -> void:
 		_construir(nome)
 	mundo.add_child(jogador)
 	$HUD.esconder_contador = true   # o terreiro tem a barra própria, lá em cima
+	Jogo.bornal.mostrar_hud(true)
 
 	_toque = preload("res://scripts/toque.gd").new()
 	add_child(_toque)
@@ -237,8 +238,11 @@ func _process(delta: float) -> void:
 		_velas_brancas[i].frame = int(_tempo * 5.0 + i * 1.3) % 2
 
 
-func _unhandled_input(_ev: InputEvent) -> void:
-	pass   # o Esc (ou Start) abre o menu de pausa, que fica no Jogo (scripts/menu.gd)
+func _unhandled_input(ev: InputEvent) -> void:
+	# o Esc (ou Start) abre o menu de pausa, que fica no Jogo (scripts/menu.gd); Tab (ou Select), o bornal
+	if ev.is_action_pressed("bornal") and _pode_abrir_bornal():
+		get_viewport().set_input_as_handled()
+		_abrir_bornal()
 
 
 # ------------------------------------------------------------------ lugares e portas
@@ -361,6 +365,7 @@ func _e_porta(lugar: String, celula: Vector2i) -> bool:
 # ------------------------------------------------------------------ história
 
 func _sonho() -> void:
+	Jogo.bornal.comecar_fase("exu")
 	jogador.congelar(true)
 	var tela := Vector2(Jogo.TELA)
 	var camada := CanvasLayer.new()
@@ -440,7 +445,11 @@ func _falar_com_tia() -> void:
 	elif tia == "inicio":
 		await _falar("tia_pedido")
 	elif tia == "pediu_lenha":
-		await _falar("tia_esperando")
+		if Jogo.bornal.tem("lenha"):
+			await _falar("tia_quer_lenha")
+			_dica_bornal("Dar à Tia Dora")
+		else:
+			await _falar("tia_esperando")
 	elif tia == "com_lenha":
 		await _falar("tia_lenha")
 	else:
@@ -456,7 +465,7 @@ func _olhar_gameleira() -> void:
 
 
 func _pegar_lenha() -> void:
-	if tia == "pediu_lenha":
+	if tia == "pediu_lenha" and not Jogo.bornal.tem("lenha"):
 		await _falar("lenha_pegar")
 	else:
 		await _falar("lenha_nada")
@@ -464,9 +473,9 @@ func _pegar_lenha() -> void:
 
 func _procurar_na_despensa(tem_epo: bool, letra := "") -> void:
 	if _quer_alfazema() and _manjar == "tia_pediu":
-		if letra == "S" and not _ingredientes.has("acucar"):
+		if letra == "S" and not _tem_ingrediente("acucar"):
 			await _falar("acucar_pegar")
-		elif letra in ["K", "k"] and not _ingredientes.has("leite"):
+		elif letra in ["K", "k"] and not _tem_ingrediente("leite"):
 			await _falar("leite_pegar")
 		else:
 			await _falar("despensa_manjar_nada")
@@ -518,8 +527,7 @@ func _ao_evento(nome: String) -> void:
 		"pedir_lenha":
 			tia = "pediu_lenha"
 		"pegar_lenha":
-			tia = "com_lenha"
-			_mostrar_aviso("Você pegou: " + _dados["pegou"]["lenha"])
+			_pegar_item("lenha", _objeto_perto("res://arte/obj_lenha.png"))
 		"ganhar_efum":
 			tia = "deu_efum"
 			_ganhar("efum")
@@ -553,8 +561,7 @@ func _ao_evento(nome: String) -> void:
 		"pegar_alfazema":
 			_manjar = "fim"
 			Jogo.set_meta("iemanja_alfazema", true)
-			Jogo.tocar_som("pegar_item", -4.0)
-			_mostrar_aviso("Você pegou: " + _dados["pegou"]["alfazema"])
+			_pegar_item("alfazema", _prateleiras[0].global_position + Vector2(0, -20) if not _prateleiras.is_empty() else Vector2(-1, -1))
 			_atualizar_manjar()
 
 
@@ -567,8 +574,7 @@ func _ganhar(id: String) -> void:
 	t.tween_property(icone, "scale", Vector2(1.6, 1.6), 0.12)
 	t.tween_property(icone, "scale", Vector2.ONE, 0.18)
 	_atualizar_hud()
-	Jogo.tocar_som("pegar_item", -4.0)
-	_mostrar_aviso("Você pegou: " + _dados["pegou"][id])
+	_pegar_item(id)
 	if coletados.size() == ITENS.size():
 		estado = "pronto"
 		await get_tree().create_timer(2.6).timeout
@@ -628,29 +634,43 @@ func _vo_sai_do_barracao() -> void:
 	vo.animar = true
 
 
+var _arriados := {}       # as oferendas que Adé já arriou na tronqueira
+
+
+## Na tronqueira: Adé arria cada oferenda pelo bornal (Arriar na tronqueira).
 func _fazer_ritual() -> void:
 	if estado != "na_tronqueira":
 		return
+	await _falar("esperando")
+	_dica_bornal("Arriar na tronqueira")
+
+
+func _arriar_na_tronqueira(id: String) -> void:
+	_arriados[id] = true
+	var lugares := [-12.0, -4.0, 4.0, 12.0]
+	var i := ITENS.find(id)
+	var oferenda := Sprite2D.new()
+	oferenda.texture = TEX_ITENS
+	oferenda.hframes = 5
+	oferenda.frame = i
+	oferenda.position = Vector2(lugares[i], 4)
+	oferenda.modulate.a = 0.0
+	tronqueira.get_node("Oferendas").add_child(oferenda)
+	create_tween().tween_property(oferenda, "modulate:a", 1.0, 0.25)
+	# a oferenda sai da barra de cima: agora está na tronqueira
+	create_tween().tween_property(_slots[id], "modulate:a", 0.0, 0.25)
+	Jogo.tocar_som("buzio", -6.0)
+	if _arriados.size() == ITENS.size():
+		await get_tree().create_timer(0.6).timeout
+		await _ritual_completo()
+
+
+func _ritual_completo() -> void:
 	estado = "ritual"
 	tronqueira.ativo = false
 	jogador.congelar(true)
 	jogador.olhar_para(tronqueira.global_position)
 	_lista.visible = false
-
-	var lugares := [-12.0, -4.0, 4.0, 12.0]
-	for i in ITENS.size():
-		var oferenda := Sprite2D.new()
-		oferenda.texture = TEX_ITENS
-		oferenda.hframes = 5
-		oferenda.frame = i
-		oferenda.position = Vector2(lugares[i], 4)
-		oferenda.modulate.a = 0.0
-		tronqueira.get_node("Oferendas").add_child(oferenda)
-		create_tween().tween_property(oferenda, "modulate:a", 1.0, 0.25)
-		# a oferenda sai do inventário de Adé: agora está na tronqueira
-		create_tween().tween_property(_slots[ITENS[i]], "modulate:a", 0.0, 0.25)
-		Jogo.tocar_som("buzio", -6.0)
-		await get_tree().create_timer(0.45).timeout
 	tronqueira.sprite.frame = 1
 	_esconder_inventario()
 	var brilho: Sprite2D = tronqueira.get_node("Brilho")
@@ -1115,15 +1135,19 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 		"V":
 			vo = _criar_pessoa("res://arte/vo_snes.png", 9, base)
 			vo.interagiu.connect(_falar_com_vo)
+			_registrar_alvo(vo, "vo", "pessoa", "Dar à Vó")
 		"D":
 			_tia = _criar_pessoa("res://arte/tia_snes.png", 13, base)
 			_tia.interagiu.connect(_falar_com_tia)
+			_registrar_alvo(_tia, "tia", "pessoa", "Dar à Tia Dora")
 		"G":
 			_oga = _criar_pessoa("res://arte/oga_snes.png", 13, base)
 			_oga.interagiu.connect(_falar_com_oga)
+			_registrar_alvo(_oga, "oga", "pessoa", "Dar ao Ogã Bené")
 		"N":
 			_lia = _criar_pessoa("res://arte/cambone_snes.png", 9, base)
 			_lia.interagiu.connect(_falar_com_cambone)
+			_registrar_alvo(_lia, "lia", "pessoa", "Dar à Lia")
 		"K", "S", "k":
 			var tex := "res://arte/obj_caixote.png" if c != "S" else "res://arte/obj_saco.png"
 			var spot := _criar_interativo(tex, 1, base, Vector2(14, 8), -22.0)
@@ -1139,6 +1163,7 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 		"T":
 			tronqueira = _criar_interativo("res://arte/tronqueira.png", 2, base, Vector2(26, 8), -46.0)
 			tronqueira.ativo = false
+			_registrar_alvo(tronqueira, "tronqueira", "altar", "Arriar na tronqueira", 40.0)
 			var brilho := Sprite2D.new()
 			brilho.name = "Brilho"
 			brilho.texture = preload("res://arte/brilho.png")
@@ -2694,16 +2719,8 @@ func _vo_e_a_alfazema() -> void:
 		"vo_pediu", "tia_pediu":
 			await _falar("vo_alfazema_esperando")
 		"pronto":
-			jogador.congelar(true)
-			jogador.olhar_para(vo.global_position)
-			await _entregar_manjar()
-			await _falar("vo_manjar")
-			if _manjar_na_mao:
-				# a Vó guarda o manjar para a gira de Iemanjá
-				var t := create_tween()
-				t.tween_property(_manjar_na_mao, "modulate:a", 0.0, 0.6)
-				t.tween_callback(_manjar_na_mao.queue_free)
-				_manjar_na_mao = null
+			await _falar("vo_manjar_ver")
+			_dica_bornal("Dar à Vó")
 		_:
 			await _falar("vo_alfazema_buscar")
 
@@ -2714,18 +2731,19 @@ func _tia_e_o_manjar() -> void:
 			await _falar("tia_manjar")
 		"tia_pediu":
 			var faltam := []
+			var com_ade := false
 			for id in INGREDIENTES:
-				if not _ingredientes.has(id):
+				if not _tem_ingrediente(id):
 					faltam.append(_dados["nomes_manjar"][id])
-			if not faltam.is_empty():
+				elif Jogo.bornal.tem(id):
+					com_ade = true
+			if com_ade:
+				await _falar("tia_manjar_dar")
+				_dica_bornal("Dar à Tia Dora")
+			elif not faltam.is_empty():
 				var linha: Dictionary = _dados["tia_manjar_falta"][0].duplicate()
 				linha["pt"] = linha["pt"].replace("{faltam}", _juntar(faltam))
 				await _falar_linhas([linha])
-				return
-			await _falar("tia_manjar_cozinhar")
-			await _cozinhar_manjar()
-			_manjar = "pronto"
-			await _falar("tia_manjar_pronto")
 		_:
 			await _falar("tia_manjar_depois")
 
@@ -2792,7 +2810,8 @@ func _mostrar_manjar() -> void:
 	_manjar_na_mao.position = Vector2(0, -9)
 	_manjar_na_mao.z_index = 1
 	jogador.add_child(_manjar_na_mao)
-	_mostrar_aviso("Você pegou: Manjar branco")
+	Jogo.bornal.pegar("manjar")
+	_mostrar_aviso("Você guardou no bornal: Manjar branco")
 
 
 func _rotulo_manjar(texto: String, tamanho: int, cor: Color, y: float) -> Label:
@@ -2824,7 +2843,7 @@ func _entregar_manjar() -> void:
 
 
 func _sacudir_coqueiro(coq: Area2D) -> void:
-	if _manjar != "tia_pediu" or _ingredientes.has("coco"):
+	if _manjar != "tia_pediu" or _tem_ingrediente("coco"):
 		return
 	# o coqueiro balança e cai um coco
 	var t := create_tween()
@@ -2841,12 +2860,21 @@ func _pegar_alfazema() -> void:
 		await _falar("alfazema_pegar")
 
 
+## Um ingrediente do manjar está com Adé (no bornal) ou já foi entregue à Tia Dora.
+func _tem_ingrediente(id: String) -> bool:
+	return Jogo.bornal.tem(id) or _ingredientes.has(id)
+
+
 func _pegar_ingrediente(id: String) -> void:
-	_ingredientes[id] = true
-	Jogo.tocar_som("pegar_item", -4.0)
-	_mostrar_aviso("Você pegou: " + _dados["pegou"][id])
+	var de_onde := jogador.global_position + Vector2(0, -16)
+	if id == "coco" and not _coqueiros.is_empty():
+		de_onde = _coqueiros[0].global_position + Vector2(0, -40)
+	await _pegar_item(id, de_onde)
 	_atualizar_manjar()
-	if _ingredientes.size() == INGREDIENTES.size():
+	var todos := true
+	for i in INGREDIENTES:
+		todos = todos and _tem_ingrediente(i)
+	if todos:
 		await get_tree().create_timer(2.6).timeout
 		_mostrar_aviso("Leve tudo para a Tia Dora, na cozinha.")
 
@@ -2854,10 +2882,226 @@ func _pegar_ingrediente(id: String) -> void:
 ## Liga o que pode ser mexido em cada etapa (coqueiros, prateleira) e o brilho da alfazema.
 func _atualizar_manjar() -> void:
 	for coq in _coqueiros:
-		coq.ativo = _manjar == "tia_pediu" and not _ingredientes.has("coco")
+		coq.ativo = _manjar == "tia_pediu" and not _tem_ingrediente("coco")
 	for prat in _prateleiras:
 		prat.ativo = _manjar == "alfazema"
 	if _manjar == "alfazema" and _brilho_alfazema == null and not _prateleiras.is_empty():
 		_brilho_alfazema = _luz(_prateleiras[0].global_position + Vector2(0, -18), Color(0.75, 0.55, 1.0), 0.8, 0.9, true)
 	if _brilho_alfazema != null:
 		_brilho_alfazema.enabled = _manjar == "alfazema"   # (a luz fica na lista das chamas: só apaga)
+
+
+# ------------------------------------------------------------------ o bornal de Adé (scripts/bornal.gd)
+# A cena registra as pessoas, os lugares sagrados e as coisas perto das quais o bornal faz alguma coisa:
+#   pessoa → Dar · altar → Arriar (só oferenda) · coisa → Usar.
+# E responde, em cada caso, se aceita o item (_aceita_*) e o que acontece (_ao_dar / _ao_arriar / _ao_usar).
+
+var _alvos_bornal: Array = []       # {no, id, nome, tipo, raio, rotulo}
+
+
+## nome: como aparece no menu ("Dar à Tia Dora", "Arriar na tronqueira", "Usar na jangada").
+func _registrar_alvo(no: Node2D, id: String, tipo: String, rotulo: String, raio := 34.0) -> void:
+	_alvos_bornal.append({"no": no, "id": id, "tipo": tipo, "rotulo": rotulo, "raio": raio})
+
+
+func _alvo_perto(tipo: String) -> Dictionary:
+	var melhor := {}
+	var dist := INF
+	for a in _alvos_bornal:
+		var no: Node2D = a["no"]
+		if a["tipo"] != tipo or not is_instance_valid(no) or not no.is_visible_in_tree():
+			continue
+		var d := no.global_position.distance_to(jogador.global_position)
+		if d < a["raio"] and d < dist:
+			dist = d
+			melhor = a
+	return melhor
+
+
+func _alvo_por_id(id: String) -> Dictionary:
+	for a in _alvos_bornal:
+		if a["id"] == id:
+			return a
+	return {}
+
+
+func _pode_abrir_bornal() -> bool:
+	return jogador != null and jogador.pode_mover and not $Dialogo.ativo and not Jogo.menu.aberto \
+		and not Jogo.bornal.aberto and not _trocando
+
+
+func _abrir_bornal() -> void:
+	jogador.congelar(true)
+	var r: Dictionary = await Jogo.bornal.abrir(_acoes_do_bornal)
+	if not r.is_empty():
+		await _fazer_no_bornal(r["id"], r["acao"])
+	if not $Dialogo.ativo and estado != "saindo":
+		jogador.congelar(false)
+
+
+## O que dá para fazer com o item ali onde Adé está: [[rótulo, ação], ...].
+func _acoes_do_bornal(id: String) -> Array:
+	var item: Dictionary = Jogo.bornal.ITENS[id]
+	var acoes := []
+	var coisa := _alvo_perto("coisa")
+	if not coisa.is_empty() and item["tipo"] != "entrega":
+		acoes.append([coisa["rotulo"], "usar:" + coisa["id"]])
+	var altar := _alvo_perto("altar")
+	if not altar.is_empty() and item["tipo"] == "oferenda":
+		acoes.append([altar["rotulo"], "arriar:" + altar["id"]])
+	var pessoa := _alvo_perto("pessoa")
+	if not pessoa.is_empty():
+		acoes.append([pessoa["rotulo"], "dar:" + pessoa["id"]])
+	if item.get("equipa", false):
+		acoes.append(["Guardar" if Jogo.bornal.equipado == id else "Pôr na mão", "equipar"])
+	return acoes
+
+
+func _fazer_no_bornal(id: String, acao: String) -> void:
+	var partes := acao.split(":")
+	if partes[0] == "equipar":
+		Jogo.bornal.equipar(id)
+		Jogo.tocar_som("pegar_item", -10.0)
+		return
+	var alvo := _alvo_por_id(partes[1])
+	var no: Node2D = alvo.get("no")
+	if no:
+		jogador.olhar_para(no.global_position)
+	match partes[0]:
+		"dar":
+			if _aceita_dar(id, alvo["id"]):
+				Jogo.bornal.tirar(id, _na_tela(no.global_position + Vector2(0, -16)))
+				Jogo.tocar_som("pegar_item", -8.0)
+				await get_tree().create_timer(0.5).timeout
+				await _ao_dar(id, alvo["id"])
+			else:
+				await _recusa(id, alvo)
+		"arriar":
+			if _aceita_arriar(id, alvo["id"]):
+				Jogo.bornal.tirar(id, _na_tela(no.global_position + Vector2(0, -6)))
+				await get_tree().create_timer(0.5).timeout
+				await _ao_arriar(id, alvo["id"])
+			else:
+				await _recusa(id, alvo)
+		"usar":
+			if _aceita_usar(id, alvo["id"]):
+				await _ao_usar(id, alvo["id"])
+			else:
+				await _recusa(id, alvo)
+
+
+## Posição na tela de um ponto do mundo (para o ícone voar do bornal até lá).
+func _na_tela(pos: Vector2) -> Vector2:
+	return get_viewport().get_canvas_transform() * pos
+
+
+## Põe um item no bornal (com o ícone voando de onde ele estava) e avisa. Na primeira vez, explica o bornal.
+func _pegar_item(id: String, de_onde: Vector2 = Vector2(-1, -1)) -> void:
+	Jogo.bornal.pegar(id, _na_tela(de_onde) if de_onde.x > -1 else _na_tela(jogador.global_position + Vector2(0, -16)))
+	Jogo.tocar_som("pegar_item", -4.0)
+	_mostrar_aviso("Você guardou no bornal: " + Jogo.bornal.ITENS[id]["nome"])
+	if not Jogo.has_meta("bornal_dica"):
+		Jogo.set_meta("bornal_dica", true)
+		await get_tree().create_timer(0.6).timeout
+		while $Dialogo.ativo:
+			await $Dialogo.terminou
+		await _falar_linhas([
+			{"quem": "", "yo": "", "pt": Jogo.texto("Adé guardou no bornal. Para ver o que tem no bornal, aperte {bornal}.")},
+			{"quem": "", "yo": "", "pt": "Perto de alguém, escolha um item e DÊ para a pessoa. No lugar certo, USE ou ARRIE a oferenda."},
+		])
+
+
+## Hooks das cenas: aceitam o item? E o que acontece depois. (_aceita_dar, _ao_dar, _aceita_arriar e _ao_arriar
+## do terreiro ficam lá embaixo; as fases trocam todos.)
+func _aceita_usar(_id: String, _alvo: String) -> bool:
+	return false
+
+
+func _ao_usar(_id: String, _alvo: String) -> void:
+	pass
+
+
+## Quando o item não serve ali: a fala "recusa_<alvo>_<item>" ou "recusa_<alvo>" do diálogo da cena,
+## ou um aviso simples.
+func _recusa(id: String, alvo: Dictionary) -> void:
+	for chave in ["recusa_%s_%s" % [alvo["id"], id], "recusa_" + alvo["id"]]:
+		if _dados.has(chave):
+			var linhas: Array = _dados[chave].duplicate(true)
+			for l in linhas:
+				l["pt"] = l["pt"].replace("{item}", Jogo.bornal.ITENS[id]["nome"].to_lower())
+			await _falar_linhas(linhas)
+			return
+	Jogo.tocar_som("erro", -10.0)
+	match alvo["tipo"]:
+		"pessoa":
+			_mostrar_aviso("Não é isso que precisa agora.")
+		"altar":
+			_mostrar_aviso("Isso não vai nesta oferenda.")
+		_:
+			_mostrar_aviso("Isso não serve aqui.")
+
+
+## Dica quando Adé fala com alguém (ou mexe em algo) e a resposta está no bornal.
+func _dica_bornal(acao: String) -> void:
+	_mostrar_aviso(Jogo.texto("Abra o bornal ({bornal}) e escolha " + acao + "."))
+
+
+# ------------------------------------------------------------------ o bornal no terreiro
+
+func _aceita_dar(id: String, alvo: String) -> bool:
+	match alvo:
+		"tia":
+			return (id == "lenha" and tia == "pediu_lenha") or (_manjar == "tia_pediu" and id in INGREDIENTES)
+		"vo":
+			return id == "manjar" and _manjar == "pronto"
+	return false
+
+
+func _ao_dar(id: String, alvo: String) -> void:
+	match alvo:
+		"tia":
+			if id == "lenha":
+				tia = "com_lenha"
+				await _falar("tia_lenha")
+				return
+			_ingredientes[id] = true
+			if _ingredientes.size() < INGREDIENTES.size():
+				await _falar("tia_recebe_" + id)
+				return
+			await _falar("tia_recebe_" + id)
+			await _falar("tia_manjar_cozinhar")
+			await _cozinhar_manjar()
+			_manjar = "pronto"
+			await _falar("tia_manjar_pronto")
+		"vo":
+			jogador.congelar(true)
+			await _entregar_manjar()
+			await _falar("vo_manjar")
+			if _manjar_na_mao:
+				# a Vó guarda o manjar para a gira de Iemanjá
+				var t := create_tween()
+				t.tween_property(_manjar_na_mao, "modulate:a", 0.0, 0.6)
+				t.tween_callback(_manjar_na_mao.queue_free)
+				_manjar_na_mao = null
+
+
+func _aceita_arriar(id: String, alvo: String) -> bool:
+	return alvo == "tronqueira" and estado == "na_tronqueira" and id in ITENS
+
+
+func _ao_arriar(id: String, _alvo: String) -> void:
+	await _arriar_na_tronqueira(id)
+
+
+## Um objeto do cenário pela textura (para o ícone voar de lá até o bornal).
+func _objeto_perto(textura: String) -> Vector2:
+	var melhor := jogador.global_position + Vector2(0, -16)
+	var dist := INF
+	for n in mundo.get_children():
+		var sp = n.get("sprite") if n is Area2D else (n if n is Sprite2D else null)
+		if sp is Sprite2D and sp.texture and sp.texture.resource_path == textura:
+			var d: float = n.global_position.distance_to(jogador.global_position)
+			if d < dist:
+				dist = d
+				melhor = n.global_position + Vector2(0, -12)
+	return melhor

@@ -52,7 +52,7 @@
 	"achou_ofa": [
 		{"quem": "Adé", "yo": "", "pt": "Um ofá! O arco e flecha do caçador, deixado em cima de um toco..."},
 		{"quem": "Adé", "yo": "", "pt": "Só tem uma flecha. Vou ter que mirar bem antes de soltar.", "evento": "ganhar_ofa"},
-		{"quem": "", "yo": "", "pt": "Aperte {atirar} para atirar para onde Adé está olhando. Depois, vá buscar a flecha."}
+		{"quem": "", "yo": "", "pt": "O ofá foi para o bornal, já na mão de Adé. Aperte {atirar} para atirar para onde Adé está olhando. Depois, vá buscar a flecha."}
 	],
 	"toco_vazio": [
 		{"quem": "Adé", "yo": "", "pt": "Era aqui que o ofá estava. De quem será que ele é?"}
@@ -79,8 +79,14 @@
 		{"quem": "Adé", "yo": "", "pt": "Mas a mãe do caçador de uma flecha só fez uma oferenda a Exu, e aí a flecha acertou."},
 		{"quem": "Adé", "yo": "", "pt": "Aquela pedra num alguidar... é um assentamento de Exu!"}
 	],
+	"assentamento_arriar": [
+		{"quem": "Adé", "yo": "", "pt": "Uma pedra de Exu num alguidar. Tenho o milho, o coco e o mel no bornal: vou arriar a oferenda, um por um."}
+	],
 	"assentamento_falta": [
 		{"quem": "Adé", "yo": "", "pt": "Uma pedra de Exu num alguidar. Para fazer a oferenda, ainda falta: {faltam}."}
+	],
+	"recusa_assentamento": [
+		{"quem": "Adé", "yo": "", "pt": "Isso não vai na oferenda de Exu. Exu pediu milho, coco e mel."}
 	],
 	"assentamento_depois": [
 		{"quem": "Adé", "yo": "Laroyê, Èṣù!", "pt": "Obrigado, Exu, por abrir o caminho do caçador.", "rosto": "feliz"}

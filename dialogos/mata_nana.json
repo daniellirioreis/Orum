@@ -177,5 +177,37 @@
 	],
 	"nana_de_novo": [
 		{"quem": "Nàná", "yo": "", "pt": "Devagar, meu neto. A lama guarda tudo."}
+	],
+
+	"taboa_bornal": [
+		{"quem": "Adé", "yo": "", "pt": "A taboa é dura e bem fechada. Com a mão não dá... mas no meu bornal tem coisa afiada."}
+	],
+	"barro_dica": [
+		{"quem": "Adé", "yo": "", "pt": "Uma poça de barro mole, bem no meio da lagoa... Dá pra tampar a rachadura do pote com esse barro!"}
+	],
+	"pedra_dica": [
+		{"quem": "Adé", "yo": "", "pt": "Uma pedra lisinha, no meio da chuva. Se eu deixar o pote aqui, de boca pra cima, a chuva enche ele."}
+	],
+	"lugar_arriar": [
+		{"quem": "Adé", "yo": "", "pt": "O lugar de Nanã. Tenho no bornal a água da chuva no pote e as flores lilás. Vou arriar a oferenda."}
+	],
+	"recusa_velhinha": [
+		{"quem": "Velhinha", "yo": "", "pt": "Guarde isso, meu filho. Velha não carrega mais nada... só lembranças."}
+	],
+	"recusa_taboa": [
+		{"quem": "Adé", "yo": "", "pt": "Isso não corta a taboa..."}
+	],
+	"recusa_barro": [
+		{"quem": "Adé", "yo": "", "pt": "O barro é bom pra consertar coisa de barro."}
+	],
+	"recusa_pedra": [
+		{"quem": "Adé", "yo": "", "pt": "Na pedra eu deixo o pote pra encher de chuva. Isso aqui não."}
+	],
+	"recusa_pedra_pote_rachado": [
+		{"quem": "Adé", "yo": "", "pt": "Se eu deixar o pote aqui na chuva... a água vaza toda pela rachadura."},
+		{"quem": "Adé", "yo": "", "pt": "Primeiro tenho que consertar o pote. O barro bom deve estar naquela ilhota, no meio da lagoa."}
+	],
+	"recusa_lugar": [
+		{"quem": "Adé", "yo": "", "pt": "Isso não vai na oferenda de Nanã. Ela pediu água da chuva no pote e flores lilás."}
 	]
 }
