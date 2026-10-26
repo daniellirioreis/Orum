@@ -1030,7 +1030,7 @@ func _local_do_caminho() -> String:
 
 
 func _pode_guardar() -> bool:
-	return false
+	return estado != "saindo" and not _navegando
 
 
 ## Na gruta, a poça do meio é funda: a primeira pedra só afunda; com a segunda por cima, vira caminho.
