@@ -1033,22 +1033,13 @@ func _pode_guardar() -> bool:
 
 # ------------------------------------------------------------------ a entrada da fase (volta ao Ọ̀run)
 
-var _perguntando_saida := false
+var _saindo_pela_entrada := false
 
 
-func _na_saida_para_o_orun(corpo: Node2D, para_dentro: Vector2) -> void:
-	if not corpo.is_in_group("jogador") or _perguntando_saida or not jogador.pode_mover:
+func _na_saida_para_o_orun(corpo: Node2D, _para_dentro: Vector2) -> void:
+	if not corpo.is_in_group("jogador") or _saindo_pela_entrada or not jogador.pode_mover:
 		return
 	if not has_method("voltar_ao_mapa") or estado == "saindo":
 		return
-	_perguntando_saida = true
-	jogador.congelar(true)
-	var r: Dictionary = await Jogo.menu.escolher("Sair por aqui?", ["Voltar ao Ọ̀run", "Continuar aqui"])
-	if r["acao"] == "ok" and r["i"] == 0:
-		call("voltar_ao_mapa")
-		return
-	# fica: Adé dá uns passos de volta para dentro
-	jogador.global_position += para_dentro * 20.0
-	jogador.direcao_olhar = "frente" if para_dentro.y > 0 else "costas"
-	jogador.congelar(false)
-	_perguntando_saida = false
+	_saindo_pela_entrada = true
+	call("voltar_ao_mapa")
