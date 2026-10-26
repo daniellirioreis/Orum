@@ -15,7 +15,7 @@
 		{"quem": "Vó", "yo": "", "pt": "Os orixás moram no Orum. Pra chegar até eles, primeiro você precisa falar com quem leva os recados entre o Aiyê e o Orum."},
 		{"quem": "Adé", "yo": "", "pt": "Exu?"},
 		{"quem": "Vó", "yo": "", "pt": "Ele mesmo. O mensageiro. Sem Exu, nada se faz."},
-		{"quem": "Vó", "yo": "", "pt": "Vamos fazer o ritual na tronqueira. Me traga Efum, o Epó, o Oti e a Luma."},
+		{"quem": "Vó", "yo": "", "pt": "Vamos fazer o ritual na tronqueira. Me traga o Gààrí, o Epó, o Oti e a Luma."},
 		{"quem": "Vó", "yo": "", "pt": "Cada coisa está num canto da casa. Fale com a Tia Dora na cozinha, com o Ogã Bené nos atabaques e com a Lia no congá. O Epó fica guardado na despensa."},
 		{"quem": "Vó", "yo": "", "pt": "Faça tudo com calma e com respeito.", "evento": "comecar_busca"}
 	],
@@ -34,7 +34,7 @@
 		{"quem": "Tia Dora", "yo": "", "pt": "Boa tarde, Adé! A cozinha desta casa nunca para."}
 	],
 	"tia_pedido": [
-		{"quem": "Tia Dora", "yo": "", "pt": "O Efum? Tenho sim, meu bem."},
+		{"quem": "Tia Dora", "yo": "", "pt": "O Gààrí? Tenho sim, meu bem."},
 		{"quem": "Tia Dora", "yo": "", "pt": "Mas antes me ajuda: o fogo está fraco. Traz lenha do quintal pra mim? A pilha fica lá fora, perto da horta.", "evento": "pedir_lenha"}
 	],
 	"tia_esperando": [
@@ -42,7 +42,7 @@
 	],
 	"tia_lenha": [
 		{"quem": "Tia Dora", "yo": "", "pt": "Ah, que menino bom! Agora o fogo pega."},
-		{"quem": "Tia Dora", "yo": "", "pt": "Aqui está o Efum. Leve com cuidado.", "evento": "ganhar_efum"}
+		{"quem": "Tia Dora", "yo": "", "pt": "Aqui está o Gààrí, a farinha de mandioca. Leve com cuidado.", "evento": "ganhar_efum"}
 	],
 	"tia_depois": [
 		{"quem": "Tia Dora", "yo": "", "pt": "Vai lá, que a Vó está esperando."}
@@ -88,7 +88,7 @@
 	],
 	"cambone_cedo": [
 		{"quem": "Lia", "yo": "", "pt": "A Luma? A Luma é a última, Adé. A luz se acende quando tudo está pronto."},
-		{"quem": "Lia", "yo": "", "pt": "Volte quando tiver o Efum, o Epó e o Oti."}
+		{"quem": "Lia", "yo": "", "pt": "Volte quando tiver o Gààrí, o Epó e o Oti."}
 	],
 	"cambone_luma": [
 		{"quem": "Lia", "yo": "", "pt": "Agora sim. Você trouxe tudo."},
@@ -99,7 +99,7 @@
 	],
 
 	"ritual": [
-		{"quem": "", "yo": "", "pt": "Adé arriou as oferendas diante da tronqueira: o Efum, o Epó, o Oti. E acendeu a Luma."},
+		{"quem": "", "yo": "", "pt": "Adé arriou as oferendas diante da tronqueira: o Gààrí, o Epó, o Oti. E acendeu a Luma."},
 		{"quem": "Vó", "yo": "", "pt": "Meu pai, abençoe!", "evento": "vo_saudacao"},
 		{"quem": "", "yo": "", "pt": "A chama da Luma estremeceu. Um vento quente atravessou o terreiro.", "evento": "tremer"},
 		{"quem": "", "yo": "", "pt": "E alguém riu baixinho, do lado de dentro da tronqueira.", "evento": "exu_chega"}
@@ -148,13 +148,13 @@
 	],
 
 	"nomes_itens": {
-		"efum": "o Efum",
+		"efum": "o Gààrí",
 		"epo": "o Epó",
 		"oti": "o Oti",
 		"luna": "a Luma"
 	},
 	"pegou": {
-		"efum": "Efum (farinha)",
+		"efum": "Gààrí (farinha de mandioca)",
 		"epo": "Epó (azeite de dendê)",
 		"oti": "Oti (bebida)",
 		"luna": "Luma (vela)",

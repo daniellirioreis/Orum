@@ -6,7 +6,7 @@ extends CanvasLayer
 ##   ferramenta → Adé usa no lugar certo (o remo na jangada, a lâmina de bambu na taboa...).
 ##                Uma ferramenta pode ficar "na mão" (equipada): o botão de atirar usa ela (o ofá).
 ##   entrega    → Adé dá para alguém (o coco para a Tia Dora, o manjar para a Vó...).
-##   oferenda   → Adé arria no lugar sagrado, uma coisa de cada vez (efum, epó, oti e luma na tronqueira...).
+##   oferenda   → Adé arria no lugar sagrado, uma coisa de cada vez (gààrí, epó, oti e luma na tronqueira...).
 ##
 ## Tab / I (ou Select no controle) abre o bornal. A cena diz o que dá para fazer com cada item ali onde
 ## Adé está (veja terreiro.gd: _acoes_do_bornal e _fazer_no_bornal).
@@ -22,8 +22,8 @@ const BOLSOS := [["ferramenta", "Ferramentas"], ["entrega", "Entregas"], ["ofere
 ## id → nome, bolso, frase, ícone [folha, quadro de 12x12], fase (de onde o item é)
 const ITENS := {
 	# a oferenda a Exu, no terreiro da Vó
-	"efum": {"nome": "Efum", "tipo": "oferenda", "fase": "exu", "icone": ["res://arte/itens.png", 0],
-		"desc": "Pó branco, feito de giz. A Tia Dora preparou para a oferenda de Exu."},
+	"efum": {"nome": "Gààrí", "tipo": "oferenda", "fase": "exu", "icone": ["res://arte/itens.png", 0],
+		"desc": "Farinha de mandioca, que a Tia Dora preparou para a oferenda de Exu."},
 	"epo": {"nome": "Epó", "tipo": "oferenda", "fase": "exu", "icone": ["res://arte/itens.png", 1],
 		"desc": "Azeite de dendê, vermelho e cheiroso. Exu gosta."},
 	"oti": {"nome": "Oti", "tipo": "oferenda", "fase": "exu", "icone": ["res://arte/itens.png", 2],
