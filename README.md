@@ -103,7 +103,7 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
 - Uma ilha com a encruzilhada no meio e o campo de cada orixá em volta: Oxum (em cima à esquerda: a montanha verde,
   a cachoeira em degraus, a lagoa dourada com o abebé na ilhota, peixinhos, borboletas, ipês com colmeia e o rio de
   ouro, largo e cheio de curvas, que atravessa a mata de Oxóssi, passa entre a encruzilhada e Omolu, corre por
-  baixo do mundo de Ogum e deságua no mar de Iemanjá; as trilhas cruzam o rio por pontes), Oxalá (o morro branco e o templo), Iansã (tempestade e raios),
+  baixo do mundo de Ogum e deságua no mar de Iemanjá; as trilhas cruzam o rio por pontes), Oxalá (o Kilimanjaro, com o templo no cume nevado), Iansã (tempestade e raios),
   Oxóssi (a mata), Ogum (a ferraria, o mariwô e o minério), Xangô (a pedreira), Nanã (a lama e o mangue),
   Omolu (embaixo, no meio: terra, palha e pipoca) e Iemanjá (o mar).
 - O mapa tem o dobro do tamanho da tela (512x448) e a câmera segue o Adé, como no Super Mario World. Xangô e Oxalá
@@ -230,6 +230,11 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   que caem das nuvens até o chão (com clarão) (`_criar_bufalos()`,
   `_mexer_riscos_de_vento()`, `_criar_vento_de_iansa()`, `_criar_ceu_de_tempestade()`, `_criar_folhas_de_bambu()` e
   `_raio_caindo()` no `scripts/mapa_mundo.gd`).
+- **O mundo de Oxalá é o Kilimanjaro** (`kilimanjaro()` no `gerar_mapa_mundo.py`): o vulcão largo de topo achatado,
+  em faixas que estreitam para cima — a mata no pé, o campo de urzes com lobélias e senécios gigantes, o deserto de
+  pedra com línguas de gelo descendo e o cume coberto de neve, com a cratera e o templo de Oxalá. As nuvens passam
+  na cintura da montanha (o cume fica acima delas), cai neve fininha no alto e, na savana do pé, há acácias e
+  elefantes (`arte/mundo_elefante.png`).
 - **Os outros mundos do Ọ̀run também mexem**: na mata de Oxóssi as copas balançam, um bando de passarinhos
   amarelos levanta voo e pousa, e antílopes pastam e andam nas clareiras (`arte/mundo_passaro.png`,
   `arte/mundo_antilope.png`); em Nanã a lama borbulha nas poças, as taboas balançam, uma névoa baixa passa e garças
