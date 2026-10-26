@@ -236,7 +236,10 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   pedra com línguas de gelo descendo e o cume coberto de neve, com a cratera e o templo de Oxalá. As nuvens passam
   na cintura da montanha (o cume fica acima delas), cai neve fininha no alto e, na savana do pé, há acácias e
   elefantes (`arte/mundo_elefante.png`). Em cima não tem mais mar: a terra vai até o fim do mapa, a mata do pé do
-  Kilimanjaro sobe até a borda e encosta no planalto de Iansã, que também continua para além da borda
+  Kilimanjaro sobe até a borda e encosta no planalto de Iansã (e desce até os degraus da serra de Xangô), que também
+  continua para além da borda. As faixas altas de Oxalá (urzes, a crista de pedra e o cume) são desenhadas depois do
+  planalto de Iansã e sobem por cima da beirada dele, e a sombra comprida do cume cai sobre Iansã e Xangô
+  (`sombra_do_kilimanjaro()`): Oxalá é o mais alto, depois Iansã, depois Xangô
   (`terra_firme()` no `gerar_mapa_mundo.py`). As três terras altas são uma escada só: a serra de Xangô sobe até o
   planalto de Iansã, e do planalto sobe a encosta de urzes e uma crista de pedra até o cume de Oxalá (as faixas de
   cima do Kilimanjaro são desenhadas depois de Iansã, por cima da beirada do planalto, e fazem sombra nele).
