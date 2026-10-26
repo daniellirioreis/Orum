@@ -81,11 +81,14 @@ var aberto := false
 
 # --- tela do bornal
 var _raiz: Control
-var _slots: Array = []         # [[bolso, [ids]]] na ordem da tela
-var _linha := 0
-var _coluna := 0
-var _icones: Array = []        # [linha][coluna] → TextureRect
-var _cursor: Panel
+var _lista: Array = []         # os ids, na ordem da lista
+var _linha := 0                # o item escolhido
+var _topo := 0                 # o primeiro item que aparece (a lista rola quando tem muita coisa)
+var _linhas_ui: Array = []     # [fundo, ícone, nome] de cada linha visível
+var _cursor: ColorRect
+const LINHAS_VISIVEIS := 6
+const ALTURA_LINHA := 15.0
+const TOPO_LISTA := 38.0
 var _nome: Label
 var _desc: Label
 var _escolha = null
@@ -340,54 +343,41 @@ func _montar_tela() -> void:
 	a.atlas = load("res://arte/bornal_itens.png")
 	a.region = Rect2(5 * 12, 0, 12, 12)
 	bolsa.texture = a
-	bolsa.position = Vector2(84, 20)
+	bolsa.position = Vector2(94, 20)
 	_raiz.add_child(bolsa)
 	var titulo := _rotulo("Àpò de Adé", 9, COR_TITULO)
-	titulo.position = Vector2(100, 19)
+	titulo.position = Vector2(110, 19)
 	_raiz.add_child(titulo)
 
-	_slots.clear()
-	_icones.clear()
-	var y := 40.0
+	# a lista: ícone pequeno na frente do nome (as ferramentas primeiro, depois o resto, na ordem em que Adé pegou)
+	_lista.clear()
 	for b in BOLSOS:
-		var ids := []
 		for id in itens:
 			if ITENS[id]["tipo"] == b[0]:
-				ids.append(id)
-		var rot := _rotulo(b[1], 7, COR_APAGADA)
-		rot.position = Vector2(26, y + 3)
-		_raiz.add_child(rot)
-		var linha_icones := []
-		if ids.is_empty():
-			var vazio := _rotulo("—", 7, COR_APAGADA)
-			vazio.position = Vector2(92, y + 3)
-			_raiz.add_child(vazio)
-		for i in ids.size():
-			var caixa := TextureRect.new()
-			caixa.texture = TEX_SLOT
-			caixa.position = Vector2(88 + i * 21, y)
-			_raiz.add_child(caixa)
-			var ic := TextureRect.new()
-			ic.texture = icone(ids[i])
-			ic.position = caixa.position + Vector2(3, 3)
-			_raiz.add_child(ic)
-			if ids[i] == equipado:
-				var mao := _rotulo("na mão", 5, COR_TITULO)
-				mao.position = caixa.position + Vector2(-2, 17)
-				_raiz.add_child(mao)
-			linha_icones.append(caixa)
-		_slots.append([b[0], ids])
-		_icones.append(linha_icones)
-		y += 30.0
-	_cursor = Panel.new()                # uma moldura amarela em volta do item escolhido
-	var moldura := StyleBoxFlat.new()
-	moldura.draw_center = false
-	moldura.border_color = Color(1.0, 0.85, 0.3)
-	moldura.set_border_width_all(2)
-	moldura.set_corner_radius_all(2)
-	_cursor.add_theme_stylebox_override("panel", moldura)
-	_cursor.size = Vector2(22, 22)
+				_lista.append(id)
+	_cursor = ColorRect.new()
+	_cursor.color = Color(1.0, 0.85, 0.3, 0.22)
+	_cursor.size = Vector2(tela.x - 56, ALTURA_LINHA)
 	_raiz.add_child(_cursor)
+	_linhas_ui.clear()
+	for i in LINHAS_VISIVEIS:
+		var y := TOPO_LISTA + i * ALTURA_LINHA
+		var ic := TextureRect.new()
+		ic.position = Vector2(32, y + 1.5)
+		_raiz.add_child(ic)
+		var nome := _rotulo("", 8, COR_TEXTO)
+		nome.position = Vector2(48, y + 1)
+		_raiz.add_child(nome)
+		_linhas_ui.append([ic, nome])
+	var seta_cima := _rotulo("▲", 6, COR_APAGADA)
+	seta_cima.name = "SetaCima"
+	seta_cima.position = Vector2(tela.x - 34, TOPO_LISTA - 2)
+	_raiz.add_child(seta_cima)
+	var seta_baixo := _rotulo("▼", 6, COR_APAGADA)
+	seta_baixo.name = "SetaBaixo"
+	seta_baixo.position = Vector2(tela.x - 34, TOPO_LISTA + (LINHAS_VISIVEIS - 1) * ALTURA_LINHA + 4)
+	_raiz.add_child(seta_baixo)
+
 	var sep := ColorRect.new()
 	sep.color = Color(0.95, 0.95, 1.0, 0.35)
 	sep.position = Vector2(24, 132)
@@ -407,29 +397,49 @@ func _montar_tela() -> void:
 	dica.size = Vector2(tela.x - 32, 10)
 	dica.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_raiz.add_child(dica)
-	# começa no primeiro bolso que tem alguma coisa
 	_linha = 0
-	_coluna = 0
-	for i in _slots.size():
-		if not _slots[i][1].is_empty():
-			_linha = i
-			break
+	_topo = 0
 	_mostrar_cursor()
 
 
 func _mostrar_cursor() -> void:
-	var ids: Array = _slots[_linha][1]
-	if ids.is_empty():
+	if _lista.is_empty():
 		_cursor.visible = false
-		_nome.text = "O Àpò está vazio." if itens.is_empty() else ""
+		for l in _linhas_ui:
+			l[0].texture = null
+			l[1].text = ""
+		_linhas_ui[0][1].text = "O Àpò está vazio."
+		_linhas_ui[0][1].add_theme_color_override("font_color", COR_APAGADA)
+		_nome.text = ""
 		_desc.text = ""
+		_raiz.get_node("SetaCima").visible = false
+		_raiz.get_node("SetaBaixo").visible = false
 		return
-	_coluna = clampi(_coluna, 0, ids.size() - 1)
+	_linha = clampi(_linha, 0, _lista.size() - 1)
+	# rola a lista para o item escolhido aparecer
+	if _linha < _topo:
+		_topo = _linha
+	elif _linha >= _topo + LINHAS_VISIVEIS:
+		_topo = _linha - LINHAS_VISIVEIS + 1
+	for i in LINHAS_VISIVEIS:
+		var k := _topo + i
+		var ic: TextureRect = _linhas_ui[i][0]
+		var nome: Label = _linhas_ui[i][1]
+		if k < _lista.size():
+			var id: String = _lista[k]
+			ic.texture = icone(id)
+			nome.text = ITENS[id]["nome"] + ("   · na mão" if id == equipado else "")
+			nome.add_theme_color_override("font_color", COR_TITULO if k == _linha else COR_TEXTO)
+		else:
+			ic.texture = null
+			nome.text = ""
 	_cursor.visible = true
-	_cursor.position = _icones[_linha][_coluna].position - Vector2(2, 2)
-	var id: String = ids[_coluna]
-	_nome.text = ITENS[id]["nome"] + ("  (na mão)" if id == equipado else "")
-	_desc.text = Jogo.texto(ITENS[id]["desc"])
+	_cursor.position = Vector2(28, TOPO_LISTA + (_linha - _topo) * ALTURA_LINHA)
+	_raiz.get_node("SetaCima").visible = _topo > 0
+	_raiz.get_node("SetaBaixo").visible = _topo + LINHAS_VISIVEIS < _lista.size()
+	var id_esc: String = _lista[_linha]
+	_nome.text = ITENS[id_esc]["nome"] + ("  (na mão)" if id_esc == equipado else "")
+	_desc.text = Jogo.texto(ITENS[id_esc]["desc"])
 
 
 func _input(ev: InputEvent) -> void:
@@ -438,29 +448,20 @@ func _input(ev: InputEvent) -> void:
 	if ev.is_action_pressed("bornal") or ev.is_action_pressed("cancelar") or ev.is_action_pressed("sair"):
 		_escolha = "fechar"
 		Jogo.tocar_som("texto", -10.0)
-	elif ev.is_action_pressed("esquerda"):
-		_coluna -= 1
-		Jogo.tocar_som("texto", -12.0)
-		_mostrar_cursor()
-	elif ev.is_action_pressed("direita"):
-		_coluna += 1
-		Jogo.tocar_som("texto", -12.0)
-		_mostrar_cursor()
-	elif ev.is_action_pressed("cima") or ev.is_action_pressed("baixo"):
-		var passo := -1 if ev.is_action_pressed("cima") else 1
-		var l := _linha
-		for i in _slots.size():
-			l = (l + passo + _slots.size()) % _slots.size()
-			if not _slots[l][1].is_empty():
-				break
-		_linha = l
-		Jogo.tocar_som("texto", -12.0)
-		_mostrar_cursor()
+	elif ev.is_action_pressed("cima") or ev.is_action_pressed("esquerda"):
+		if not _lista.is_empty():
+			_linha = (_linha - 1 + _lista.size()) % _lista.size()
+			Jogo.tocar_som("texto", -12.0)
+			_mostrar_cursor()
+	elif ev.is_action_pressed("baixo") or ev.is_action_pressed("direita"):
+		if not _lista.is_empty():
+			_linha = (_linha + 1) % _lista.size()
+			Jogo.tocar_som("texto", -12.0)
+			_mostrar_cursor()
 	elif ev.is_action_pressed("interagir"):
-		var ids: Array = _slots[_linha][1]
-		if not ids.is_empty():
+		if not _lista.is_empty():
 			Jogo.tocar_som("buzio", -10.0)
-			_escolha = ids[clampi(_coluna, 0, ids.size() - 1)]
+			_escolha = _lista[_linha]
 	else:
 		return
 	get_viewport().set_input_as_handled()
