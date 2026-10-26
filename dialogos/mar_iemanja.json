@@ -58,12 +58,12 @@
 		{
 			"quem": "Èṣù",
 			"yo": "",
-			"pt": "As flores brancas estão naquela pedra do raso, lá adiante. Só dá pra chegar nela quando a maré baixa e a coroa de areia aparece."
+			"pt": "As flores brancas estão numa pedra lá no meio do mar, acesas pela lua. Pra chegar lá, só de jangada! Tem uma lá embaixo, na beira d'água."
 		},
 		{
 			"quem": "Èṣù",
 			"yo": "",
-			"pt": "E presta atenção no mar: a onda vem e volta. A espuma brilhando mostra até onde ela vai. As ondas trazem búzios — pegue, mas saia antes da próxima!"
+			"pt": "E presta atenção na beira: a onda vem e volta. A espuma brilhando mostra até onde ela vai. A onda traz búzios — pegue, mas saia antes da próxima!"
 		},
 		{
 			"quem": "Èṣù",
@@ -95,30 +95,6 @@
 			"pt": "Ai, ai! A água-viva queimou meu pé! Exu bem que avisou..."
 		}
 	],
-	"coco": [
-		{
-			"quem": "Adé",
-			"yo": "",
-			"pt": "Ai, minha cabeça! Um coco caiu bem em cima de mim!"
-		},
-		{
-			"quem": "Adé",
-			"yo": "",
-			"pt": "Quando a sombra aparece no chão, é que o coco vai cair. Melhor sair de baixo!"
-		}
-	],
-	"caranguejo_trilha": [
-		{
-			"quem": "Adé",
-			"yo": "",
-			"pt": "Ui! Esse caranguejo não sai do meio do caminho... e belisca!"
-		},
-		{
-			"quem": "Adé",
-			"yo": "",
-			"pt": "Ele tem uma toca na beira da moita. Vou esperar ele correr pra lá e passar."
-		}
-	],
 	"flores": [
 		{
 			"quem": "Adé",
@@ -139,30 +115,79 @@
 			"pt": "Já peguei as flores. O resto fica pra enfeitar a praia."
 		}
 	],
-	"saida_sem_flores": [
-		{
-			"quem": "Adé",
-			"yo": "",
-			"pt": "As flores brancas ficam na pedra do raso. Não posso ir sem elas."
-		}
-	],
 	"continua": [
 		{
 			"quem": "Adé",
 			"yo": "",
-			"pt": "Lá adiante fica a vila dos pescadores... Vou seguir pela trilha."
+			"pt": "Agora tenho as flores. Daqui, o caminho continua mar adentro... (continua)"
 		}
 	],
-	"mare_levou": [
+	"rede_remo": [
 		{
 			"quem": "Adé",
 			"yo": "",
-			"pt": "A maré subiu e cobriu a coroa de areia! Quase que o mar me leva junto."
+			"pt": "Uma rede de pesca secando no varal... tem alguma coisa enrolada aqui no meio."
 		},
 		{
 			"quem": "Adé",
 			"yo": "",
-			"pt": "Tenho que esperar a maré baixar e ir rapidinho até a pedra."
+			"pt": "Um remo! Deve ser da jangada. Vou levar.",
+			"evento": "pegar_remo"
+		}
+	],
+	"rede_depois": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "A rede dos pescadores. Vou deixar ela secando direitinho."
+		}
+	],
+	"jangada_sem_remo": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "A jangada! Mas não tem remo... sem remo não dá pra sair pro mar."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Os pescadores devem ter deixado o remo em algum lugar da praia."
+		}
+	],
+	"jangada_vamos": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Com o remo, agora sim! Vou empurrar a jangada pra água quando a onda recuar..."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Iemanjá, me leva com cuidado. Odoyá!"
+		}
+	],
+	"no_mar": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Estou no mar! A jangada balança, e lá na frente brilha a pedra das flores."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "As ondas vêm rolando lá de longe. Se eu remar de frente com força, a jangada fura a onda; parado, ela me empurra pra trás."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "E cuidado com as pedras. Os brilhos na água mostram pra onde a correnteza puxa."
+		}
+	],
+	"bateu_pedra": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Ai! Bati na pedra! Preciso remar com mais cuidado."
 		}
 	]
 }

@@ -166,18 +166,22 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
 **O Mar de Iemanjá (Òkun Yemọja, visão de cima — em construção)** — `cenas/mar_iemanja.tscn`, `scripts/mar_iemanja.gd`
 - Na chegada, Exu explica quem é Iemanjá (a dona do mar, a mãe de todos) e o que vai na oferenda que Adé leva até
   Aiocá, o palácio dela no fundo do mar: flores brancas, perfume de alfazema, uma pérola e um espelho.
-- **A praia mágica** (deitada, de noite, ao luar: Adé anda da esquerda para a direita e o mar fica embaixo): tudo
-  azulado pela lua, com o caminho da lua brilhando no mar (anda junto com Adé), estrelinhas refletidas, a espuma das
-  ondas brilhando verde-água, búzios acesos na areia molhada, águas-vivas que brilham e vaga-lumes nas dunas. Na
-  praia: coqueiros grandes, a jangada de vela branca, a rede de pesca secando, cestos e a salsa-da-praia com flor roxa.
-  As ondas vêm de baixo, sobem pela areia molhada e voltam num ritmo (a espuma pisca antes, mostrando até onde a
-  próxima vai); a onda que pega Adé devolve ele à última areia seca e leva um búzio de axé. As **flores brancas** ficam
-  numa pedra no raso: só se chega nela pela coroa de areia que a **maré** descobre quando baixa; quando a maré sobe, a
-  água cobre a coroa e leva quem estiver nela. Caranguejos beliscam. (A vila dos pescadores, o jardim de corais, as
-  águas escuras e Aiocá vêm a seguir; por enquanto a saída volta ao Ọ̀run.)
-- Mapa: `fases/iemanja_praia.txt` (+ `_objetos`), gerado pelo `gerar_mapas_iemanja.py`. Chão: `s` areia seca,
-  `u` areia molhada (aonde a onda chega), `w` mar, `z` coroa de areia (só aparece na maré baixa), `,` restinga, `a` moita, `t` trilha. Objetos: `E` Exu, `f` pedra com as flores
-  brancas, `J` jangada, `N` rede, `b` cesto, `g` salsa-da-praia, `c` búzio, `r` rocha, `C` coqueiro, `k` caranguejo, `j` água-viva, `h` conchinha, `>` saída. Terreno novo nas linhas
+- Tudo de noite, ao luar: azulado, com o caminho da lua brilhando no mar, a espuma das ondas brilhando verde-água,
+  búzios acesos na areia molhada, águas-vivas que brilham e vaga-lumes nas dunas.
+- **A faixa de areia** (em pé, como a mata de Oxóssi; o mar à direita): coqueiros grandes, salsa-da-praia, cestos e a
+  rede de pesca secando. As ondas sobem pela areia molhada e voltam num ritmo (a espuma pisca antes, mostrando até onde
+  a próxima vai); a onda que pega Adé devolve ele à última areia seca e leva um búzio de axé. Caranguejos beliscam e
+  águas-vivas queimam. Adé procura uma **jangada** para entrar no mar: ela está lá embaixo, na beira d'água, mas o
+  **remo** ficou enrolado na rede de pesca.
+- **O mar ao luar** (navegando): Adé rema a jangada com as setas (ela tem embalo) até a **pedra das flores brancas**.
+  Os rolos de onda vêm descendo: remando de frente e com força, a jangada fura a onda; parada ou de lado, a onda
+  empurra para trás. Pedras e recifes (bater custa um búzio de axé) e correntezas que puxam para os lados (os riscos
+  de brilho na água mostram para onde). Encostando na pedra, Adé pega as flores. (O mergulho, o jardim de corais, as
+  águas escuras e Aiocá vêm a seguir; por enquanto, com as flores, a fase volta ao Ọ̀run.)
+- Mapas: `fases/iemanja_praia.txt` e `iemanja_mar.txt` (+ `_objetos`), gerado pelo `gerar_mapas_iemanja.py`. Chão: `s` areia seca,
+  `u` areia molhada (aonde a onda chega), `w` mar, `,` restinga, `a` moita, `t` trilha. Objetos: `E` Exu, `N` rede (com o remo),
+  `J` jangada, `b` cesto, `g` salsa-da-praia, `c` búzio; no mar, `S` onde a jangada entra, `R` pedra, `f` pedra com as
+  flores brancas, `{` `}` correnteza para a esquerda/direita; `r` rocha, `C` coqueiro, `k` caranguejo, `j` água-viva, `h` conchinha, `>` saída. Terreno novo nas linhas
   8-10 do `arte/terreno_snes.png` (`gerar_terreno_praia.py`); arte em `arte/iemanja_*.png` (`gerar_arte_iemanja.py` e `gerar_arte_praia2.py`).
 
 **A Terra de Nanã (Ilẹ̀ Ẹrẹ̀ Nàná, "a terra da lama de Nanã", visão de cima)** — `cenas/mata_nana.tscn`, `scripts/mata_nana.gd`
