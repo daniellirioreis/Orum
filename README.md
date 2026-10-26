@@ -172,15 +172,21 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   salsa-da-praia, cestos e a rede de pesca secando) até a beira; o mar fica embaixo e as ondas vêm de baixo, sobem
   pela areia molhada e voltam num ritmo (a espuma pisca antes, mostrando até onde a próxima vai). A onda que pega Adé
   devolve ele à última areia seca e leva um búzio de axé. Caranguejos beliscam e águas-vivas queimam. Adé procura uma
-  **jangada** para entrar no mar: ela está na beira d'água, mas o **remo** ficou enrolado na rede de pesca.
+  **jangada** para entrar no mar: ela está na beira d'água, mas sem o **remo**. A **tartaruga velha** da beira (que
+  nadou este mar por cem anos) conta que a maré levou o remo para a gruta do costão, passando as pedras.
+- **A gruta do costão** (pela passagem à direita do coqueiral): escura, só com as algas e as águas-vivas brilhando e
+  uma luzinha em volta de Adé. Na entrada a onda bate nas pedras e espirra (antes, a água borbulha: é o aviso). Lá
+  dentro, poças de maré cortam o caminho: Adé empurra as pedras soltas para dentro delas e faz uma passagem. No fundo,
+  preso entre as pedras, o remo. Com ele, Adé volta à praia e leva a jangada para o mar.
 - **O mar ao luar** (navegando, também de cima para baixo: a praia fica em cima): Adé rema a jangada com as setas (ela
   tem embalo; vista de cima, a ponta vira devagar para onde ela anda, em 16 direções, e ela balança nas ondinhas —
   `arte/iemanja_jangada_cima.png`, feita pelo `gerar_jangada.py`), descendo mar adentro até a **pedra das flores brancas**. Os rolos de onda vêm subindo do mar aberto: remando de frente e com força, a jangada fura a onda; parada ou de lado, a onda
   empurra para trás. Pedras e recifes (bater custa um búzio de axé) e correntezas que puxam para os lados (os riscos
   de brilho na água mostram para onde). Encostando na pedra, Adé pega as flores. (O mergulho, o jardim de corais, as
   águas escuras e Aiocá vêm a seguir; por enquanto, com as flores, a fase volta ao Ọ̀run.)
-- Mapas: `fases/iemanja_praia.txt` e `iemanja_mar.txt` (+ `_objetos`), gerado pelo `gerar_mapas_iemanja.py`. Chão: `s` areia seca,
-  `u` areia molhada (aonde a onda chega), `w` mar, `,` restinga, `a` moita, `t` trilha. Objetos: `E` Exu, `N` rede (com o remo),
+- Mapas: `fases/iemanja_praia.txt`, `iemanja_gruta.txt` e `iemanja_mar.txt` (+ `_objetos`), gerado pelo `gerar_mapas_iemanja.py`. Chão: `s` areia seca,
+  `u` areia molhada (aonde a onda chega), `w` mar, `,` restinga, `a` moita, `t` trilha. Objetos: `E` Exu, `N` rede, `Y` tartaruga velha, `1` passagem para a gruta; na gruta, `X` paredão de pedra, `@` pedra
+  solta (empurrar para a poça), `~` poça de maré, `v` onde a onda espirra, `L` alga que brilha, `O` o remo;
   `J` jangada, `b` cesto, `g` salsa-da-praia, `c` búzio; no mar, `S` onde a jangada entra, `R` pedra, `f` pedra com as
   flores brancas, `{` `}` correnteza para a esquerda/direita; `r` rocha, `C` coqueiro, `k` caranguejo, `j` água-viva, `h` conchinha, `>` saída. Terreno novo nas linhas
   8-10 do `arte/terreno_snes.png` (`gerar_terreno_praia.py`); arte em `arte/iemanja_*.png` (`gerar_arte_iemanja.py` e `gerar_arte_praia2.py`).

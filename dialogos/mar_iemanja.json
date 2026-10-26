@@ -119,27 +119,12 @@
 		{
 			"quem": "Adé",
 			"yo": "",
-			"pt": "Agora tenho as flores. Daqui, o caminho continua mar adentro... (continua)"
-		}
-	],
-	"rede_remo": [
-		{
-			"quem": "Adé",
-			"yo": "",
-			"pt": "Uma rede de pesca secando no varal... tem alguma coisa enrolada aqui no meio."
+			"pt": "Agora tenho as flores brancas! Falta o perfume de alfazema, a pérola e o espelho..."
 		},
 		{
 			"quem": "Adé",
 			"yo": "",
-			"pt": "Um remo! Deve ser da jangada. Vou levar.",
-			"evento": "pegar_remo"
-		}
-	],
-	"rede_depois": [
-		{
-			"quem": "Adé",
-			"yo": "",
-			"pt": "A rede dos pescadores. Vou deixar ela secando direitinho."
+			"pt": "Perfume de alfazema... a Vó sempre tem um cheirinho de alfazema! Vou voltar ao terreiro e perguntar pra ela."
 		}
 	],
 	"jangada_sem_remo": [
@@ -151,7 +136,7 @@
 		{
 			"quem": "Adé",
 			"yo": "",
-			"pt": "Os pescadores devem ter deixado o remo em algum lugar da praia."
+			"pt": "Quem será que sabe onde foi parar o remo? Aquela tartaruga velha ali na beira parece saber de tudo."
 		}
 	],
 	"jangada_vamos": [
@@ -188,6 +173,93 @@
 			"quem": "Adé",
 			"yo": "",
 			"pt": "Ai! Bati na pedra! Preciso remar com mais cuidado."
+		}
+	],
+	"rede_vazia": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Uma rede de pesca secando ao luar, cheia de conchinhas presas. Não tem nada escondido aqui."
+		}
+	],
+	"tartaruga": [
+		{
+			"quem": "Tartaruga",
+			"yo": "",
+			"pt": "Hmmm... um menino na beira do mar de Iemanjá, a esta hora da noite?"
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "A bênção, dona Tartaruga! Eu preciso ir até a pedra das flores, mas a jangada está sem remo."
+		},
+		{
+			"quem": "Tartaruga",
+			"yo": "",
+			"pt": "O remo... a maré cheia levou. Eu vi, menino, eu vejo tudo, já nadei este mar por cem anos."
+		},
+		{
+			"quem": "Tartaruga",
+			"yo": "",
+			"pt": "O mar deixou o remo lá na gruta do costão, passando as pedras, à direita do coqueiral."
+		},
+		{
+			"quem": "Tartaruga",
+			"yo": "",
+			"pt": "Lá dentro é escuro e a onda espirra entre as pedras. Vá devagar, e respeite o tempo do mar."
+		}
+	],
+	"tartaruga_depois": [
+		{
+			"quem": "Tartaruga",
+			"yo": "",
+			"pt": "A gruta do costão, menino: passando as pedras, à direita do coqueiral. Devagar..."
+		}
+	],
+	"tartaruga_remo": [
+		{
+			"quem": "Tartaruga",
+			"yo": "",
+			"pt": "Achou o remo! Agora a jangada é sua. Que Iemanjá te leve com cuidado, menino."
+		}
+	],
+	"remo_achou": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "O remo! Preso aqui entre as pedras, onde o mar deixou."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Agora sim: vou voltar pra praia e levar a jangada pro mar!",
+			"evento": "pegar_remo"
+		}
+	],
+	"espirro": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Uau! A onda estourou entre as pedras e me molhou todo!"
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Antes de espirrar, a água borbulha. É só esperar estourar e passar."
+		}
+	],
+	"pedra_ponte": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "A pedra caiu na poça e virou um caminho! Agora dá pra passar."
+		}
+	],
+	"chegada_gruta": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Que escuro... só as algas brilham. E esse barulho da onda batendo nas pedras..."
 		}
 	]
 }

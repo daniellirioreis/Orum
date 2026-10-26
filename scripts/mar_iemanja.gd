@@ -18,7 +18,9 @@ extends "res://scripts/encruzilhada.gd"
 const LUGARES_IEMANJA := {
 	"iemanja_praia": {"origem": Vector2(0, 0), "dentro": false},
 	"iemanja_mar": {"origem": Vector2(0, 1000), "dentro": false},
+	"iemanja_gruta": {"origem": Vector2(400, 0), "dentro": false},
 }
+const COR_GRUTA := Color(0.22, 0.22, 0.38)    # a gruta é escura: só brilham as algas, as águas-vivas e a luz de Adé
 const COR_LUA := Color(0.6, 0.64, 0.95)       # noite de lua: tudo azulado; as luzes acendem por cima
 const SECO := ["s", ",", ";", "*", "t"]
 const TEX_ITENS_IEM := preload("res://arte/iemanja_itens.png")
@@ -54,6 +56,9 @@ var _queimou_uma_vez := false
 var _caranguejos: Array = []
 var _aguasvivas: Array = []
 var _jangada_praia: Area2D
+var _remo: Area2D
+var _espirros: Array = []       # {pos, t, estado}: onde a onda espirra entre as pedras da gruta
+var _falou_tartaruga := false
 # o mar
 var _navegando := false
 var _jangada: Sprite2D
@@ -75,8 +80,8 @@ var _proa := PI                 # para onde a proa aponta (0 = para cima; começ
 
 func _ready() -> void:
 	lugares = LUGARES_IEMANJA
-	terrenos = [[["s", "u", "w", "t"], 8], [["u", "w"], 9], [["w"], 10], [["t"], 1]]
-	agua_chars = ["w"]
+	terrenos = [[["s", "u", "w", "t"], 8], [["u", "w"], 9], [["w"], 10], [["t"], 1], [["r"], 1], [["~"], 10]]
+	agua_chars = ["w", "~"]
 	cor_fora = COR_LUA
 	estado = "caminho"
 	Jogo.tocar_musica("musica_iemanja")
@@ -104,6 +109,7 @@ func _ready() -> void:
 	_proximo_raio = 9999.0
 	_preparar_ondas()
 	_criar_vagalumes_das_dunas()
+	_luz_de_ade()
 	# o mar aberto, mais fundo e escuro (a noite pesa mais longe da praia)
 	var fundo := ColorRect.new()
 	fundo.position = lugares["iemanja_mar"]["origem"] + Vector2(0, 3 * TILE)
@@ -156,6 +162,10 @@ func _process(delta: float) -> void:
 		_aguasvivas_queimam()
 		_ondas.queue_redraw()
 		_lua.queue_redraw()
+	elif lugar_atual == "iemanja_gruta":
+		_espirrar(delta)
+		_mover_caranguejos()
+		_aguasvivas_queimam()
 	elif _navegando:
 		_navegar(delta)
 		_mar_desenho.queue_redraw()
@@ -169,6 +179,14 @@ func _animar_tempo(_delta: float) -> void:
 func teleportar(nome: String, posicao: Vector2) -> void:
 	super.teleportar(nome, posicao)
 	_ultimo_seco = posicao
+	if nome == "iemanja_gruta" and not _iem.has("viu_gruta"):
+		_iem["viu_gruta"] = true
+		_falar_depois.call_deferred("chegada_gruta")
+
+
+func _falar_depois(chave: String) -> void:
+	await get_tree().create_timer(0.5).timeout
+	await _falar(chave)
 
 
 # ------------------------------------------------------------------ objetos dos mapas
@@ -178,10 +196,38 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 		"E":
 			marcas["exu"] = base
 		"N":
-			# a rede de pesca secando: o remo ficou enrolado nela
 			var rede := _criar_interativo("res://arte/iemanja_rede.png", 1, base + Vector2(0, 4), Vector2(40, 4), -30.0)
 			(rede.get_node("Alcance").shape as CircleShape2D).radius = 30.0
 			rede.interagiu.connect(_na_rede)
+		"Y":
+			# a tartaruga velha da beira: sabe onde o mar deixou o remo
+			var tt := _criar_interativo("res://arte/iemanja_tartaruga.png", 2, base, Vector2(14, 8), -24.0)
+			tt.animar = true
+			tt.interagiu.connect(_na_tartaruga)
+		# --- a gruta do costão
+		"X":
+			var pa := _criar_cenario("res://arte/iemanja_rocha.png", Vector2(16, 14), base + Vector2(0, 2))
+			pa.flip_h = (celula.x * 3 + celula.y) % 2 == 0
+			pa.modulate = Color(0.72, 0.72, 0.82)
+			_ocupado[_chave(lugar, celula)] = true
+		"O":
+			_remo = _criar_interativo("res://arte/iemanja_remo.png", 1, base, Vector2(2, 2), -22.0)
+			(_remo.get_node("Alcance").shape as CircleShape2D).radius = 22.0
+			_remo.interagiu.connect(_no_remo)
+			_luz(base + Vector2(0, -6), Color(1.0, 0.9, 0.7), 0.6, 0.6, false)
+		"L":
+			_luz(base + Vector2(0, -6), Color(0.4, 1.0, 0.85), 1.0, 0.9, false)    # algas que brilham
+			var alga := Sprite2D.new()
+			alga.texture = preload("res://arte/iemanja_conchas.png")
+			alga.hframes = 4
+			alga.frame = 3
+			alga.modulate = Color(0.5, 1.0, 0.85)
+			alga.material = _material_sem_sombra()
+			alga.position = base - Vector2(0, 6)
+			alga.z_index = -4
+			add_child(alga)
+		"v":
+			_espirros.append({"pos": base - Vector2(0, 6), "t": randf_range(0.0, 2.0), "estado": "calmo"})
 		"J":
 			_jangada_praia = _criar_interativo("res://arte/iemanja_jangada_cima.png", 16, base + Vector2(0, 12), Vector2(30, 12), -36.0)
 			_jangada_praia.sprite.vframes = 2
@@ -270,7 +316,7 @@ func som_do_chao(pos: Vector2) -> Array:
 
 ## O mar mexe: faixas de luz passando.
 func _camada_terreno(_origem: Vector2, i: int, camada: TileMapLayer) -> void:
-	if i == 2:
+	if i == 2 or i == 5:
 		camada.material = _material_mar()
 
 
@@ -618,10 +664,84 @@ func _criar_vagalumes_das_dunas() -> void:
 # ------------------------------------------------------------------ a rede (o remo) e a jangada
 
 func _na_rede() -> void:
+	await _falar("rede_vazia")
+
+
+func _na_tartaruga() -> void:
 	if _iem.has("remo"):
-		await _falar("rede_depois")
+		await _falar("tartaruga_remo")
+	elif _falou_tartaruga:
+		await _falar("tartaruga_depois")
+	else:
+		_falou_tartaruga = true
+		await _falar("tartaruga")
+
+
+func _no_remo() -> void:
+	if _iem.has("remo"):
 		return
-	await _falar("rede_remo")
+	await _falar("remo_achou")
+	_remo.visible = false
+
+
+## Na entrada da gruta, a onda bate nas pedras e espirra: primeiro borbulha (o aviso), depois estoura.
+func _espirrar(delta: float) -> void:
+	for e in _espirros:
+		e["t"] += delta
+		match e["estado"]:
+			"calmo":
+				if e["t"] > 2.2:
+					e["estado"] = "borbulha"; e["t"] = 0.0
+			"borbulha":
+				if fmod(e["t"], 0.2) < delta:
+					var b := CPUParticles2D.new()
+					b.position = e["pos"]
+					b.amount = 4
+					b.lifetime = 0.3
+					b.one_shot = true
+					b.explosiveness = 0.8
+					b.spread = 180.0
+					b.gravity = Vector2.ZERO
+					b.initial_velocity_min = 6.0
+					b.initial_velocity_max = 12.0
+					b.color = Color(0.7, 1.0, 0.95)
+					b.material = _material_sem_sombra()
+					add_child(b)
+					b.emitting = true
+					get_tree().create_timer(0.6).timeout.connect(b.queue_free)
+				if e["t"] > 0.7:
+					e["estado"] = "estoura"; e["t"] = 0.0
+					_respingo(e["pos"])
+					som_perto("agua_cai", e["pos"], -6.0)
+					var l := _luz(e["pos"], Color(0.6, 1.0, 0.95), 1.2, 0.8, false)
+					get_tree().create_timer(0.4).timeout.connect(l.queue_free)
+			"estoura":
+				if _invulneravel <= 0.0 and not _voltando and jogador.pode_mover \
+						and e["pos"].distance_to(jogador.global_position + Vector2(0, -4)) < 16.0:
+					_tomar_dano(e["pos"])
+					if not _iem.has("espirro"):
+						_iem["espirro"] = true
+						_falar("espirro")
+				if e["t"] > 0.5:
+					e["estado"] = "calmo"; e["t"] = randf_range(-0.6, 0.4)
+
+
+## A gruta é escura; a praia e o mar, de lua.
+func _entrar_lugar(nome: String) -> void:
+	cor_fora = COR_GRUTA if nome == "iemanja_gruta" else COR_LUA
+	super._entrar_lugar(nome)
+
+
+## Chegando por uma passagem: o primeiro bloco livre ao lado (na praia, areia; na gruta, o chão de pedra).
+func _chegada(lugar: String, celula: Vector2i) -> Vector2:
+	var mapa: PackedStringArray = _mapas[lugar]
+	for dir in [Vector2i(0, 1), Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1)]:
+		var c: Vector2i = celula + dir
+		var letra := _letra(mapa, c.x, c.y)
+		if not (letra in agua_chars) and letra != "a" and not _ocupado.has(_chave(lugar, c)) and not _e_porta(lugar, c):
+			var origem: Vector2 = lugares[lugar]["origem"]
+			return origem + Vector2(c.x * TILE + TILE / 2.0, (c.y + 1) * TILE - 2)
+	return super._chegada(lugar, celula)
 
 
 func _na_jangada() -> void:
@@ -838,6 +958,7 @@ func _colher_flores() -> void:
 	await _falar("flores")
 	jogador.congelar(true)
 	_flores.frame = 1
+	Jogo.set_meta("iemanja_flores", true)
 	await _falar("continua")
 	voltar_ao_mapa()
 
