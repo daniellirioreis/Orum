@@ -15,7 +15,7 @@ extends "res://scripts/encruzilhada.gd"
 const LUGARES_IEMANJA := {
 	"iemanja_praia": {"origem": Vector2(0, 0), "dentro": false},
 }
-const COR_DIA := Color(1.0, 0.98, 0.94)
+const COR_LUA := Color(0.6, 0.64, 0.95)       # noite de lua: tudo azulado; as luzes acendem por cima
 const SECO := ["s", ",", ";", "*", "t"]
 const TEX_ITENS_IEM := preload("res://arte/iemanja_itens.png")
 const ORDEM_ITENS := ["flores", "alfazema", "perola", "espelho", "abebe"]
@@ -49,9 +49,9 @@ var _caranguejos_trilha: Array = []   # {s, base, lado, estado, t}
 
 func _ready() -> void:
 	lugares = LUGARES_IEMANJA
-	terrenos = [[["s", "u", "w", "t"], 8], [["u", "w"], 9], [["w"], 10], [["t"], 1]]
+	terrenos = [[["s", "u", "w", "t", "z"], 8], [["u", "w", "z"], 9], [["w"], 10], [["t"], 1], [["z"], 10]]
 	agua_chars = ["w"]
-	cor_fora = COR_DIA
+	cor_fora = COR_LUA
 	estado = "caminho"
 	Jogo.tocar_musica("musica_iemanja")
 	_cor_fundo_antiga = RenderingServer.get_default_clear_color()
@@ -76,6 +76,8 @@ func _ready() -> void:
 	$Dialogo.evento.connect(_ao_evento)
 	_proximo_raio = 9999.0
 	_preparar_ondas()
+	_preparar_mare()
+	_criar_vagalumes_das_dunas()
 	_entrar_lugar("iemanja_praia")
 	_inicio()
 
@@ -119,6 +121,8 @@ func _process(delta: float) -> void:
 	_mover_caranguejos()
 	_aguasvivas_queimam()
 	_cair_cocos(delta)
+	_mover_mare(delta)
+	_lua.queue_redraw()
 	_mover_caranguejos_trilha(delta)
 
 
@@ -139,12 +143,34 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 		"E":
 			marcas["exu"] = base
 		"f":
-			_flores = _criar_interativo("res://arte/iemanja_flores.png", 2, base, Vector2(14, 6), -22.0)
-			_flores.interagiu.connect(_colher_flores)
+			# a pedra no raso, com as flores brancas em cima (acesas pela lua)
+			_criar_cenario("res://arte/iemanja_pedra.png", Vector2(26, 10), base + Vector2(0, 2))
+			_flores = _criar_interativo("res://arte/iemanja_flores.png", 2, base + Vector2(0, 4), Vector2(2, 2), -34.0)
+			_flores.sprite.offset.y -= 13.0                # as flores em cima da pedra (desenhadas na frente dela)
+			(_flores.get_node("Alcance").shape as CircleShape2D).radius = 26.0
+			_luz(base + Vector2(0, -12), Color(0.95, 0.95, 1.0), 1.3, 1.6, false)
+		"J":
+			_criar_cenario("res://arte/iemanja_jangada.png", Vector2(40, 10), base + Vector2(0, 4))
+		"N":
+			_criar_cenario("res://arte/iemanja_rede.png", Vector2(40, 4), base + Vector2(0, 4))
+		"b":
+			_criar_cenario("res://arte/iemanja_cesto.png", Vector2(10, 5), base)
+		"g":
+			var sal := Sprite2D.new()
+			sal.texture = preload("res://arte/iemanja_salsa.png")
+			sal.hframes = 2
+			sal.frame = celula.x % 2
+			sal.position = base - Vector2(0, 7)
+			sal.z_index = -3
+			add_child(sal)
+		"c":
+			super._criar_objeto(lugar, c, celula, base, chao)
+			_luz(base + Vector2(0, -8), Color(0.75, 0.85, 1.0), 0.7, 0.45, false)   # o búzio brilha na areia
 		"r":
 			_criar_cenario("res://arte/iemanja_rocha.png", Vector2(26, 10), base + Vector2(0, 2))
 		"C":
-			_criar_cenario("res://arte/iemanja_coqueiro.png", Vector2(6, 5), base)
+			var qual := "res://arte/iemanja_coqueiro_g.png" if celula.x % 2 else "res://arte/iemanja_coqueiro_g2.png"
+			_criar_cenario(qual, Vector2(8, 5), base + Vector2(0, 2))
 		"k":
 			var s := Sprite2D.new()
 			s.texture = preload("res://arte/iemanja_caranguejo.png")
@@ -160,8 +186,10 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			a.hframes = 2
 			a.offset = Vector2(0, -4)
 			a.position = base - Vector2(0, 2)
+			a.material = _material_sem_sombra()      # a água-viva brilha no escuro
 			mundo.add_child(a)
 			_aguasvivas.append(a)
+			_luz(a.position + Vector2(0, -4), Color(0.6, 0.5, 1.0), 0.8, 0.5, false)
 		"q":
 			_criar_ponto_do_coco(base)
 		"K":
@@ -202,8 +230,11 @@ func som_do_chao(pos: Vector2) -> Array:
 
 ## O mar mexe: faixas de luz passando (como a água de Nanã, mas clara).
 func _camada_terreno(_origem: Vector2, i: int, camada: TileMapLayer) -> void:
-	if i == 2:
+	if i == 2 or i == 4:
 		camada.material = _material_mar()
+	if i == 4:
+		camada.modulate.a = 0.0                    # a água por cima da coroa de areia (a maré)
+		_camada_mare = camada
 
 
 const SHADER_MAR := """
@@ -282,7 +313,7 @@ func _preparar_ondas() -> void:
 	for x in largura:
 		var y0 := mapa.size()
 		for y in mapa.size():
-			if x < mapa[y].length() and mapa[y][x] == "w":
+			if x < mapa[y].length() and mapa[y][x] in ["w", "z"]:
 				y0 = y
 				break
 		_costa.append(y0)
@@ -290,7 +321,14 @@ func _preparar_ondas() -> void:
 	_ondas.position = lugares["iemanja_praia"]["origem"]
 	_ondas.z_index = -4                     # por cima da areia, por baixo de Adé e das coisas
 	_ondas.draw.connect(_desenhar_ondas)
+	_ondas.material = _material_sem_sombra()      # a espuma brilha de noite (as cores já são de noite)
 	add_child(_ondas)
+	_lua = Node2D.new()                            # o caminho da lua no mar
+	_lua.position = _ondas.position
+	_lua.z_index = -4
+	_lua.material = _material_sem_sombra()
+	_lua.draw.connect(_desenhar_lua)
+	add_child(_lua)
 	_onda_dur = 1.2
 
 
@@ -343,7 +381,7 @@ func _mover_ondas(delta: float) -> void:
 	_ondas.queue_redraw()
 	# a onda pega Adé enquanto sobe ou está cheia (descendo, ela só molha o pé)
 	if lugar_atual == "iemanja_praia" and _onda_fase in ["sobe", "cheia"] and jogador.pode_mover and not _voltando:
-		if _molhado(jogador.global_position + Vector2(0, -3)):
+		if _molhado(jogador.global_position + Vector2(0, -3)) and _letra_em(jogador.global_position + Vector2(0, -3)) != "z":
 			_onda_leva_ade()
 
 
@@ -360,11 +398,11 @@ func _molhado(pos: Vector2) -> bool:
 ## frente, bolhinhas logo atrás; quando ela recua, fica a renda de espuma desmanchando e a areia molhada mais
 ## escura onde ela chegou. Desenhada coluna por coluna, só as que aparecem na tela.
 func _desenhar_ondas() -> void:
-	var funda := Color(0.17, 0.55, 0.74, 0.82)
-	var rasa := Color(0.5, 0.84, 0.9, 0.62)
-	var espuma := Color(0.97, 1.0, 1.0, 0.95)
-	var bolha := Color(0.92, 0.98, 1.0, 0.7)
-	var molhada := Color(0.3, 0.22, 0.12, 0.0)
+	var funda := Color(0.06, 0.2, 0.42, 0.78)
+	var rasa := Color(0.16, 0.42, 0.56, 0.62)
+	var espuma := Color(0.72, 1.0, 0.94, 0.95)        # a espuma brilhando, verde-água
+	var bolha := Color(0.6, 0.95, 0.9, 0.8)
+	var molhada := Color(0.05, 0.04, 0.12, 0.0)
 	var largura := _costa.size() * TILE
 	var renda := 0.0                      # a espuma que fica para trás quando a onda volta
 	var areia := 0.0                      # a areia escura onde a onda chegou
@@ -378,8 +416,8 @@ func _desenhar_ondas() -> void:
 			renda = 0.4 * (1.0 - u2)
 			areia = 1.0 - u2
 	var quadro := int(_tempo * 8.0)
-	var mar := Color(0.17, 0.53, 0.7)
-	var mar_claro := Color(0.33, 0.69, 0.78)
+	var mar := Color(0.07, 0.2, 0.4)
+	var mar_claro := Color(0.16, 0.4, 0.55)
 	var meio := jogador.global_position.x - _ondas.global_position.x
 	for x in range(maxi(0, int(meio) - 150), mini(largura, int(meio) + 150)):
 		var costa := _costa_px(x)
@@ -390,7 +428,7 @@ func _desenhar_ondas() -> void:
 		var respira := 1.0 + sin(_tempo * 1.8 + x * 0.04)
 		_ondas.draw_rect(Rect2(x, floorf(costa - respira) - 1, 1, 2), mar_claro)
 		if (x + quadro / 2) % 3 != 0:
-			_ondas.draw_rect(Rect2(x, floorf(costa - respira) - 2, 1, 1), Color(1, 1, 1, 0.85))
+			_ondas.draw_rect(Rect2(x, floorf(costa - respira) - 2, 1, 1), Color(0.7, 1.0, 0.92, 0.85))
 		var agua := _alcance_px(x)
 		var beira := floorf(costa - agua)
 		var maxima := floorf(costa - _alcance_px(x, _alcance_max))
@@ -408,7 +446,7 @@ func _desenhar_ondas() -> void:
 				# a espuma que avisa até onde a próxima onda vai subir
 				var vai := floorf(costa - _alcance_px(x, _alcance_max))
 				var pisca := 0.25 + 0.4 * absf(sin(_onda_t * 7.0))
-				_ondas.draw_rect(Rect2(x, vai, 1, 1), Color(1, 1, 1, pisca))
+				_ondas.draw_rect(Rect2(x, vai, 1, 1), Color(0.7, 1.0, 0.92, pisca))
 			continue
 		var forca := 1.0 if _onda_fase in ["sobe", "cheia"] else 0.75
 		var f := funda
@@ -421,7 +459,7 @@ func _desenhar_ondas() -> void:
 		# riscos de luz na água que sobe (deitados, como a onda)
 		if (x * 7 + quadro) % 13 == 0 and costa - beira > 10:
 			var ly := beira + 6.0 + float((x * 13 + quadro * 5) % int(maxf(1.0, costa - beira - 9)))
-			_ondas.draw_rect(Rect2(x, ly, 4, 1), Color(0.6, 0.88, 0.94, 0.8 * forca))
+			_ondas.draw_rect(Rect2(x, ly, 4, 1), Color(0.5, 0.75, 0.95, 0.8 * forca))
 		# a crista: espuma de 2 px, às vezes 3, com a frente rendada
 		var crista := 2.0 + float((x + quadro) % 5 == 0) + float(_onda_fase == "cheia")
 		var e := espuma
@@ -438,8 +476,10 @@ func _desenhar_ondas() -> void:
 func _chao_de_ade() -> void:
 	if not jogador.pode_mover or _voltando or lugar_atual != "iemanja_praia":
 		return
-	if _letra_em(jogador.global_position + Vector2(0, -3)) in SECO:
+	var l := _letra_em(jogador.global_position + Vector2(0, -3))
+	if l in SECO:
 		_ultimo_seco = jogador.global_position
+	jogador.fator_chao = 0.8 if l == "z" else 1.0      # na coroa de areia molhada, o pé afunda um pouco
 
 
 func _onda_leva_ade() -> void:
@@ -492,6 +532,125 @@ func _aguasvivas_queimam() -> void:
 			if not _queimou_uma_vez:
 				_queimou_uma_vez = true
 				_falar("aguaviva")
+
+
+# ------------------------------------------------------------------ a lua, a maré e os vaga-lumes
+
+var _lua: Node2D
+var _camada_mare: TileMapLayer
+var _celulas_mare: Array = []
+var _mare := "baixa"
+var _mare_tempo := 0.0
+const MARE := {"baixa": 7.0, "subindo": 1.6, "alta": 6.0, "descendo": 1.6}
+
+
+## O caminho da lua no mar: brilhos prateados que tremem numa faixa larga, sempre um pouco à frente de Adé
+## (a lua fica longe, no céu: o reflexo anda junto com quem olha). E estrelinhas refletidas espalhadas.
+func _desenhar_lua() -> void:
+	var meio := jogador.global_position.x - _lua.global_position.x
+	var centro := meio + 40.0
+	var q := int(_tempo * 6.0)
+	for x in range(maxi(0, int(meio) - 140), mini(_costa.size() * TILE, int(meio) + 140)):
+		var costa := _costa_px(x) + 6.0
+		var fundo: float = tamanhos["iemanja_praia"].y
+		var y := costa
+		while y < fundo:
+			var d := absf(x - centro) / (16.0 + (y - costa) * 0.6)
+			if d < 1.0 and int(x * 0.7 + y * 1.3 + sin(y * 0.5 + _tempo * 2.0) * 3.0 + q) % 4 == 0:
+				_lua.draw_rect(Rect2(x, y, 2 if d < 0.5 else 1, 1), Color(0.86, 0.9, 1.0, 0.9 - d * 0.5))
+			elif (x * 13 + int(y) * 7 + q / 3) % 211 == 0:
+				_lua.draw_rect(Rect2(x, y, 1, 1), Color(0.7, 0.8, 1.0, 0.7))
+			y += 2.0
+
+
+func _criar_vagalumes_das_dunas() -> void:
+	var tam: Vector2 = tamanhos["iemanja_praia"]
+	var v := CPUParticles2D.new()
+	v.material = _material_sem_sombra()
+	v.z_index = 15
+	v.position = lugares["iemanja_praia"]["origem"] + Vector2(tam.x / 2.0, 3.0 * TILE)
+	v.amount = 40
+	v.lifetime = 5.0
+	v.preprocess = 5.0
+	v.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	v.emission_rect_extents = Vector2(tam.x / 2.0 - 24, 2.0 * TILE)
+	v.gravity = Vector2.ZERO
+	v.direction = Vector2(0, -1)
+	v.spread = 180.0
+	v.initial_velocity_min = 2.0
+	v.initial_velocity_max = 6.0
+	var cores := Gradient.new()
+	cores.set_color(0, Color(0.85, 1.0, 0.45, 0.0))
+	cores.add_point(0.2, Color(0.85, 1.0, 0.45, 1.0))
+	cores.add_point(0.45, Color(0.85, 1.0, 0.45, 0.15))
+	cores.add_point(0.7, Color(0.85, 1.0, 0.45, 1.0))
+	cores.set_color(cores.get_point_count() - 1, Color(0.85, 1.0, 0.45, 0.0))
+	v.color_ramp = cores
+	add_child(v)
+
+
+func _preparar_mare() -> void:
+	var mapa: PackedStringArray = _mapas["iemanja_praia"]
+	for y in mapa.size():
+		for x in mapa[y].length():
+			if mapa[y][x] == "z":
+				_celulas_mare.append(Vector2i(x, y))
+
+
+## A maré: baixa (a coroa de areia aparece e dá para ir até a pedra) → subindo → alta (a água cobre a coroa e
+## leva quem estiver nela) → descendo.
+func _mover_mare(delta: float) -> void:
+	if not _camada_mare:
+		return
+	if jogador.pode_mover and not _voltando:
+		_mare_tempo += delta
+	var dur: float = MARE[_mare]
+	var u := clampf(_mare_tempo / dur, 0.0, 1.0)
+	match _mare:
+		"baixa":
+			_camada_mare.modulate.a = 0.0
+		"subindo":
+			_camada_mare.modulate.a = u * 0.95
+		"alta":
+			_camada_mare.modulate.a = 0.95
+		"descendo":
+			_camada_mare.modulate.a = (1.0 - u) * 0.95
+	if _mare_tempo >= dur:
+		_mare_tempo = 0.0
+		var proxima := {"baixa": "subindo", "subindo": "alta", "alta": "descendo", "descendo": "baixa"}
+		_mare = proxima[_mare]
+		match _mare:
+			"subindo":
+				som_perto("agua_cai", lugares["iemanja_praia"]["origem"] + Vector2(_celulas_mare[0]) * TILE, -10.0)
+			"alta":
+				_bloquear_mare(true)
+			"descendo":
+				_bloquear_mare(false)
+	if _mare in ["subindo", "alta"] and u > 0.6 and jogador.pode_mover and not _voltando:
+		if _letra_em(jogador.global_position + Vector2(0, -3)) == "z":
+			_bloquear_mare(true)
+			_mare_leva_ade()
+
+
+func _bloquear_mare(alta: bool) -> void:
+	var chao: TileMapLayer = _chaos["iemanja_praia"]
+	for cel in _celulas_mare:
+		if alta:
+			chao.set_cell(cel, 0, Vector2i(INVISIVEL, 0))
+		else:
+			chao.erase_cell(cel)
+
+
+func _mare_leva_ade() -> void:
+	var ja := _onda_levou_uma_vez
+	if not _iem.has("mare_levou"):
+		_iem["mare_levou"] = true
+		_onda_levou_uma_vez = true                 # (a fala é a da maré, não a da onda)
+		await _onda_leva_ade()
+		_onda_levou_uma_vez = ja
+		await _falar("mare_levou")
+	else:
+		await _onda_leva_ade()
 
 
 # ------------------------------------------------------------------ o caminho pelas moitas
