@@ -168,11 +168,11 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   Aiocá, o palácio dela no fundo do mar: flores brancas, perfume de alfazema, uma pérola e um espelho.
 - Tudo de noite, ao luar: azulado, com o caminho da lua brilhando no mar, a espuma das ondas brilhando verde-água,
   búzios acesos na areia molhada, águas-vivas que brilham e vaga-lumes nas dunas.
-- **A faixa de areia** (em pé, como a mata de Oxóssi; o mar à direita): coqueiros grandes, salsa-da-praia, cestos e a
-  rede de pesca secando. As ondas sobem pela areia molhada e voltam num ritmo (a espuma pisca antes, mostrando até onde
-  a próxima vai); a onda que pega Adé devolve ele à última areia seca e leva um búzio de axé. Caranguejos beliscam e
-  águas-vivas queimam. Adé procura uma **jangada** para entrar no mar: ela está lá embaixo, na beira d'água, mas o
-  **remo** ficou enrolado na rede de pesca.
+- **A praia, de cima para baixo**: Adé desce das dunas e do coqueiral (coqueiros grandes, moitas da restinga,
+  salsa-da-praia, cestos e a rede de pesca secando) até a beira; o mar fica embaixo e as ondas vêm de baixo, sobem
+  pela areia molhada e voltam num ritmo (a espuma pisca antes, mostrando até onde a próxima vai). A onda que pega Adé
+  devolve ele à última areia seca e leva um búzio de axé. Caranguejos beliscam e águas-vivas queimam. Adé procura uma
+  **jangada** para entrar no mar: ela está na beira d'água, mas o **remo** ficou enrolado na rede de pesca.
 - **O mar ao luar** (navegando, também de cima para baixo: a praia fica em cima): Adé rema a jangada com as setas (ela
   tem embalo; vista de cima, a ponta vira devagar para onde ela anda, em 16 direções, e ela balança nas ondinhas —
   `arte/iemanja_jangada_cima.png`, feita pelo `gerar_jangada.py`), descendo mar adentro até a **pedra das flores brancas**. Os rolos de onda vêm subindo do mar aberto: remando de frente e com força, a jangada fura a onda; parada ou de lado, a onda
