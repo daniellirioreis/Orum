@@ -555,8 +555,11 @@ func _desenhar_ondas() -> void:
 	var quadro := int(_tempo * 8.0)
 	var mar := Color(0.07, 0.2, 0.4)
 	var mar_claro := Color(0.16, 0.4, 0.55)
-	var meio := jogador.global_position.x - _ondas.global_position.x
-	for x in range(maxi(0, int(meio) - 150), mini(largura, int(meio) + 150)):
+	# só as colunas que aparecem na tela (a câmera, e não Adé: perto da borda ela para e Adé anda sozinho)
+	var camera: Camera2D = jogador.get_node("Camera")
+	var meio := camera.get_screen_center_position().x - _ondas.global_position.x
+	var metade := Jogo.TELA.x / 2.0 + 8.0
+	for x in range(maxi(0, int(meio - metade)), mini(largura, int(meio + metade))):
 		var costa := _costa_px(x)
 		# a beira do mar, lisa (por cima dos degraus dos blocos), com a espuminha que vai e vem na areia
 		_ondas.draw_rect(Rect2(x, floorf(costa), 1, 18), mar)
