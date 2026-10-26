@@ -120,6 +120,8 @@ const INGREDIENTES := ["coco", "leite", "acucar"]
 var _coqueiros: Array = []
 var _prateleiras: Array = []
 var _brilho_alfazema: PointLight2D
+var _panela: CanvasLayer          # o mini-jogo de mexer o manjar
+var _manjar_na_mao: Sprite2D      # o manjar pronto, nas mãos de Adé até chegar na Vó
 var lugar_atual := ""
 ## (variáveis para que outras cenas — como a encruzilhada — reaproveitem este script)
 var lugares: Dictionary = LUGARES
@@ -200,6 +202,8 @@ func _ready() -> void:
 
 	_toque = preload("res://scripts/toque.gd").new()
 	add_child(_toque)
+	_panela = preload("res://scripts/panela.gd").new()
+	add_child(_panela)
 	_criar_interface()
 	$Dialogo.evento.connect(_ao_evento)
 	_entrar_lugar(LUGAR_INICIAL)
@@ -2690,7 +2694,16 @@ func _vo_e_a_alfazema() -> void:
 		"vo_pediu", "tia_pediu":
 			await _falar("vo_alfazema_esperando")
 		"pronto":
+			jogador.congelar(true)
+			jogador.olhar_para(vo.global_position)
+			await _entregar_manjar()
 			await _falar("vo_manjar")
+			if _manjar_na_mao:
+				# a Vó guarda o manjar para a gira de Iemanjá
+				var t := create_tween()
+				t.tween_property(_manjar_na_mao, "modulate:a", 0.0, 0.6)
+				t.tween_callback(_manjar_na_mao.queue_free)
+				_manjar_na_mao = null
 		_:
 			await _falar("vo_alfazema_buscar")
 
@@ -2717,17 +2730,97 @@ func _tia_e_o_manjar() -> void:
 			await _falar("tia_manjar_depois")
 
 
-## A Tia Dora mexe o manjar no fogão: a tela escurece um pouco e volta com o manjar pronto.
+## Adé mexe o manjar no fogão (o mini-jogo da panela); quando fica no ponto, o manjar aparece pronto.
 func _cozinhar_manjar() -> void:
 	jogador.congelar(true)
-	var t := create_tween()
-	t.tween_property(_cortina, "color:a", 1.0, 0.6)
-	await t.finished
-	_mostrar_aviso("Adé e a Tia Dora mexem o manjar no fogão...")
-	await get_tree().create_timer(2.0).timeout
-	var t2 := create_tween()
-	t2.tween_property(_cortina, "color:a", 0.0, 0.6)
+	_tia.ativo = false
+	jogador.olhar_para(_tia.global_position)
+	await _panela.jogar()
+	await _mostrar_manjar()
+	_tia.ativo = true
+
+
+## O manjar pronto aparece grande no meio da tela, brilhando; depois fica nas mãos de Adé.
+func _mostrar_manjar() -> void:
+	var camada := CanvasLayer.new()
+	camada.layer = 9
+	add_child(camada)
+	var fundo := ColorRect.new()
+	fundo.color = Color(0, 0, 0, 0.0)
+	fundo.size = Vector2(Jogo.TELA)
+	camada.add_child(fundo)
+	var meio := Vector2(Jogo.TELA) / 2.0 + Vector2(0, -12)
+	var raios := Sprite2D.new()            # o brilho girando atrás
+	raios.texture = preload("res://arte/brilho.png")
+	raios.position = meio
+	raios.scale = Vector2.ZERO
+	raios.modulate = Color(1.0, 0.95, 0.8, 0.85)
+	camada.add_child(raios)
+	var prato := Sprite2D.new()
+	prato.texture = preload("res://arte/manjar_grande.png")
+	prato.position = meio
+	prato.scale = Vector2.ZERO
+	camada.add_child(prato)
+	var titulo := _rotulo_manjar("Manjar branco!", 12, Color(1.0, 0.86, 0.45), meio.y + 46)
+	var sub := _rotulo_manjar("Branquinho como a espuma do mar.", 8, Color(0.85, 0.9, 1.0), meio.y + 62)
+	camada.add_child(titulo)
+	camada.add_child(sub)
+	titulo.modulate.a = 0.0
+	sub.modulate.a = 0.0
+	Jogo.tocar_som("pegar_item", -2.0)
+	var t := create_tween().set_parallel()
+	t.tween_property(fundo, "color:a", 0.55, 0.3)
+	t.tween_property(prato, "scale", Vector2(2, 2), 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	t.tween_property(raios, "scale", Vector2(5, 5), 0.5)
+	t.tween_property(titulo, "modulate:a", 1.0, 0.3).set_delay(0.3)
+	t.tween_property(sub, "modulate:a", 1.0, 0.3).set_delay(0.5)
+	var gira := create_tween().set_loops()
+	gira.tween_property(raios, "rotation", TAU, 4.0).from(0.0)
+	await get_tree().create_timer(2.6).timeout
+	var t2 := create_tween().set_parallel()
+	t2.tween_property(fundo, "color:a", 0.0, 0.3)
+	t2.tween_property(prato, "scale", Vector2.ZERO, 0.3)
+	t2.tween_property(raios, "modulate:a", 0.0, 0.3)
+	t2.tween_property(titulo, "modulate:a", 0.0, 0.2)
+	t2.tween_property(sub, "modulate:a", 0.0, 0.2)
 	await t2.finished
+	gira.kill()
+	camada.queue_free()
+	# Adé segura o prato com o manjar
+	_manjar_na_mao = Sprite2D.new()
+	_manjar_na_mao.texture = preload("res://arte/manjar.png")
+	_manjar_na_mao.position = Vector2(0, -9)
+	_manjar_na_mao.z_index = 1
+	jogador.add_child(_manjar_na_mao)
+	_mostrar_aviso("Você pegou: Manjar branco")
+
+
+func _rotulo_manjar(texto: String, tamanho: int, cor: Color, y: float) -> Label:
+	var l := Label.new()
+	l.text = texto
+	l.position = Vector2(0, y)
+	l.size = Vector2(Jogo.TELA.x, 14)
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.add_theme_font_size_override("font_size", tamanho)
+	l.add_theme_color_override("font_color", cor)
+	l.add_theme_color_override("font_outline_color", Color(0.05, 0.03, 0.08))
+	l.add_theme_constant_override("outline_size", 3)
+	return l
+
+
+## Adé entrega o manjar: o prato sai das mãos dele e fica entre os dois, na frente da Vó.
+func _entregar_manjar() -> void:
+	if _manjar_na_mao == null:
+		return
+	var pos := _manjar_na_mao.global_position
+	jogador.remove_child(_manjar_na_mao)
+	mundo.add_child(_manjar_na_mao)
+	_manjar_na_mao.global_position = pos
+	_manjar_na_mao.z_index = 0
+	var alvo := vo.global_position.lerp(jogador.global_position, 0.4) + Vector2(0, -8)
+	var t := create_tween()
+	t.tween_property(_manjar_na_mao, "global_position", alvo, 0.4)
+	await t.finished
 
 
 func _sacudir_coqueiro(coq: Area2D) -> void:

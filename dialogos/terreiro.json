@@ -283,7 +283,8 @@
 	"tia_manjar_cozinhar": [
 		{"quem": "Tia Dora", "yo": "", "pt": "Coco, leite e açúcar! Muito bem, menino.", "rosto": "feliz"},
 		{"quem": "Tia Dora", "yo": "", "pt": "Agora presta atenção, que um dia você vai fazer sozinho: rala o coco, mistura com o leite e o açúcar, e leva pro fogo baixinho."},
-		{"quem": "Tia Dora", "yo": "", "pt": "E mexe sem parar, senão empelota! Manjar de Iemanjá se faz com paciência, igual o mar que vai e volta."}
+		{"quem": "Tia Dora", "yo": "", "pt": "E mexe sem parar, senão empelota! Manjar de Iemanjá se faz com paciência, igual o mar que vai e volta."},
+		{"quem": "Tia Dora", "yo": "", "pt": "Toma a colher de pau, menino: agora é com você! Nem rápido, nem devagar... no ritmo do mar.", "rosto": "feliz"}
 	],
 	"tia_manjar_pronto": [
 		{"quem": "Tia Dora", "yo": "", "pt": "Pronto! Olha que manjar bonito, branquinho e cheiroso.", "rosto": "feliz"},
