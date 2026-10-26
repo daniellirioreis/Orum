@@ -42,8 +42,8 @@ const ITENS := {
 	"mel": {"nome": "Mel", "tipo": "oferenda", "fase": "oxossi", "icone": ["res://arte/ox_itens.png", 2],
 		"desc": "Um favo de mel da colmeia. Docinho."},
 	# a terra de Nanã
-	"faca": {"curta": "Uma faca de ferro velha. Será que corta a taboa?", "nome": "Faca de ferro", "tipo": "ferramenta", "fase": "nana", "icone": ["res://arte/bornal_itens.png", 4],
-		"desc": "Uma faca de ferro velha, achada num toco."},
+	"faca": {"curta": "Um ọ̀bẹ de ferro velho. Será que corta a taboa?", "nome": "Ọ̀bẹ de ferro", "tipo": "ferramenta", "fase": "nana", "icone": ["res://arte/bornal_itens.png", 4],
+		"desc": "Um ọ̀bẹ (faca, em iorubá) de ferro velho, achado num toco."},
 	"lamina": {"curta": "Bambu afiado: na terra de Nanã, corta melhor que o ferro.", "nome": "Lâmina de bambu", "tipo": "ferramenta", "fase": "nana", "icone": ["res://arte/nana_itens.png", 1],
 		"desc": "Uma lasca afiada de bambu rachado. Na terra de Nanã, corta melhor que o ferro."},
 	"pote_rachado": {"nome": "Pote rachado", "tipo": "oferenda", "fase": "nana", "icone": ["res://arte/nana_itens.png", 0],

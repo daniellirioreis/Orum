@@ -41,17 +41,17 @@
 		{"quem": "Adé", "yo": "", "pt": "A taboa é dura e bem fechada. Com a mão não dá. Preciso de alguma coisa afiada."}
 	],
 	"faca_achou": [
-		{"quem": "Adé", "yo": "", "pt": "Uma faca velha, enfiada no toco... É de ferro, toda enferrujada."},
-		{"quem": "Adé", "yo": "", "pt": "Com ela eu corto a taboa!", "evento": "pegar_faca"}
+		{"quem": "Adé", "yo": "", "pt": "Um ọ̀bẹ velho, enfiado no toco... É de ferro, todo enferrujado."},
+		{"quem": "Adé", "yo": "", "pt": "Com ele eu corto a taboa!", "evento": "pegar_faca"}
 	],
 	"faca_falha": [
-		{"quem": "", "yo": "", "pt": "Adé ergue a faca de ferro... e a lama em volta começa a tremer.", "evento": "tremer"},
-		{"quem": "", "yo": "", "pt": "A faca escorrega da mão dele, cai na lama e afunda, sem deixar marca.", "evento": "faca_afunda"},
+		{"quem": "", "yo": "", "pt": "Adé ergue o ọ̀bẹ de ferro... e a lama em volta começa a tremer.", "evento": "tremer"},
+		{"quem": "", "yo": "", "pt": "O ọ̀bẹ escorrega da mão dele, cai na lama e afunda, sem deixar marca.", "evento": "faca_afunda"},
 		{"quem": "Adé", "yo": "", "pt": "A velhinha avisou... Na terra de Nanã, ferro não serve para nada."},
 		{"quem": "Adé", "yo": "", "pt": "Preciso cortar a taboa com alguma coisa que não seja de ferro."}
 	],
 	"toco_vazio": [
-		{"quem": "Adé", "yo": "", "pt": "Só o toco velho. A faca de ferro ficou com a lama."}
+		{"quem": "Adé", "yo": "", "pt": "Só o toco velho. O ọ̀bẹ de ferro ficou com a lama."}
 	],
 	"lamina": [
 		{"quem": "Adé", "yo": "", "pt": "Um bambu rachado... A lasca de dentro é fina e tem o fio afiado."},
