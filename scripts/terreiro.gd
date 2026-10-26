@@ -2769,7 +2769,7 @@ func _mostrar_manjar() -> void:
 	_manjar_na_mao.z_index = 1
 	jogador.add_child(_manjar_na_mao)
 	Jogo.bornal.pegar("manjar")
-	_mostrar_aviso("Você guardou no bornal: Manjar branco")
+	_mostrar_aviso("Você guardou no Àpò: Manjar branco")
 
 
 ## Uma coisa importante aparece grande no meio da tela, brilhando, com o nome embaixo
@@ -3030,18 +3030,18 @@ func _na_tela(pos: Vector2) -> Vector2:
 func _pegar_item(id: String, de_onde: Vector2 = Vector2(-1, -1)) -> void:
 	Jogo.bornal.pegar(id, _na_tela(de_onde) if de_onde.x > -1 else _na_tela(jogador.global_position + Vector2(0, -16)))
 	Jogo.tocar_som("pegar_item", -4.0)
-	_mostrar_aviso("Você guardou no bornal: " + Jogo.bornal.ITENS[id]["nome"])
+	_mostrar_aviso("Você guardou no Àpò: " + Jogo.bornal.ITENS[id]["nome"])
 	if Jogo.bornal.ITENS[id]["tipo"] == "ferramenta":
 		# uma ferramenta nova aparece grande, depois da conversa em que Adé acha
 		await _mostrar_grande(Jogo.bornal.icone(id), 4.0, Jogo.bornal.ITENS[id]["nome"] + "!",
-			Jogo.texto(Jogo.bornal.ITENS[id].get("curta", "Guardado no bornal.")))
+			Jogo.texto(Jogo.bornal.ITENS[id].get("curta", "Guardado no Àpò.")))
 	if not Jogo.has_meta("bornal_dica"):
 		Jogo.set_meta("bornal_dica", true)
 		await get_tree().create_timer(0.6).timeout
 		while $Dialogo.ativo:
 			await $Dialogo.terminou
 		await _falar_linhas([
-			{"quem": "", "yo": "", "pt": Jogo.texto("Adé guardou no bornal. Para ver o que tem no bornal, aperte {bornal}.")},
+			{"quem": "", "yo": "", "pt": Jogo.texto("Adé guardou no Àpò, a sua sacola (àpò, em iorubá, quer dizer bolsa). Para ver o que tem nele, aperte {bornal}.")},
 			{"quem": "", "yo": "", "pt": "Perto de alguém, escolha um item e DÊ para a pessoa. No lugar certo, USE ou ARRIE a oferenda."},
 		])
 
@@ -3078,7 +3078,7 @@ func _recusa(id: String, alvo: Dictionary) -> void:
 
 ## Dica quando Adé fala com alguém (ou mexe em algo) e a resposta está no bornal.
 func _dica_bornal(acao: String) -> void:
-	_mostrar_aviso(Jogo.texto("Abra o bornal ({bornal}) e escolha " + acao + "."))
+	_mostrar_aviso(Jogo.texto("Abra o Àpò ({bornal}) e escolha " + acao + "."))
 
 
 # ------------------------------------------------------------------ o bornal no terreiro

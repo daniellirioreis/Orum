@@ -327,7 +327,7 @@
 		{"quem": "Tia Dora", "yo": "", "pt": "Trouxe a lenha, meu bem? Me dá aqui, que o fogo está quase apagando!"}
 	],
 	"tia_manjar_dar": [
-		{"quem": "Tia Dora", "yo": "", "pt": "Trouxe alguma coisa aí no bornal? Me dá que eu já vou separando!", "rosto": "feliz"}
+		{"quem": "Tia Dora", "yo": "", "pt": "Trouxe alguma coisa aí no Àpò? Me dá que eu já vou separando!", "rosto": "feliz"}
 	],
 	"tia_recebe_coco": [
 		{"quem": "Tia Dora", "yo": "", "pt": "Um coco bem maduro! Esse vai dar um manjar cheiroso.", "rosto": "feliz"}
@@ -339,7 +339,7 @@
 		{"quem": "Tia Dora", "yo": "", "pt": "O açúcar! Nem muito, nem pouco... só pra adoçar a boca de Iemanjá.", "rosto": "feliz"}
 	],
 	"vo_manjar_ver": [
-		{"quem": "Vó", "yo": "", "pt": "Que cheirinho bom é esse, meu neto? O que você tem aí no bornal?", "rosto": "feliz"}
+		{"quem": "Vó", "yo": "", "pt": "Que cheirinho bom é esse, meu neto? O que você tem aí no Àpò?", "rosto": "feliz"}
 	],
 	"recusa_tia": [
 		{"quem": "Tia Dora", "yo": "", "pt": "{item}? Pra que eu quero isso na cozinha, menino?"}

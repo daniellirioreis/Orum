@@ -247,7 +247,7 @@ func _acao(nome: String, teclas: Array, botoes: Array, eixo := -1, direcao := 0.
 ## As ações que o jogador pode trocar, com o nome que aparece no menu.
 const CONTROLAVEIS := [
 	["interagir", "Falar / confirmar"], ["atirar", "Atirar"], ["devagar", "Andar devagar"],
-	["ver_mapa", "Ver a ilha"], ["bornal", "Abrir o bornal"], ["sair", "Pausa"],
+	["ver_mapa", "Ver a ilha"], ["bornal", "Abrir o Àpò"], ["sair", "Pausa"],
 	["cima", "Cima"], ["baixo", "Baixo"], ["esquerda", "Esquerda"], ["direita", "Direita"],
 ]
 const NOMES_JOY := {

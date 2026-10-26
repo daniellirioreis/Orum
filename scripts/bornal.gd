@@ -122,7 +122,7 @@ func icone(id: String) -> AtlasTexture:
 ## Põe um item no bornal (se veio de um lugar da tela, o ícone voa de lá até o bornal).
 func pegar(id: String, de_onde := Vector2(-1, -1)) -> void:
 	if not ITENS.has(id):
-		push_warning("Bornal: item desconhecido " + id)
+		push_warning("Àpò: item desconhecido " + id)
 		return
 	if not tem(id):
 		itens.append(id)
@@ -342,7 +342,7 @@ func _montar_tela() -> void:
 	bolsa.texture = a
 	bolsa.position = Vector2(84, 20)
 	_raiz.add_child(bolsa)
-	var titulo := _rotulo("Bornal de Adé", 9, COR_TITULO)
+	var titulo := _rotulo("Àpò de Adé", 9, COR_TITULO)
 	titulo.position = Vector2(100, 19)
 	_raiz.add_child(titulo)
 
@@ -421,7 +421,7 @@ func _mostrar_cursor() -> void:
 	var ids: Array = _slots[_linha][1]
 	if ids.is_empty():
 		_cursor.visible = false
-		_nome.text = "O bornal está vazio." if itens.is_empty() else ""
+		_nome.text = "O Àpò está vazio." if itens.is_empty() else ""
 		_desc.text = ""
 		return
 	_coluna = clampi(_coluna, 0, ids.size() - 1)

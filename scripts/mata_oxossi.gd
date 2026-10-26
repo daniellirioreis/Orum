@@ -479,7 +479,7 @@ func _pegar_ofa(toco: Area2D) -> void:
 func _atirar() -> void:
 	if _ox.has("tem_ofa") and Jogo.bornal.equipado != "ofa":
 		if Jogo.bornal.tem("ofa"):
-			_mostrar_aviso(Jogo.texto("O ofá está no bornal: abra ({bornal}) e ponha na mão."))
+			_mostrar_aviso(Jogo.texto("O ofá está no Àpò: abra ({bornal}) e ponha na mão."))
 		return
 	if not _ox.has("tem_ofa") or not _flecha.is_empty():
 		if _ox.has("tem_ofa") and not _flecha.is_empty() and _flecha["no_chao"]:
