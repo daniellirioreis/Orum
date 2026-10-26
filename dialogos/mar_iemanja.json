@@ -1,0 +1,47 @@
+{
+	"nomes": {
+		"flores": "flores brancas",
+		"alfazema": "o perfume de alfazema",
+		"perola": "uma pérola",
+		"espelho": "um espelho"
+	},
+	"revisita": [
+		{"quem": "Adé", "yo": "", "pt": "O mar de Iemanjá de novo... Escuta só as ondas indo e voltando."}
+	],
+	"chegada": [
+		{"quem": "Adé", "yo": "", "pt": "O mar! Nunca vi tanta água junta... e esse barulho das ondas, indo e voltando."},
+		{"quem": "Adé", "yo": "", "pt": "Este é o mar de Iemanjá. A Vó diz que ela é a mãe de todos nós."}
+	],
+	"exu_explica": [
+		{"quem": "Èṣù", "yo": "Láròyé!", "pt": "Há há há! Que cara é essa, menino? Achou que eu não vinha? Todo caminho passa por mim!"},
+		{"quem": "Adé", "yo": "", "pt": "Exu! Eu quero encontrar Iemanjá. Onde ela mora?"},
+		{"quem": "Èṣù", "yo": "", "pt": "Iemanjá é a dona do mar, a mãe de todos os filhos. A casa dela fica lá no fundo: Aiocá, o palácio de Iemanjá."},
+		{"quem": "Èṣù", "yo": "", "pt": "Quem vai até a casa da mãe não chega de mão vazia. Leve uma oferenda pra ela."},
+		{"quem": "Adé", "yo": "", "pt": "E o que vai na oferenda?"},
+		{"quem": "Èṣù", "yo": "", "pt": "Flores brancas, perfume de alfazema, uma pérola e um espelho. Iemanjá gosta de se ver bonita!"},
+		{"quem": "Èṣù", "yo": "", "pt": "As flores brancas crescem na restinga, lá no fim da praia. O resto o caminho te mostra."},
+		{"quem": "Èṣù", "yo": "", "pt": "Mas presta atenção no mar: a onda vem e volta. Onde a areia está molhada, a onda chega. Passe quando ela recuar!"},
+		{"quem": "Èṣù", "yo": "Hi hi hi!", "pt": "E não pise nas águas-vivas, que elas queimam o pé! Odoyá, menino! Agora vai, que eu tenho outros caminhos pra cuidar."}
+	],
+	"onda_levou": [
+		{"quem": "Adé", "yo": "", "pt": "Aiii! A onda me pegou e me jogou de volta na areia!"},
+		{"quem": "Adé", "yo": "", "pt": "Exu avisou: onde a areia está molhada, a onda chega. A espuma mostra até onde a próxima vai subir."},
+		{"quem": "Adé", "yo": "", "pt": "Vou esperar a onda recuar e passar correndo."}
+	],
+	"aguaviva": [
+		{"quem": "Adé", "yo": "", "pt": "Ai, ai! A água-viva queimou meu pé! Exu bem que avisou..."}
+	],
+	"flores": [
+		{"quem": "Adé", "yo": "", "pt": "As flores brancas da restinga! Tão bonitas, crescendo no meio da areia."},
+		{"quem": "Adé", "yo": "", "pt": "Vou levar com cuidado. São as primeiras coisas da oferenda de Iemanjá.", "evento": "pegar_flores"}
+	],
+	"flores_depois": [
+		{"quem": "Adé", "yo": "", "pt": "Já peguei as flores. O resto fica pra enfeitar a praia."}
+	],
+	"saida_sem_flores": [
+		{"quem": "Adé", "yo": "", "pt": "Exu disse que as flores brancas crescem na restinga, aqui no fim da praia. Não posso ir sem elas."}
+	],
+	"continua": [
+		{"quem": "Adé", "yo": "", "pt": "Lá adiante fica a vila dos pescadores... Vou seguir pela trilha."}
+	]
+}

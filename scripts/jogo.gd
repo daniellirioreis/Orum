@@ -24,6 +24,7 @@ const LOCAIS := {
 	"orita": {"nome": "Encruzilhada", "cena": "res://cenas/mapa_mundo.tscn"},
 	"oxossi": {"nome": "Mata de Oxóssi", "cena": "res://cenas/mata_oxossi.tscn"},
 	"nana": {"nome": "Terra de Nanã", "cena": "res://cenas/mata_nana.tscn"},
+	"iemanja": {"nome": "Mar de Iemanjá", "cena": "res://cenas/mar_iemanja.tscn"},
 }
 const METAS_SALVAS := ["mapa_aberto", "volta_feita"]
 var espaco_atual := -1
