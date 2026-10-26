@@ -217,6 +217,20 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 	match c:
 		"@":
 			_criar_pedra(lugar, celula, base)
+		"`":
+			# a entrada da fase: andando de volta por ela, Adé pode voltar ao Ọ̀run
+			var area := Area2D.new()
+			area.collision_layer = 0
+			area.collision_mask = 2
+			area.position = base - Vector2(0, TILE / 2.0)
+			var forma := CollisionShape2D.new()
+			var ret := RectangleShape2D.new()
+			ret.size = Vector2(TILE, 8)
+			forma.shape = ret
+			area.add_child(forma)
+			var para_dentro := Vector2(0, 1) if celula.y == 0 else Vector2(0, -1)
+			area.body_entered.connect(_na_saida_para_o_orun.bind(para_dentro))
+			add_child(area)
 		"&":
 			var s := Sprite2D.new()
 			s.texture = preload("res://arte/enc_marca.png")
@@ -390,6 +404,11 @@ func _afundar(p: Dictionary) -> void:
 	_pontes[_chave(p["lugar"], cel)] = true
 	_chaos[p["lugar"]].erase_cell(cel)      # tira a água "sólida" deste bloco
 	await t.finished
+	await _ao_afundar_pedra(p)
+
+
+## O que se diz quando uma pedra vira ponte (as fases podem trocar).
+func _ao_afundar_pedra(_p: Dictionary) -> void:
 	await _falar("pedra_ponte")
 
 
@@ -1010,3 +1029,26 @@ func _local_do_caminho() -> String:
 ## Só depois que Exu chegou (ou na volta, quando ele já está no cruzamento).
 func _pode_guardar() -> bool:
 	return estado in ["livre", "volta"]
+
+
+# ------------------------------------------------------------------ a entrada da fase (volta ao Ọ̀run)
+
+var _perguntando_saida := false
+
+
+func _na_saida_para_o_orun(corpo: Node2D, para_dentro: Vector2) -> void:
+	if not corpo.is_in_group("jogador") or _perguntando_saida or not jogador.pode_mover:
+		return
+	if not has_method("voltar_ao_mapa") or estado == "saindo":
+		return
+	_perguntando_saida = true
+	jogador.congelar(true)
+	var r: Dictionary = await Jogo.menu.escolher("Sair por aqui?", ["Voltar ao Ọ̀run", "Continuar aqui"])
+	if r["acao"] == "ok" and r["i"] == 0:
+		call("voltar_ao_mapa")
+		return
+	# fica: Adé dá uns passos de volta para dentro
+	jogador.global_position += para_dentro * 20.0
+	jogador.direcao_olhar = "frente" if para_dentro.y > 0 else "costas"
+	jogador.congelar(false)
+	_perguntando_saida = false

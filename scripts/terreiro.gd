@@ -112,6 +112,14 @@ const ICONE_TROFEU := {"oxossi": ["res://arte/ox_itens.png", 3], "nana": ["res:/
 var estado := "sonho"
 var coletados := {}
 var tia := "inicio"          # inicio → pediu_lenha → com_lenha → deu_efum
+## A alfazema de Iemanjá (na volta da praia): a Vó pede ajuda para a Tia Dora, que faz o manjar.
+## "" → vo_pediu → tia_pediu → pronto → alfazema → fim
+var _manjar := ""
+var _ingredientes := {}
+const INGREDIENTES := ["coco", "leite", "acucar"]
+var _coqueiros: Array = []
+var _prateleiras: Array = []
+var _brilho_alfazema: PointLight2D
 var lugar_atual := ""
 ## (variáveis para que outras cenas — como a encruzilhada — reaproveitem este script)
 var lugares: Dictionary = LUGARES
@@ -420,6 +428,9 @@ func _falar_com_vo() -> void:
 
 
 func _falar_com_tia() -> void:
+	if _quer_alfazema() and _manjar != "":
+		await _tia_e_o_manjar()
+		return
 	if estado == "acordou" or estado == "sonho":
 		await _falar("tia_antes")
 	elif tia == "inicio":
@@ -447,7 +458,15 @@ func _pegar_lenha() -> void:
 		await _falar("lenha_nada")
 
 
-func _procurar_na_despensa(tem_epo: bool) -> void:
+func _procurar_na_despensa(tem_epo: bool, letra := "") -> void:
+	if _quer_alfazema() and _manjar == "tia_pediu":
+		if letra == "S" and not _ingredientes.has("acucar"):
+			await _falar("acucar_pegar")
+		elif letra in ["K", "k"] and not _ingredientes.has("leite"):
+			await _falar("leite_pegar")
+		else:
+			await _falar("despensa_manjar_nada")
+		return
 	if estado != "buscando":
 		await _falar("despensa_antes")
 	elif tem_epo and not coletados.has("epo"):
@@ -517,6 +536,22 @@ func _ao_evento(nome: String) -> void:
 			_exu_aparece()
 		"abrir_porteira":
 			_abrir_porteira()
+		"manjar_vo_pediu":
+			_manjar = "vo_pediu"
+		"manjar_ingredientes":
+			_manjar = "tia_pediu"
+			_atualizar_manjar()
+		"pegar_coco", "pegar_leite", "pegar_acucar":
+			_pegar_ingrediente(nome.trim_prefix("pegar_"))
+		"liberar_alfazema":
+			_manjar = "alfazema"
+			_atualizar_manjar()
+		"pegar_alfazema":
+			_manjar = "fim"
+			Jogo.set_meta("iemanja_alfazema", true)
+			Jogo.tocar_som("pegar_item", -4.0)
+			_mostrar_aviso("Você pegou: " + _dados["pegou"]["alfazema"])
+			_atualizar_manjar()
 
 
 func _ganhar(id: String) -> void:
@@ -1001,6 +1036,22 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 		return
 	if lugar == "quarto" and _adereco_do_quarto(c, base):
 		return
+	if c == "q" and lugar == "quintal":
+		# coqueiro do quintal: na volta da praia de Iemanjá, dá o coco do manjar
+		var coq := _criar_interativo(CENARIO["q"][0], 1, base, CENARIO["q"][1], -34.0)
+		coq.olhar_para_jogador = false
+		coq.ativo = false
+		coq.interagiu.connect(_sacudir_coqueiro.bind(coq))
+		_coqueiros.append(coq)
+		return
+	if c == "Q" and lugar == "despensa":
+		# prateleira da despensa: onde a Vó guarda o vidrinho de alfazema
+		var prat := _criar_interativo(CENARIO["Q"][0], 1, base, CENARIO["Q"][1], -30.0)
+		prat.olhar_para_jogador = false
+		prat.ativo = false
+		prat.interagiu.connect(_pegar_alfazema)
+		_prateleiras.append(prat)
+		return
 	if c == "m" and lugar == "quintal":
 		c = "m2"   # no quintal, "m" é mato alto (na cozinha é a mesa)
 	if CENARIO.has(c):
@@ -1072,7 +1123,7 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 		"K", "S", "k":
 			var tex := "res://arte/obj_caixote.png" if c != "S" else "res://arte/obj_saco.png"
 			var spot := _criar_interativo(tex, 1, base, Vector2(14, 8), -22.0)
-			spot.interagiu.connect(_procurar_na_despensa.bind(c == "k"))
+			spot.interagiu.connect(_procurar_na_despensa.bind(c == "k", c))
 		"I":
 			# gameleira-branca de Iroko: dá para "conversar" com ela
 			var gameleira := _criar_interativo("res://arte/obj_gameleira.png", 1, base, Vector2(24, 10), -90.0)
@@ -1710,6 +1761,8 @@ func _preparar_retorno() -> void:
 	elif not _trofeus_novos().is_empty():
 		# a fala da chegada depende do que Adé traz: troféu novo, nada ainda, ou só uma visita
 		await _falar("retorno_chegada_dentro" if _tempo_de_ficar_dentro() else "retorno_chegada")
+	elif _quer_alfazema():
+		await _falar("retorno_alfazema")
 	elif Jogo.assentados.is_empty():
 		await _falar("retorno_sem_trofeu")
 	else:
@@ -1726,6 +1779,9 @@ func _trofeus_novos() -> Array:
 
 func _vo_no_retorno() -> void:
 	var novos := _trofeus_novos()
+	if novos.is_empty() and _quer_alfazema():
+		await _vo_e_a_alfazema()
+		return
 	if novos.is_empty():
 		await _falar("vo_quarto" if lugar_atual == "quarto" else "vo_sem_trofeu")
 		return
@@ -2618,3 +2674,97 @@ func _acender_lampioes() -> void:
 ## Na chuva e à noite o pessoal fica dentro de casa (e a Vó espera Adé no barracão).
 func _tempo_de_ficar_dentro() -> bool:
 	return _tempo_atual == "chuva" or _tempo_atual == "noite"
+
+
+# ------------------------------------------------------------------ a alfazema de Iemanjá
+
+## Na volta da praia de Iemanjá, com as flores brancas, Adé vem buscar o perfume de alfazema.
+func _quer_alfazema() -> bool:
+	return _retorno and Jogo.has_meta("iemanja_flores") and not Jogo.has_meta("iemanja_alfazema")
+
+
+func _vo_e_a_alfazema() -> void:
+	match _manjar:
+		"":
+			await _falar("vo_alfazema")
+		"vo_pediu", "tia_pediu":
+			await _falar("vo_alfazema_esperando")
+		"pronto":
+			await _falar("vo_manjar")
+		_:
+			await _falar("vo_alfazema_buscar")
+
+
+func _tia_e_o_manjar() -> void:
+	match _manjar:
+		"vo_pediu":
+			await _falar("tia_manjar")
+		"tia_pediu":
+			var faltam := []
+			for id in INGREDIENTES:
+				if not _ingredientes.has(id):
+					faltam.append(_dados["nomes_manjar"][id])
+			if not faltam.is_empty():
+				var linha: Dictionary = _dados["tia_manjar_falta"][0].duplicate()
+				linha["pt"] = linha["pt"].replace("{faltam}", _juntar(faltam))
+				await _falar_linhas([linha])
+				return
+			await _falar("tia_manjar_cozinhar")
+			await _cozinhar_manjar()
+			_manjar = "pronto"
+			await _falar("tia_manjar_pronto")
+		_:
+			await _falar("tia_manjar_depois")
+
+
+## A Tia Dora mexe o manjar no fogão: a tela escurece um pouco e volta com o manjar pronto.
+func _cozinhar_manjar() -> void:
+	jogador.congelar(true)
+	var t := create_tween()
+	t.tween_property(_cortina, "color:a", 1.0, 0.6)
+	await t.finished
+	_mostrar_aviso("A Tia Dora mexe o manjar no fogão...")
+	await get_tree().create_timer(2.0).timeout
+	var t2 := create_tween()
+	t2.tween_property(_cortina, "color:a", 0.0, 0.6)
+	await t2.finished
+
+
+func _sacudir_coqueiro(coq: Area2D) -> void:
+	if _manjar != "tia_pediu" or _ingredientes.has("coco"):
+		return
+	# o coqueiro balança e cai um coco
+	var t := create_tween()
+	for i in 3:
+		t.tween_property(coq.sprite, "rotation", 0.06, 0.08)
+		t.tween_property(coq.sprite, "rotation", -0.06, 0.08)
+	t.tween_property(coq.sprite, "rotation", 0.0, 0.06)
+	await t.finished
+	await _falar("coco_pegar")
+
+
+func _pegar_alfazema() -> void:
+	if _manjar == "alfazema":
+		await _falar("alfazema_pegar")
+
+
+func _pegar_ingrediente(id: String) -> void:
+	_ingredientes[id] = true
+	Jogo.tocar_som("pegar_item", -4.0)
+	_mostrar_aviso("Você pegou: " + _dados["pegou"][id])
+	_atualizar_manjar()
+	if _ingredientes.size() == INGREDIENTES.size():
+		await get_tree().create_timer(2.6).timeout
+		_mostrar_aviso("Leve tudo para a Tia Dora, na cozinha.")
+
+
+## Liga o que pode ser mexido em cada etapa (coqueiros, prateleira) e o brilho da alfazema.
+func _atualizar_manjar() -> void:
+	for coq in _coqueiros:
+		coq.ativo = _manjar == "tia_pediu" and not _ingredientes.has("coco")
+	for prat in _prateleiras:
+		prat.ativo = _manjar == "alfazema"
+	if _manjar == "alfazema" and _brilho_alfazema == null and not _prateleiras.is_empty():
+		_brilho_alfazema = _luz(_prateleiras[0].global_position + Vector2(0, -18), Color(0.75, 0.55, 1.0), 0.8, 0.9, true)
+	if _brilho_alfazema != null:
+		_brilho_alfazema.enabled = _manjar == "alfazema"   # (a luz fica na lista das chamas: só apaga)

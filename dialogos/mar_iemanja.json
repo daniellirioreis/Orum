@@ -260,6 +260,59 @@
 			"quem": "Adé",
 			"yo": "",
 			"pt": "Que escuro... só as algas brilham. E esse barulho da onda batendo nas pedras..."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Tem pedras soltas lá dentro. Se eu prender uma num canto, é só sair da gruta e voltar: a maré arruma tudo de novo."
+		}
+	],
+	"jangada_sem_alfazema": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "A jangada está pronta... mas eu ainda não tenho o perfume de alfazema."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Se eu for agora, vai faltar uma coisa na oferenda de Iemanjá. Primeiro vou ao terreiro, falar com a Vó."
+		}
+	],
+	"volta_sem_alfazema": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "O mar de Iemanjá de novo. As flores brancas estão comigo, guardadinhas."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Mas sem o perfume de alfazema a oferenda não fica completa. Preciso voltar ao terreiro e falar com a Vó."
+		}
+	],
+	"volta_com_alfazema": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "De volta ao mar de Iemanjá! Tenho as flores brancas e o perfume de alfazema da Vó."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Agora faltam a pérola e o espelho... Eles devem estar lá no fundo do mar. Vou pegar a jangada!"
+		}
+	],
+	"pedra_funda": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Glub! A pedra sumiu dentro da poça... essa poça é funda!"
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Se eu empurrar outra pedra por cima dessa, aí sim vira um caminho."
 		}
 	]
 }

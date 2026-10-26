@@ -158,7 +158,11 @@
 		"epo": "Epó (azeite de dendê)",
 		"oti": "Oti (bebida)",
 		"luna": "Luma (vela)",
-		"lenha": "Lenha para a Tia Dora"
+		"lenha": "Lenha para a Tia Dora",
+		"coco": "Um coco maduro",
+		"leite": "Leite",
+		"acucar": "Açúcar",
+		"alfazema": "Perfume de alfazema"
 	},
 
 	"retorno_chegada": [
@@ -229,5 +233,65 @@
 	"retorno_chegada_dentro": [
 		{"quem": "Adé", "yo": "", "pt": "Cheguei em casa! Que saudade do terreiro da Vó... Tem até cheiro da comida da Tia Dora."},
 		{"quem": "Adé", "yo": "", "pt": "Com esse tempo, a Vó deve estar me esperando lá dentro, no barracão. Vou contar tudo pra ela!"}
+	],
+
+	"nomes_manjar": {"coco": "um coco do coqueiro do quintal", "leite": "o leite", "acucar": "o açúcar"},
+	"retorno_alfazema": [
+		{"quem": "Adé", "yo": "", "pt": "De volta ao terreiro! Trouxe as flores brancas do mar de Iemanjá, guardadinhas."},
+		{"quem": "Adé", "yo": "", "pt": "Agora falta o perfume de alfazema. A Vó sempre tem esse cheirinho... vou perguntar pra ela!"}
+	],
+	"vo_alfazema": [
+		{"quem": "Adé", "yo": "", "pt": "Vó! Exu disse que a oferenda de Iemanjá leva perfume de alfazema. A senhora tem?"},
+		{"quem": "Vó", "yo": "", "pt": "Alfazema, é? Hmm... Senta aqui, meu neto, que a Vó vai te contar um segredo."},
+		{"quem": "Vó", "yo": "", "pt": "Sua Vó é filha de Iemanjá. Foi a mãe das águas que cuidou da minha cabeça a vida inteira. Odoyá!"},
+		{"quem": "Adé", "yo": "", "pt": "A senhora é filha de Iemanjá?! Por isso esse cheirinho de alfazema!"},
+		{"quem": "Vó", "yo": "", "pt": "Hehe! Tem um vidrinho de alfazema guardado na despensa. Mas em casa de santo, nada se ganha sem trabalho e sem carinho."},
+		{"quem": "Vó", "yo": "", "pt": "Antes, vá até a cozinha e ajude a Tia Dora no que ela precisar. Depois a gente conversa.", "evento": "manjar_vo_pediu"}
+	],
+	"vo_alfazema_esperando": [
+		{"quem": "Vó", "yo": "", "pt": "Já ajudou a Tia Dora? Ela está lá na cozinha, meu neto."}
+	],
+	"tia_manjar": [
+		{"quem": "Tia Dora", "yo": "", "pt": "Adé! Chegou na hora certa. Sabe o que eu estou fazendo? Manjar branco!"},
+		{"quem": "Adé", "yo": "", "pt": "A Vó me mandou ajudar a senhora. Sabia que a Vó é filha de Iemanjá?"},
+		{"quem": "Tia Dora", "yo": "", "pt": "Olha que coincidência! Eu estou fazendo justamente a comida que Iemanjá mais gosta: manjar branquinho, branquinho como a espuma do mar."},
+		{"quem": "Tia Dora", "yo": "", "pt": "Mas me faltam umas coisas: um coco do coqueiro do quintal, e o leite e o açúcar que estão na despensa. Vai buscar pra mim?", "evento": "manjar_ingredientes"}
+	],
+	"tia_manjar_falta": [
+		{"quem": "Tia Dora", "yo": "", "pt": "Ainda falta: {faltam}."}
+	],
+	"tia_manjar_cozinhar": [
+		{"quem": "Tia Dora", "yo": "", "pt": "Coco, leite e açúcar! Tudo aqui. Agora é mexer no fogo devagarinho, sem parar..."}
+	],
+	"tia_manjar_pronto": [
+		{"quem": "Tia Dora", "yo": "", "pt": "Pronto! Olha que manjar bonito, branquinho e cheiroso."},
+		{"quem": "Tia Dora", "yo": "", "pt": "Leva pra Vó, que ela vai gostar. Ela merece!"}
+	],
+	"tia_manjar_depois": [
+		{"quem": "Tia Dora", "yo": "", "pt": "Leva o manjar pra Vó, menino, antes que alguém prove!"}
+	],
+	"vo_manjar": [
+		{"quem": "Adé", "yo": "", "pt": "Vó! A Tia Dora fez manjar branco, e eu ajudei!"},
+		{"quem": "Vó", "yo": "", "pt": "Manjar branco... a comida que minha mãe Iemanjá mais gosta. Que coincidência, hein?"},
+		{"quem": "Vó", "yo": "", "pt": "Você trabalhou com carinho, Adé. Agora pode pegar a alfazema: o vidrinho está na prateleira da despensa.", "evento": "liberar_alfazema"}
+	],
+	"vo_alfazema_buscar": [
+		{"quem": "Vó", "yo": "", "pt": "O vidrinho de alfazema está na prateleira da despensa, meu neto."}
+	],
+	"coco_pegar": [
+		{"quem": "", "yo": "", "pt": "Adé sacudiu o coqueiro e caiu um coco maduro!", "evento": "pegar_coco"}
+	],
+	"acucar_pegar": [
+		{"quem": "", "yo": "", "pt": "Adé encheu uma tigelinha com açúcar do saco.", "evento": "pegar_acucar"}
+	],
+	"leite_pegar": [
+		{"quem": "", "yo": "", "pt": "No caixote tinha uma garrafa de leite fresquinho.", "evento": "pegar_leite"}
+	],
+	"despensa_manjar_nada": [
+		{"quem": "", "yo": "", "pt": "Aqui não tem o que a Tia Dora pediu."}
+	],
+	"alfazema_pegar": [
+		{"quem": "", "yo": "", "pt": "Atrás dos potes, um vidrinho roxo de perfume de alfazema. Tem o cheirinho da Vó!", "evento": "pegar_alfazema"},
+		{"quem": "Adé", "yo": "", "pt": "Agora tenho as flores brancas e a alfazema! Falta a pérola e o espelho... Vou voltar ao mar de Iemanjá."}
 	]
 }

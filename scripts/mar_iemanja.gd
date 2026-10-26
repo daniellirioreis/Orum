@@ -133,8 +133,28 @@ func _inicio() -> void:
 		if r["acao"] == "ok" and r["i"] == 1:
 			voltar_ao_mapa()
 			return
+	if Jogo.has_meta("iemanja_flores") and not _repetindo:
+		# voltando à praia: as flores (e talvez a alfazema) já estão com Adé, e o remo também
+		_retomar()
+		await _falar("volta_com_alfazema" if Jogo.has_meta("iemanja_alfazema") else "volta_sem_alfazema")
+		jogador.congelar(false)
+		return
 	await _falar("chegada")
 	await _exu_explica()
+
+
+## Acende no inventário o que Adé já trouxe (flores e alfazema) e deixa o remo com ele.
+func _retomar() -> void:
+	_iem["flores"] = true
+	_iem["remo"] = true
+	if _remo:
+		_remo.visible = false
+		_remo.ativo = false
+	if _flores:
+		_flores.frame = 1
+	_slots_iem["flores"].modulate = Color.WHITE
+	if Jogo.has_meta("iemanja_alfazema"):
+		_slots_iem["alfazema"].modulate = Color.WHITE
 
 
 ## Exu surge na fumaça, explica quem é Iemanjá e o que vai na oferenda, e vai embora.
@@ -251,6 +271,16 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 		"C":
 			var qual := "res://arte/iemanja_coqueiro_g.png" if celula.y % 2 else "res://arte/iemanja_coqueiro_g2.png"
 			_criar_cenario(qual, Vector2(8, 5), base + Vector2(0, 2))
+		"K":
+			# caranguejo da gruta: anda de lado, de uma parede à outra
+			var s := Sprite2D.new()
+			s.texture = preload("res://arte/iemanja_caranguejo.png")
+			s.hframes = 2
+			s.offset = Vector2(0, -4)
+			s.position = base
+			mundo.add_child(s)
+			_caranguejos.append({"s": s, "de": base + Vector2(-48, 0), "ate": base + Vector2(48, 0),
+				"vel": 30.0 + celula.y % 3 * 4.0, "fase": celula.x * 0.29})
 		"k":
 			var s := Sprite2D.new()
 			s.texture = preload("res://arte/iemanja_caranguejo.png")
@@ -748,6 +778,10 @@ func _na_jangada() -> void:
 	if not _iem.has("remo"):
 		await _falar("jangada_sem_remo")
 		return
+	if Jogo.has_meta("iemanja_flores") and not Jogo.has_meta("iemanja_alfazema"):
+		# sem a alfazema, a oferenda fica faltando: Adé não entra no mar
+		await _falar("jangada_sem_alfazema")
+		return
 	await _falar("jangada_vamos")
 	await _entrar_no_mar()
 
@@ -997,3 +1031,16 @@ func _local_do_caminho() -> String:
 
 func _pode_guardar() -> bool:
 	return false
+
+
+## Na gruta, a poça do meio é funda: a primeira pedra só afunda; com a segunda por cima, vira caminho.
+func _ao_afundar_pedra(p: Dictionary) -> void:
+	var abaixo: Vector2i = p["celula"] + Vector2i(0, 1)
+	var funda := _letra(_mapas[p["lugar"]], abaixo.x, abaixo.y) == "~" and not _pontes.has(_chave(p["lugar"], abaixo))
+	if funda:
+		if not _iem.has("poca_funda"):
+			_iem["poca_funda"] = true
+			await _falar("pedra_funda")
+	elif not _iem.has("ponte"):
+		_iem["ponte"] = true
+		await _falar("pedra_ponte")
