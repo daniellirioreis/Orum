@@ -113,6 +113,14 @@ func _ready() -> void:
 			escada[int(e[0])] = Color8(int(e[1]), int(e[2]), int(e[3]))
 		_caminhos.append({"a": c["a"], "b": c["b"], "pontos": pts, "ponte": ponte, "esconder": esconder,
 			"escada": escada, "aberto": 0.0})
+	if mapa.has("cume"):                  # o cume do Kilimanjaro, separado do chão (mexe com a câmera)
+		_cume = Sprite2D.new()
+		_cume.texture = load("res://arte/mundo_cume.png")
+		_cume.centered = false
+		_cume_base = Vector2(mapa["cume"][0], mapa["cume"][1])
+		_cume.position = _cume_base
+		_cume.z_index = -6
+		add_child(_cume)
 	for f in mapa.get("fumacas", []):     # a fumaça da panela no mercado de Exu
 		_criar_fumaca(Vector2(f[0], f[1]))
 	for e in mapa.get("enfeites", []):
@@ -189,6 +197,7 @@ func _process(delta: float) -> void:
 	_mexer_poeira_e_nevoa(delta)
 	if _camera.zoom.x >= 0.999:
 		_camera.position = _ade.position + Vector2(0, -8)
+	_mexer_cume()
 	for en in _enfeites:
 		en.frame = int(_tempo * 1.5) % en.hframes
 	queue_redraw()
@@ -252,7 +261,7 @@ func _criar_nuvens() -> void:
 ## da esquerda para a direita; somem na beirada e voltam do outro lado.
 var _nuvens_oxala: Array = []
 const OXALA_X := Vector2(150, 342)       # de onde até onde elas passam
-const OXALA_Y := Vector2(100, 166)      # na cintura do Kilimanjaro: o cume nevado fica acima das nuvens
+const OXALA_Y := Vector2(84, 150)      # na cintura do Kilimanjaro: o cume nevado fica acima das nuvens
 
 
 func _criar_nuvens_de_oxala() -> void:
@@ -368,6 +377,25 @@ func _criar_folhas_de_bambu() -> void:
 		add_child(f)
 
 
+## O cume do Kilimanjaro de Oxalá fica mais perto de quem olha do que o chão: quando a câmera anda, ele se
+## afasta um pouquinho do centro da tela (paralaxe), e isso dá a sensação de que a montanha é bem alta.
+var _cume: Sprite2D
+var _cume_base := Vector2.ZERO
+const CUME_PARALAXE := 0.05
+const CUME_MAX := 4.0
+
+
+func _mexer_cume() -> void:
+	if _cume == null:
+		return
+	var centro := _cume_base + Vector2(_cume.texture.get_width() / 2.0, 50.0)
+	var d := (centro - _camera.get_screen_center_position()) * CUME_PARALAXE
+	if _camera.zoom.x < 0.999:
+		d = Vector2.ZERO                          # com a ilha inteira na tela, tudo no lugar
+	d = d.limit_length(CUME_MAX)
+	_cume.position = (_cume_base + d).round()
+
+
 ## Os outros mundos também mexem: passarinhos na mata de Oxóssi e um antílope, a garça e a névoa de Nanã,
 ## urubus e redemoinhos de poeira na terra seca de Omolu, pombas em volta do templo de Oxalá.
 var _poeiras: Array = []
@@ -411,14 +439,14 @@ func _criar_bichos_dos_mundos() -> void:
 		_voador(urubu, Vector2(236, 334), Vector2(34 + i * 10, 12 + i * 3), 0.28 + i * 0.05, i * 2.1, {"asas": 1.5})
 	var gaivota := preload("res://arte/mundo_gaivota.png")
 	for i in 3:                         # Oxalá: pombas voando em volta do templo, no cume do Kilimanjaro
-		_voador(gaivota, Vector2(244, 46), Vector2(40 + i * 6, 12 + i * 2), 0.5 + i * 0.1, i * 2.0, {"asas": 7.0})
+		_voador(gaivota, Vector2(244, 34), Vector2(40 + i * 6, 10 + i * 2), 0.5 + i * 0.1, i * 2.0, {"asas": 7.0})
 	_bicho(preload("res://arte/mundo_elefante.png"), Vector2(220, 180), Vector2(244, 182), 0.3)   # elefantes na savana
 	_bicho(preload("res://arte/mundo_elefante.png"), Vector2(280, 180), null, 1.7)
 	var floco := Image.create(1, 1, false, Image.FORMAT_RGBA8)   # a neve fininha caindo no cume
 	floco.fill(Color(1, 1, 1, 0.9))
 	var neve := CPUParticles2D.new()
 	neve.texture = ImageTexture.create_from_image(floco)
-	neve.position = Vector2(244, 40)
+	neve.position = Vector2(244, 30)
 	neve.z_index = 2
 	neve.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
 	neve.emission_rect_extents = Vector2(32, 6)

@@ -230,14 +230,15 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   que caem das nuvens até o chão (com clarão) (`_criar_bufalos()`,
   `_mexer_riscos_de_vento()`, `_criar_vento_de_iansa()`, `_criar_ceu_de_tempestade()`, `_criar_folhas_de_bambu()` e
   `_raio_caindo()` no `scripts/mapa_mundo.gd`).
-- **O mundo de Oxalá é o Kilimanjaro** (`kilimanjaro()` no `gerar_mapa_mundo.py`): o vulcão largo de topo achatado,
-  o ponto mais alto do mapa (cada faixa tem o paredão maior que a de baixo, e a montanha faz uma sombra comprida
-  para a direita), em faixas que estreitam para cima — a mata no pé, o campo de urzes com lobélias e senécios gigantes, o deserto de
-  pedra com línguas de gelo descendo e o cume coberto de neve, com a cratera e o templo de Oxalá. As nuvens passam
-  na cintura da montanha (o cume fica acima delas), cai neve fininha no alto e, na savana do pé, há acácias e
-  elefantes (`arte/mundo_elefante.png`). Em cima não tem mais mar: a terra vai até o fim do mapa, a mata do pé do
-  Kilimanjaro sobe até a borda e encosta no planalto de Iansã, que também continua para além da borda
-  (`terra_firme()` no `gerar_mapa_mundo.py`).
+- **O mundo de Oxalá é o Kilimanjaro** (`kilimanjaro_perfil()` no `gerar_mapa_mundo.py`), o ponto mais alto do
+  mapa, desenhado de perfil como as montanhas dos mapas-múndi do SNES: um pico largo de encostas inclinadas
+  (iluminado à esquerda, na sombra à direita), sulcos e cristas descendo do cume, as faixas da montanha (mata no pé,
+  urzes com lobélias e senécios, pedra, neve descendo pelos sulcos) e o topo achatado de gelo, com a cratera e o
+  templo de Oxalá. A trilha sobe a encosta em zigue-zague, em degraus. O cume é um sprite separado
+  (`arte/mundo_cume.png`, posição em `"cume"` no `fases/mapa_mundo.json`) que se afasta um pouquinho do centro da tela
+  quando a câmera anda (`_mexer_cume()`), dando profundidade. As nuvens passam na frente da encosta, cai neve
+  fininha no cume e, na savana do pé, há acácias e elefantes (`arte/mundo_elefante.png`). Em cima não tem mais mar:
+  a terra vai até o fim do mapa, com mata atrás da montanha e o planalto de Iansã do lado (`terra_firme()`).
 - **Os outros mundos do Ọ̀run também mexem**: na mata de Oxóssi as copas balançam, um bando de passarinhos
   amarelos levanta voo e pousa, e antílopes pastam e andam nas clareiras (`arte/mundo_passaro.png`,
   `arte/mundo_antilope.png`); em Nanã a lama borbulha nas poças, as taboas balançam, uma névoa baixa passa e garças
