@@ -230,6 +230,8 @@ func _criar_nuvens() -> void:
 		["res://arte/mundo_nuvem_p.png", Vector2(196, 136), 10.0, 0.3],   # na encosta, abaixo do templo
 		["res://arte/mundo_nuvem_p.png", Vector2(292, 144), 9.0, 0.38],
 		["res://arte/mundo_nuvem_p.png", Vector2(244, 156), 12.0, 0.22],
+		["res://arte/mundo_nuvem_p.png", Vector2(292, 100), 8.0, 0.18],    # nuvens encostadas no cume de Oxalá
+		["res://arte/mundo_nuvem_p.png", Vector2(196, 108), 7.0, 0.22],
 		["res://arte/mundo_tempestade.png", Vector2(390, 76), 5.0, 0.9],
 		["res://arte/mundo_tempestade.png", Vector2(480, 84), 4.0, 1.1],
 		["res://arte/mundo_tempestade.png", Vector2(440, 64), 6.0, 0.8],
@@ -373,6 +375,8 @@ func _criar_folhas_de_bambu() -> void:
 var _poeiras: Array = []
 var _nevoas: Array = []
 const NEVOA_X := Vector2(14, 176)
+var _nevoas_cume: Array = []
+const NEVOA_CUME_X := Vector2(184, 308)
 
 
 func _voador(tex: Texture2D, centro: Vector2, raio: Vector2, vel: float, fase: float, extra := {}) -> void:
@@ -452,6 +456,15 @@ func _criar_bichos_dos_mundos() -> void:
 	var tex := ImageTexture.create_from_image(img)
 	var rnd := RandomNumberGenerator.new()
 	rnd.seed = 11
+	for i in 5:                         # Oxalá: a névoa em volta do cume nevado
+		var n := Sprite2D.new()
+		n.texture = tex
+		n.z_index = 2
+		n.scale = Vector2(1.3, 1.2)
+		n.self_modulate = Color(0.8, 0.86, 0.96)     # um pouco azulada, para aparecer em cima da neve
+		add_child(n)
+		_nevoas_cume.append({"no": n, "x": lerpf(NEVOA_CUME_X.x, NEVOA_CUME_X.y, i / 5.0), "y": rnd.randf_range(74, 112),
+			"vel": rnd.randf_range(2.0, 4.0)})
 	for i in 6:
 		var n := Sprite2D.new()
 		n.texture = tex
@@ -492,6 +505,15 @@ func _mexer_poeira_e_nevoa(delta: float) -> void:
 		s.position = (Vector2(236, 356) + Vector2(sin(t) * 58.0, sin(t * 1.4 + 0.5) * 12.0)).round()
 		s.frame = int(_tempo * 8.0 + r["fase"]) % 4
 		s.modulate.a = 0.6 + 0.3 * absf(sin(t * 0.8))
+	var larg_cume := NEVOA_CUME_X.y - NEVOA_CUME_X.x
+	for c in _nevoas_cume:
+		c["x"] += c["vel"] * delta
+		if c["x"] > NEVOA_CUME_X.y:
+			c["x"] -= larg_cume
+		var nc: Sprite2D = c["no"]
+		nc.position = Vector2(c["x"], c["y"] + sin(_tempo * 0.3 + c["vel"]) * 2.0).round()
+		var bc := minf(c["x"] - NEVOA_CUME_X.x, NEVOA_CUME_X.y - c["x"])
+		nc.modulate.a = clampf(bc / 30.0, 0.0, 0.75)
 	var largura := NEVOA_X.y - NEVOA_X.x
 	for c in _nevoas:
 		c["x"] += c["vel"] * delta
