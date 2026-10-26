@@ -237,7 +237,9 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   na cintura da montanha (o cume fica acima delas), cai neve fininha no alto e, na savana do pé, há acácias e
   elefantes (`arte/mundo_elefante.png`). Em cima não tem mais mar: a terra vai até o fim do mapa, a mata do pé do
   Kilimanjaro sobe até a borda e encosta no planalto de Iansã, que também continua para além da borda
-  (`terra_firme()` no `gerar_mapa_mundo.py`).
+  (`terra_firme()` no `gerar_mapa_mundo.py`). As três terras altas são uma escada só: a serra de Xangô sobe até o
+  planalto de Iansã, e do planalto sobe a encosta de urzes e uma crista de pedra até o cume de Oxalá (as faixas de
+  cima do Kilimanjaro são desenhadas depois de Iansã, por cima da beirada do planalto, e fazem sombra nele).
 - **Os outros mundos do Ọ̀run também mexem**: na mata de Oxóssi as copas balançam, um bando de passarinhos
   amarelos levanta voo e pousa, e antílopes pastam e andam nas clareiras (`arte/mundo_passaro.png`,
   `arte/mundo_antilope.png`); em Nanã a lama borbulha nas poças, as taboas balançam, uma névoa baixa passa e garças
