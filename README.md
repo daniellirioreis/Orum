@@ -173,8 +173,8 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   a próxima vai); a onda que pega Adé devolve ele à última areia seca e leva um búzio de axé. Caranguejos beliscam e
   águas-vivas queimam. Adé procura uma **jangada** para entrar no mar: ela está lá embaixo, na beira d'água, mas o
   **remo** ficou enrolado na rede de pesca.
-- **O mar ao luar** (navegando): Adé rema a jangada com as setas (ela tem embalo) até a **pedra das flores brancas**.
-  Os rolos de onda vêm descendo: remando de frente e com força, a jangada fura a onda; parada ou de lado, a onda
+- **O mar ao luar** (navegando, também de cima para baixo: a praia fica em cima): Adé rema a jangada com as setas (ela
+  tem embalo), descendo mar adentro até a **pedra das flores brancas**. Os rolos de onda vêm subindo do mar aberto: remando de frente e com força, a jangada fura a onda; parada ou de lado, a onda
   empurra para trás. Pedras e recifes (bater custa um búzio de axé) e correntezas que puxam para os lados (os riscos
   de brilho na água mostram para onde). Encostando na pedra, Adé pega as flores. (O mergulho, o jardim de corais, as
   águas escuras e Aiocá vêm a seguir; por enquanto, com as flores, a fase volta ao Ọ̀run.)

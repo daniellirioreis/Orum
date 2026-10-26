@@ -9,8 +9,8 @@ extends "res://scripts/encruzilhada.gd"
 ##                   A onda que pega Adé devolve ele à última areia seca (e leva um búzio de axé). A onda traz
 ##                   búzios; caranguejos beliscam; águas-vivas queimam. Adé procura uma jangada para entrar no mar:
 ##                   ela está lá embaixo, na beira d'água, mas o remo ficou enrolado na rede de pesca.
-##   iemanja_mar   → o mar ao luar: Adé navega de jangada até a pedra das flores brancas. A jangada tem embalo;
-##                   os rolos de onda vêm descendo (de frente e com força, a jangada fura a onda; parada ou de lado,
+##   iemanja_mar   → o mar ao luar (de cima para baixo: a praia em cima): Adé navega de jangada, descendo, até a
+##                   pedra das flores brancas. A jangada tem embalo; os rolos de onda vêm subindo do mar aberto (de frente e com força, a jangada fura a onda; parada ou de lado,
 ##                   a onda empurra para trás); pedras e recifes (bater custa um búzio de axé); correntezas puxam
 ##                   para os lados (os brilhos na água mostram para onde).
 ##   (em seguida: o mergulho, o jardim de corais, as águas escuras e Aiocá)
@@ -104,7 +104,7 @@ func _ready() -> void:
 	_criar_vagalumes_das_dunas()
 	# o mar aberto, mais fundo e escuro (a noite pesa mais longe da praia)
 	var fundo := ColorRect.new()
-	fundo.position = lugares["iemanja_mar"]["origem"]
+	fundo.position = lugares["iemanja_mar"]["origem"] + Vector2(0, 3 * TILE)
 	fundo.size = tamanhos["iemanja_mar"] - Vector2(0, 3 * TILE)
 	fundo.color = Color(0.03, 0.08, 0.24, 0.5)
 	fundo.z_index = -5
@@ -663,7 +663,7 @@ func _navegar(delta: float) -> void:
 	var antes := _pos
 	_pos += _vel * delta
 	_pos.x = clampf(_pos.x, origem.x + 18.0, origem.x + tam.x - 18.0)
-	_pos.y = clampf(_pos.y, origem.y + 30.0, origem.y + tam.y - 3.5 * TILE)
+	_pos.y = clampf(_pos.y, origem.y + 3.6 * TILE, origem.y + tam.y - 20.0)
 	# as pedras
 	for p in _pedras_mar:
 		var centro: Vector2 = p[0]
@@ -681,31 +681,31 @@ func _navegar(delta: float) -> void:
 		_proximo_rolo -= delta
 		if _proximo_rolo <= 0.0:
 			_proximo_rolo = ROLO_CADA + randf_range(-0.4, 0.6)
-			_rolos.append({"y": _pos.y - 150.0})
+			_rolos.append({"y": _pos.y + 150.0})       # os rolos vêm subindo do mar aberto (lá de baixo)
 	for r in _rolos.duplicate():
 		var y0: float = r["y"]
 		if remando:
-			r["y"] += ROLO_VEL * delta
-		if y0 < antes.y and r["y"] >= _pos.y and remando:
-			if _vel.y < -30.0:                     # de frente e com força: a jangada fura a onda
+			r["y"] -= ROLO_VEL * delta
+		if y0 > antes.y and r["y"] <= _pos.y and remando:
+			if _vel.y > 30.0:                      # de frente e com força: a jangada fura a onda
 				_vel.y *= 0.6
 				Jogo.tocar_som("agua_cai", -16.0)
 				if not _furou_uma_vez:
 					_furou_uma_vez = true
 					_mostrar_aviso("Furou a onda!")
 			else:                                  # parada ou de lado: a onda empurra para trás
-				_vel.y += 80.0
+				_vel.y -= 80.0
 				_vel.x *= 0.5
 				Jogo.tocar_som("agua_cai", -8.0)
 				_respingo(_pos)
-		if r["y"] > origem.y + tam.y:
+		if r["y"] < origem.y + 2.0 * TILE:
 			_rolos.erase(r)
 	_jangada.position = _pos.round()
 	jogador.global_position = (_pos + Vector2(0, -7)).round()
 	if _vel.length() > 8.0:
 		jogador.olhar_para(jogador.global_position + _vel)
 	_rastro.position = _pos + Vector2(0, 2)
-	_rastro.direction = -_vel.normalized() if _vel.length() > 1.0 else Vector2.DOWN
+	_rastro.direction = -_vel.normalized() if _vel.length() > 1.0 else Vector2.UP
 	_rastro.emitting = _vel.length() > 18.0
 	_jangada.rotation = sin(_tempo * 2.2) * 0.03       # a jangada balança de leve
 	# as flores
@@ -742,8 +742,8 @@ func _desenhar_mar() -> void:
 	var x0 := maxf(origem.x, _pos.x - 150.0)
 	var x1 := minf(origem.x + tam.x, _pos.x + 150.0)
 	# o caminho da lua, à frente da jangada
-	for y in range(int(_pos.y - 110.0), int(_pos.y - 10.0), 2):
-		var d := absf(y - (_pos.y - 60.0)) / 50.0
+	for y in range(int(_pos.y + 10.0), int(_pos.y + 110.0), 2):
+		var d := absf(y - (_pos.y + 60.0)) / 50.0
 		if d >= 1.0:
 			continue
 		var x := x0 + float((y * 13 + quadro * 3) % 7)
@@ -770,10 +770,10 @@ func _desenhar_mar() -> void:
 		var x := x0
 		while x < x1:
 			var crista := y + 2.0 * sin(x * 0.12 + _tempo * 3.0) + 1.5 * sin(x * 0.31)
-			_mar_desenho.draw_rect(Rect2(x, crista - 6.0, 1, 6), Color(0.2, 0.45, 0.65, 0.45))
+			_mar_desenho.draw_rect(Rect2(x, crista + 2.0, 1, 6), Color(0.2, 0.45, 0.65, 0.45))
 			_mar_desenho.draw_rect(Rect2(x, crista, 1, 2), Color(0.72, 1.0, 0.94, 0.95))
 			if (int(x) + quadro) % 3 == 0:
-				_mar_desenho.draw_rect(Rect2(x, crista + 2.0, 1, 1), Color(0.6, 0.95, 0.9, 0.7))
+				_mar_desenho.draw_rect(Rect2(x, crista - 1.0, 1, 1), Color(0.6, 0.95, 0.9, 0.7))
 			x += 1.0
 
 
