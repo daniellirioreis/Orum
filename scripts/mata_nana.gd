@@ -472,6 +472,7 @@ func _criar_inventario() -> void:
 		var caixa := TextureRect.new()
 		caixa.texture = preload("res://arte/hud_slot.png")
 		caixa.position = Vector2(6 + i * 19, 6)
+		caixa.visible = false        # a barra antiga não aparece: tudo fica no bornal
 		camada.add_child(caixa)
 		if ordem[i] == "ibiri":
 			_moldura_trofeu = caixa
@@ -483,8 +484,10 @@ func _criar_inventario() -> void:
 		item.position = caixa.position + Vector2(3, 3)
 		item.pivot_offset = Vector2(6, 6)
 		item.modulate = COR_ITEM_FALTA
+		item.visible = false
 		camada.add_child(item)
 		_slots_nana[ordem[i]] = item
+	_esconder_inventario()
 
 
 func _acender_slot(id: String, texto := "") -> void:
@@ -1479,6 +1482,8 @@ func _abrir_saida() -> void:
 
 func _ganhar_trofeu() -> void:
 	Jogo.bornal.tirar("lamina")       # a lâmina de bambu fica na terra de Nanã
+	if Jogo.bornal.tem("faca"):
+		Jogo.bornal.tirar("faca")
 	Jogo.trofeus["nana"] = "Ibiri de Nanã"
 	_nana["trofeu"] = true
 	var icone: TextureRect = _slots_nana["ibiri"]
@@ -1490,11 +1495,11 @@ func _ganhar_trofeu() -> void:
 	var brilho := create_tween().set_loops()
 	brilho.tween_property(_moldura_trofeu, "modulate", Color(1.0, 0.95, 0.6), 0.6)
 	brilho.tween_property(_moldura_trofeu, "modulate", Color(1.0, 0.78, 0.3), 0.6)
-	Jogo.tocar_som("buzio", 0.0)
-	if Jogo.assentados.has("nana"):
-		_mostrar_aviso("O Ibiri de Nanã de novo! O dela já está no quarto de santo da Vó.")
-	else:
-		_mostrar_aviso("Troféu: o Ibiri de Nanã! Leve para o terreiro da Vó.")
+	var ic := AtlasTexture.new()
+	ic.atlas = preload("res://arte/nana_itens.png")
+	ic.region = Rect2(3 * 12, 0, 12, 12)
+	await _mostrar_grande(ic, 4.0, "Ibiri de Nanã!",
+		"O dela já está no quarto de santo da Vó." if Jogo.assentados.has("nana") else "Presente de Nanã. Leve para o terreiro da Vó.", true)
 
 
 # ------------------------------------------------------------------ eventos dos diálogos e saída

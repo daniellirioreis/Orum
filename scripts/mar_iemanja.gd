@@ -422,6 +422,7 @@ func _criar_inventario() -> void:
 		var caixa := TextureRect.new()
 		caixa.texture = preload("res://arte/hud_slot.png")
 		caixa.position = Vector2(6 + i * 19, 6)
+		caixa.visible = false        # a barra antiga não aparece: tudo fica no bornal
 		camada.add_child(caixa)
 		if ORDEM_ITENS[i] == "abebe":
 			_moldura_trofeu = caixa
@@ -433,8 +434,10 @@ func _criar_inventario() -> void:
 		item.position = caixa.position + Vector2(3, 3)
 		item.pivot_offset = Vector2(6, 6)
 		item.modulate = COR_ITEM_FALTA
+		item.visible = false
 		camada.add_child(item)
 		_slots_iem[ORDEM_ITENS[i]] = item
+	_esconder_inventario()
 
 
 func _acender_slot(id: String, texto := "") -> void:

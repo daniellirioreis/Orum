@@ -258,6 +258,7 @@ func _criar_inventario() -> void:
 		var caixa := TextureRect.new()
 		caixa.texture = preload("res://arte/hud_slot.png")
 		caixa.position = Vector2(6 + i * 19, 6)
+		caixa.visible = false        # a barra antiga não aparece: tudo fica no bornal
 		camada.add_child(caixa)
 		if ordem[i] == "ofa":
 			_moldura_trofeu = caixa
@@ -269,8 +270,10 @@ func _criar_inventario() -> void:
 		item.position = caixa.position + Vector2(3, 3)
 		item.pivot_offset = Vector2(6, 6)
 		item.modulate = COR_ITEM_FALTA
+		item.visible = false
 		camada.add_child(item)
 		_ox_slots[ordem[i]] = item
+	_esconder_inventario()
 
 
 func _ganhar_item(id: String, texto: String) -> void:
@@ -1301,11 +1304,11 @@ func _ganhar_trofeu() -> void:
 	var brilho := create_tween().set_loops()
 	brilho.tween_property(_moldura_trofeu, "modulate", Color(1.0, 0.95, 0.6), 0.6)
 	brilho.tween_property(_moldura_trofeu, "modulate", Color(1.0, 0.78, 0.3), 0.6)
-	Jogo.tocar_som("buzio", 0.0)
-	if Jogo.assentados.has("oxossi"):
-		_mostrar_aviso("O Ofá de Oxóssi de novo! O dele já está no quarto de santo da Vó.")
-	else:
-		_mostrar_aviso("Troféu: o Ofá de Oxóssi! Leve para o terreiro da Vó.")
+	var ic := AtlasTexture.new()
+	ic.atlas = TEX_OX_ITENS
+	ic.region = Rect2(3 * 12, 0, 12, 12)
+	await _mostrar_grande(ic, 4.0, "Ofá de Oxóssi!",
+		"O dele já está no quarto de santo da Vó." if Jogo.assentados.has("oxossi") else "Presente de Oxóssi. Leve para o terreiro da Vó.", true)
 
 
 func _folhas(pos: Vector2) -> void:

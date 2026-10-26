@@ -878,6 +878,7 @@ func _criar_interface() -> void:
 	_contador_buzios = _rotulo_hud("000", 10, Color.WHITE)
 	_contador_buzios.add_theme_font_override("font", fonte_forte)
 	_contador_buzios.position = Vector2(99, 6)
+	_esconder_inventario()      # o que Adé carrega fica no bornal (scripts/bornal.gd); a barra antiga não aparece
 	camada.add_child(_contador_buzios)
 
 	# AXÉ (à direita): búzios no lugar dos corações
@@ -2760,6 +2761,26 @@ func _cozinhar_manjar() -> void:
 
 ## O manjar pronto aparece grande no meio da tela, brilhando; depois fica nas mãos de Adé.
 func _mostrar_manjar() -> void:
+	await _mostrar_grande(preload("res://arte/manjar_grande.png"), 2.0, "Manjar branco!", "Branquinho como a espuma do mar.")
+	# Adé segura o prato com o manjar
+	_manjar_na_mao = Sprite2D.new()
+	_manjar_na_mao.texture = preload("res://arte/manjar.png")
+	_manjar_na_mao.position = Vector2(0, -9)
+	_manjar_na_mao.z_index = 1
+	jogador.add_child(_manjar_na_mao)
+	Jogo.bornal.pegar("manjar")
+	_mostrar_aviso("Você guardou no bornal: Manjar branco")
+
+
+## Uma coisa importante aparece grande no meio da tela, brilhando, com o nome embaixo
+## (o manjar pronto, uma ferramenta nova, o troféu de um orixá).
+func _mostrar_grande(tex: Texture2D, escala: float, titulo_txt: String, sub_txt: String, trofeu := false) -> void:
+	await get_tree().process_frame
+	while $Dialogo.ativo:              # espera a conversa acabar (o troféu chega no meio de uma fala)
+		await $Dialogo.terminou
+	await get_tree().create_timer(0.2).timeout
+	var estava: bool = jogador.pode_mover
+	jogador.congelar(true)
 	var camada := CanvasLayer.new()
 	camada.layer = 9
 	add_child(camada)
@@ -2775,26 +2796,29 @@ func _mostrar_manjar() -> void:
 	raios.modulate = Color(1.0, 0.95, 0.8, 0.85)
 	camada.add_child(raios)
 	var prato := Sprite2D.new()
-	prato.texture = preload("res://arte/manjar_grande.png")
+	prato.texture = tex
+	prato.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	prato.position = meio
 	prato.scale = Vector2.ZERO
 	camada.add_child(prato)
-	var titulo := _rotulo_manjar("Manjar branco!", 12, Color(1.0, 0.86, 0.45), meio.y + 46)
-	var sub := _rotulo_manjar("Branquinho como a espuma do mar.", 8, Color(0.85, 0.9, 1.0), meio.y + 62)
+	if trofeu:
+		raios.modulate = Color(1.0, 0.8, 0.35, 0.95)
+	var titulo := _rotulo_manjar(titulo_txt, 12, Color(1.0, 0.86, 0.45), meio.y + 46)
+	var sub := _rotulo_manjar(sub_txt, 8, Color(0.85, 0.9, 1.0), meio.y + 62)
 	camada.add_child(titulo)
 	camada.add_child(sub)
 	titulo.modulate.a = 0.0
 	sub.modulate.a = 0.0
-	Jogo.tocar_som("pegar_item", -2.0)
+	Jogo.tocar_som("buzio" if trofeu else "pegar_item", -2.0)
 	var t := create_tween().set_parallel()
 	t.tween_property(fundo, "color:a", 0.55, 0.3)
-	t.tween_property(prato, "scale", Vector2(2, 2), 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	t.tween_property(prato, "scale", Vector2(escala, escala), 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	t.tween_property(raios, "scale", Vector2(5, 5), 0.5)
 	t.tween_property(titulo, "modulate:a", 1.0, 0.3).set_delay(0.3)
 	t.tween_property(sub, "modulate:a", 1.0, 0.3).set_delay(0.5)
 	var gira := create_tween().set_loops()
 	gira.tween_property(raios, "rotation", TAU, 4.0).from(0.0)
-	await get_tree().create_timer(2.6).timeout
+	await get_tree().create_timer(3.2 if trofeu else 2.6).timeout
 	var t2 := create_tween().set_parallel()
 	t2.tween_property(fundo, "color:a", 0.0, 0.3)
 	t2.tween_property(prato, "scale", Vector2.ZERO, 0.3)
@@ -2804,18 +2828,25 @@ func _mostrar_manjar() -> void:
 	await t2.finished
 	gira.kill()
 	camada.queue_free()
-	# Adé segura o prato com o manjar
-	_manjar_na_mao = Sprite2D.new()
-	_manjar_na_mao.texture = preload("res://arte/manjar.png")
-	_manjar_na_mao.position = Vector2(0, -9)
-	_manjar_na_mao.z_index = 1
-	jogador.add_child(_manjar_na_mao)
-	Jogo.bornal.pegar("manjar")
-	_mostrar_aviso("Você guardou no bornal: Manjar branco")
+	if estava:
+		jogador.congelar(false)
 
 
 func _rotulo_manjar(texto: String, tamanho: int, cor: Color, y: float) -> Label:
 	var l := Label.new()
+	# frase comprida quebra em duas linhas (no espaço mais perto do meio), sem sair da tela
+	if texto.length() > 40 and not "\n" in texto:
+		var meio := texto.length() / 2
+		var corte := -1
+		for d in meio:
+			if texto[meio - d] == " ":
+				corte = meio - d
+				break
+			if meio + d < texto.length() and texto[meio + d] == " ":
+				corte = meio + d
+				break
+		if corte > 0:
+			texto = texto.substr(0, corte) + "\n" + texto.substr(corte + 1)
 	l.text = texto
 	l.position = Vector2(0, y)
 	l.size = Vector2(Jogo.TELA.x, 14)
@@ -3000,6 +3031,10 @@ func _pegar_item(id: String, de_onde: Vector2 = Vector2(-1, -1)) -> void:
 	Jogo.bornal.pegar(id, _na_tela(de_onde) if de_onde.x > -1 else _na_tela(jogador.global_position + Vector2(0, -16)))
 	Jogo.tocar_som("pegar_item", -4.0)
 	_mostrar_aviso("Você guardou no bornal: " + Jogo.bornal.ITENS[id]["nome"])
+	if Jogo.bornal.ITENS[id]["tipo"] == "ferramenta":
+		# uma ferramenta nova aparece grande, depois da conversa em que Adé acha
+		await _mostrar_grande(Jogo.bornal.icone(id), 4.0, Jogo.bornal.ITENS[id]["nome"] + "!",
+			Jogo.texto(Jogo.bornal.ITENS[id].get("curta", "Guardado no bornal.")))
 	if not Jogo.has_meta("bornal_dica"):
 		Jogo.set_meta("bornal_dica", true)
 		await get_tree().create_timer(0.6).timeout

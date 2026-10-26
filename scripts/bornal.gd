@@ -33,7 +33,7 @@ const ITENS := {
 	"lenha": {"nome": "Lenha", "tipo": "entrega", "fase": "exu", "icone": ["res://arte/itens.png", 4],
 		"desc": "Um feixe de lenha seca para o fogão da Tia Dora."},
 	# a mata de Oxóssi
-	"ofa": {"nome": "Ofá", "tipo": "ferramenta", "fase": "oxossi", "icone": ["res://arte/ox_itens.png", 3],
+	"ofa": {"curta": "Já está na mão de Adé. Atire com {atirar}.", "nome": "Ofá", "tipo": "ferramenta", "fase": "oxossi", "icone": ["res://arte/ox_itens.png", 3],
 		"desc": "O arco do caçador, com uma flecha só. Na mão, atira com {atirar}.", "equipa": true},
 	"milho": {"nome": "Milho", "tipo": "oferenda", "fase": "oxossi", "icone": ["res://arte/ox_itens.png", 0],
 		"desc": "Uma espiga do milharal. Vai na oferenda para Exu, como a mãe do caçador fez."},
@@ -42,9 +42,9 @@ const ITENS := {
 	"mel": {"nome": "Mel", "tipo": "oferenda", "fase": "oxossi", "icone": ["res://arte/ox_itens.png", 2],
 		"desc": "Um favo de mel da colmeia. Docinho."},
 	# a terra de Nanã
-	"faca": {"nome": "Faca de ferro", "tipo": "ferramenta", "fase": "nana", "icone": ["res://arte/bornal_itens.png", 4],
+	"faca": {"curta": "Uma faca de ferro velha. Será que corta a taboa?", "nome": "Faca de ferro", "tipo": "ferramenta", "fase": "nana", "icone": ["res://arte/bornal_itens.png", 4],
 		"desc": "Uma faca de ferro velha, achada num toco."},
-	"lamina": {"nome": "Lâmina de bambu", "tipo": "ferramenta", "fase": "nana", "icone": ["res://arte/nana_itens.png", 1],
+	"lamina": {"curta": "Bambu afiado: na terra de Nanã, corta melhor que o ferro.", "nome": "Lâmina de bambu", "tipo": "ferramenta", "fase": "nana", "icone": ["res://arte/nana_itens.png", 1],
 		"desc": "Uma lasca afiada de bambu rachado. Na terra de Nanã, corta melhor que o ferro."},
 	"pote_rachado": {"nome": "Pote rachado", "tipo": "oferenda", "fase": "nana", "icone": ["res://arte/nana_itens.png", 0],
 		"desc": "O pote de barro da velhinha. Está rachado: assim não segura água."},
@@ -55,7 +55,7 @@ const ITENS := {
 	"flores_nana": {"nome": "Flores lilás", "tipo": "oferenda", "fase": "nana", "icone": ["res://arte/nana_itens.png", 2],
 		"desc": "Flores lilás da ilhota do mangue, para Nanã."},
 	# o mar de Iemanjá (e o manjar no terreiro)
-	"remo": {"nome": "Remo", "tipo": "ferramenta", "fase": "iemanja", "icone": ["res://arte/bornal_itens.png", 0],
+	"remo": {"curta": "Agora a jangada pode ir para o mar.", "nome": "Remo", "tipo": "ferramenta", "fase": "iemanja", "icone": ["res://arte/bornal_itens.png", 0],
 		"desc": "O remo da jangada, que o mar tinha deixado na gruta do costão."},
 	"coco": {"nome": "Coco", "tipo": "entrega", "fase": "iemanja", "icone": ["res://arte/ox_itens.png", 1],
 		"desc": "Um coco maduro do coqueiro do quintal, para o manjar da Tia Dora."},
