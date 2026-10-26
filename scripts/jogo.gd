@@ -35,6 +35,9 @@ var bornal: CanvasLayer          # o bornal de Adé (scripts/bornal.gd)
 ## Teclado ou controle: o último usado decide os nomes dos botões nos textos ({interagir}, {atirar}...).
 signal dispositivo_mudou
 var usando_controle := false
+## Qual controle: "xbox", "playstation" ou "nintendo" (pelo nome que o sistema dá ao controle).
+## Os botões funcionam pela posição; só os nomes nos textos mudam (A/✕/B, B/○/A...).
+var tipo_controle := "xbox"
 const NOMES_BOTOES := {
 	# ação: [no teclado, no controle (nomes do padrão Xbox, pela posição do botão)]
 	"interagir": ["E", "A"],
@@ -59,6 +62,9 @@ func _ready() -> void:
 	# tela no tamanho do Super Nintendo (256x224), ampliada 3x na janela
 	get_window().content_scale_size = TELA
 	_configurar_controles()
+	Input.joy_connection_changed.connect(_controle_conectado)
+	if not Input.get_connected_joypads().is_empty():
+		tipo_controle = _tipo_do_controle(Input.get_connected_joypads()[0])
 
 	_musica = AudioStreamPlayer.new()
 	_musica.volume_db = -8.0
@@ -157,6 +163,13 @@ func botao(acao: String) -> String:
 		var n := nome_controle(mapa[acao], usando_controle)
 		if n != "":
 			return n
+	if usando_controle and tipo_controle != "xbox":
+		var por_marca := {
+			"playstation": {"devagar": "L1 ou R1", "pausa": "Options", "bornal": "Create", "confirmar": "✕", "interagir": "✕", "atirar": "○", "ver_mapa": "△"},
+			"nintendo": {"devagar": "L ou R", "pausa": "+", "bornal": "−", "confirmar": "B", "interagir": "B", "atirar": "A", "ver_mapa": "X"},
+		}
+		if por_marca[tipo_controle].has(acao):
+			return por_marca[tipo_controle][acao]
 	return NOMES_BOTOES.get(acao, [acao, acao])[1 if usando_controle else 0]
 
 
@@ -171,15 +184,70 @@ func texto(t: String) -> String:
 
 func _input(evento: InputEvent) -> void:
 	var controle := usando_controle
+	var tipo := tipo_controle
 	if evento is InputEventJoypadButton and evento.pressed:
 		controle = true
+		tipo = _tipo_do_controle(evento.device)
 	elif evento is InputEventJoypadMotion and absf(evento.axis_value) > 0.6:
 		controle = true
+		tipo = _tipo_do_controle(evento.device)
 	elif evento is InputEventKey and evento.pressed:
 		controle = false
-	if controle != usando_controle:
+	if controle != usando_controle or tipo != tipo_controle:
 		usando_controle = controle
+		tipo_controle = tipo
 		dispositivo_mudou.emit()
+
+
+## Descobre a marca do controle pelo nome que o sistema dá a ele.
+func _tipo_do_controle(device: int) -> String:
+	var nome := Input.get_joy_name(device).to_lower()
+	for chave in ["playstation", "dualsense", "dualshock", "sony", "ps3", "ps4", "ps5", "wireless controller"]:
+		if chave in nome:
+			return "playstation"
+	for chave in ["nintendo", "switch", "joy-con", "joycon", "pro controller"]:
+		if chave in nome:
+			return "nintendo"
+	return "xbox"
+
+
+func _controle_conectado(device: int, conectado: bool) -> void:
+	if conectado:
+		tipo_controle = _tipo_do_controle(device)
+		var marca: String = {"xbox": "Xbox", "playstation": "PlayStation", "nintendo": "Nintendo"}[tipo_controle]
+		var nome := Input.get_joy_name(device)
+		_aviso_controle("Controle conectado: " + marca + ("" if nome == "" else "  (" + nome + ")"))
+		usando_controle = true
+	else:
+		_aviso_controle("Controle desconectado")
+		if Input.get_connected_joypads().is_empty():
+			usando_controle = false
+	dispositivo_mudou.emit()
+
+
+var _rotulo_aviso: Label
+
+
+func _aviso_controle(texto: String) -> void:
+	if not _rotulo_aviso:
+		var camada := CanvasLayer.new()
+		camada.layer = 101
+		camada.process_mode = Node.PROCESS_MODE_ALWAYS
+		add_child(camada)
+		_rotulo_aviso = Label.new()
+		_rotulo_aviso.position = Vector2(0, TELA.y - 16)
+		_rotulo_aviso.size = Vector2(TELA.x, 12)
+		_rotulo_aviso.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_rotulo_aviso.add_theme_font_size_override("font_size", 7)
+		_rotulo_aviso.add_theme_color_override("font_color", Color(1.0, 0.92, 0.7))
+		_rotulo_aviso.add_theme_color_override("font_outline_color", Color(0.05, 0.03, 0.08))
+		_rotulo_aviso.add_theme_constant_override("outline_size", 3)
+		camada.add_child(_rotulo_aviso)
+	_rotulo_aviso.text = texto
+	_rotulo_aviso.modulate.a = 1.0
+	var t := create_tween()
+	t.tween_interval(2.5)
+	t.tween_property(_rotulo_aviso, "modulate:a", 0.0, 0.6)
 
 
 func _unhandled_input(evento: InputEvent) -> void:
@@ -266,8 +334,27 @@ func _nome_do_evento(ev: InputEvent) -> String:
 		var n := OS.get_keycode_string(ev.physical_keycode if ev.physical_keycode != KEY_NONE else ev.keycode)
 		return NOMES_TECLAS.get(n, n)
 	if ev is InputEventJoypadButton:
-		return NOMES_JOY.get(ev.button_index, "Botão %d" % ev.button_index)
+		return nome_do_botao(ev.button_index)
 	return ""
+
+
+## O nome de um botão do controle, do jeito que está escrito no controle que está sendo usado.
+func nome_do_botao(i: int) -> String:
+	match tipo_controle:
+		"playstation":
+			var ps := {JOY_BUTTON_A: "✕", JOY_BUTTON_B: "○", JOY_BUTTON_X: "□", JOY_BUTTON_Y: "△",
+				JOY_BUTTON_LEFT_SHOULDER: "L1", JOY_BUTTON_RIGHT_SHOULDER: "R1", JOY_BUTTON_START: "Options",
+				JOY_BUTTON_BACK: "Create", JOY_BUTTON_LEFT_STICK: "L3", JOY_BUTTON_RIGHT_STICK: "R3", JOY_BUTTON_GUIDE: "PS"}
+			if ps.has(i):
+				return ps[i]
+		"nintendo":
+			# no controle da Nintendo, o botão de baixo se chama B e o da direita, A
+			var nin := {JOY_BUTTON_A: "B", JOY_BUTTON_B: "A", JOY_BUTTON_X: "Y", JOY_BUTTON_Y: "X",
+				JOY_BUTTON_LEFT_SHOULDER: "L", JOY_BUTTON_RIGHT_SHOULDER: "R", JOY_BUTTON_START: "+",
+				JOY_BUTTON_BACK: "−", JOY_BUTTON_GUIDE: "Home"}
+			if nin.has(i):
+				return nin[i]
+	return NOMES_JOY.get(i, "Botão %d" % i)
 
 
 ## Nome da tecla (ou dos botões do controle) de uma ação, como ela está configurada agora.

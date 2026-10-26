@@ -107,6 +107,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_montar_hud()
 	mostrar_hud(false)
+	Jogo.dispositivo_mudou.connect(_atualizar_hud)     # troca o nome da tecla (Tab / Select / Create / −)
 
 
 # ------------------------------------------------------------------ os itens
@@ -248,7 +249,7 @@ func _atualizar_hud() -> void:
 	_hud_conta.visible = not vazio
 	_hud_tecla.visible = true
 	_hud_conta.text = str(itens.size())
-	_hud_tecla.text = Jogo.botao("bornal")
+	_hud_tecla.text = Jogo.botao("bornal").split(" ou ")[0]
 	_hud_slot.visible = equipado != ""
 	_hud_mao.visible = equipado != ""
 	if equipado != "":
