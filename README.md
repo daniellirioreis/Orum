@@ -301,9 +301,10 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   rosto rindo. Narração e o Ìtàn ficam sem rosto. A lista de quem tem rosto está em `RETRATOS`, no `scripts/dialogo.gd`.
 - **Trilha de cada mundo** (feitas pelo `gerar_musicas.py`, em laço sem emenda): `sons/musica_encruzilhada.wav`
   (Exu: noite, 12/8 com agogô e um baixo com nota "torta"), `musica_oxossi.wav` (galope inspirado no agueré, com
-  flauta), `musica_nana.wav` (lenta, inspirada no sató, com coro grave e marimba), `musica_iemanja.wav` (calma, inspirada
-  no ijexá: agogô, xequerê arrastado e atabaques macios, com flauta, coro, kalimba e o barulho das ondas chegando na
-  areia) e `musica_mapa.wav` (viagem leve).
+  flauta), `musica_nana.wav` (lenta, inspirada no sató, com coro grave e marimba), `musica_iemanja.wav` (uma barcarola animada
+  em 6/8, balanço de barco: agogô com o sino de 12 pulsos, atabaques conversando, baixo andando, arpejos de marimba
+  subindo e descendo como as ondas, coro e flauta na melodia, uma parte em Lá menor e outra em Dó maior, e o barulho
+  das ondas) e `musica_mapa.wav` (viagem leve).
   O terreiro e a tela de título continuam com `musica.wav`. `Jogo.tocar_musica("nome")` troca de trilha devagar.
 - **Efeitos sonoros por ação** (36 sons novos em `sons/`, no estilo SNES, feitos pelo `gerar_sfx.py`):
   - Adé: passos que mudam com o chão (`passo_grama`, `passo_terra`, `passo_lama`, `passo_madeira`; andando devagar não
