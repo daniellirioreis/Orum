@@ -212,7 +212,7 @@ func _montar_hud() -> void:
 	var tela := Vector2(Jogo.TELA)
 	_hud_slot = TextureRect.new()
 	_hud_slot.texture = TEX_SLOT
-	_hud_slot.position = Vector2(tela.x - 22, 30)
+	_hud_slot.position = Vector2(tela.x - 124, 4)       # na mão: ao lado do bornal, na frente do axé
 	_hud.add_child(_hud_slot)
 	_hud_mao = TextureRect.new()
 	_hud_mao.position = _hud_slot.position + Vector2(3, 3)
@@ -223,15 +223,15 @@ func _montar_hud() -> void:
 	a.atlas = load("res://arte/bornal_itens.png")
 	a.region = Rect2(5 * 12, 0, 12, 12)
 	_hud_bolsa.texture = a
-	_hud_bolsa.position = Vector2(tela.x - 40, 33)
+	_hud_bolsa.position = Vector2(tela.x - 102, 5)
 	_hud_bolsa.pivot_offset = Vector2(6, 6)
 	_hud.add_child(_hud_bolsa)
 	_hud_conta = _rotulo("", 7, COR_TEXTO)
-	_hud_conta.position = Vector2(tela.x - 34, 40)
+	_hud_conta.position = Vector2(tela.x - 91, 9)
 	_hud.add_child(_hud_conta)
 	_hud_tecla = _rotulo("", 6, COR_APAGADA)
-	_hud_tecla.position = Vector2(tela.x - 44, 47)
-	_hud_tecla.size = Vector2(42, 8)
+	_hud_tecla.position = Vector2(tela.x - 109, 17)
+	_hud_tecla.size = Vector2(26, 8)
 	_hud_tecla.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_hud.add_child(_hud_tecla)
 
