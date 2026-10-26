@@ -83,6 +83,8 @@ func _ready() -> void:
 	lugares = LUGARES_IEMANJA
 	terrenos = [[["s", "u", "w", "t"], 8], [["u", "w"], 9], [["w"], 10], [["t"], 1], [["r"], 1], [["~"], 10]]
 	agua_chars = ["w", "~"]
+	folga_empurrar = 13.0      # na gruta escura, empurrar as pedras é mais fácil de acertar
+	tempo_empurrar = 0.12
 	cor_fora = COR_LUA
 	estado = "caminho"
 	Jogo.tocar_musica("musica_iemanja")

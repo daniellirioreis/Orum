@@ -51,6 +51,9 @@ var _avisou_kiumba := false
 var _fogos: Array = []           # [sprite da tocha, fogo sem sombra, fase]
 var _invulneravel := 0.0
 var _empurrando := 0.0
+## Quão fácil é empurrar as pedras: folga de lado (px) e quanto tempo segurando antes de a pedra andar.
+var folga_empurrar := 9.0
+var tempo_empurrar := 0.22
 var _voltando := false
 var _sem_axe_agora := false     # Exu está oferecendo a troca (ou é fim de jogo)
 const BUZIOS_POR_AXE := 5       # quantos búzios coletados valem um búzio de axé
@@ -343,9 +346,9 @@ func _physics_process(delta: float) -> void:
 			var rel: Vector2 = (p["no"].position + Vector2(0, -7)) - (jogador.global_position + Vector2(0, -3))
 			var encostou := false
 			if dir.x != 0:
-				encostou = absf(rel.y) < 9.0 and signf(rel.x) == dir.x and absf(rel.x) < 15.0
+				encostou = absf(rel.y) < folga_empurrar and signf(rel.x) == dir.x and absf(rel.x) < 15.0
 			else:
-				encostou = absf(rel.x) < 9.0 and signf(rel.y) == dir.y and absf(rel.y) < 15.0
+				encostou = absf(rel.x) < folga_empurrar and signf(rel.y) == dir.y and absf(rel.y) < 15.0
 			if encostou:
 				alvo = p
 				break
@@ -353,8 +356,14 @@ func _physics_process(delta: float) -> void:
 		_empurrando = 0.0
 		return
 	_empurrando += delta
-	if _empurrando >= 0.22:
+	if _empurrando >= tempo_empurrar:
 		_empurrando = 0.0
+		# Adé se ajeita atrás da pedra, para o próximo empurrão sair reto
+		var centro: Vector2 = alvo["no"].position
+		if dir.x != 0:
+			jogador.global_position.y = centro.y - 4.0
+		else:
+			jogador.global_position.x = centro.x
 		_empurrar(alvo, dir)
 
 
