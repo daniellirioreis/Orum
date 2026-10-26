@@ -252,7 +252,7 @@ func _criar_nuvens() -> void:
 ## da esquerda para a direita; somem na beirada e voltam do outro lado.
 var _nuvens_oxala: Array = []
 const OXALA_X := Vector2(150, 342)       # de onde até onde elas passam
-const OXALA_Y := Vector2(122, 170)      # na cintura do Kilimanjaro: o cume nevado fica acima das nuvens
+const OXALA_Y := Vector2(100, 166)      # na cintura do Kilimanjaro: o cume nevado fica acima das nuvens
 
 
 func _criar_nuvens_de_oxala() -> void:
@@ -411,14 +411,14 @@ func _criar_bichos_dos_mundos() -> void:
 		_voador(urubu, Vector2(236, 334), Vector2(34 + i * 10, 12 + i * 3), 0.28 + i * 0.05, i * 2.1, {"asas": 1.5})
 	var gaivota := preload("res://arte/mundo_gaivota.png")
 	for i in 3:                         # Oxalá: pombas voando em volta do templo, no cume do Kilimanjaro
-		_voador(gaivota, Vector2(244, 76), Vector2(40 + i * 6, 12 + i * 2), 0.5 + i * 0.1, i * 2.0, {"asas": 7.0})
+		_voador(gaivota, Vector2(244, 46), Vector2(40 + i * 6, 12 + i * 2), 0.5 + i * 0.1, i * 2.0, {"asas": 7.0})
 	_bicho(preload("res://arte/mundo_elefante.png"), Vector2(220, 180), Vector2(244, 182), 0.3)   # elefantes na savana
 	_bicho(preload("res://arte/mundo_elefante.png"), Vector2(280, 180), null, 1.7)
 	var floco := Image.create(1, 1, false, Image.FORMAT_RGBA8)   # a neve fininha caindo no cume
 	floco.fill(Color(1, 1, 1, 0.9))
 	var neve := CPUParticles2D.new()
 	neve.texture = ImageTexture.create_from_image(floco)
-	neve.position = Vector2(244, 70)
+	neve.position = Vector2(244, 40)
 	neve.z_index = 2
 	neve.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
 	neve.emission_rect_extents = Vector2(32, 6)

@@ -231,7 +231,8 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   `_mexer_riscos_de_vento()`, `_criar_vento_de_iansa()`, `_criar_ceu_de_tempestade()`, `_criar_folhas_de_bambu()` e
   `_raio_caindo()` no `scripts/mapa_mundo.gd`).
 - **O mundo de Oxalá é o Kilimanjaro** (`kilimanjaro()` no `gerar_mapa_mundo.py`): o vulcão largo de topo achatado,
-  em faixas que estreitam para cima — a mata no pé, o campo de urzes com lobélias e senécios gigantes, o deserto de
+  o ponto mais alto do mapa (cada faixa tem o paredão maior que a de baixo, e a montanha faz uma sombra comprida
+  para a direita), em faixas que estreitam para cima — a mata no pé, o campo de urzes com lobélias e senécios gigantes, o deserto de
   pedra com línguas de gelo descendo e o cume coberto de neve, com a cratera e o templo de Oxalá. As nuvens passam
   na cintura da montanha (o cume fica acima delas), cai neve fininha no alto e, na savana do pé, há acácias e
   elefantes (`arte/mundo_elefante.png`). Em cima não tem mais mar: a terra vai até o fim do mapa, a mata do pé do
