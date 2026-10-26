@@ -148,6 +148,7 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			_flores = _criar_interativo("res://arte/iemanja_flores.png", 2, base + Vector2(0, 4), Vector2(2, 2), -34.0)
 			_flores.sprite.offset.y -= 13.0                # as flores em cima da pedra (desenhadas na frente dela)
 			(_flores.get_node("Alcance").shape as CircleShape2D).radius = 26.0
+			_flores.interagiu.connect(_colher_flores)
 			_luz(base + Vector2(0, -12), Color(0.95, 0.95, 1.0), 1.3, 1.6, false)
 		"J":
 			_criar_cenario("res://arte/iemanja_jangada.png", Vector2(40, 10), base + Vector2(0, 4))
