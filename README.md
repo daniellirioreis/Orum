@@ -170,11 +170,14 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   sobem pela areia molhada e voltam num ritmo (umas pequenas, outras grandes); antes
   de cada uma, a espuma pisca na areia mostrando até onde ela vai. Nos apertos, Adé passa quando a onda recua; se a
   onda pega, ele volta para a última areia seca e perde um búzio de axé. Caranguejos beliscam e águas-vivas largadas
-  na areia queimam. No fim da praia, na restinga, as **flores brancas**. (A vila dos pescadores, o jardim de corais,
+  na areia queimam. Em cada aperto há também **o caminho pelas moitas**: uma trilha estreita de areia serpenteando pelo
+  coqueiral, longe das ondas — mas de tempos em tempos cai um coco (a sombra aparece e cresce no chão antes; quem
+  estiver em cima leva um búzio de axé) e um caranguejo fica parado no meio da trilha abrindo as garras, até correr
+  para a toca na beira da moita e o caminho abrir. No fim da praia, na restinga, as **flores brancas**. (A vila dos pescadores, o jardim de corais,
   as águas escuras e Aiocá vêm a seguir; por enquanto a saída volta ao Ọ̀run.)
 - Mapa: `fases/iemanja_praia.txt` (+ `_objetos`), gerado pelo `gerar_mapas_iemanja.py`. Chão: `s` areia seca,
   `u` areia molhada (aonde a onda chega), `w` mar, `,` restinga, `a` moita, `t` trilha. Objetos: `E` Exu, `f` flores
-  brancas, `r` rocha, `C` coqueiro, `k` caranguejo, `j` água-viva, `h` conchinha, `>` saída. Terreno novo nas linhas
+  brancas, `q` onde cai o coco, `K` caranguejo da trilha, `r` rocha, `C` coqueiro, `k` caranguejo, `j` água-viva, `h` conchinha, `>` saída. Terreno novo nas linhas
   8-10 do `arte/terreno_snes.png` (`gerar_terreno_praia.py`); arte em `arte/iemanja_*.png` (`gerar_arte_iemanja.py`).
 
 **A Terra de Nanã (Ilẹ̀ Ẹrẹ̀ Nàná, "a terra da lama de Nanã", visão de cima)** — `cenas/mata_nana.tscn`, `scripts/mata_nana.gd`

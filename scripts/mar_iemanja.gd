@@ -42,6 +42,9 @@ var _queimou_uma_vez := false
 var _caranguejos: Array = []    # {s, de, ate, vel, fase}
 var _aguasvivas: Array = []     # Sprite2D
 var _flores: Area2D
+# o caminho pelas moitas (o coqueiral): coco caindo e caranguejo no meio da trilha
+var _cocos: Array = []          # {base, estado, t, espera, sombra, coco}
+var _caranguejos_trilha: Array = []   # {s, base, lado, estado, t}
 
 
 func _ready() -> void:
@@ -115,6 +118,8 @@ func _process(delta: float) -> void:
 	_chao_de_ade()
 	_mover_caranguejos()
 	_aguasvivas_queimam()
+	_cair_cocos(delta)
+	_mover_caranguejos_trilha(delta)
 
 
 ## Sem relâmpago no mar de Iemanjá (por enquanto, o céu é limpo).
@@ -157,6 +162,10 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			a.position = base - Vector2(0, 2)
 			mundo.add_child(a)
 			_aguasvivas.append(a)
+		"q":
+			_criar_ponto_do_coco(base)
+		"K":
+			_criar_caranguejo_da_trilha(lugar, celula, base)
 		"h":
 			var h := Sprite2D.new()
 			h.texture = preload("res://arte/iemanja_conchas.png")
@@ -483,6 +492,136 @@ func _aguasvivas_queimam() -> void:
 			if not _queimou_uma_vez:
 				_queimou_uma_vez = true
 				_falar("aguaviva")
+
+
+# ------------------------------------------------------------------ o caminho pelas moitas
+
+## Num coqueiro da beira da trilha, de tempos em tempos cai um coco: primeiro a sombra aparece e cresce no chão
+## (é o aviso), depois o coco cai. Quem estiver em cima da sombra leva um búzio de axé.
+func _criar_ponto_do_coco(base: Vector2) -> void:
+	var sombra := Sprite2D.new()
+	sombra.texture = TEX_SOMBRA
+	sombra.position = base - Vector2(0, 3)
+	sombra.z_index = -3
+	sombra.modulate.a = 0.0
+	add_child(sombra)
+	var c := Sprite2D.new()
+	c.texture = preload("res://arte/iemanja_coco.png")
+	c.offset = Vector2(0, -3)
+	c.visible = false
+	mundo.add_child(c)
+	_cocos.append({"base": base - Vector2(0, 3), "estado": "espera", "t": 0.0, "espera": randf_range(0.5, 3.0),
+		"sombra": sombra, "coco": c})
+
+
+func _cair_cocos(delta: float) -> void:
+	for k in _cocos:
+		var base: Vector2 = k["base"]
+		if base.distance_to(jogador.global_position) > 220.0 and k["estado"] == "espera":
+			continue                                # longe da tela, o coqueiro descansa
+		k["t"] += delta
+		var sombra: Sprite2D = k["sombra"]
+		var c: Sprite2D = k["coco"]
+		match k["estado"]:
+			"espera":
+				if k["t"] >= k["espera"]:
+					k["estado"] = "aviso"; k["t"] = 0.0
+			"aviso":
+				var u: float = clampf(k["t"] / 1.0, 0.0, 1.0)
+				sombra.modulate.a = 0.25 + 0.55 * u
+				sombra.scale = Vector2.ONE * (0.4 + 0.6 * u)
+				if k["t"] >= 1.0:
+					k["estado"] = "cai"; k["t"] = 0.0
+					c.visible = true
+					c.modulate.a = 1.0
+			"cai":
+				var u2: float = clampf(k["t"] / 0.22, 0.0, 1.0)
+				c.position = base + Vector2(0, -40.0 * (1.0 - u2 * u2))
+				if k["t"] >= 0.22:
+					k["estado"] = "chao"; k["t"] = 0.0
+					sombra.modulate.a = 0.0
+					som_perto("tronco_cai", base, -12.0)
+					if _invulneravel <= 0.0 and not _voltando and jogador.pode_mover \
+							and base.distance_to(jogador.global_position) < 10.0:
+						_tomar_dano(base)
+						if not _iem.has("coco_caiu"):
+							_iem["coco_caiu"] = true
+							_falar("coco")
+			"chao":
+				# o coco quica e rola um pouquinho, depois some
+				var u3: float = clampf(k["t"] / 0.35, 0.0, 1.0)
+				c.position = base + Vector2(6.0 * u3, -4.0 * sin(u3 * PI))
+				c.rotation = u3 * 3.0
+				if k["t"] > 0.9:
+					c.modulate.a = clampf(1.0 - (k["t"] - 0.9) / 0.4, 0.0, 1.0)
+				if k["t"] >= 1.3:
+					c.visible = false
+					c.rotation = 0.0
+					k["estado"] = "espera"; k["t"] = 0.0
+					k["espera"] = randf_range(1.2, 3.2)
+
+
+## O caranguejo que mora na trilha: fica parado no meio do caminho, abrindo e fechando as garras (quem encosta
+## leva um beliscão); de vez em quando ele corre de lado para a toca, na beira da moita, e o caminho abre.
+func _criar_caranguejo_da_trilha(lugar: String, celula: Vector2i, base: Vector2) -> void:
+	var mapa: PackedStringArray = _mapas[lugar]
+	var lado := Vector2(1, 0)
+	if _letra(mapa, celula.x + 1, celula.y) != "a":
+		lado = Vector2(-1, 0) if _letra(mapa, celula.x - 1, celula.y) == "a" else Vector2(0, -1)
+	var toca := Sprite2D.new()                       # o buraquinho da toca, na beira da moita
+	toca.texture = TEX_SOMBRA
+	toca.scale = Vector2(0.5, 0.4)
+	toca.modulate = Color(0.2, 0.12, 0.06, 0.8)
+	toca.position = base + lado * 9.0 - Vector2(0, 3)
+	toca.z_index = -3
+	add_child(toca)
+	var s := Sprite2D.new()
+	s.texture = preload("res://arte/iemanja_caranguejo.png")
+	s.hframes = 2
+	s.offset = Vector2(0, -4)
+	s.position = base
+	mundo.add_child(s)
+	_caranguejos_trilha.append({"s": s, "base": base, "lado": lado, "estado": "caminho", "t": randf_range(0.0, 1.5)})
+
+
+func _mover_caranguejos_trilha(delta: float) -> void:
+	for k in _caranguejos_trilha:
+		k["t"] += delta
+		var s: Sprite2D = k["s"]
+		var base: Vector2 = k["base"]
+		var toca: Vector2 = base + k["lado"] * 9.0
+		match k["estado"]:
+			"caminho":
+				s.frame = int(_tempo * 5.0) % 2                 # abrindo e fechando as garras
+				s.position = base + Vector2(sin(_tempo * 3.0) * 1.5, 0).round()
+				if k["t"] >= 3.2:
+					k["estado"] = "sai"; k["t"] = 0.0
+			"sai":
+				var u: float = clampf(k["t"] / 0.35, 0.0, 1.0)
+				s.position = base.lerp(toca, u).round()
+				s.frame = int(_tempo * 12.0) % 2
+				s.modulate.a = 1.0 - u * 0.9
+				if k["t"] >= 0.35:
+					k["estado"] = "toca"; k["t"] = 0.0
+					s.visible = false
+			"toca":
+				if k["t"] >= 1.8:
+					k["estado"] = "volta"; k["t"] = 0.0
+					s.visible = true
+			"volta":
+				var u2: float = clampf(k["t"] / 0.35, 0.0, 1.0)
+				s.position = toca.lerp(base, u2).round()
+				s.frame = int(_tempo * 12.0) % 2
+				s.modulate.a = 0.1 + u2 * 0.9
+				if k["t"] >= 0.35:
+					k["estado"] = "caminho"; k["t"] = 0.0
+		if s.visible and k["estado"] != "toca" and _invulneravel <= 0.0 and not _voltando and jogador.pode_mover \
+				and s.position.distance_to(jogador.global_position) < 10.0:
+			Jogo.tocar_som("caranguejo", -6.0)
+			_tomar_dano(s.position)
+			if not _iem.has("beliscou"):
+				_iem["beliscou"] = true
+				_falar("caranguejo_trilha")
 
 
 func _colher_flores() -> void:

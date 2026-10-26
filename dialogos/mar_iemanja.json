@@ -21,6 +21,7 @@
 		{"quem": "Èṣù", "yo": "", "pt": "Flores brancas, perfume de alfazema, uma pérola e um espelho. Iemanjá gosta de se ver bonita!"},
 		{"quem": "Èṣù", "yo": "", "pt": "As flores brancas crescem na restinga, lá no fim da praia. O resto o caminho te mostra."},
 		{"quem": "Èṣù", "yo": "", "pt": "Mas presta atenção no mar: a onda vem e volta. Onde a areia está molhada, a onda chega. Passe quando ela recuar!"},
+		{"quem": "Èṣù", "yo": "", "pt": "Se não quiser molhar o pé, tem a trilha pelo coqueiral, no meio das moitas. Mas lá o coco cai na cabeça e o caranguejo não dá passagem!"},
 		{"quem": "Èṣù", "yo": "Hi hi hi!", "pt": "E não pise nas águas-vivas, que elas queimam o pé! Odoyá, menino! Agora vai, que eu tenho outros caminhos pra cuidar."}
 	],
 	"onda_levou": [
@@ -30,6 +31,14 @@
 	],
 	"aguaviva": [
 		{"quem": "Adé", "yo": "", "pt": "Ai, ai! A água-viva queimou meu pé! Exu bem que avisou..."}
+	],
+	"coco": [
+		{"quem": "Adé", "yo": "", "pt": "Ai, minha cabeça! Um coco caiu bem em cima de mim!"},
+		{"quem": "Adé", "yo": "", "pt": "Quando a sombra aparece no chão, é que o coco vai cair. Melhor sair de baixo!"}
+	],
+	"caranguejo_trilha": [
+		{"quem": "Adé", "yo": "", "pt": "Ui! Esse caranguejo não sai do meio do caminho... e belisca!"},
+		{"quem": "Adé", "yo": "", "pt": "Ele tem uma toca na beira da moita. Vou esperar ele correr pra lá e passar."}
 	],
 	"flores": [
 		{"quem": "Adé", "yo": "", "pt": "As flores brancas da restinga! Tão bonitas, crescendo no meio da areia."},
