@@ -227,7 +227,7 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   (`arte/mundo_bufalo.png`), uns pastando e outros andando devagar; riscos de vento brancos com um caracol na ponta
   (`arte/mundo_vento.png`); bambuzais altos com as folhas agitadas pelo vento (e folhas arrancadas voando) e fitas;
   redemoinhos, chuva das nuvens de tempestade, uma sombra escura de céu carregado sobre o planalto, raios em zigue-zague
-  que caem das nuvens até o chão (com clarão) e os chifres de búfalo na chegada (`_criar_bufalos()`,
+  que caem das nuvens até o chão (com clarão) (`_criar_bufalos()`,
   `_mexer_riscos_de_vento()`, `_criar_vento_de_iansa()`, `_criar_ceu_de_tempestade()`, `_criar_folhas_de_bambu()` e
   `_raio_caindo()` no `scripts/mapa_mundo.gd`).
 - **Os outros mundos do Ọ̀run também mexem**: na mata de Oxóssi as copas balançam, um bando de passarinhos
