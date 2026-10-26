@@ -104,11 +104,16 @@ func _mostrar_rosto(linha: Dictionary) -> void:
 	var tem := RETRATOS.has(quem)
 	_moldura.visible = tem and ativo
 	var margem := 8.0 + (TAM_ROSTO + 8.0 if tem else 0.0)
+	# primeiro estreita o texto, depois aumenta a margem (na ordem contrária, a caixa cresce para fora da tela)
+	for l in [_yoruba, _legenda]:
+		l.custom_minimum_size.x = _largura - 18.0 - (TAM_ROSTO + 8.0 if tem else 0.0)
 	var estilo: StyleBoxFlat = _painel.get_theme_stylebox("panel")
 	estilo.content_margin_left = margem
 	_placa.position.x = 16.0 + (TAM_ROSTO + 8.0 if tem else 0.0)
-	for l in [_yoruba, _legenda]:
-		l.custom_minimum_size.x = _largura - 18.0 - (TAM_ROSTO + 8.0 if tem else 0.0)
+	# a caixa nunca passa da largura da tela (o PanelContainer cresce sozinho, mas não encolhe)
+	_painel.size = Vector2(_largura, _painel.size.y)
+	_painel.reset_size()
+	_painel.call_deferred("reset_size")
 	if not tem:
 		return
 	var linha_folha: int = RETRATOS[quem]
