@@ -166,7 +166,8 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
 **O Mar de Iemanjá (Òkun Yemọja, visão de cima — em construção)** — `cenas/mar_iemanja.tscn`, `scripts/mar_iemanja.gd`
 - Na chegada, Exu explica quem é Iemanjá (a dona do mar, a mãe de todos) e o que vai na oferenda que Adé leva até
   Aiocá, o palácio dela no fundo do mar: flores brancas, perfume de alfazema, uma pérola e um espelho.
-- **A praia das ondas**: as ondas sobem pela areia molhada e voltam num ritmo (umas pequenas, outras grandes); antes
+- **A praia das ondas** (deitada: Adé anda da esquerda para a direita e o mar fica embaixo): as ondas vêm de baixo e
+  sobem pela areia molhada e voltam num ritmo (umas pequenas, outras grandes); antes
   de cada uma, a espuma pisca na areia mostrando até onde ela vai. Nos apertos, Adé passa quando a onda recua; se a
   onda pega, ele volta para a última areia seca e perde um búzio de axé. Caranguejos beliscam e águas-vivas largadas
   na areia queimam. No fim da praia, na restinga, as **flores brancas**. (A vila dos pescadores, o jardim de corais,

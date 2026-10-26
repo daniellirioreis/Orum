@@ -4,7 +4,8 @@ extends "res://scripts/encruzilhada.gd"
 ## o palácio dela no fundo do mar: flores brancas, perfume de alfazema, uma pérola e um espelho.
 ##
 ## Lugares (os primeiros na praia, os últimos no fundo do mar):
-##   iemanja_praia → a praia das ondas: as ondas sobem pela areia molhada e voltam, num ritmo; a espuma mostra
+##   iemanja_praia → a praia das ondas (deitada: Adé anda para a direita, o mar fica embaixo): as ondas vêm de
+##                   baixo, sobem pela areia molhada e voltam, num ritmo; a espuma mostra
 ##                   até onde a próxima vai chegar. Nos apertos (pedras e moitas tomando a areia seca), Adé passa
 ##                   quando a onda recua. A onda que pega Adé joga ele de volta para a última areia seca (e leva
 ##                   um búzio de axé). Caranguejos andam na areia molhada e águas-vivas largadas na areia queimam.
@@ -20,7 +21,7 @@ const TEX_ITENS_IEM := preload("res://arte/iemanja_itens.png")
 const ORDEM_ITENS := ["flores", "alfazema", "perola", "espelho", "abebe"]
 ## O ritmo das ondas: calma → aviso (a espuma marca até onde a próxima vai) → sobe → cheia → desce.
 const ONDA_TEMPO := {"aviso": 0.9, "sobe": 0.7, "cheia": 0.35, "desce": 1.2}
-const ONDAS := [2.4, 4.9, 3.0, 2.2, 5.0, 4.6, 2.6, 5.0]     # até quantos blocos cada onda sobe (repete)
+const ONDAS := [1.9, 3.9, 2.4, 1.7, 4.0, 3.7, 2.1, 4.0]     # até quantos blocos cada onda sobe (repete)
 
 var _iem := {}                  # flags da fase: flores, alfazema...
 var _slots_iem := {}              # id → ícone do inventário
@@ -171,7 +172,7 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			area.position = base - Vector2(0, TILE / 2.0)
 			var forma := CollisionShape2D.new()
 			var ret := RectangleShape2D.new()
-			ret.size = Vector2(28, 10)
+			ret.size = Vector2(10, 32)
 			forma.shape = ret
 			area.add_child(forma)
 			area.body_entered.connect(_na_saida_da_praia)
@@ -264,10 +265,18 @@ func _acender_slot(id: String, texto := "") -> void:
 # ------------------------------------------------------------------ 1) a praia das ondas
 
 func _preparar_ondas() -> void:
+	# a praia é deitada: o mar fica embaixo; para cada coluna, a linha onde o mar começa
 	var mapa: PackedStringArray = _mapas["iemanja_praia"]
-	for y in mapa.size():
-		var col := mapa[y].find("w")
-		_costa.append(col if col >= 0 else mapa[y].length())
+	var largura := 0
+	for linha in mapa:
+		largura = maxi(largura, linha.length())
+	for x in largura:
+		var y0 := mapa.size()
+		for y in mapa.size():
+			if x < mapa[y].length() and mapa[y][x] == "w":
+				y0 = y
+				break
+		_costa.append(y0)
 	_ondas = Node2D.new()
 	_ondas.position = lugares["iemanja_praia"]["origem"]
 	_ondas.z_index = -4                     # por cima da areia, por baixo de Adé e das coisas
@@ -276,19 +285,19 @@ func _preparar_ondas() -> void:
 	_onda_dur = 1.2
 
 
-## Quantos pixels a água sobe na linha y (a beira da onda é ondulada e muda um pouco a cada onda).
-func _alcance_px(y: float, alcance := -1.0) -> float:
+## Quantos pixels a água sobe na coluna x (a beira da onda é ondulada e muda um pouco a cada onda).
+func _alcance_px(x: float, alcance := -1.0) -> float:
 	if alcance < 0.0:
 		alcance = _alcance
-	return alcance * TILE * (0.9 + 0.07 * sin(y * 0.05 + _onda_i * 1.7) + 0.03 * sin(y * 0.23 - _tempo * 2.2))
+	return alcance * TILE * (0.9 + 0.07 * sin(x * 0.05 + _onda_i * 1.7) + 0.03 * sin(x * 0.23 - _tempo * 2.2))
 
 
-## Onde o mar começa na altura y (em pixels), suave de uma linha do mapa para a outra.
-func _costa_px(y: float) -> float:
-	var f := y / TILE - 0.5
+## Onde o mar começa na coluna x (em pixels), suave de uma coluna do mapa para a outra.
+func _costa_px(x: float) -> float:
+	var f := x / TILE - 0.5
 	var i := clampi(floori(f), 0, _costa.size() - 1)
 	var j := clampi(i + 1, 0, _costa.size() - 1)
-	var onda := -4.0 + 3.0 * sin(y * 0.031) + 1.5 * sin(y * 0.093 + 1.0)     # a beira não é reta
+	var onda := -4.0 + 3.0 * sin(x * 0.031) + 1.5 * sin(x * 0.093 + 1.0)     # a beira não é reta
 	return lerpf(_costa[i], _costa[j], clampf(f - floorf(f), 0.0, 1.0)) * TILE + 4.0 + onda
 
 
@@ -331,22 +340,23 @@ func _mover_ondas(delta: float) -> void:
 
 func _molhado(pos: Vector2) -> bool:
 	var rel: Vector2 = pos - lugares["iemanja_praia"]["origem"]
-	var linha := floori(rel.y / TILE)
-	if linha < 0 or linha >= _costa.size():
+	var coluna := floori(rel.x / TILE)
+	if coluna < 0 or coluna >= _costa.size():
 		return false
-	var beira: float = _costa_px(rel.y) - _alcance_px(rel.y)
-	return rel.x > beira
+	var beira: float = _costa_px(rel.x) - _alcance_px(rel.x)
+	return rel.y > beira
 
 
-## A onda em pixel art: água funda e água rasa (transparentes), a crista de espuma rendada na ponta, bolhinhas
-## logo atrás; quando ela recua, fica a renda de espuma desmanchando e a areia molhada mais escura onde ela chegou.
+## A onda em pixel art, vindo de baixo: água funda e água rasa (transparentes), a crista de espuma rendada na
+## frente, bolhinhas logo atrás; quando ela recua, fica a renda de espuma desmanchando e a areia molhada mais
+## escura onde ela chegou. Desenhada coluna por coluna, só as que aparecem na tela.
 func _desenhar_ondas() -> void:
 	var funda := Color(0.17, 0.55, 0.74, 0.82)
 	var rasa := Color(0.5, 0.84, 0.9, 0.62)
 	var espuma := Color(0.97, 1.0, 1.0, 0.95)
 	var bolha := Color(0.92, 0.98, 1.0, 0.7)
 	var molhada := Color(0.3, 0.22, 0.12, 0.0)
-	var altura := _costa.size() * TILE
+	var largura := _costa.size() * TILE
 	var renda := 0.0                      # a espuma que fica para trás quando a onda volta
 	var areia := 0.0                      # a areia escura onde a onda chegou
 	match _onda_fase:
@@ -361,60 +371,58 @@ func _desenhar_ondas() -> void:
 	var quadro := int(_tempo * 8.0)
 	var mar := Color(0.17, 0.53, 0.7)
 	var mar_claro := Color(0.33, 0.69, 0.78)
-	# só as linhas que aparecem na tela (desenhar a praia inteira, linha por linha, passa do limite do Godot
-	# e a parte de cima da onda some)
-	var meio := jogador.global_position.y - _ondas.global_position.y
-	for y in range(maxi(0, int(meio) - 150), mini(altura, int(meio) + 150)):
-		var costa := _costa_px(y)
+	var meio := jogador.global_position.x - _ondas.global_position.x
+	for x in range(maxi(0, int(meio) - 150), mini(largura, int(meio) + 150)):
+		var costa := _costa_px(x)
 		# a beira do mar, lisa (por cima dos degraus dos blocos), com a espuminha que vai e vem na areia
-		_ondas.draw_rect(Rect2(floorf(costa), y, 18, 1), mar)
-		if (y * 7 + quadro) % 11 == 0:
-			_ondas.draw_rect(Rect2(floorf(costa) + 4 + (y * 3) % 9, y, 2, 1), mar_claro)
-		var respira := 1.0 + sin(_tempo * 1.8 + y * 0.04)
-		_ondas.draw_rect(Rect2(floorf(costa - respira) - 1, y, 2, 1), mar_claro)
-		if (y + quadro / 2) % 3 != 0:
-			_ondas.draw_rect(Rect2(floorf(costa - respira) - 2, y, 1, 1), Color(1, 1, 1, 0.85))
-		var agua := _alcance_px(y)
+		_ondas.draw_rect(Rect2(x, floorf(costa), 1, 18), mar)
+		if (x * 7 + quadro) % 11 == 0:
+			_ondas.draw_rect(Rect2(x, floorf(costa) + 4 + (x * 3) % 9, 1, 2), mar_claro)
+		var respira := 1.0 + sin(_tempo * 1.8 + x * 0.04)
+		_ondas.draw_rect(Rect2(x, floorf(costa - respira) - 1, 1, 2), mar_claro)
+		if (x + quadro / 2) % 3 != 0:
+			_ondas.draw_rect(Rect2(x, floorf(costa - respira) - 2, 1, 1), Color(1, 1, 1, 0.85))
+		var agua := _alcance_px(x)
 		var beira := floorf(costa - agua)
-		var maxima := floorf(costa - _alcance_px(y, _alcance_max))
+		var maxima := floorf(costa - _alcance_px(x, _alcance_max))
 		# a areia molhada que a onda deixou (escurece e vai secando)
 		if areia > 0.0 and maxima < beira:
 			molhada.a = 0.16 * areia
-			_ondas.draw_rect(Rect2(maxima, y, beira - maxima, 1), molhada)
+			_ondas.draw_rect(Rect2(x, maxima, 1, beira - maxima), molhada)
 		# a renda de espuma desmanchando onde a onda chegou
-		if renda > 0.0 and (y * 7 + int(maxima)) % 5 < 2:
+		if renda > 0.0 and (x * 7 + int(maxima)) % 5 < 2:
 			var c := espuma
 			c.a = 0.8 * renda
-			_ondas.draw_rect(Rect2(maxima + (y * 3) % 4 - 1, y, 1 + int(y % 3 == 0), 1), c)
+			_ondas.draw_rect(Rect2(x, maxima + (x * 3) % 4 - 1, 1, 1 + int(x % 3 == 0)), c)
 		if agua < 1.0:
-			if _onda_fase == "aviso" and (y / 2) % 2 == 0:
+			if _onda_fase == "aviso" and (x / 2) % 2 == 0:
 				# a espuma que avisa até onde a próxima onda vai subir
-				var vai := floorf(costa - _alcance_px(y, _alcance_max))
+				var vai := floorf(costa - _alcance_px(x, _alcance_max))
 				var pisca := 0.25 + 0.4 * absf(sin(_onda_t * 7.0))
-				_ondas.draw_rect(Rect2(vai, y, 1, 1), Color(1, 1, 1, pisca))
+				_ondas.draw_rect(Rect2(x, vai, 1, 1), Color(1, 1, 1, pisca))
 			continue
 		var forca := 1.0 if _onda_fase in ["sobe", "cheia"] else 0.75
 		var f := funda
 		f.a *= forca
 		var r := rasa
 		r.a *= forca
-		var largura_rasa := minf(9.0, agua)
-		_ondas.draw_rect(Rect2(beira + largura_rasa, y, costa - beira - largura_rasa, 1), f)
-		_ondas.draw_rect(Rect2(beira, y, largura_rasa, 1), r)
-		# riscos de luz na água que sobe
-		if (y * 7 + quadro) % 9 == 0 and costa - beira > 14:
-			var lx := beira + 8.0 + float((y * 13 + quadro * 5) % int(maxf(1.0, costa - beira - 12)))
-			_ondas.draw_rect(Rect2(lx, y, 3, 1), Color(0.6, 0.88, 0.94, 0.8 * forca))
-		# a crista: 2 px de espuma, às vezes 3, com a ponta irregular
-		var crista := 2.0 + float((y + quadro) % 5 == 0) + float(_onda_fase == "cheia")
+		var altura_rasa := minf(7.0, agua)
+		_ondas.draw_rect(Rect2(x, beira + altura_rasa, 1, costa - beira - altura_rasa), f)
+		_ondas.draw_rect(Rect2(x, beira, 1, altura_rasa), r)
+		# riscos de luz na água que sobe (deitados, como a onda)
+		if (x * 7 + quadro) % 13 == 0 and costa - beira > 10:
+			var ly := beira + 6.0 + float((x * 13 + quadro * 5) % int(maxf(1.0, costa - beira - 9)))
+			_ondas.draw_rect(Rect2(x, ly, 4, 1), Color(0.6, 0.88, 0.94, 0.8 * forca))
+		# a crista: espuma de 2 px, às vezes 3, com a frente rendada
+		var crista := 2.0 + float((x + quadro) % 5 == 0) + float(_onda_fase == "cheia")
 		var e := espuma
 		e.a = 0.95 * forca
-		_ondas.draw_rect(Rect2(beira - float((y * 5 + quadro) % 7 == 0), y, crista, 1), e)
+		_ondas.draw_rect(Rect2(x, beira - float((x * 5 + quadro) % 7 == 0), 1, crista), e)
 		# bolhinhas atrás da crista
 		for k in 2:
-			var bx := beira + 3.0 + float((y * 11 + k * 5 + quadro * 3) % 9)
-			if (y + k * 3 + quadro) % 4 == 0 and bx < costa:
-				_ondas.draw_rect(Rect2(bx, y, 1, 1), bolha)
+			var by := beira + 3.0 + float((x * 11 + k * 5 + quadro * 3) % 7)
+			if (x + k * 3 + quadro) % 4 == 0 and by < costa:
+				_ondas.draw_rect(Rect2(x, by, 1, 1), bolha)
 
 
 ## Adé pisa na areia seca: é para lá que a onda devolve ele.
@@ -493,7 +501,7 @@ func _na_saida_da_praia(corpo: Node2D) -> void:
 		await _falar("saida_sem_flores")
 		jogador.congelar(true)
 		var volta := create_tween()
-		volta.tween_property(jogador, "global_position", jogador.global_position + Vector2(0, -14), 0.25)
+		volta.tween_property(jogador, "global_position", jogador.global_position + Vector2(-14, 0), 0.25)
 		await volta.finished
 		jogador.congelar(false)
 		return
