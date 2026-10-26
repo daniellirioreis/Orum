@@ -21,7 +21,7 @@ const LUGARES_IEMANJA := {
 	"iemanja_gruta": {"origem": Vector2(400, 0), "dentro": false},
 }
 const COR_GRUTA := Color(0.22, 0.22, 0.38)    # a gruta é escura: só brilham as algas, as águas-vivas e a luz de Adé
-const COR_LUA := Color(0.3, 0.36, 0.66)       # noite de lua: escuro e azulado; só a lua, a espuma e as luzinhas brilham
+const COR_LUA := Color(0.19, 0.24, 0.5)       # noite de lua: escuro e azulado; só a lua, a espuma e as luzinhas brilham
 const SECO := ["s", ",", ";", "*", "t"]
 const TEX_ITENS_IEM := preload("res://arte/iemanja_itens.png")
 const ORDEM_ITENS := ["flores", "alfazema", "perola", "espelho", "abebe"]
@@ -117,8 +117,8 @@ func _ready() -> void:
 	for l in jogador.get_children():
 		if l is PointLight2D:
 			l.color = Color(0.7, 0.8, 1.0)
-			l.energy = 0.6
-			l.texture_scale = 0.95
+			l.energy = 0.75
+			l.texture_scale = 1.0
 	# o mar aberto, mais fundo e escuro (a noite pesa mais longe da praia)
 	var fundo := ColorRect.new()
 	fundo.position = lugares["iemanja_mar"]["origem"] + Vector2(0, 3 * TILE)
