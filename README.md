@@ -234,7 +234,9 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   em faixas que estreitam para cima — a mata no pé, o campo de urzes com lobélias e senécios gigantes, o deserto de
   pedra com línguas de gelo descendo e o cume coberto de neve, com a cratera e o templo de Oxalá. As nuvens passam
   na cintura da montanha (o cume fica acima delas), cai neve fininha no alto e, na savana do pé, há acácias e
-  elefantes (`arte/mundo_elefante.png`).
+  elefantes (`arte/mundo_elefante.png`). Em cima não tem mais mar: a terra vai até o fim do mapa, a mata do pé do
+  Kilimanjaro sobe até a borda e encosta no planalto de Iansã, que também continua para além da borda
+  (`terra_firme()` no `gerar_mapa_mundo.py`).
 - **Os outros mundos do Ọ̀run também mexem**: na mata de Oxóssi as copas balançam, um bando de passarinhos
   amarelos levanta voo e pousa, e antílopes pastam e andam nas clareiras (`arte/mundo_passaro.png`,
   `arte/mundo_antilope.png`); em Nanã a lama borbulha nas poças, as taboas balançam, uma névoa baixa passa e garças
