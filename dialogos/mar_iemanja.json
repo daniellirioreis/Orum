@@ -119,12 +119,12 @@
 		{
 			"quem": "Adé",
 			"yo": "",
-			"pt": "Agora tenho as flores brancas! Falta o perfume de alfazema, a pérola e o espelho..."
+			"pt": "Agora tenho as flores brancas e o perfume de alfazema!"
 		},
 		{
 			"quem": "Adé",
 			"yo": "",
-			"pt": "Perfume de alfazema... a Vó sempre tem um cheirinho de alfazema! Vou voltar ao terreiro e perguntar pra ela."
+			"pt": "Faltam a pérola e o espelho... Iemanjá mora lá no fundo do mar. Será que eles estão por lá?"
 		}
 	],
 	"jangada_sem_remo": [
@@ -290,36 +290,41 @@
 		{
 			"quem": "Adé",
 			"yo": "",
-			"pt": "A jangada está pronta... mas eu ainda não tenho o perfume de alfazema."
+			"pt": "A jangada e o remo! Mas espera... a oferenda de Iemanjá leva perfume de alfazema, e eu não tenho."
 		},
 		{
 			"quem": "Adé",
 			"yo": "",
-			"pt": "Se eu for agora, vai faltar uma coisa na oferenda de Iemanjá. Primeiro vou ao terreiro, falar com a Vó."
+			"pt": "Se eu for pro mar agora, vai faltar uma coisa na oferenda."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Perfume de alfazema... a Vó sempre tem esse cheirinho! Vou voltar ao terreiro e perguntar pra ela."
 		}
 	],
 	"volta_sem_alfazema": [
 		{
 			"quem": "Adé",
 			"yo": "",
-			"pt": "O mar de Iemanjá de novo. As flores brancas estão comigo, guardadinhas."
+			"pt": "O mar de Iemanjá de novo. O remo está comigo, guardadinho."
 		},
 		{
 			"quem": "Adé",
 			"yo": "",
-			"pt": "Mas sem o perfume de alfazema a oferenda não fica completa. Preciso voltar ao terreiro e falar com a Vó."
+			"pt": "Mas sem o perfume de alfazema a oferenda não fica completa. Preciso ir ao terreiro falar com a Vó."
 		}
 	],
 	"volta_com_alfazema": [
 		{
 			"quem": "Adé",
 			"yo": "",
-			"pt": "De volta ao mar de Iemanjá! Tenho as flores brancas e o perfume de alfazema da Vó."
+			"pt": "De volta ao mar de Iemanjá! Tenho o remo e o perfume de alfazema da Vó."
 		},
 		{
 			"quem": "Adé",
 			"yo": "",
-			"pt": "Agora faltam a pérola e o espelho... Eles devem estar lá no fundo do mar. Vou pegar a jangada!"
+			"pt": "Agora sim: vou de jangada até a pedra das flores brancas!"
 		}
 	],
 	"pedra_funda": [
@@ -345,6 +350,30 @@
 			"quem": "Adé",
 			"yo": "",
 			"pt": "Desculpa, dona Tartaruga! Eu não vi a senhora."
+		}
+	],
+	"volta_com_flores": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "De volta ao mar de Iemanjá! Tenho as flores brancas e o perfume de alfazema."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Faltam a pérola e o espelho... devem estar lá no fundo do mar."
+		}
+	],
+	"costao_fechado": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Só pedras e a onda batendo... Não parece ter caminho por aqui."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Quem conhece bem esta praia deve saber onde dá pra passar."
 		}
 	]
 }

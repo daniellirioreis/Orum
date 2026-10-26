@@ -134,10 +134,15 @@ func _inicio() -> void:
 		if r["acao"] == "ok" and r["i"] == 1:
 			voltar_ao_mapa()
 			return
-	if Jogo.has_meta("iemanja_flores") and not _repetindo:
-		# voltando à praia: as flores (e talvez a alfazema) já estão com Adé, e o remo também
+	if Jogo.has_meta("iemanja_remo") and not _repetindo:
+		# voltando à praia: o remo já está com Adé (e talvez a alfazema e as flores)
 		_retomar()
-		await _falar("volta_com_alfazema" if Jogo.has_meta("iemanja_alfazema") else "volta_sem_alfazema")
+		var fala := "volta_sem_alfazema"
+		if Jogo.has_meta("iemanja_flores"):
+			fala = "volta_com_flores"
+		elif Jogo.has_meta("iemanja_alfazema"):
+			fala = "volta_com_alfazema"
+		await _falar(fala)
 		jogador.congelar(false)
 		return
 	await _falar("chegada")
@@ -146,14 +151,16 @@ func _inicio() -> void:
 
 ## Acende no inventário o que Adé já trouxe (flores e alfazema) e deixa o remo com ele.
 func _retomar() -> void:
-	_iem["flores"] = true
 	_iem["remo"] = true
+	_falou_tartaruga = true
 	if _remo:
 		_remo.visible = false
 		_remo.ativo = false
-	if _flores:
-		_flores.frame = 1
-	_slots_iem["flores"].modulate = Color.WHITE
+	if Jogo.has_meta("iemanja_flores"):
+		_iem["flores"] = true
+		if _flores:
+			_flores.frame = 1
+		_slots_iem["flores"].modulate = Color.WHITE
 	if Jogo.has_meta("iemanja_alfazema"):
 		_slots_iem["alfazema"].modulate = Color.WHITE
 
@@ -787,9 +794,11 @@ func _na_jangada() -> void:
 	if not _iem.has("remo"):
 		await _falar("jangada_sem_remo")
 		return
-	if Jogo.has_meta("iemanja_flores") and not Jogo.has_meta("iemanja_alfazema"):
-		# sem a alfazema, a oferenda fica faltando: Adé não entra no mar
+	if not Jogo.has_meta("iemanja_alfazema"):
+		# sem a alfazema, a oferenda fica faltando: Adé não entra no mar e vai ao terreiro pedir à Vó
 		await _falar("jangada_sem_alfazema")
+		jogador.congelar(true)
+		voltar_ao_mapa()
 		return
 	await _falar("jangada_vamos")
 	await _entrar_no_mar()
@@ -1013,6 +1022,7 @@ func _ao_evento(nome: String) -> void:
 			_acender_slot("flores", "Flores brancas")
 		"pegar_remo":
 			_iem["remo"] = true
+			Jogo.set_meta("iemanja_remo", true)
 			Jogo.tocar_som("pegar_item", -4.0)
 			_mostrar_aviso("O remo da jangada")
 		_:
@@ -1105,3 +1115,15 @@ func _mover_tartaruga(delta: float) -> void:
 	tt.global_position.x += signf(dx) * minf(absf(dx), 7.0 * delta)
 	s.flip_h = dx < 0.0
 	s.frame = 3 + int(_tempo * 3.0) % 2
+
+
+## A passagem para a gruta do costão fica escondida entre as pedras: só depois da dica da tartaruga
+## Adé sabe que dá para passar por ali.
+func _ao_pisar_porta(corpo: Node2D, numero: String, lugar: String) -> void:
+	if lugar == "iemanja_praia" and numero == "1" and corpo.is_in_group("jogador") and jogador.pode_mover \
+			and not _falou_tartaruga and not _iem.has("remo"):
+		jogador.congelar(true)
+		jogador.global_position += Vector2(-14, 0)
+		await _falar("costao_fechado")
+		return
+	await super._ao_pisar_porta(corpo, numero, lugar)

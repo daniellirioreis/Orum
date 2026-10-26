@@ -1,11 +1,11 @@
 XXXXXXXXX1XXXXXXXXXX
-XXXXXX.......XXXXXXX
+XXXXXX......cXXXXXXX
 XXXXXX.v...v.XXXXXXX
 XXXXXX...v...XXXXXXX
 XXXXXXv...v..XXXXXXX
 XXXXXX..v...vXXXXXXX
 XXXXXX.v...v.XXXXXXX
-XX................XX
+XX...............cXX
 XX.X..@...X..@..X.XX
 XX......X...X.....XX
 XX..@..XX.XX..X...XX
@@ -15,7 +15,7 @@ XXXXXXXXX.XXXXXXXXXX
 XXXXXXXXX.XXXXXXXXXX
 XX......L.........XX
 XX.XX.......XX..X.XX
-XX....j....K......XX
+XXc...j....K......XX
 XX..X....XX...X.j.XX
 XX.L...K......X...XX
 XXXXX.XX....XXX.XXXX
@@ -26,6 +26,6 @@ XX@.X...X.X.......XX
 XX......X.X...X...XX
 XXXXXXXXX.XXXXXXXXXX
 XXXXXXXXX.XXXXXXXXXX
-XXL.......O.....L.XX
+XXL.......O.....LcXX
 XX................XX
 XXXXXXXXXXXXXXXXXXXX

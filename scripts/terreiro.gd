@@ -2678,9 +2678,9 @@ func _tempo_de_ficar_dentro() -> bool:
 
 # ------------------------------------------------------------------ a alfazema de Iemanjá
 
-## Na volta da praia de Iemanjá, com as flores brancas, Adé vem buscar o perfume de alfazema.
+## Na volta da praia de Iemanjá (já com o remo da jangada), Adé vem buscar o perfume de alfazema.
 func _quer_alfazema() -> bool:
-	return _retorno and Jogo.has_meta("iemanja_flores") and not Jogo.has_meta("iemanja_alfazema")
+	return _retorno and Jogo.has_meta("iemanja_remo") and not Jogo.has_meta("iemanja_alfazema")
 
 
 func _vo_e_a_alfazema() -> void:

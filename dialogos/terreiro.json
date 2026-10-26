@@ -237,8 +237,8 @@
 
 	"nomes_manjar": {"coco": "um coco do coqueiro do quintal", "leite": "o leite", "acucar": "o açúcar"},
 	"retorno_alfazema": [
-		{"quem": "Adé", "yo": "", "pt": "De volta ao terreiro! Trouxe as flores brancas do mar de Iemanjá, guardadinhas."},
-		{"quem": "Adé", "yo": "", "pt": "Agora falta o perfume de alfazema. A Vó sempre tem esse cheirinho... vou perguntar pra ela!"}
+		{"quem": "Adé", "yo": "", "pt": "De volta ao terreiro! Achei o remo da jangada no mar de Iemanjá..."},
+		{"quem": "Adé", "yo": "", "pt": "Mas a oferenda leva perfume de alfazema. A Vó sempre tem esse cheirinho... vou perguntar pra ela!"}
 	],
 	"vo_alfazema": [
 		{"quem": "Adé", "yo": "", "pt": "Vó! Exu disse que a oferenda de Iemanjá leva perfume de alfazema. A senhora tem?"},
@@ -292,6 +292,6 @@
 	],
 	"alfazema_pegar": [
 		{"quem": "", "yo": "", "pt": "Atrás dos potes, um vidrinho roxo de perfume de alfazema. Tem o cheirinho da Vó!", "evento": "pegar_alfazema"},
-		{"quem": "Adé", "yo": "", "pt": "Agora tenho as flores brancas e a alfazema! Falta a pérola e o espelho... Vou voltar ao mar de Iemanjá."}
+		{"quem": "Adé", "yo": "", "pt": "Agora tenho a alfazema! Vou voltar ao mar de Iemanjá e levar a jangada até a pedra das flores brancas."}
 	]
 }
