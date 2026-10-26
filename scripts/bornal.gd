@@ -243,9 +243,10 @@ func _atualizar_hud() -> void:
 	if not _hud:
 		return
 	var vazio := itens.is_empty()
-	_hud_bolsa.visible = not vazio
+	_hud_bolsa.visible = true            # o Àpò fica sempre na tela, mesmo vazio
+	_hud_bolsa.modulate = Color(1, 1, 1, 0.6 if vazio else 1.0)
 	_hud_conta.visible = not vazio
-	_hud_tecla.visible = not vazio
+	_hud_tecla.visible = true
 	_hud_conta.text = str(itens.size())
 	_hud_tecla.text = Jogo.botao("bornal")
 	_hud_slot.visible = equipado != ""
