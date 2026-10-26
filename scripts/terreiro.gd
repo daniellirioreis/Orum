@@ -278,6 +278,9 @@ func teleportar(nome: String, posicao: Vector2) -> void:
 func _ao_pisar_porta(corpo: Node2D, numero: String, lugar: String) -> void:
 	if _trocando or not corpo.is_in_group("jogador") or not jogador.pode_mover:
 		return
+	if lugar == "cozinha" and numero == "4" and _quer_alfazema() and _manjar == "vo_pediu":
+		await _tia_barra_a_despensa()
+		return
 	for destino in portas[numero]:
 		if destino[0] != lugar:
 			_trocando = true
@@ -3158,3 +3161,17 @@ func _segurar_manjar() -> void:
 		_:
 			_manjar_na_mao.visible = true
 			_manjar_na_mao.position = Vector2(0, -9)
+
+
+## A Vó mandou Adé ajudar a Tia Dora; se ele tenta passar direto para a despensa (onde está a alfazema),
+## a Tia não deixa, com jeitinho.
+var _tia_barrou := 0
+
+
+func _tia_barra_a_despensa() -> void:
+	jogador.congelar(true)
+	jogador.global_position += Vector2(-14, 0)
+	jogador.olhar_para(_tia.global_position)
+	_tia.olhar_para_jogador = true
+	await _falar("tia_despensa_fechada" if _tia_barrou == 0 else "tia_despensa_de_novo")
+	_tia_barrou += 1

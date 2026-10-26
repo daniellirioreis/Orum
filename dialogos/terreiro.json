@@ -364,5 +364,15 @@
 	],
 	"recusa_tronqueira": [
 		{"quem": "Adé", "yo": "", "pt": "Ainda não é a hora de arriar nada aqui. A Vó precisa estar junto."}
+	],
+
+	"tia_despensa_fechada": [
+		{"quem": "Tia Dora", "yo": "", "pt": "Ei, ei, ei! Onde é que o mocinho pensa que vai com essa pressa toda?", "rosto": "feliz"},
+		{"quem": "Adé", "yo": "", "pt": "Eu... só ia dar uma olhadinha na despensa, Tia."},
+		{"quem": "Tia Dora", "yo": "", "pt": "Uma olhadinha, sei! Conheço esse olhar de quem quer pular a fila do caruru!", "rosto": "feliz"},
+		{"quem": "Tia Dora", "yo": "", "pt": "Na despensa da Vó só entra quem ajudou na cozinha primeiro. Vem cá falar com a Tia, que eu tô precisando de uma mãozinha, meu bem."}
+	],
+	"tia_despensa_de_novo": [
+		{"quem": "Tia Dora", "yo": "", "pt": "Primeiro a Tia, depois a despensa, meu bem! Vem cá, que a panela não espera.", "rosto": "feliz"}
 	]
 }
