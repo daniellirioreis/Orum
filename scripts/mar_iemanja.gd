@@ -49,7 +49,7 @@ func _ready() -> void:
 	agua_chars = ["w"]
 	cor_fora = COR_DIA
 	estado = "caminho"
-	Jogo.tocar_musica("musica_mapa")
+	Jogo.tocar_musica("musica_iemanja")
 	_cor_fundo_antiga = RenderingServer.get_default_clear_color()
 	RenderingServer.set_default_clear_color(Color.BLACK)
 	_dados = JSON.parse_string(FileAccess.get_file_as_string("res://dialogos/mar_iemanja.json"))

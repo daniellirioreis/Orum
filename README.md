@@ -163,6 +163,19 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
 - **O riacho corre**: a água do riacho do ofá (e do riacho da encruzilhada) corre para a direita (shader `SHADER_RIO`) e folhinhas passam boiando.
 - Para testar direto, abra `cenas/mata_oxossi.tscn` no Godot e aperte F6.
 
+**O Mar de Iemanjá (Òkun Yemọja, visão de cima — em construção)** — `cenas/mar_iemanja.tscn`, `scripts/mar_iemanja.gd`
+- Na chegada, Exu explica quem é Iemanjá (a dona do mar, a mãe de todos) e o que vai na oferenda que Adé leva até
+  Aiocá, o palácio dela no fundo do mar: flores brancas, perfume de alfazema, uma pérola e um espelho.
+- **A praia das ondas**: as ondas sobem pela areia molhada e voltam num ritmo (umas pequenas, outras grandes); antes
+  de cada uma, a espuma pisca na areia mostrando até onde ela vai. Nos apertos, Adé passa quando a onda recua; se a
+  onda pega, ele volta para a última areia seca e perde um búzio de axé. Caranguejos beliscam e águas-vivas largadas
+  na areia queimam. No fim da praia, na restinga, as **flores brancas**. (A vila dos pescadores, o jardim de corais,
+  as águas escuras e Aiocá vêm a seguir; por enquanto a saída volta ao Ọ̀run.)
+- Mapa: `fases/iemanja_praia.txt` (+ `_objetos`), gerado pelo `gerar_mapas_iemanja.py`. Chão: `s` areia seca,
+  `u` areia molhada (aonde a onda chega), `w` mar, `,` restinga, `a` moita, `t` trilha. Objetos: `E` Exu, `f` flores
+  brancas, `r` rocha, `C` coqueiro, `k` caranguejo, `j` água-viva, `h` conchinha, `>` saída. Terreno novo nas linhas
+  8-10 do `arte/terreno_snes.png` (`gerar_terreno_praia.py`); arte em `arte/iemanja_*.png` (`gerar_arte_iemanja.py`).
+
 **A Terra de Nanã (Ilẹ̀ Ẹrẹ̀ Nàná, "a terra da lama de Nanã", visão de cima)** — `cenas/mata_nana.tscn`, `scripts/mata_nana.gd`
 - Chove a fase inteira (mais forte na lagoa, com relâmpagos). O ritmo é de quem é mais velho: devagar, olhando.
   Na lama, Adé anda mais devagar (`fator_chao` no `jogador_rpg.gd`). Quatro lugares:
@@ -288,7 +301,9 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   rosto rindo. Narração e o Ìtàn ficam sem rosto. A lista de quem tem rosto está em `RETRATOS`, no `scripts/dialogo.gd`.
 - **Trilha de cada mundo** (feitas pelo `gerar_musicas.py`, em laço sem emenda): `sons/musica_encruzilhada.wav`
   (Exu: noite, 12/8 com agogô e um baixo com nota "torta"), `musica_oxossi.wav` (galope inspirado no agueré, com
-  flauta), `musica_nana.wav` (lenta, inspirada no sató, com coro grave e marimba) e `musica_mapa.wav` (viagem leve).
+  flauta), `musica_nana.wav` (lenta, inspirada no sató, com coro grave e marimba), `musica_iemanja.wav` (calma, inspirada
+  no ijexá: agogô, xequerê arrastado e atabaques macios, com flauta, coro, kalimba e o barulho das ondas chegando na
+  areia) e `musica_mapa.wav` (viagem leve).
   O terreiro e a tela de título continuam com `musica.wav`. `Jogo.tocar_musica("nome")` troca de trilha devagar.
 - **Efeitos sonoros por ação** (36 sons novos em `sons/`, no estilo SNES, feitos pelo `gerar_sfx.py`):
   - Adé: passos que mudam com o chão (`passo_grama`, `passo_terra`, `passo_lama`, `passo_madeira`; andando devagar não
