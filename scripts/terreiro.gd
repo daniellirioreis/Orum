@@ -222,6 +222,7 @@ func _exit_tree() -> void:
 
 func _process(delta: float) -> void:
 	_tempo += delta
+	_segurar_manjar()
 	for chama in _chamas:
 		var l: PointLight2D = chama[0]
 		l.energy = chama[1] * (0.88 + 0.12 * sin(_tempo * chama[2]) + randf_range(-0.04, 0.04))
@@ -2866,6 +2867,7 @@ func _entregar_manjar() -> void:
 	jogador.remove_child(_manjar_na_mao)
 	mundo.add_child(_manjar_na_mao)
 	_manjar_na_mao.global_position = pos
+	_manjar_na_mao.visible = true
 	_manjar_na_mao.z_index = 0
 	var alvo := vo.global_position.lerp(jogador.global_position, 0.4) + Vector2(0, -8)
 	var t := create_tween()
@@ -3140,3 +3142,19 @@ func _objeto_perto(textura: String) -> Vector2:
 				dist = d
 				melhor = n.global_position + Vector2(0, -12)
 	return melhor
+
+
+## O prato do manjar nas mãos de Adé: de costas não aparece (fica na frente dele); de lado, vai para o lado
+## para onde ele olha.
+func _segurar_manjar() -> void:
+	if not _manjar_na_mao or not is_instance_valid(_manjar_na_mao) or _manjar_na_mao.get_parent() != jogador:
+		return
+	match jogador.direcao_olhar:
+		"costas":
+			_manjar_na_mao.visible = false
+		"lado":
+			_manjar_na_mao.visible = true
+			_manjar_na_mao.position = Vector2(-5 if jogador.sprite.flip_h else 5, -9)
+		_:
+			_manjar_na_mao.visible = true
+			_manjar_na_mao.position = Vector2(0, -9)
