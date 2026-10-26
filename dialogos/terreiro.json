@@ -237,46 +237,72 @@
 
 	"nomes_manjar": {"coco": "um coco do coqueiro do quintal", "leite": "o leite", "acucar": "o açúcar"},
 	"retorno_alfazema": [
-		{"quem": "Adé", "yo": "", "pt": "De volta ao terreiro! Achei o remo da jangada no mar de Iemanjá..."},
-		{"quem": "Adé", "yo": "", "pt": "Mas a oferenda leva perfume de alfazema. A Vó sempre tem esse cheirinho... vou perguntar pra ela!"}
+		{"quem": "Adé", "yo": "", "pt": "Cheguei! Que saudade do terreiro da Vó..."},
+		{"quem": "Adé", "yo": "", "pt": "Tenho tanta coisa pra contar: o mar de Iemanjá, a tartaruga velhinha, a gruta escura... e eu achei o remo da jangada!", "rosto": "feliz"},
+		{"quem": "Adé", "yo": "", "pt": "Mas a oferenda de Iemanjá ainda não está completa. Falta o perfume de alfazema... e esse cheirinho eu conheço bem: é o da Vó!"}
 	],
 	"vo_alfazema": [
-		{"quem": "Adé", "yo": "", "pt": "Vó! Exu disse que a oferenda de Iemanjá leva perfume de alfazema. A senhora tem?"},
-		{"quem": "Vó", "yo": "", "pt": "Alfazema, é? Hmm... Senta aqui, meu neto, que a Vó vai te contar um segredo."},
-		{"quem": "Vó", "yo": "", "pt": "Sua Vó é filha de Iemanjá. Foi a mãe das águas que cuidou da minha cabeça a vida inteira. Odoyá!"},
-		{"quem": "Adé", "yo": "", "pt": "A senhora é filha de Iemanjá?! Por isso esse cheirinho de alfazema!"},
-		{"quem": "Vó", "yo": "", "pt": "Hehe! Tem um vidrinho de alfazema guardado na despensa. Mas em casa de santo, nada se ganha sem trabalho e sem carinho."},
-		{"quem": "Vó", "yo": "", "pt": "Antes, vá até a cozinha e ajude a Tia Dora no que ela precisar. Depois a gente conversa.", "evento": "manjar_vo_pediu"}
+		{"quem": "Adé", "yo": "", "pt": "A bênção, Vó!"},
+		{"quem": "Vó", "yo": "", "pt": "Oxalá te abençoe, meu neto. Que carinha é essa? Parece que viu o mar.", "rosto": "feliz"},
+		{"quem": "Adé", "yo": "", "pt": "Vi sim, Vó! Fui ao mar de Iemanjá, de noite, com a lua brilhando na água.", "rosto": "feliz"},
+		{"quem": "Adé", "yo": "", "pt": "Exu apareceu na praia e me contou que Iemanjá mora lá no fundo do mar, num palácio chamado Aiocá.", "rosto": "feliz"},
+		{"quem": "Adé", "yo": "", "pt": "Pra chegar na casa dela, eu preciso levar uma oferenda: flores brancas, perfume de alfazema, uma pérola e um espelho."},
+		{"quem": "Adé", "yo": "", "pt": "As flores ficam numa pedra no meio do mar, e só dá pra chegar de jangada. Mas a jangada estava sem remo..."},
+		{"quem": "Adé", "yo": "", "pt": "Aí uma tartaruga velhinha me contou que o mar tinha levado o remo pra uma gruta... e eu achei!"},
+		{"quem": "Vó", "yo": "", "pt": "Uma tartaruga, uma gruta escura... e o meu neto sozinho na beira do mar, de noite!", "rosto": "assustado"},
+		{"quem": "Adé", "yo": "", "pt": "Mas eu não podia sair pro mar sem a alfazema, senão a oferenda ia ficar faltando. E a senhora sempre tem esse cheirinho..."},
+		{"quem": "Vó", "yo": "", "pt": "Ah, meu neto... senta aqui, que a Vó vai te contar um segredo."},
+		{"quem": "Vó", "yo": "Odò ìyá!", "pt": "Sua Vó é filha de Iemanjá. Foi a mãe das águas quem cuidou da minha cabeça a vida inteira."},
+		{"quem": "Vó", "yo": "", "pt": "Quando eu era menina do seu tamanho, minha mãe me levava pra beira do mar todo dois de fevereiro.", "rosto": "feliz"},
+		{"quem": "Vó", "yo": "", "pt": "A gente jogava flores nas ondas, e o mar levava tudo, devagarinho...", "rosto": "feliz"},
+		{"quem": "Vó", "yo": "", "pt": "Foi ali, olhando as flores indo embora, que eu entendi de quem eu era filha."},
+		{"quem": "Adé", "yo": "", "pt": "Então é por isso que a senhora tem cheiro de alfazema!", "rosto": "feliz"},
+		{"quem": "Vó", "yo": "", "pt": "É sim. Eu uso alfazema no banho e pra lavar as minhas guias. É o cheiro da minha mãe Iemanjá.", "rosto": "feliz"},
+		{"quem": "Vó", "yo": "", "pt": "Tem um vidrinho guardado lá na despensa.", "rosto": "feliz"},
+		{"quem": "Adé", "yo": "", "pt": "Então eu posso pegar?", "rosto": "feliz"},
+		{"quem": "Vó", "yo": "", "pt": "Calma, apressadinho! Quem vai pedir à mãe, primeiro serve. Em casa de santo, nada se ganha sem trabalho e sem carinho."},
+		{"quem": "Vó", "yo": "", "pt": "Vá até a cozinha e ajude a Tia Dora no que ela precisar. Depois a gente conversa.", "evento": "manjar_vo_pediu"}
 	],
 	"vo_alfazema_esperando": [
-		{"quem": "Vó", "yo": "", "pt": "Já ajudou a Tia Dora? Ela está lá na cozinha, meu neto."}
+		{"quem": "Vó", "yo": "", "pt": "Já ajudou a Tia Dora, meu neto? Ela está lá na cozinha. Quem serve primeiro, recebe depois."}
 	],
 	"tia_manjar": [
-		{"quem": "Tia Dora", "yo": "", "pt": "Adé! Chegou na hora certa. Sabe o que eu estou fazendo? Manjar branco!"},
-		{"quem": "Adé", "yo": "", "pt": "A Vó me mandou ajudar a senhora. Sabia que a Vó é filha de Iemanjá?"},
-		{"quem": "Tia Dora", "yo": "", "pt": "Olha que coincidência! Eu estou fazendo justamente a comida que Iemanjá mais gosta: manjar branquinho, branquinho como a espuma do mar."},
-		{"quem": "Tia Dora", "yo": "", "pt": "Mas me faltam umas coisas: um coco do coqueiro do quintal, e o leite e o açúcar que estão na despensa. Vai buscar pra mim?", "evento": "manjar_ingredientes"}
+		{"quem": "Tia Dora", "yo": "", "pt": "Adé! Chegou na hora certa, menino. Olha só o que eu estou fazendo..."},
+		{"quem": "Tia Dora", "yo": "", "pt": "Manjar branco! Branquinho como a espuma do mar.", "rosto": "feliz"},
+		{"quem": "Adé", "yo": "", "pt": "A Vó me mandou ajudar a senhora. Sabia que ela é filha de Iemanjá?"},
+		{"quem": "Adé", "yo": "", "pt": "E eu estou levando uma oferenda pro palácio de Iemanjá, lá no fundo do mar!"},
+		{"quem": "Tia Dora", "yo": "", "pt": "Olha que coincidência! Eu estou fazendo justamente a comida que Iemanjá mais gosta.", "rosto": "assustado"},
+		{"quem": "Tia Dora", "yo": "", "pt": "Coincidência... hmm. Na casa de santo, menino, coincidência tem nome.", "rosto": "feliz"},
+		{"quem": "Adé", "yo": "", "pt": "Tem nome? Que nome?"},
+		{"quem": "Tia Dora", "yo": "", "pt": "Um dia você descobre. Agora, mãos à obra!", "rosto": "feliz"},
+		{"quem": "Tia Dora", "yo": "", "pt": "Pra fazer o manjar eu preciso de um coco do coqueiro do quintal, e do leite e do açúcar que estão na despensa. Vai buscar pra mim?", "evento": "manjar_ingredientes"}
 	],
 	"tia_manjar_falta": [
-		{"quem": "Tia Dora", "yo": "", "pt": "Ainda falta: {faltam}."}
+		{"quem": "Tia Dora", "yo": "", "pt": "Ainda falta: {faltam}. Sem isso o manjar não fica branquinho!"}
 	],
 	"tia_manjar_cozinhar": [
-		{"quem": "Tia Dora", "yo": "", "pt": "Coco, leite e açúcar! Tudo aqui. Agora é mexer no fogo devagarinho, sem parar..."}
+		{"quem": "Tia Dora", "yo": "", "pt": "Coco, leite e açúcar! Muito bem, menino.", "rosto": "feliz"},
+		{"quem": "Tia Dora", "yo": "", "pt": "Agora presta atenção, que um dia você vai fazer sozinho: rala o coco, mistura com o leite e o açúcar, e leva pro fogo baixinho."},
+		{"quem": "Tia Dora", "yo": "", "pt": "E mexe sem parar, senão empelota! Manjar de Iemanjá se faz com paciência, igual o mar que vai e volta."}
 	],
 	"tia_manjar_pronto": [
-		{"quem": "Tia Dora", "yo": "", "pt": "Pronto! Olha que manjar bonito, branquinho e cheiroso."},
-		{"quem": "Tia Dora", "yo": "", "pt": "Leva pra Vó, que ela vai gostar. Ela merece!"}
+		{"quem": "Tia Dora", "yo": "", "pt": "Pronto! Olha que manjar bonito, branquinho e cheiroso.", "rosto": "feliz"},
+		{"quem": "Adé", "yo": "", "pt": "Parece a espuma do mar mesmo!", "rosto": "feliz"},
+		{"quem": "Tia Dora", "yo": "", "pt": "Leva pra Vó com cuidado, que ela merece. E diz que fui eu que fiz... com a sua ajuda!", "rosto": "feliz"}
 	],
 	"tia_manjar_depois": [
 		{"quem": "Tia Dora", "yo": "", "pt": "Leva o manjar pra Vó, menino, antes que alguém prove!"}
 	],
 	"vo_manjar": [
-		{"quem": "Adé", "yo": "", "pt": "Vó! A Tia Dora fez manjar branco, e eu ajudei!"},
-		{"quem": "Vó", "yo": "", "pt": "Manjar branco... a comida que minha mãe Iemanjá mais gosta. Que coincidência, hein?"},
-		{"quem": "Vó", "yo": "", "pt": "Você trabalhou com carinho, Adé. Agora pode pegar a alfazema: o vidrinho está na prateleira da despensa.", "evento": "liberar_alfazema"}
+		{"quem": "Adé", "yo": "", "pt": "Vó! A Tia Dora fez manjar branco, e eu ajudei a mexer!", "rosto": "feliz"},
+		{"quem": "Vó", "yo": "", "pt": "Manjar branco... a comida que minha mãe Iemanjá mais gosta. Que coincidência, hein?", "rosto": "feliz"},
+		{"quem": "", "yo": "", "pt": "A Vó prova um pedacinho, fecha os olhos e sorri."},
+		{"quem": "Vó", "yo": "", "pt": "Igualzinho ao que a minha mãe fazia, quando eu era menina...", "rosto": "feliz"},
+		{"quem": "Vó", "yo": "", "pt": "Você trabalhou com carinho, Adé. Agora sim: pode pegar a alfazema. O vidrinho roxo está na prateleira da despensa.", "evento": "liberar_alfazema"},
+		{"quem": "Vó", "yo": "Odò ìyá!", "pt": "Leve pro mar com respeito. E quando chegar na casa de Iemanjá, peça a bênção da mãe das águas pela sua Vó também.", "rosto": "feliz"}
 	],
 	"vo_alfazema_buscar": [
-		{"quem": "Vó", "yo": "", "pt": "O vidrinho de alfazema está na prateleira da despensa, meu neto."}
+		{"quem": "Vó", "yo": "", "pt": "O vidrinho roxo de alfazema está na prateleira da despensa, meu neto."}
 	],
 	"coco_pegar": [
 		{"quem": "", "yo": "", "pt": "Adé sacudiu o coqueiro e caiu um coco maduro!", "evento": "pegar_coco"}
@@ -292,6 +318,7 @@
 	],
 	"alfazema_pegar": [
 		{"quem": "", "yo": "", "pt": "Atrás dos potes, um vidrinho roxo de perfume de alfazema. Tem o cheirinho da Vó!", "evento": "pegar_alfazema"},
-		{"quem": "Adé", "yo": "", "pt": "Agora tenho a alfazema! Vou voltar ao mar de Iemanjá e levar a jangada até a pedra das flores brancas."}
+		{"quem": "Adé", "yo": "", "pt": "Agora tenho o remo e a alfazema! Vou voltar pro mar de Iemanjá e levar a jangada até a pedra das flores brancas...", "rosto": "feliz"},
+		{"quem": "Adé", "yo": "", "pt": "...e depois descobrir onde estão a pérola e o espelho."}
 	]
 }

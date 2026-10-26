@@ -2723,7 +2723,7 @@ func _cozinhar_manjar() -> void:
 	var t := create_tween()
 	t.tween_property(_cortina, "color:a", 1.0, 0.6)
 	await t.finished
-	_mostrar_aviso("A Tia Dora mexe o manjar no fogão...")
+	_mostrar_aviso("Adé e a Tia Dora mexem o manjar no fogão...")
 	await get_tree().create_timer(2.0).timeout
 	var t2 := create_tween()
 	t2.tween_property(_cortina, "color:a", 0.0, 0.6)
