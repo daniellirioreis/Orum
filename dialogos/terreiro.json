@@ -23,7 +23,7 @@
 		{"quem": "Vó", "yo": "", "pt": "Ainda falta trazer: {faltam}."}
 	],
 	"pronto": [
-		{"quem": "Vó", "yo": "", "pt": "Trouxe tudo, meu neto. Muito bem.", "rosto": "feliz"},
+		{"quem": "Vó", "yo": "", "pt": "Trouxe tudo, meu neto. Muito bem."},
 		{"quem": "Vó", "yo": "", "pt": "Vou na frente. Te espero lá fora, na tronqueira, perto da porteira.", "evento": "ir_para_tronqueira"}
 	],
 	"esperando": [
@@ -105,7 +105,7 @@
 		{"quem": "", "yo": "", "pt": "E alguém riu baixinho, do lado de dentro da tronqueira.", "evento": "exu_chega"}
 	],
 	"exu": [
-		{"quem": "Vó e Adé", "yo": "", "pt": "Laroyê, Exu!", "rosto": "feliz"},
+		{"quem": "Vó e Adé", "yo": "", "pt": "Laroyê, Exu!"},
 		{"quem": "Èṣù", "yo": "Ta ló pè mí?", "pt": "Quem me chamou? Há há há! Ah, é o neto da Vó! Bateu palma tão forte que eu achei que a gira tinha começado."},
 		{"quem": "Adé", "yo": "", "pt": "Fui eu, Adé. Quero encontrar todos os orixás."},
 		{"quem": "Èṣù", "yo": "Èmi ni Èṣù.", "pt": "Eu sou Exu, guardião das encruzilhadas e mensageiro entre os mundos. E o mais bonito deles, não esquece."},
@@ -117,8 +117,8 @@
 	],
 
 	"criancas": [
-		{"quem": "Crianças", "yo": "", "pt": "Ciranda, cirandinha, vamos todos cirandar...", "rosto": "feliz"},
-		{"quem": "Menina", "yo": "", "pt": "Adé! Vem pra roda com a gente!", "rosto": "feliz"},
+		{"quem": "Crianças", "yo": "", "pt": "Ciranda, cirandinha, vamos todos cirandar..."},
+		{"quem": "Menina", "yo": "", "pt": "Adé! Vem pra roda com a gente!"},
 		{"quem": "Adé", "yo": "", "pt": "Agora não posso, tô ajudando a Vó. Depois eu venho!"}
 	],
 	"criancas_depois": [
@@ -128,7 +128,7 @@
 	"capoeira": [
 		{"quem": "Mestre Tião", "yo": "", "pt": "Iê! Chega mais, menino. Escuta o berimbau."},
 		{"quem": "Mestre Tião", "yo": "", "pt": "Capoeira é luta, é dança e é brincadeira. Quem joga tem que ouvir o toque."},
-		{"quem": "Adé", "yo": "", "pt": "Um dia eu vou entrar nessa roda!", "rosto": "feliz"},
+		{"quem": "Adé", "yo": "", "pt": "Um dia eu vou entrar nessa roda!"},
 		{"quem": "Mestre Tião", "yo": "", "pt": "Vai sim. Mas primeiro: ginga, ginga e mais ginga!"}
 	],
 	"capoeira_depois": [
@@ -163,7 +163,7 @@
 
 	"retorno_chegada": [
 		{"quem": "Adé", "yo": "", "pt": "Cheguei em casa! Que saudade do terreiro da Vó... Tem até cheiro da comida da Tia Dora."},
-		{"quem": "Adé", "yo": "", "pt": "Olha a Vó ali, perto da tronqueira. Vou contar tudo pra ela!", "rosto": "feliz"}
+		{"quem": "Adé", "yo": "", "pt": "Olha a Vó ali, perto da tronqueira. Vou contar tudo pra ela!"}
 	],
 	"retorno_vo": [
 		{"quem": "Vó", "yo": "", "pt": "Meu neto! Você voltou. Exu me avisou que você vinha pelo caminho."},
@@ -171,7 +171,7 @@
 	],
 	"conta_oxossi": [
 		{"quem": "Adé", "yo": "", "pt": "Fui na mata de Oxóssi. Segui os rastros, passei devagarinho pelos veados e achei um ofá com uma flecha só."},
-		{"quem": "Adé", "yo": "", "pt": "Tinha um pássaro enorme, de olhos vermelhos. Fiz uma oferenda a Exu, e Oxóssi apareceu e espantou ele com uma flecha!", "rosto": "assustado"},
+		{"quem": "Adé", "yo": "", "pt": "Tinha um pássaro enorme, de olhos vermelhos. Fiz uma oferenda a Exu, e Oxóssi apareceu e espantou ele com uma flecha!"},
 		{"quem": "Adé", "yo": "", "pt": "Ele me deu o ofá, Vó. Disse para eu trazer para cá."},
 		{"quem": "Vó", "yo": "Okê Arô!", "pt": "O caçador de uma flecha só... Você ouviu as minhas histórias direitinho, meu neto."}
 	],
@@ -199,7 +199,7 @@
 	],
 	"vo_bencao": [
 		{"quem": "Vó", "yo": "", "pt": "Ainda tem muito assentamento esperando. Cada orixá tem uma história para te contar."},
-		{"quem": "Adé", "yo": "", "pt": "A bênção, Vó.", "rosto": "feliz"},
+		{"quem": "Adé", "yo": "", "pt": "A bênção, Vó."},
 		{"quem": "Vó", "yo": "", "pt": "Deus te abençoe, meu neto. Que os orixás te acompanhem."},
 		{"quem": "Vó", "yo": "", "pt": "Quando quiser seguir viagem, é só sair pela porteira. Exu abre o caminho."}
 	],
