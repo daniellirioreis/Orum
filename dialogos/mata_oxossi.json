@@ -20,8 +20,7 @@
 	],
 	"chegada": [
 		{"quem": "Adé", "yo": "", "pt": "Que mata fechada... As árvores são tão altas que quase escondem o céu."},
-		{"quem": "Adé", "yo": "", "pt": "Este é o campo de Oxóssi, o caçador. A Vó diz que ele conhece cada folha da mata."},
-		{"quem": "", "yo": "", "pt": "Na mata de Oxóssi, quem anda sem olhar se perde. Leia a placa."}
+		{"quem": "Adé", "yo": "", "pt": "Este é o campo de Oxóssi, o caçador. A Vó diz que ele conhece cada folha da mata."}
 	],
 	"placa_ox_rastro": [
 		{"quem": "Placa", "yo": "", "pt": "Quem anda sem olhar, anda em círculos."},
@@ -32,7 +31,7 @@
 	],
 	"rastro_fim": [
 		{"quem": "Adé", "yo": "", "pt": "Saí do labirinto! O rastro do veado me trouxe até um campo aberto."},
-		{"quem": "Adé", "yo": "", "pt": "Olha quantos veados pastando... Se eu chegar correndo, eles fogem."}
+		{"quem": "Adé", "yo": "", "pt": "Olha quantos veados pastando..."}
 	],
 	"placa_ox_campo": [
 		{"quem": "Placa", "yo": "", "pt": "Na mata, quem corre espanta a caça."},
@@ -40,7 +39,7 @@
 	],
 	"veado_fugiu": [
 		{"quem": "", "yo": "", "pt": "O veado ouviu os passos apressados e correu! A mata se fecha..."},
-		{"quem": "Adé", "yo": "", "pt": "Eu corri demais. O caçador tem paciência... Vou tentar de novo, com calma."}
+		{"quem": "Adé", "yo": "", "pt": "Eu corri demais. O caçador tem paciência..."}
 	],
 	"milho": [
 		{"quem": "Adé", "yo": "", "pt": "Um pé de milho com uma espiga madurinha! Milho é comida de Oxóssi... vou levar."}
