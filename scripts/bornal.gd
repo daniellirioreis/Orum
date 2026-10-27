@@ -116,6 +116,7 @@ var _vistas := {}              # as falas já guardadas (para não repetir a mes
 var _livro_i := 0
 var _livro: Control
 var _livro_cap: Label
+var _livro_nar: Label
 var _livro_quem: Label
 var _livro_yo: Label
 var _livro_pt: Label
@@ -186,7 +187,7 @@ func registrar_fala(linha: Dictionary) -> void:
 	if _vistas.has(chave):
 		return
 	_vistas[chave] = true
-	historia.append({"capitulo": Jogo.nome_do_local_atual(), "quem": quem, "yo": str(linha.get("yo", "")), "pt": pt})
+	historia.append({"capitulo": Jogo.nome_do_local_atual(), "narracao": str(linha.get("narracao", "")), "quem": quem, "yo": str(linha.get("yo", "")), "pt": pt})
 
 
 ## Marca como aprendidas as palavras da caderneta que aparecem no texto de um diálogo.
@@ -657,6 +658,23 @@ func _mostrar_pagina() -> void:
 
 
 ## A página do diário: uma fala por página, como num livro.
+## Em cima, o lugar (capítulo) e uma frase de narração (se o diálogo tiver); depois quem fala, em cor
+## própria, e a fala em itálico.
+const COR_FALANTE := [
+	["Vó", Color(1.0, 0.8, 0.3)],
+	["Adé", Color(0.6, 0.85, 1.0)],
+	["Tia", Color(1.0, 0.6, 0.75)],
+	["Èṣù", Color(1.0, 0.5, 0.4)],
+	["Exu", Color(1.0, 0.5, 0.4)],
+	["Iemanjá", Color(0.5, 0.85, 1.0)],
+	["Yemọja", Color(0.5, 0.85, 1.0)],
+	["Nanã", Color(0.8, 0.65, 1.0)],
+	["Ọ̀ṣọ́ọ̀sì", Color(0.55, 0.92, 0.55)],
+	["Tartaruga", Color(0.75, 0.85, 0.45)],
+]
+var _fonte_italica: Font
+
+
 func _montar_livro(tela: Vector2) -> void:
 	_livro = Control.new()
 	_livro.size = tela
@@ -665,18 +683,24 @@ func _montar_livro(tela: Vector2) -> void:
 	_livro_cap.position = Vector2(26, TOPO_LISTA)
 	_livro_cap.size = Vector2(tela.x - 52, 10)
 	_livro.add_child(_livro_cap)
+	_livro_nar = _rotulo("", 7, COR_APAGADA)
+	_livro_nar.position = Vector2(26, TOPO_LISTA + 12)
+	_livro_nar.size = Vector2(tela.x - 52, 22)
+	_livro_nar.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_livro.add_child(_livro_nar)
 	_livro_quem = _rotulo("", 9, COR_TITULO)
-	_livro_quem.position = Vector2(26, TOPO_LISTA + 16)
+	_livro_quem.position = Vector2(26, TOPO_LISTA + 38)
 	_livro_quem.size = Vector2(tela.x - 52, 14)
 	_livro.add_child(_livro_quem)
 	_livro_yo = _rotulo("", 7, COR_AVISO)
-	_livro_yo.position = Vector2(26, TOPO_LISTA + 32)
+	_livro_yo.position = Vector2(26, TOPO_LISTA + 54)
 	_livro_yo.size = Vector2(tela.x - 52, 10)
 	_livro.add_child(_livro_yo)
 	_livro_pt = _rotulo("", 8, COR_TEXTO)
-	_livro_pt.position = Vector2(26, TOPO_LISTA + 46)
-	_livro_pt.size = Vector2(tela.x - 52, 80)
+	_livro_pt.position = Vector2(26, TOPO_LISTA + 68)
+	_livro_pt.size = Vector2(tela.x - 52, 50)
 	_livro_pt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_livro_pt.add_theme_font_override("font", _fonte_italica_()) 
 	_livro.add_child(_livro_pt)
 	var sep := ColorRect.new()
 	sep.color = Color(0.95, 0.95, 1.0, 0.35)
@@ -690,11 +714,30 @@ func _montar_livro(tela: Vector2) -> void:
 	_livro.add_child(_livro_contador)
 
 
+## Fonte "inclinada" (itálico sintético): a Noto Sans não tem itálico no projeto.
+func _fonte_italica_() -> Font:
+	if _fonte_italica == null:
+		var fv := FontVariation.new()
+		fv.base_font = preload("res://fontes/NotoSans-Regular.ttf")
+		fv.variation_transform = Transform2D(Vector2(1, 0), Vector2(0.25, 1), Vector2.ZERO)
+		_fonte_italica = fv
+	return _fonte_italica
+
+
+func _cor_do_falante(quem: String) -> Color:
+	for par in COR_FALANTE:
+		if quem.contains(par[0]):
+			return par[1]
+	return COR_TEXTO
+
+
 func _mostrar_livro() -> void:
 	var n := historia.size()
 	if n == 0:
 		_livro_cap.text = ""
+		_livro_nar.text = ""
 		_livro_quem.text = "Diário em branco"
+		_livro_quem.add_theme_color_override("font_color", COR_TITULO)
 		_livro_yo.visible = false
 		_livro_pt.text = "Adé ainda não ouviu nada. As conversas que ele tiver aparecem aqui, como num diário."
 		_livro_contador.text = "0 de 0"
@@ -702,7 +745,9 @@ func _mostrar_livro() -> void:
 	_livro_i = clampi(_livro_i, 0, n - 1)
 	var f: Dictionary = historia[_livro_i]
 	_livro_cap.text = f["capitulo"]
+	_livro_nar.text = f.get("narracao", "")
 	_livro_quem.text = f["quem"]
+	_livro_quem.add_theme_color_override("font_color", _cor_do_falante(f["quem"]))
 	_livro_yo.text = f["yo"]
 	_livro_yo.visible = f["yo"] != ""
 	_livro_pt.text = f["pt"]
