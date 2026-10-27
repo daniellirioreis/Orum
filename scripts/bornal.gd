@@ -107,6 +107,7 @@ const ITENS := {
 }
 
 var itens: Array = []          # ids, na ordem em que Adé pegou
+var aprendidas: Array = []     # palavras da caderneta que Adé já ouviu nos diálogos
 var equipado := ""             # a ferramenta "na mão"
 var aberto := false
 
@@ -160,6 +161,31 @@ func _ready() -> void:
 
 
 # ------------------------------------------------------------------ os itens
+
+## Marca como aprendidas as palavras da caderneta que aparecem no texto de um diálogo.
+func aprender_do_texto(texto: String) -> void:
+	var t := texto.to_lower()
+	for e in CADERNETA:
+		var p: String = e["palavra"]
+		if not p in aprendidas and t.contains(p.to_lower()):
+			aprendidas.append(p)
+
+
+## As palavras que Adé já aprendeu (só essas aparecem na caderneta).
+func _caderneta() -> Array:
+	var r := []
+	for e in CADERNETA:
+		if e["palavra"] in aprendidas:
+			r.append(e)
+	return r
+
+
+func _existe_na_caderneta(p: String) -> bool:
+	for e in CADERNETA:
+		if e["palavra"] == p:
+			return true
+	return false
+
 
 func tem(id: String) -> bool:
 	return id in itens
@@ -232,15 +258,20 @@ func comecar_fase(fase: String, menos: Array = []) -> void:
 
 func esvaziar() -> void:
 	itens.clear()
+	aprendidas.clear()
 	equipado = ""
 	_atualizar_hud()
 
 
 func para_salvar() -> Dictionary:
-	return {"itens": itens.duplicate(), "equipado": equipado}
+	return {"itens": itens.duplicate(), "equipado": equipado, "aprendidas": aprendidas.duplicate()}
 
 
 func carregar(d: Dictionary) -> void:
+	aprendidas = []
+	for p in d.get("aprendidas", []):
+		if _existe_na_caderneta(p):
+			aprendidas.append(p)
 	itens = []
 	for id in d.get("itens", []):
 		if ITENS.has(id):
@@ -558,7 +589,19 @@ func _mostrar_pagina() -> void:
 
 
 func _mostrar_cad() -> void:
-	var n := CADERNETA.size()
+	var n := _caderneta().size()
+	if n == 0:
+		_cad_cursor.visible = false
+		for l in _cad_linhas_ui:
+			l.text = ""
+		_cad_palavra.text = "Nenhuma palavra ainda."
+		_cad_pron.text = ""
+		_cad_sig.text = "Adé vai aprendendo as palavras em iorubá conversando com as pessoas."
+		_cad_onde.text = ""
+		_cad_contador.text = "0 de 0"
+		_cad_aviso.text = ""
+		return
+	_cad_cursor.visible = true
 	_cad_i = clampi(_cad_i, 0, n - 1)
 	# rola a coluna das palavras para a escolhida aparecer
 	if _cad_i < _cad_topo:
@@ -569,13 +612,13 @@ func _mostrar_cad() -> void:
 		var k := _cad_topo + i
 		var l: Label = _cad_linhas_ui[i]
 		if k < n:
-			l.text = CADERNETA[k]["palavra"]
+			l.text = _caderneta()[k]["palavra"]
 			l.add_theme_color_override("font_color", COR_TITULO if k == _cad_i else COR_TEXTO)
 		else:
 			l.text = ""
 	_cad_cursor.position = Vector2(28, TOPO_LISTA + (_cad_i - _cad_topo) * ALTURA_LINHA)
 	# a coluna da direita: a tradução da palavra escolhida
-	var e: Dictionary = CADERNETA[_cad_i]
+	var e: Dictionary = _caderneta()[_cad_i]
 	_cad_palavra.text = e["palavra"]
 	_cad_pron.text = "pronúncia: " + e["pron"]
 	_cad_sig.text = e["sig"]
@@ -640,9 +683,10 @@ func _input(ev: InputEvent) -> void:
 				Jogo.tocar_som("texto", -12.0)
 				_mostrar_cursor()
 		else:
-			_cad_i = (_cad_i + passo + CADERNETA.size()) % CADERNETA.size()
-			Jogo.tocar_som("texto", -12.0)
-			_mostrar_cad()
+			if not _caderneta().is_empty():
+				_cad_i = (_cad_i + passo + _caderneta().size()) % _caderneta().size()
+				Jogo.tocar_som("texto", -12.0)
+				_mostrar_cad()
 	elif ev.is_action_pressed("interagir"):
 		if _pagina == 0 and not _lista.is_empty():
 			Jogo.tocar_som("buzio", -10.0)
