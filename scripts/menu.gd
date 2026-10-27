@@ -425,7 +425,7 @@ func _rotulo_caminho(i: int) -> String:
 	var r: Dictionary = Jogo.resumo(i)
 	if r.is_empty():
 		return "Caminho %d  ·  vazio" % (i + 1)
-	return "Caminho %d · %s · ★%d · [img=8x8]res://arte/ico_tempo.png[/img] %s · [img=8x8]res://arte/ico_morte.png[/img] %d · [img=16x8]res://arte/buzio.png[/img] %d" % [i + 1, r["onde"], r["trofeus"], r["tempo"], r["mortes"], r["buzios"]]
+	return "Caminho %d · %s · ★%d · [img=8x8]res://arte/ico_tempo.png[/img] %s · [img=8x8]res://arte/ico_morte.png[/img] %d · [img=8x8]res://arte/ico_buzio.png[/img] %d" % [i + 1, r["onde"], r["trofeus"], r["tempo"], r["mortes"], r["buzios"]]
 
 
 ## Pergunta qual caminho apagar (com confirmação). Os vazios não aparecem como escolha.
