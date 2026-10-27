@@ -28,8 +28,7 @@
 		{"quem": "Adé", "yo": "", "pt": "A lama me puxou! Ainda bem que deu para sair..."}
 	],
 	"chegada_bambuzal": [
-		{"quem": "Adé", "yo": "", "pt": "Um bambuzal! E lá na frente... um taboal fechando o caminho."},
-		{"quem": "", "yo": "", "pt": "Cuidado com os sapos que pulam! Onde aparece a sombra no chão, o sapo vai cair: saia de baixo dela."}
+		{"quem": "Adé", "yo": "", "pt": "Um bambuzal! E lá na frente... um taboal fechando o caminho."}
 	],
 	"placa_nana_bambuzal": [
 		{"quem": "", "yo": "", "pt": "\"Do outro lado do taboal fica o mangue. O que se corta na terra de Nanã, se corta sem ferir.\""}
