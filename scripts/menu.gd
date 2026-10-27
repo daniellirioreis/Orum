@@ -89,10 +89,13 @@ func _montar(titulo: String, opcoes: Array, rodape: String) -> void:
 	painel.add_child(t)
 	_linhas.clear()
 	for i in opcoes.size():
-		var l := _rotulo(str(opcoes[i]), 8, COR_TEXTO)
+		var l := _linha_menu(str(opcoes[i]), 8, COR_TEXTO, false)
 		l.position = Vector2(18, 24 + i * 15)
 		l.size = Vector2(largura - 26, 14)
-		l.clip_text = true
+		if l is Label:
+			l.clip_text = true
+		else:
+			l.clip_contents = true
 		painel.add_child(l)
 		_linhas.append(l)
 	if rodape != "":
@@ -125,7 +128,7 @@ func _montar_sem_caixa(titulo: String, opcoes: Array, rodape: String) -> void:
 	for o in opcoes:
 		longa = longa or str(o).length() > 26
 	for i in opcoes.size():
-		var l := _rotulo(str(opcoes[i]), 7 if longa else 9, COR_TEXTO)
+		var l := _linha_menu(str(opcoes[i]), 7 if longa else 9, COR_TEXTO, true)
 		_centralizar(l, y + i * 13, 13)
 		_linhas.append(l)
 	if rodape != "":
@@ -135,29 +138,33 @@ func _montar_sem_caixa(titulo: String, opcoes: Array, rodape: String) -> void:
 
 
 ## Põe o texto na largura toda da tela, centralizado, com contorno escuro.
-func _centralizar(l: Label, y: float, altura: float) -> void:
+func _centralizar(l: Control, y: float, altura: float) -> void:
 	_contorno(l)
-	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	if l is Label:
+		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_raiz.add_child(l)
 	l.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
 	l.offset_top = y
 	l.offset_bottom = y + altura
 
 
-func _contorno(l: Label) -> void:
+func _contorno(l: Control) -> void:
 	l.add_theme_color_override("font_outline_color", Color(0.12, 0.05, 0.14))
 	l.add_theme_constant_override("outline_size", 3)
 
 
 func _atualizar() -> void:
 	for i in _linhas.size():
-		var l: Label = _linhas[i]
-		var texto := l.text.trim_prefix("▶ ").trim_prefix("   ")
+		var l: Control = _linhas[i]
+		var texto: String = l.text.trim_prefix("▶ ").trim_prefix("   ")
 		l.text = ("▶ " if i == _cursor else "   ") + texto
 		var cor := COR_APAGADA if i in _desativadas else (COR_TITULO if i == _cursor else COR_TEXTO)
 		if _transparente and i in _desativadas:
 			cor = Color(0.7, 0.62, 0.72)
-		l.add_theme_color_override("font_color", cor)
+		if l is RichTextLabel:
+			l.add_theme_color_override("default_color", cor)
+		else:
+			l.add_theme_color_override("font_color", cor)
 
 
 func _input(ev: InputEvent) -> void:
@@ -202,6 +209,23 @@ func _fechar_caixa() -> void:
 		_raiz.queue_free()
 		_raiz = null
 	_linhas.clear()
+
+
+## Linha de opção. Se tiver ícones ([img]), vira um texto rico; senão, um Label comum.
+func _linha_menu(texto: String, tamanho: int, cor: Color, centro: bool) -> Control:
+	if not texto.contains("[img"):
+		return _rotulo(texto, tamanho, cor)
+	var rt := RichTextLabel.new()
+	rt.bbcode_enabled = true
+	rt.scroll_active = false
+	rt.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rt.text = ("[center]%s[/center]" % texto) if centro else texto
+	rt.add_theme_font_size_override("normal_font_size", tamanho)
+	rt.add_theme_color_override("default_color", cor)
+	if centro:
+		rt.add_theme_constant_override("outline_size", 3)
+		rt.add_theme_color_override("font_outline_color", Color(0.12, 0.05, 0.14))
+	return rt
 
 
 func _rotulo(texto: String, tamanho: int, cor: Color) -> Label:
@@ -399,7 +423,7 @@ func _rotulo_caminho(i: int) -> String:
 	var r: Dictionary = Jogo.resumo(i)
 	if r.is_empty():
 		return "Caminho %d  ·  vazio" % (i + 1)
-	return "Caminho %d · %s · %s · %d mortes" % [i + 1, r["onde"], r["tempo"], r["mortes"]]
+	return "Caminho %d · %s · ★%d · [img=8x8]res://arte/ico_tempo.png[/img] %s · [img=8x8]res://arte/ico_morte.png[/img] %d · [img=16x8]res://arte/buzio.png[/img] %d" % [i + 1, r["onde"], r["trofeus"], r["tempo"], r["mortes"], r["buzios"]]
 
 
 ## Pergunta qual caminho apagar (com confirmação). Os vazios não aparecem como escolha.

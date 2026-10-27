@@ -567,7 +567,8 @@ func resumo(espaco: int) -> Dictionary:
 		curta = "%s/%s %s" % [data.substr(8, 2), data.substr(5, 2), data.substr(11, 5)]
 	return {"onde": LOCAIS.get(d.get("local", ""), {"nome": "?"})["nome"],
 		"trofeus": d.get("trofeus", {}).size(), "data": curta,
-		"tempo": formatar_tempo(float(d.get("tempo_jogado", 0.0))), "mortes": int(d.get("mortes", 0))}
+		"tempo": formatar_tempo(float(d.get("tempo_jogado", 0.0))), "mortes": int(d.get("mortes", 0)),
+		"buzios": int(d.get("buzios", 0))}
 
 
 ## Tempo de jogo em horas e minutos: "1h02m" ou "12m".
