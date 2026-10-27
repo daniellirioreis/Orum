@@ -667,9 +667,12 @@ func _revelar_lascas() -> void:
 	_lascas.ativo = true
 	_lascas.z_index = 5    # cai por cima do bambu, na frente
 	var p := _lascas.position
-	_lascas.position = p + Vector2(0, -6)
+	_lascas.position = p + Vector2(0, -24)     # sai de dentro da touceira...
 	Jogo.tocar_som("buzio", -8.0)
-	create_tween().tween_property(_lascas, "position", p, 0.35).set_trans(Tween.TRANS_BOUNCE)
+	var queda := create_tween()
+	queda.tween_property(_lascas, "position", p, 0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)   # ...e cai na grama
+	queda.tween_property(_lascas, "position", p + Vector2(0, -3), 0.12).set_trans(Tween.TRANS_SINE)
+	queda.tween_property(_lascas, "position", p, 0.12).set_trans(Tween.TRANS_SINE)
 
 
 # ------------------------------------------------------------------ garças e sapos
