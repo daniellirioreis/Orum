@@ -504,6 +504,22 @@ func _atirar() -> void:
 	var lado := Vector2(-dir.y, dir.x)
 	_flecha = {"s": s, "dir": dir, "voando": true, "andou": 0.0, "no_chao": false,
 		"vento": lado * randf_range(-0.12, 0.12)}
+	# rastro de vento: riscos claros saindo da flecha para o lado que o vento empurra (mais rápidos se o vento é forte)
+	var vento: Vector2 = _flecha["vento"]
+	if vento.length() > 0.01:
+		var forca := vento.length() / 0.12
+		var rastro := CPUParticles2D.new()
+		rastro.amount = 10
+		rastro.lifetime = 0.45
+		rastro.emitting = true
+		rastro.direction = vento.normalized()
+		rastro.spread = 8.0
+		rastro.gravity = Vector2.ZERO
+		rastro.initial_velocity_min = 22.0 * forca
+		rastro.initial_velocity_max = 34.0 * forca
+		rastro.color = Color(0.9, 1.0, 0.85, 0.75)
+		s.add_child(rastro)
+		_flecha["rastro"] = rastro
 	_mostrar_aviso("Vento de Iansá na mata! A flecha vai desviar.")
 	Jogo.bornal.mao_apagada(true)
 	Jogo.tocar_som("flecha_atira", -4.0)
@@ -592,6 +608,8 @@ func _bate_em_parede(p: Vector2) -> bool:
 
 func _flecha_cai() -> void:
 	_flecha["voando"] = false
+	if _flecha.has("rastro"):
+		_flecha["rastro"].emitting = false
 	var s: Sprite2D = _flecha["s"]
 	var t := create_tween()
 	t.tween_property(s, "position:y", s.position.y + 8.0, 0.12)
