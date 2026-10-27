@@ -483,7 +483,7 @@ func _montar_cad(tela: Vector2) -> void:
 	_cad.add_child(_cad_cursor)
 	_cad_linhas_ui.clear()
 	for i in LINHAS_VISIVEIS:
-		var nome := _rotulo("", 8, COR_TEXTO)
+		var nome := _rotulo("", 7, COR_TEXTO)
 		nome.position = Vector2(30, TOPO_LISTA + i * ALTURA_LINHA + 1)
 		_cad.add_child(nome)
 		_cad_linhas_ui.append(nome)
@@ -496,15 +496,15 @@ func _montar_cad(tela: Vector2) -> void:
 	_cad.add_child(vsep)
 
 	# coluna da direita: a tradução da palavra escolhida
-	_cad_palavra = _rotulo("", 10, COR_TITULO)
+	_cad_palavra = _rotulo("", 8, COR_TITULO)
 	_cad_palavra.position = Vector2(124, TOPO_LISTA)
 	_cad_palavra.size = Vector2(tela.x - 140, 14)
 	_cad.add_child(_cad_palavra)
-	_cad_pron = _rotulo("", 7, COR_APAGADA)
+	_cad_pron = _rotulo("", 6, COR_APAGADA)
 	_cad_pron.position = Vector2(124, TOPO_LISTA + 18)
 	_cad_pron.size = Vector2(tela.x - 140, 10)
 	_cad.add_child(_cad_pron)
-	_cad_sig = _rotulo("", 9, COR_TEXTO)
+	_cad_sig = _rotulo("", 7, COR_TEXTO)
 	_cad_sig.position = Vector2(124, TOPO_LISTA + 32)
 	_cad_sig.size = Vector2(tela.x - 140, 56)
 	_cad_sig.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -515,7 +515,7 @@ func _montar_cad(tela: Vector2) -> void:
 	sep.position = Vector2(24, 132)
 	sep.size = Vector2(tela.x - 48, 1)
 	_cad.add_child(sep)
-	_cad_onde = _rotulo("", 8, COR_TEXTO)
+	_cad_onde = _rotulo("", 7, COR_TEXTO)
 	_cad_onde.position = Vector2(26, 137)
 	_cad_onde.size = Vector2(tela.x - 130, 10)
 	_cad.add_child(_cad_onde)
