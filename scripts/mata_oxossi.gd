@@ -47,6 +47,7 @@ var _espantou := false
 # flecha
 var _flecha := {}               # {s, dir, voando, andou, no_chao}
 var _linha_mira: Line2D
+var _mira_ativa := false       # mira só aparece depois de apertar o botão de atirar
 var _alvos: Array = []          # {tipo, no, lugar, ...}
 var _avisou_volta := false
 var _avisou_passarinho := false
@@ -147,7 +148,14 @@ func _process(delta: float) -> void:
 
 func _unhandled_input(ev: InputEvent) -> void:
 	if ev.is_action_pressed("atirar") and jogador.pode_mover and not _voltando:
-		_atirar()
+		# 1º aperto ativa a mira; 2º aperto atira
+		if _mira_ativa:
+			_mira_ativa = false
+			_atirar()
+		elif _ox.has("tem_ofa") and Jogo.bornal.equipado == "ofa" and _flecha.is_empty():
+			_mira_ativa = true
+		else:
+			_atirar()
 		return
 	super._unhandled_input(ev)
 
@@ -514,7 +522,7 @@ func _angulo_mira() -> float:
 
 ## Uma linha clarinha mostra para onde a mira está apontando agora (só quando dá para atirar).
 func _atualizar_mira() -> void:
-	var pode: bool = _ox.has("tem_ofa") and Jogo.bornal.equipado == "ofa" and _flecha.is_empty() and jogador.pode_mover
+	var pode: bool = _mira_ativa and _ox.has("tem_ofa") and Jogo.bornal.equipado == "ofa" and _flecha.is_empty() and jogador.pode_mover
 	if not pode:
 		if _linha_mira:
 			_linha_mira.visible = false
