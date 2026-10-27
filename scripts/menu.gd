@@ -219,6 +219,7 @@ func _linha_menu(texto: String, tamanho: int, cor: Color, centro: bool) -> Contr
 	var rt := RichTextLabel.new()
 	rt.bbcode_enabled = true
 	rt.fit_content = false
+	rt.autowrap_mode = TextServer.AUTOWRAP_OFF
 	rt.scroll_active = false
 	rt.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	rt.text = ("[center]%s[/center]" % texto) if centro else texto
@@ -425,7 +426,7 @@ func _rotulo_caminho(i: int) -> String:
 	var r: Dictionary = Jogo.resumo(i)
 	if r.is_empty():
 		return "Caminho %d  ·  vazio" % (i + 1)
-	return "Caminho %d · %s · ★%d · [img=8x8]res://arte/ico_tempo.png[/img] %s · [img=8x8]res://arte/ico_morte.png[/img] %d · [img=8x8]res://arte/ico_buzio.png[/img] %d" % [i + 1, r["onde"], r["trofeus"], r["tempo"], r["mortes"], r["buzios"]]
+	return "Caminho %d · %s ★%d [img=8x8]res://arte/ico_tempo.png[/img] %s [img=8x8]res://arte/ico_morte.png[/img] %d [img=8x8]res://arte/ico_buzio.png[/img] %d" % [i + 1, r["onde"], r["trofeus"], r["tempo"], r["mortes"], r["buzios"]]
 
 
 ## Pergunta qual caminho apagar (com confirmação). Os vazios não aparecem como escolha.
