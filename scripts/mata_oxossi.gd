@@ -1291,6 +1291,7 @@ func _abrir_saida() -> void:
 
 
 func _ganhar_trofeu() -> void:
+	_comemorar_mundo()
 	Jogo.bornal.tirar("ofa")       # o ofá do toco era de Oxóssi: agora ele dá o ofá a Adé, como presente
 	Jogo.bornal.mao_apagada(false)
 	Jogo.trofeus["oxossi"] = "Ofá de Oxóssi"

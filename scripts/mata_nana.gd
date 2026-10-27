@@ -1523,6 +1523,7 @@ func _abrir_saida() -> void:
 
 
 func _ganhar_trofeu() -> void:
+	_comemorar_mundo()
 	Jogo.bornal.tirar("lamina")       # a lâmina de bambu fica na terra de Nanã
 	if Jogo.bornal.tem("faca"):
 		Jogo.bornal.tirar("faca")

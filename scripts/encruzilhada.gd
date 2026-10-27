@@ -423,6 +423,33 @@ func _ao_afundar_pedra(_p: Dictionary) -> void:
 	await _falar("pedra_ponte")
 
 
+## Ao completar um mundo: Adé pula três vezes e brilha, ainda dentro do campo.
+func _comemorar_mundo() -> void:
+	var sp: Node2D = jogador.sprite
+	var base_y := sp.position.y
+	var brilho := CPUParticles2D.new()
+	brilho.position = jogador.global_position + Vector2(0, -20)
+	brilho.z_index = 12
+	brilho.amount = 8
+	brilho.lifetime = 0.45
+	brilho.one_shot = true
+	brilho.explosiveness = 1.0
+	brilho.spread = 180.0
+	brilho.gravity = Vector2.ZERO
+	brilho.initial_velocity_min = 22.0
+	brilho.initial_velocity_max = 36.0
+	brilho.color = Color(1, 1, 0.8)
+	add_child(brilho)
+	brilho.emitting = true
+	get_tree().create_timer(1.0).timeout.connect(brilho.queue_free)
+	for i in 3:
+		Jogo.tocar_som("pulo", -14.0)
+		var pulo := create_tween()
+		pulo.tween_property(sp, "position:y", base_y - 12.0, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		pulo.tween_property(sp, "position:y", base_y, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		await pulo.finished
+
+
 func _respingo(pos: Vector2) -> void:
 	var f := CPUParticles2D.new()
 	f.position = pos
