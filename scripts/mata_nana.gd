@@ -655,8 +655,9 @@ func _sacudir_touceira(t: Area2D) -> void:
 	var sacode := create_tween()
 	for a in [0.14, -0.14, 0.09, -0.09, 0.0]:
 		sacode.tween_property(t, "rotation", a, 0.08)
+	# a lâmina está no chão perto de algumas touceiras: sacudir uma delas a faz cair
 	if is_instance_valid(_lascas) and not _lascas.ativo and not _nana.has("lamina") \
-			and _lascas.position.distance_to(t.position + Vector2(0, -TILE)) < 2.0:
+			and _lascas.position.distance_to(t.position) < 2.5 * TILE:
 		sacode.tween_callback(_revelar_lascas)
 
 
