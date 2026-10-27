@@ -143,6 +143,9 @@ func _ready() -> void:
 	sombra.show_behind_parent = true
 	_ade.add_child(sombra)
 	add_child(_ade)
+	# voltou de um campo já completado: comemora aqui, no lugar do mundo
+	if Jogo.has_meta("no_mapa") and Jogo.trofeus.has(_no_atual):
+		call_deferred("_comemorar_no")
 
 	_camera = Camera2D.new()
 	_camera.limit_left = 0
@@ -1145,6 +1148,33 @@ func _esconder_no() -> void:
 	_descricao.text = ""
 	_mostrar_trofeu("")
 	_icone.texture = null
+
+
+## Adé pula três vezes e brilha no lugar do mundo que ele acabou de completar.
+func _comemorar_no() -> void:
+	Jogo.tocar_som("pulo", -14.0)
+	var brilho := CPUParticles2D.new()
+	brilho.position = _ade.position + Vector2(0, -14)
+	brilho.z_index = 20
+	brilho.amount = 10
+	brilho.lifetime = 0.5
+	brilho.one_shot = true
+	brilho.explosiveness = 1.0
+	brilho.spread = 180.0
+	brilho.gravity = Vector2.ZERO
+	brilho.initial_velocity_min = 16.0
+	brilho.initial_velocity_max = 30.0
+	brilho.color = Color(1, 1, 0.8)
+	add_child(brilho)
+	brilho.emitting = true
+	get_tree().create_timer(1.0).timeout.connect(brilho.queue_free)
+	for i in 3:
+		var pulo := create_tween()
+		pulo.tween_property(_ade, "offset:y", -18.0, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		pulo.tween_property(_ade, "offset:y", -6.0, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		if i < 2:
+			pulo.tween_callback(Jogo.tocar_som.bind("pulo", -14.0))
+		await pulo.finished
 
 
 func _entrar() -> void:
