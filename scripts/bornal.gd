@@ -131,8 +131,10 @@ var _desc: Label
 var _escolha = null
 
 # --- a caderneta
-var _cad_i := 0                # a palavra aberta na caderneta
-var _cad_intro: Label
+var _cad_i := 0                # a palavra escolhida na caderneta
+var _cad_topo := 0             # a primeira palavra da coluna da esquerda (rola como o Àpò)
+var _cad_cursor: ColorRect
+var _cad_linhas_ui: Array = [] # o nome de cada palavra visível na coluna da esquerda
 var _cad_contador: Label
 var _cad_palavra: Label
 var _cad_pron: Label
@@ -419,6 +421,7 @@ func _montar_tela() -> void:
 	_linha = 0
 	_topo = 0
 	_cad_i = 0
+	_cad_topo = 0
 	_mostrar_pagina()
 
 
@@ -471,27 +474,42 @@ func _montar_cad(tela: Vector2) -> void:
 	_cad = Control.new()
 	_cad.size = tela
 	_raiz.add_child(_cad)
-	_cad_intro = _rotulo("Palavras em iorubá que Adé aprendeu.", 7, COR_APAGADA)
-	_cad_intro.position = Vector2(26, TOPO_LISTA)
-	_cad.add_child(_cad_intro)
-	_cad_contador = _rotulo("", 7, COR_APAGADA)
-	_cad_contador.position = Vector2(tela.x - 96, TOPO_LISTA)
-	_cad_contador.size = Vector2(70, 10)
-	_cad_contador.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_cad.add_child(_cad_contador)
-	_cad_palavra = _rotulo("", 11, COR_TITULO)
-	_cad_palavra.position = Vector2(26, 58)
-	_cad_palavra.size = Vector2(tela.x - 52, 16)
+	_cad_topo = 0
+
+	# coluna da esquerda: as palavras (rolam como no Àpò)
+	_cad_cursor = ColorRect.new()
+	_cad_cursor.color = Color(1.0, 0.85, 0.3, 0.22)
+	_cad_cursor.size = Vector2(84, ALTURA_LINHA)
+	_cad.add_child(_cad_cursor)
+	_cad_linhas_ui.clear()
+	for i in LINHAS_VISIVEIS:
+		var nome := _rotulo("", 8, COR_TEXTO)
+		nome.position = Vector2(30, TOPO_LISTA + i * ALTURA_LINHA + 1)
+		_cad.add_child(nome)
+		_cad_linhas_ui.append(nome)
+
+	# a linha que separa as duas colunas
+	var vsep := ColorRect.new()
+	vsep.color = Color(0.95, 0.95, 1.0, 0.35)
+	vsep.position = Vector2(116, TOPO_LISTA - 2)
+	vsep.size = Vector2(1, LINHAS_VISIVEIS * ALTURA_LINHA + 4)
+	_cad.add_child(vsep)
+
+	# coluna da direita: a tradução da palavra escolhida
+	_cad_palavra = _rotulo("", 10, COR_TITULO)
+	_cad_palavra.position = Vector2(124, TOPO_LISTA)
+	_cad_palavra.size = Vector2(tela.x - 140, 14)
 	_cad.add_child(_cad_palavra)
-	_cad_pron = _rotulo("", 8, COR_TEXTO)
-	_cad_pron.position = Vector2(26, 80)
-	_cad_pron.size = Vector2(tela.x - 52, 10)
+	_cad_pron = _rotulo("", 7, COR_APAGADA)
+	_cad_pron.position = Vector2(124, TOPO_LISTA + 18)
+	_cad_pron.size = Vector2(tela.x - 140, 10)
 	_cad.add_child(_cad_pron)
 	_cad_sig = _rotulo("", 9, COR_TEXTO)
-	_cad_sig.position = Vector2(26, 96)
-	_cad_sig.size = Vector2(tela.x - 52, 24)
+	_cad_sig.position = Vector2(124, TOPO_LISTA + 32)
+	_cad_sig.size = Vector2(tela.x - 140, 56)
 	_cad_sig.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_cad.add_child(_cad_sig)
+
 	var sep := ColorRect.new()
 	sep.color = Color(0.95, 0.95, 1.0, 0.35)
 	sep.position = Vector2(24, 132)
@@ -499,8 +517,13 @@ func _montar_cad(tela: Vector2) -> void:
 	_cad.add_child(sep)
 	_cad_onde = _rotulo("", 8, COR_TEXTO)
 	_cad_onde.position = Vector2(26, 137)
-	_cad_onde.size = Vector2(tela.x - 52, 10)
+	_cad_onde.size = Vector2(tela.x - 130, 10)
 	_cad.add_child(_cad_onde)
+	_cad_contador = _rotulo("", 7, COR_APAGADA)
+	_cad_contador.position = Vector2(tela.x - 104, 137)
+	_cad_contador.size = Vector2(78, 10)
+	_cad_contador.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_cad.add_child(_cad_contador)
 	_cad_aviso = _rotulo("", 7, COR_AVISO)
 	_cad_aviso.position = Vector2(26, 151)
 	_cad_aviso.size = Vector2(tela.x - 52, 30)
@@ -528,12 +551,29 @@ func _mostrar_pagina() -> void:
 
 
 func _mostrar_cad() -> void:
+	var n := CADERNETA.size()
+	_cad_i = clampi(_cad_i, 0, n - 1)
+	# rola a coluna das palavras para a escolhida aparecer
+	if _cad_i < _cad_topo:
+		_cad_topo = _cad_i
+	elif _cad_i >= _cad_topo + LINHAS_VISIVEIS:
+		_cad_topo = _cad_i - LINHAS_VISIVEIS + 1
+	for i in LINHAS_VISIVEIS:
+		var k := _cad_topo + i
+		var l: Label = _cad_linhas_ui[i]
+		if k < n:
+			l.text = CADERNETA[k]["palavra"]
+			l.add_theme_color_override("font_color", COR_TITULO if k == _cad_i else COR_TEXTO)
+		else:
+			l.text = ""
+	_cad_cursor.position = Vector2(28, TOPO_LISTA + (_cad_i - _cad_topo) * ALTURA_LINHA)
+	# a coluna da direita: a tradução da palavra escolhida
 	var e: Dictionary = CADERNETA[_cad_i]
-	_cad_contador.text = "%d de %d" % [_cad_i + 1, CADERNETA.size()]
 	_cad_palavra.text = e["palavra"]
-	_cad_pron.text = "pronuncia-se: " + e["pron"]
+	_cad_pron.text = "pronúncia: " + e["pron"]
 	_cad_sig.text = e["sig"]
 	_cad_onde.text = "Onde aprendeu: " + e["onde"]
+	_cad_contador.text = "%d de %d" % [_cad_i + 1, n]
 	_cad_aviso.text = "Ainda não confirmada: conferir no terreiro." if e["duvida"] else ""
 
 
