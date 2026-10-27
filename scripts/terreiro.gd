@@ -1958,7 +1958,8 @@ func _na_quartinha() -> void:
 		Jogo.salvar(espaco, _local_do_caminho())
 		_axe_cheio()
 		Jogo.tocar_som("caminho", -6.0)
-		_mostrar_aviso("Caminho %d guardado." % (espaco + 1))
+		var guardado := Jogo.resumo(espaco)
+		await Jogo.menu.escolher("Caminho %d guardado" % (espaco + 1), ["Ok"], 0, false, [], "Tempo de jogo: %s  ·  Mortes: %d" % [guardado["tempo"], guardado["mortes"]])
 		await _fala_quartinha("guardou")
 	else:
 		await _fala_quartinha("nao")

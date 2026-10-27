@@ -251,6 +251,7 @@ func pausa() -> void:
 ## Fim de jogo (acabaram os búzios de axé): voltar ao último caminho guardado ou ao título.
 func fim_de_jogo() -> void:
 	get_tree().paused = true
+	Jogo.mortes += 1
 	Jogo.tocar_som("game_over", -2.0)
 	var ultimo := Jogo.ultimo_salvo()
 	var rodape := "Nenhum caminho guardado ainda."
@@ -373,21 +374,49 @@ func escolher_caminho(titulo: String, para_carregar: bool) -> int:
 	var itens := []
 	var vazios := []
 	for i in Jogo.ESPACOS:
-		var r: Dictionary = Jogo.resumo(i)
-		if r.is_empty():
-			itens.append("Caminho %d  ·  vazio" % (i + 1))
+		itens.append(_rotulo_caminho(i))
+		if Jogo.resumo(i).is_empty():
 			vazios.append(i)
-		else:
-			itens.append("Caminho %d · %s · ★%d · %s" % [i + 1, r["onde"], r["trofeus"], r["data"]])
+	itens.append("Apagar um caminho")
 	itens.append("Voltar" if para_carregar else "Não guardar")
 	var inicial := maxi(Jogo.espaco_atual, 0)
 	var r2 := await escolher(titulo, itens, inicial, false, vazios if para_carregar else [])
-	if r2["acao"] != "ok" or r2["i"] >= Jogo.ESPACOS:
+	if r2["acao"] != "ok":
+		return -1
+	if r2["i"] == Jogo.ESPACOS:
+		await _apagar_caminho()
+		return await escolher_caminho(titulo, para_carregar)
+	if r2["i"] > Jogo.ESPACOS:
 		return -1
 	if not para_carregar and not Jogo.resumo(r2["i"]).is_empty() and r2["i"] != Jogo.espaco_atual:
 		if not await confirmar_sobrescrever(r2["i"]):
 			return -1
 	return r2["i"]
+
+
+## Uma linha do caminho: onde está, o tempo de jogo e quantas vezes Adé morreu.
+func _rotulo_caminho(i: int) -> String:
+	var r: Dictionary = Jogo.resumo(i)
+	if r.is_empty():
+		return "Caminho %d  ·  vazio" % (i + 1)
+	return "Caminho %d · %s · %s · %d mortes" % [i + 1, r["onde"], r["tempo"], r["mortes"]]
+
+
+## Pergunta qual caminho apagar (com confirmação). Os vazios não aparecem como escolha.
+func _apagar_caminho() -> void:
+	var itens := []
+	var vazios := []
+	for i in Jogo.ESPACOS:
+		itens.append(_rotulo_caminho(i))
+		if Jogo.resumo(i).is_empty():
+			vazios.append(i)
+	itens.append("Voltar")
+	var r := await escolher("Apagar qual caminho?", itens, 0, false, vazios)
+	if r["acao"] != "ok" or r["i"] >= Jogo.ESPACOS:
+		return
+	var certeza := await escolher("Apagar o caminho %d? Não tem volta." % (r["i"] + 1), ["Não", "Sim"], 0)
+	if certeza["acao"] == "ok" and certeza["i"] == 1:
+		Jogo.apagar(r["i"])
 
 
 func confirmar_sobrescrever(i: int) -> bool:

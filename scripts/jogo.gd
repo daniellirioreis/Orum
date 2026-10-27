@@ -7,6 +7,10 @@ const TELA := Vector2i(256, 224)
 
 var buzios := 0
 var buzios_total := 0
+## segundos de jogo (só conta com o jogo rodando, não em pausa)
+var tempo_jogado := 0.0
+## quantas vezes o axé de Adé acabou (o jogo volta ao último caminho guardado)
+var mortes := 0
 var falou_com_exu := false
 ## troféus que Adé ganhou dos orixás (id do orixá → nome do troféu), para levar ao terreiro da Vó
 var trofeus := {}
@@ -55,6 +59,10 @@ var _musica: AudioStreamPlayer
 var _fade: ColorRect
 
 
+func _process(delta: float) -> void:
+	tempo_jogado += delta
+
+
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	# fonte padrão de todos os textos: Noto Sans, que desenha certo os acentos do iorubá
@@ -98,6 +106,8 @@ func reiniciar() -> void:
 	trofeus = {}
 	assentados = {}
 	tempo_terreiro = ""
+	tempo_jogado = 0.0
+	mortes = 0
 	espaco_atual = -1
 	if bornal:
 		bornal.esvaziar()
@@ -513,6 +523,8 @@ func salvar(espaco: int, local: String) -> void:
 		"metas": metas,
 		"bornal": bornal.para_salvar(),
 		"tempo": tempo_terreiro,
+		"tempo_jogado": tempo_jogado,
+		"mortes": mortes,
 		"data": Time.get_datetime_string_from_system(false, true),
 	}
 	var f := FileAccess.open(_arquivo(espaco), FileAccess.WRITE)
@@ -554,7 +566,24 @@ func resumo(espaco: int) -> Dictionary:
 	if data.length() >= 16:     # "2026-10-23 10:40:12" → "23/10 10:40"
 		curta = "%s/%s %s" % [data.substr(8, 2), data.substr(5, 2), data.substr(11, 5)]
 	return {"onde": LOCAIS.get(d.get("local", ""), {"nome": "?"})["nome"],
-		"trofeus": d.get("trofeus", {}).size(), "data": curta}
+		"trofeus": d.get("trofeus", {}).size(), "data": curta,
+		"tempo": formatar_tempo(float(d.get("tempo_jogado", 0.0))), "mortes": int(d.get("mortes", 0))}
+
+
+## Tempo de jogo em horas e minutos: "1h02m" ou "12m".
+func formatar_tempo(seg: float) -> String:
+	var minutos := int(seg) / 60
+	if minutos >= 60:
+		return "%dh%02dm" % [minutos / 60, minutos % 60]
+	return "%dm" % minutos
+
+
+## Apaga o caminho guardado no espaço escolhido.
+func apagar(espaco: int) -> void:
+	if FileAccess.file_exists(_arquivo(espaco)):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(_arquivo(espaco)))
+	if espaco_atual == espaco:
+		espaco_atual = -1
 
 
 ## Continua o jogo de onde Exu guardou.
@@ -568,6 +597,8 @@ func carregar(espaco: int) -> void:
 	assentados = d.get("assentados", {})
 	buzios = int(d.get("buzios", 0))
 	tempo_terreiro = d.get("tempo", "")
+	tempo_jogado = float(d.get("tempo_jogado", 0.0))
+	mortes = int(d.get("mortes", 0))
 	for m in d.get("metas", {}):
 		if d["metas"][m]:
 			set_meta(m, true)
