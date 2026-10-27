@@ -500,7 +500,11 @@ func _atirar() -> void:
 	s.position = jogador.global_position + Vector2(0, -10) + dir * 6.0
 	s.z_index = 8
 	add_child(s)
-	_flecha = {"s": s, "dir": dir, "voando": true, "andou": 0.0, "no_chao": false}
+	# vento de Iansá: empurra a flecha de lado, de um jeito diferente a cada tiro
+	var lado := Vector2(-dir.y, dir.x)
+	_flecha = {"s": s, "dir": dir, "voando": true, "andou": 0.0, "no_chao": false,
+		"vento": lado * randf_range(-0.28, 0.28)}
+	_mostrar_aviso("Vento de Iansá na mata! A flecha vai desviar.")
 	Jogo.bornal.mao_apagada(true)
 	Jogo.tocar_som("flecha_atira", -4.0)
 
@@ -522,7 +526,7 @@ func _mover_flecha(delta: float) -> void:
 	var passos := int(ceil(FLECHA_VEL * delta / 3.0))
 	for i in passos:
 		var antes := s.position
-		s.position += dir * 3.0
+		s.position += dir * 3.0 + _flecha["vento"] * 3.0
 		_flecha["andou"] += 3.0
 		var alvo := _alvo_em(s.position)
 		if not alvo.is_empty():
