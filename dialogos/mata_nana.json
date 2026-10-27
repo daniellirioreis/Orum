@@ -35,7 +35,7 @@
 		{"quem": "", "yo": "", "pt": "\"Do outro lado do taboal fica o mangue. O que se corta na terra de Nanã, se corta sem ferir.\""}
 	],
 	"taboa_dura": [
-		{"quem": "Adé", "yo": "", "pt": "A taboa é dura e bem fechada. Com a mão não dá. Preciso de alguma coisa afiada."}
+		{"quem": "Adé", "yo": "", "pt": "A taboa é dura e bem fechada. Com a mão não dá."}
 	],
 	"faca_achou": [
 		{"quem": "Adé", "yo": "", "pt": "Um ọ̀bẹ velho, enfiado no toco... É de ferro, todo enferrujado."},
@@ -50,7 +50,7 @@
 	],
 	"lamina": [
 		{"quem": "Adé", "yo": "", "pt": "Um bambu rachado... A lasca de dentro é fina e tem o fio afiado."},
-		{"quem": "Adé", "yo": "", "pt": "Uma lâmina de bambu! Corta sem ser de ferro.", "evento": "ganhar_lamina"}
+		{"quem": "Adé", "yo": "", "pt": "Uma lâmina de bambu!", "evento": "ganhar_lamina"}
 	],
 	"lascas_depois": [
 		{"quem": "Adé", "yo": "", "pt": "O bambu já me deu a lâmina dele."}
@@ -173,7 +173,7 @@
 	],
 
 	"taboa_bornal": [
-		{"quem": "Adé", "yo": "", "pt": "A taboa é dura e bem fechada. Com a mão não dá... mas no meu Àpò tem coisa afiada."}
+		{"quem": "Adé", "yo": "", "pt": "A taboa é dura e bem fechada. Com a mão não dá..."}
 	],
 	"barro_dica": [
 		{"quem": "Adé", "yo": "", "pt": "Uma poça de barro mole, bem no meio da lagoa... Dá pra tampar a rachadura do pote com esse barro!"}
