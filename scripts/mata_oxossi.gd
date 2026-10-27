@@ -319,12 +319,6 @@ func _novos_rastros() -> void:
 	var inicio := origem + Vector2(8 * TILE, 11 * TILE)
 	_trilha_de_pegadas(inicio + Vector2(randf_range(-4, 4), 0), _saidas[_saida_certa], 0)
 	_trilha_de_pegadas(inicio + Vector2(randf_range(-10, 10), -6), _saidas[engano], 1)
-	# coelho e javali também passam por ali, e levam às outras saídas
-	_trilha_de_pegadas(inicio + Vector2(randf_range(-12, 12), 4), _saidas[outras[0]], 2)
-	_trilha_de_pegadas(inicio + Vector2(randf_range(-12, 12), 8), _saidas[outras[1]], 3)
-	# mais bichos cruzando por ali, para confundir: coelhos e javalis em outros rumos
-	_trilha_de_pegadas(inicio + Vector2(randf_range(-14, 14), -12), _saidas[outras[1]], 2)
-	_trilha_de_pegadas(inicio + Vector2(randf_range(-14, 14), 12), _saidas[outras[0]], 3)
 
 
 func _trilha_de_pegadas(de: Vector2, ate: Vector2, tipo: int) -> void:
@@ -341,7 +335,7 @@ func _trilha_de_pegadas(de: Vector2, ate: Vector2, tipo: int) -> void:
 		var lado := Vector2(-dir.y, dir.x) * (2.5 if i % 2 else -2.5)
 		var s := Sprite2D.new()
 		s.texture = preload("res://arte/ox_pegadas.png")
-		s.hframes = 4
+		s.hframes = 2
 		s.frame = tipo
 		s.position = p + lado
 		s.rotation = dir.angle() + PI / 2.0
@@ -500,27 +494,7 @@ func _atirar() -> void:
 	s.position = jogador.global_position + Vector2(0, -10) + dir * 6.0
 	s.z_index = 8
 	add_child(s)
-	# vento de Iansá: empurra a flecha de lado, de um jeito diferente a cada tiro
-	var lado := Vector2(-dir.y, dir.x)
-	_flecha = {"s": s, "dir": dir, "voando": true, "andou": 0.0, "no_chao": false,
-		"vento": lado * randf_range(-0.12, 0.12)}
-	# rastro de vento: riscos claros saindo da flecha para o lado que o vento empurra (mais rápidos se o vento é forte)
-	var vento: Vector2 = _flecha["vento"]
-	if vento.length() > 0.01:
-		var forca := vento.length() / 0.12
-		var rastro := CPUParticles2D.new()
-		rastro.amount = 10
-		rastro.lifetime = 0.45
-		rastro.emitting = true
-		rastro.direction = vento.normalized()
-		rastro.spread = 8.0
-		rastro.gravity = Vector2.ZERO
-		rastro.initial_velocity_min = 22.0 * forca
-		rastro.initial_velocity_max = 34.0 * forca
-		rastro.color = Color(0.9, 1.0, 0.85, 0.75)
-		s.add_child(rastro)
-		_flecha["rastro"] = rastro
-	_mostrar_aviso("Vento de Iansá na mata! A flecha vai desviar.")
+	_flecha = {"s": s, "dir": dir, "voando": true, "andou": 0.0, "no_chao": false}
 	Jogo.bornal.mao_apagada(true)
 	Jogo.tocar_som("flecha_atira", -4.0)
 
@@ -542,7 +516,7 @@ func _mover_flecha(delta: float) -> void:
 	var passos := int(ceil(FLECHA_VEL * delta / 3.0))
 	for i in passos:
 		var antes := s.position
-		s.position += dir * 3.0 + _flecha["vento"] * 3.0
+		s.position += dir * 3.0
 		_flecha["andou"] += 3.0
 		var alvo := _alvo_em(s.position)
 		if not alvo.is_empty():
@@ -608,8 +582,6 @@ func _bate_em_parede(p: Vector2) -> bool:
 
 func _flecha_cai() -> void:
 	_flecha["voando"] = false
-	if _flecha.has("rastro"):
-		_flecha["rastro"].emitting = false
 	var s: Sprite2D = _flecha["s"]
 	var t := create_tween()
 	t.tween_property(s, "position:y", s.position.y + 8.0, 0.12)
@@ -1319,7 +1291,6 @@ func _abrir_saida() -> void:
 
 
 func _ganhar_trofeu() -> void:
-	_comemorar_mundo()
 	Jogo.bornal.tirar("ofa")       # o ofá do toco era de Oxóssi: agora ele dá o ofá a Adé, como presente
 	Jogo.bornal.mao_apagada(false)
 	Jogo.trofeus["oxossi"] = "Ofá de Oxóssi"
