@@ -17,7 +17,6 @@
 		{"quem": "Velhinha", "yo": "", "pt": "Você leva o meu pote até a lagoa? Está rachado, coitado, mas é o meu pote."},
 		{"quem": "Adé", "yo": "", "pt": "Levo sim, senhora! E a senhora?"},
 		{"quem": "Velhinha", "yo": "", "pt": "Eu chego lá do meu jeito. Devagarinho.", "evento": "ganhar_pote"},
-		{"quem": "Velhinha", "yo": "", "pt": "Um conselho, meu filho: no brejo, a lama firme e a lama funda são iguaizinhas. Pise onde a garça pisa."},
 		{"quem": "Velhinha", "yo": "", "pt": "E outra coisa: na minha terra, ferro não serve para nada."}
 	],
 	"velhinha_depois": [
@@ -27,8 +26,7 @@
 		{"quem": "", "yo": "", "pt": "\"O brejo engole quem anda com pressa. As garças sabem onde é firme.\""}
 	],
 	"afundou": [
-		{"quem": "Adé", "yo": "", "pt": "A lama me puxou! Ainda bem que deu para sair..."},
-		{"quem": "Adé", "yo": "", "pt": "A velhinha avisou: a lama funda é igualzinha à firme. Tenho que pisar onde as garças estão."}
+		{"quem": "Adé", "yo": "", "pt": "A lama me puxou! Ainda bem que deu para sair..."}
 	],
 	"chegada_bambuzal": [
 		{"quem": "Adé", "yo": "", "pt": "Um bambuzal! E lá na frente... um taboal fechando o caminho."},
@@ -46,9 +44,7 @@
 	],
 	"faca_falha": [
 		{"quem": "", "yo": "", "pt": "Adé ergue o ọ̀bẹ de ferro... e a lama em volta começa a tremer.", "evento": "tremer"},
-		{"quem": "", "yo": "", "pt": "O ọ̀bẹ escorrega da mão dele, cai na lama e afunda, sem deixar marca.", "evento": "faca_afunda"},
-		{"quem": "Adé", "yo": "", "pt": "A velhinha avisou... Na terra de Nanã, ferro não serve para nada."},
-		{"quem": "Adé", "yo": "", "pt": "Preciso cortar a taboa com alguma coisa que não seja de ferro."}
+		{"quem": "", "yo": "", "pt": "O ọ̀bẹ escorrega da mão dele, cai na lama e afunda, sem deixar marca.", "evento": "faca_afunda"}
 	],
 	"toco_vazio": [
 		{"quem": "Adé", "yo": "", "pt": "Só o toco velho. O ọ̀bẹ de ferro ficou com a lama."}
@@ -65,15 +61,13 @@
 		{"quem": "Adé", "yo": "", "pt": "Abriu! O caminho do mangue."}
 	],
 	"chegada_mangue": [
-		{"quem": "Adé", "yo": "", "pt": "O mangue... Olha as raízes saindo da lama, e a água subindo e descendo."},
-		{"quem": "Adé", "yo": "", "pt": "Quando a maré baixa, dá para passar pelas raízes. Quando sobe, cobre tudo."},
-		{"quem": "", "yo": "", "pt": "Espere a maré baixar e atravesse antes que ela volte. E cuidado com os caranguejos!"}
+		{"quem": "Adé", "yo": "", "pt": "O mangue... Olha as raízes saindo da lama, e a água subindo e descendo."}
 	],
 	"placa_nana_mangue": [
 		{"quem": "", "yo": "", "pt": "\"A maré não espera ninguém. Mas sempre volta a baixar para quem sabe esperar.\""}
 	],
 	"mare_levou": [
-		{"quem": "Adé", "yo": "", "pt": "A maré subiu e me levou de volta! Tenho que atravessar enquanto a água está baixa."}
+		{"quem": "Adé", "yo": "", "pt": "A maré subiu e me levou de volta!"}
 	],
 	"flores": [
 		{"quem": "Adé", "yo": "", "pt": "Flores lilás, a cor de Nanã! Vou levar umas para a lagoa.", "evento": "ganhar_flores"}

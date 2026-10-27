@@ -28,8 +28,7 @@
 		{"quem": "Placa", "yo": "", "pt": "Siga o rastro do veado: duas unhas, lado a lado. O rastro de três dedinhos é de pássaro, e engana."}
 	],
 	"rastro_errado": [
-		{"quem": "Adé", "yo": "", "pt": "Ué... eu já passei por aqui. A mata me fez andar em círculos!", "rosto": "assustado"},
-		{"quem": "", "yo": "", "pt": "Olhe bem o chão: o rastro do veado tem duas unhas, lado a lado."}
+		{"quem": "Adé", "yo": "", "pt": "Ué... eu já passei por aqui. A mata me fez andar em círculos!", "rosto": "assustado"}
 	],
 	"rastro_fim": [
 		{"quem": "Adé", "yo": "", "pt": "Saí do labirinto! O rastro do veado me trouxe até um campo aberto."},
