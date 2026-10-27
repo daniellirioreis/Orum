@@ -525,7 +525,7 @@ func _checar_mira() -> void:
 
 ## A mira balança em volta de onde Adé olha: o tiro sai no ângulo do momento em que ele atira.
 func _angulo_mira() -> float:
-	return sin(Time.get_ticks_msec() / 1000.0 * 4.0) * 0.35
+	return sin(Time.get_ticks_msec() / 1000.0 * 6.5) * 0.35
 
 
 ## Uma linha clarinha mostra para onde a mira está apontando agora (só quando dá para atirar).
