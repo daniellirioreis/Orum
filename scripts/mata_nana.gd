@@ -219,12 +219,18 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 		"s":
 			_criar_sapo(lugar, base)
 		"K":
-			_balancar(_criar_cenario("res://arte/nana_bambu.png", Vector2(26, 8), base), randf() * 2.0)
+			var touceira := _criar_interativo("res://arte/nana_bambu.png", 1, base, Vector2(26, 8), -30.0)
+			touceira.olhar_para_jogador = false
+			_balancar(touceira.sprite, randf() * 2.0)
+			touceira.interagiu.connect(_sacudir_touceira.bind(touceira))
 		"X":
 			_criar_cenario("res://arte/nana_mangue.png", Vector2(14, 8), base)
 		"j":
 			_lascas = _criar_interativo("res://arte/nana_lascas.png", 2, base, Vector2(14, 6), -20.0)
 			_lascas.interagiu.connect(_no_bambu_rachado)
+			# escondida dentro da touceira: só aparece depois de sacudir a touceira certa
+			_lascas.ativo = false
+			_lascas.visible = false
 		"F":
 			_toco_faca = _criar_interativo("res://arte/nana_faca.png", 2, base, Vector2(12, 8), -30.0)
 			_toco_faca.interagiu.connect(_no_toco_da_faca)
@@ -641,6 +647,28 @@ func _balancar(s: Sprite2D, atraso: float) -> void:
 	t.tween_property(s, "rotation", 0.04, 1.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	t.tween_property(s, "rotation", -0.04, 3.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	t.tween_property(s, "rotation", 0.0, 1.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
+
+## Sacudir a touceira: Adé pode sacudir quantas quiser; só uma esconde a lâmina de bambu.
+func _sacudir_touceira(t: Area2D) -> void:
+	Jogo.tocar_som("texto", -12.0)
+	var sacode := create_tween()
+	for a in [0.14, -0.14, 0.09, -0.09, 0.0]:
+		sacode.tween_property(t, "rotation", a, 0.08)
+	if _lascas and not _lascas.ativo and not _nana.has("lamina") \
+			and _lascas.position.distance_to(t.position + Vector2(0, -TILE)) < 2.0:
+		sacode.tween_callback(_revelar_lascas)
+
+
+func _revelar_lascas() -> void:
+	if _lascas.ativo:
+		return
+	_lascas.visible = true
+	_lascas.ativo = true
+	var p := _lascas.position
+	_lascas.position = p + Vector2(0, -6)
+	Jogo.tocar_som("buzio", -8.0)
+	create_tween().tween_property(_lascas, "position", p, 0.35).set_trans(Tween.TRANS_BOUNCE)
 
 
 # ------------------------------------------------------------------ garças e sapos
