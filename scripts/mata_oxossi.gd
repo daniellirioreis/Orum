@@ -132,6 +132,7 @@ func _process(delta: float) -> void:
 	super._process(delta)
 	_mover_veados(delta)
 	_mover_flecha(delta)
+	_checar_mira()
 	_atualizar_mira()
 	_mover_cobras(delta)
 	_mover_javali(delta)
@@ -147,16 +148,9 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(ev: InputEvent) -> void:
-	# segurar o botão mostra a mira; soltar atira a flecha
-	if ev.is_action_released("atirar") and _mira_ativa:
-		_mira_ativa = false
-		if jogador.pode_mover and not _voltando:
-			_atirar()
-		return
+	# sem o ofá pronto, apertar o botão só mostra o aviso (a mira é tratada em _process)
 	if ev.is_action_pressed("atirar") and jogador.pode_mover and not _voltando:
-		if _ox.has("tem_ofa") and Jogo.bornal.equipado == "ofa" and _flecha.is_empty():
-			_mira_ativa = true
-		else:
+		if not (_ox.has("tem_ofa") and Jogo.bornal.equipado == "ofa" and _flecha.is_empty()):
 			_atirar()
 		return
 	super._unhandled_input(ev)
@@ -515,6 +509,18 @@ func _atirar() -> void:
 	_flecha = {"s": s, "dir": dir, "voando": true, "andou": 0.0, "no_chao": false}
 	Jogo.bornal.mao_apagada(true)
 	Jogo.tocar_som("flecha_atira", -4.0)
+
+
+## Segurar o botão de atirar mostra a mira; soltar o botão atira. (Checa o estado a cada quadro.)
+func _checar_mira() -> void:
+	var segurando := Input.is_action_pressed("atirar")
+	if _mira_ativa and not segurando:
+		_mira_ativa = false
+		if jogador.pode_mover and not _voltando:
+			_atirar()
+	elif segurando and not _mira_ativa and jogador.pode_mover and not _voltando \
+			and _ox.has("tem_ofa") and Jogo.bornal.equipado == "ofa" and _flecha.is_empty():
+		_mira_ativa = true
 
 
 ## A mira balança em volta de onde Adé olha: o tiro sai no ângulo do momento em que ele atira.
