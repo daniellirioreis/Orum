@@ -1790,8 +1790,8 @@ func _preparar_retorno() -> void:
 	await get_tree().create_timer(0.6).timeout
 	$HUD.mostrar_titulo("Ilé", "O terreiro da Vó" if continuando else "De volta ao terreiro da Vó")
 	await get_tree().create_timer(1.4).timeout
-	if not continuando:
-		await _comemorar_retorno()
+	if not continuando and not _trofeus_novos().is_empty():
+		await _comemorar_retorno()     # só quando completa um mundo
 	if continuando:
 		jogador.congelar(false)
 	elif not _trofeus_novos().is_empty():
