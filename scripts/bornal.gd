@@ -1,5 +1,5 @@
 extends CanvasLayer
-## O bornal de Adé: a sacola com as coisas que ele carrega para USAR, DAR ou ARRIAR.
+## O Àpò de Adé: a sacola com as coisas que ele carrega para USAR, DAR ou ARRIAR.
 ## Fica dentro do Jogo (vai junto de uma cena para outra e é guardado no jogo salvo).
 ##
 ## Três bolsos:
@@ -8,8 +8,11 @@ extends CanvasLayer
 ##   entrega    → Adé dá para alguém (o coco para a Tia Dora, o manjar para a Vó...).
 ##   oferenda   → Adé arria no lugar sagrado, uma coisa de cada vez (gààrí, epó, oti e luma na tronqueira...).
 ##
-## Tab / I (ou Select no controle) abre o bornal. A cena diz o que dá para fazer com cada item ali onde
+## Tab / I (ou Select no controle) abre o Àpò. A cena diz o que dá para fazer com cada item ali onde
 ## Adé está (veja terreiro.gd: _acoes_do_bornal e _fazer_no_bornal).
+##
+## Na mesma tela, a outra página é a caderneta Ìwé Adé: as palavras em iorubá que Adé vai aprendendo.
+## Esquerda / direita trocam de página.
 
 signal mudou
 
@@ -17,7 +20,35 @@ const TEX_SLOT := preload("res://arte/hud_slot.png")
 const COR_TITULO := Color(1.0, 0.86, 0.45)
 const COR_TEXTO := Color(1.0, 0.97, 0.9)
 const COR_APAGADA := Color(0.62, 0.66, 0.82)
+const COR_AVISO := Color(0.95, 0.74, 0.32)
 const BOLSOS := [["ferramenta", "Ferramentas"], ["entrega", "Entregas"], ["oferenda", "Oferenda"]]
+
+## As palavras da caderneta: só o iorubá que aparece no jogo.
+## "onde" é a fase em que Adé ouviu a palavra. "duvida": true = ainda não confirmada com o terreiro.
+const CADERNETA := [
+	{"palavra": "Laroyê", "pron": "la-rô-iê", "sig": "Saudação a Exu. Pede licença no caminho.", "onde": "Encruzilhada", "duvida": false},
+	{"palavra": "Èṣù", "pron": "é-xu", "sig": "Exu, o mensageiro que abre os caminhos.", "onde": "Encruzilhada", "duvida": false},
+	{"palavra": "Ọ̀run", "pron": "ô-run", "sig": "O céu, o mundo dos orixás.", "onde": "Encruzilhada", "duvida": false},
+	{"palavra": "Yemọja", "pron": "iê-mô-dja", "sig": "Iemanjá, a mãe das águas.", "onde": "Encruzilhada", "duvida": false},
+	{"palavra": "Nàná Bùrúkù", "pron": "na-na bu-ru-cu", "sig": "Nanã, dona das lagoas, da lama e do barro.", "onde": "Encruzilhada", "duvida": false},
+	{"palavra": "Gààrí", "pron": "ga-á-ri", "sig": "Farinha de mandioca torrada.", "onde": "Terreiro da Vó", "duvida": false},
+	{"palavra": "Epó", "pron": "é-pó", "sig": "Azeite de dendê, vermelho e cheiroso.", "onde": "Terreiro da Vó", "duvida": false},
+	{"palavra": "Oti", "pron": "ô-ti", "sig": "A bebida que se oferece a Exu.", "onde": "Terreiro da Vó", "duvida": false},
+	{"palavra": "Ofá", "pron": "ô-fá", "sig": "O arco do caçador.", "onde": "Mata de Oxóssi", "duvida": false},
+	{"palavra": "Ọfà kan ṣoṣo", "pron": "ô-fá kan xô-xô", "sig": "Uma flecha só: é tudo de que o caçador precisa.", "onde": "Mata de Oxóssi", "duvida": false},
+	{"palavra": "Ọ̀ṣọ́ọ̀sì", "pron": "ô-xô-ô-xi", "sig": "Oxóssi, o caçador e senhor da mata.", "onde": "Mata de Oxóssi", "duvida": false},
+	{"palavra": "Okê arô", "pron": "ô-quê a-rô", "sig": "Saudação a Oxóssi.", "onde": "Mata de Oxóssi", "duvida": false},
+	{"palavra": "Ó dára, ọmọ mi", "pron": "ó dá-ra, ô-mô mi", "sig": "Muito bem, meu filho.", "onde": "Mata de Oxóssi", "duvida": false},
+	{"palavra": "Ọ̀bẹ", "pron": "ô-bê", "sig": "Faca.", "onde": "Mata de Nanã", "duvida": false},
+	{"palavra": "Sálùbá", "pron": "sa-lu-bá", "sig": "Saudação a Nanã.", "onde": "Mata de Nanã", "duvida": false},
+	{"palavra": "Odoyá", "pron": "ô-dô-iá", "sig": "Saudação a Iemanjá.", "onde": "Mar de Iemanjá", "duvida": false},
+	{"palavra": "Aiocá", "pron": "ai-ô-ká", "sig": "O palácio de Iemanjá, no fundo do mar.", "onde": "Mar de Iemanjá", "duvida": false},
+	{"palavra": "àbẹ́là", "pron": "a-bê-lá", "sig": "Vela.", "onde": "Terreiro da Vó", "duvida": true},
+	{"palavra": "ṣúgà", "pron": "xú-gá", "sig": "Açúcar.", "onde": "Terreiro da Vó", "duvida": true},
+	{"palavra": "igi ìdáná", "pron": "i-gi i-dá-ná", "sig": "Lenha: pau para o fogo.", "onde": "Terreiro da Vó", "duvida": true},
+	{"palavra": "lófínńdà", "pron": "ló-fín-ndá", "sig": "Alfazema, o perfume roxo.", "onde": "Mar de Iemanjá", "duvida": true},
+	{"palavra": "àlùkò", "pron": "a-lu-kô", "sig": "Flor lilás, do mangue.", "onde": "Mata de Nanã", "duvida": true},
+]
 
 ## id → nome, bolso, frase, ícone [folha, quadro de 12x12], fase (de onde o item é)
 const ITENS := {
@@ -79,8 +110,14 @@ var itens: Array = []          # ids, na ordem em que Adé pegou
 var equipado := ""             # a ferramenta "na mão"
 var aberto := false
 
-# --- tela do bornal
+# --- tela do Àpò
 var _raiz: Control
+var _apo: Control              # a página do Àpò (os itens)
+var _cad: Control              # a página da caderneta
+var _pagina := 0               # 0 = o Àpò, 1 = a caderneta
+var _aba_apo: Label
+var _aba_cad: Label
+var _dica_tela: Label
 var _lista: Array = []         # os ids, na ordem da lista
 var _linha := 0                # o item escolhido
 var _topo := 0                 # o primeiro item que aparece (a lista rola quando tem muita coisa)
@@ -93,7 +130,17 @@ var _nome: Label
 var _desc: Label
 var _escolha = null
 
-# --- a barra pequena do bornal no canto da tela (o item na mão e quantos itens tem)
+# --- a caderneta
+var _cad_i := 0                # a palavra aberta na caderneta
+var _cad_intro: Label
+var _cad_contador: Label
+var _cad_palavra: Label
+var _cad_pron: Label
+var _cad_sig: Label
+var _cad_onde: Label
+var _cad_aviso: Label
+
+# --- a barra pequena do Àpò no canto da tela (o item na mão e quantos itens tem)
 var _hud: CanvasLayer
 var _hud_slot: TextureRect
 var _hud_mao: TextureRect
@@ -123,7 +170,7 @@ func icone(id: String) -> AtlasTexture:
 	return a
 
 
-## Põe um item no bornal (se veio de um lugar da tela, o ícone voa de lá até o bornal).
+## Põe um item no Àpò (se veio de um lugar da tela, o ícone voa de lá até o Àpò).
 func pegar(id: String, de_onde := Vector2(-1, -1)) -> void:
 	if not ITENS.has(id):
 		push_warning("Àpò: item desconhecido " + id)
@@ -139,7 +186,7 @@ func pegar(id: String, de_onde := Vector2(-1, -1)) -> void:
 	mudou.emit()
 
 
-## Tira um item do bornal (dado, arriado ou usado). Se for para um lugar da tela, o ícone voa até lá.
+## Tira um item do Àpò (dado, arriado ou usado). Se for para um lugar da tela, o ícone voa até lá.
 func tirar(id: String, para_onde := Vector2(-1, -1)) -> void:
 	itens.erase(id)
 	if equipado == id:
@@ -170,7 +217,7 @@ func equipar(id: String) -> void:
 	mudou.emit()
 
 
-## Começando uma fase do zero: tira do bornal o que era dessa fase (menos o que a fase guarda entre visitas).
+## Começando uma fase do zero: tira do Àpò o que era dessa fase (menos o que a fase guarda entre visitas).
 func comecar_fase(fase: String, menos: Array = []) -> void:
 	for id in itens.duplicate():
 		if ITENS[id]["fase"] == fase and not id in menos:
@@ -216,7 +263,7 @@ func _montar_hud() -> void:
 	var tela := Vector2(Jogo.TELA)
 	_hud_slot = TextureRect.new()
 	_hud_slot.texture = TEX_SLOT
-	_hud_slot.position = Vector2(tela.x - 124, 4)       # na mão: ao lado do bornal, na frente do axé
+	_hud_slot.position = Vector2(tela.x - 124, 4)       # na mão: ao lado do Àpò, na frente do axé
 	_hud.add_child(_hud_slot)
 	_hud_mao = TextureRect.new()
 	_hud_mao.position = _hud_slot.position + Vector2(3, 3)
@@ -285,9 +332,9 @@ func _voar_passo(u: float, r: TextureRect, de: Vector2, meio: Vector2, para: Vec
 	r.position = de.lerp(meio, u).lerp(meio.lerp(para, u), u) - Vector2(6, 6)
 
 
-# ------------------------------------------------------------------ a tela do bornal
+# ------------------------------------------------------------------ a tela do Àpò
 
-## Abre o bornal. "acoes" é uma função da cena: recebe o id e devolve [[rótulo, ação], ...] — o que dá
+## Abre o Àpò. "acoes" é uma função da cena: recebe o id e devolve [[rótulo, ação], ...] — o que dá
 ## para fazer com o item ali (Dar, Arriar, Usar, Equipar...). Devolve {"id", "acao"}, ou {} se Adé fechou.
 func abrir(acoes: Callable) -> Dictionary:
 	aberto = true
@@ -340,17 +387,42 @@ func _montar_tela() -> void:
 	painel.position = Vector2(16, 14)
 	painel.size = Vector2(tela.x - 32, tela.y - 28)
 	_raiz.add_child(painel)
+
+	# as abas: o Àpò e a caderneta
 	var bolsa := TextureRect.new()
 	var a := AtlasTexture.new()
 	a.atlas = load("res://arte/bornal_itens.png")
 	a.region = Rect2(5 * 12, 0, 12, 12)
 	bolsa.texture = a
-	bolsa.position = Vector2(94, 20)
+	bolsa.position = Vector2(28, 20)
 	_raiz.add_child(bolsa)
-	var titulo := _rotulo("Àpò de Adé", 9, COR_TITULO)
-	titulo.position = Vector2(110, 19)
-	_raiz.add_child(titulo)
+	_aba_apo = _rotulo("Àpò de Adé", 9, COR_TITULO)
+	_aba_apo.position = Vector2(46, 19)
+	_raiz.add_child(_aba_apo)
+	_aba_cad = _rotulo("Ìwé Adé", 9, COR_APAGADA)
+	_aba_cad.position = Vector2(150, 19)
+	_raiz.add_child(_aba_cad)
 
+	_apo = Control.new()
+	_apo.size = tela
+	_raiz.add_child(_apo)
+	_montar_apo(tela)
+	_montar_cad(tela)
+
+	_dica_tela = _rotulo("", 7, COR_APAGADA)
+	_dica_tela.position = Vector2(16, tela.y - 26)
+	_dica_tela.size = Vector2(tela.x - 32, 10)
+	_dica_tela.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_raiz.add_child(_dica_tela)
+
+	_pagina = 0
+	_linha = 0
+	_topo = 0
+	_cad_i = 0
+	_mostrar_pagina()
+
+
+func _montar_apo(tela: Vector2) -> void:
 	# a lista: ícone pequeno na frente do nome (as ferramentas primeiro, depois o resto, na ordem em que Adé pegou)
 	_lista.clear()
 	for b in BOLSOS:
@@ -360,48 +432,109 @@ func _montar_tela() -> void:
 	_cursor = ColorRect.new()
 	_cursor.color = Color(1.0, 0.85, 0.3, 0.22)
 	_cursor.size = Vector2(tela.x - 56, ALTURA_LINHA)
-	_raiz.add_child(_cursor)
+	_apo.add_child(_cursor)
 	_linhas_ui.clear()
 	for i in LINHAS_VISIVEIS:
 		var y := TOPO_LISTA + i * ALTURA_LINHA
 		var ic := TextureRect.new()
 		ic.position = Vector2(32, y + 1.5)
-		_raiz.add_child(ic)
+		_apo.add_child(ic)
 		var nome := _rotulo("", 8, COR_TEXTO)
 		nome.position = Vector2(48, y + 1)
-		_raiz.add_child(nome)
+		_apo.add_child(nome)
 		_linhas_ui.append([ic, nome])
 	var seta_cima := _rotulo("▲", 6, COR_APAGADA)
 	seta_cima.name = "SetaCima"
 	seta_cima.position = Vector2(tela.x - 34, TOPO_LISTA - 2)
-	_raiz.add_child(seta_cima)
+	_apo.add_child(seta_cima)
 	var seta_baixo := _rotulo("▼", 6, COR_APAGADA)
 	seta_baixo.name = "SetaBaixo"
 	seta_baixo.position = Vector2(tela.x - 34, TOPO_LISTA + (LINHAS_VISIVEIS - 1) * ALTURA_LINHA + 4)
-	_raiz.add_child(seta_baixo)
+	_apo.add_child(seta_baixo)
 
 	var sep := ColorRect.new()
 	sep.color = Color(0.95, 0.95, 1.0, 0.35)
 	sep.position = Vector2(24, 132)
 	sep.size = Vector2(tela.x - 48, 1)
-	_raiz.add_child(sep)
+	_apo.add_child(sep)
 	_nome = _rotulo("", 9, COR_TITULO)
 	_nome.position = Vector2(26, 137)
-	_raiz.add_child(_nome)
+	_apo.add_child(_nome)
 	_desc = _rotulo("", 8, COR_TEXTO)
 	_desc.position = Vector2(26, 151)
 	_desc.size = Vector2(tela.x - 52, 36)
 	_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_raiz.add_child(_desc)
-	var dica := _rotulo("", 7, COR_APAGADA)
-	dica.text = Jogo.texto("{interagir}: escolher   ·   %s: fechar" % Jogo.botao("bornal"))
-	dica.position = Vector2(16, tela.y - 26)
-	dica.size = Vector2(tela.x - 32, 10)
-	dica.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_raiz.add_child(dica)
-	_linha = 0
-	_topo = 0
-	_mostrar_cursor()
+	_apo.add_child(_desc)
+
+
+func _montar_cad(tela: Vector2) -> void:
+	_cad = Control.new()
+	_cad.size = tela
+	_raiz.add_child(_cad)
+	_cad_intro = _rotulo("Palavras em iorubá que Adé aprendeu.", 7, COR_APAGADA)
+	_cad_intro.position = Vector2(26, TOPO_LISTA)
+	_cad.add_child(_cad_intro)
+	_cad_contador = _rotulo("", 7, COR_APAGADA)
+	_cad_contador.position = Vector2(tela.x - 96, TOPO_LISTA)
+	_cad_contador.size = Vector2(70, 10)
+	_cad_contador.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_cad.add_child(_cad_contador)
+	_cad_palavra = _rotulo("", 11, COR_TITULO)
+	_cad_palavra.position = Vector2(26, 58)
+	_cad_palavra.size = Vector2(tela.x - 52, 16)
+	_cad.add_child(_cad_palavra)
+	_cad_pron = _rotulo("", 8, COR_TEXTO)
+	_cad_pron.position = Vector2(26, 80)
+	_cad_pron.size = Vector2(tela.x - 52, 10)
+	_cad.add_child(_cad_pron)
+	_cad_sig = _rotulo("", 9, COR_TEXTO)
+	_cad_sig.position = Vector2(26, 96)
+	_cad_sig.size = Vector2(tela.x - 52, 24)
+	_cad_sig.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_cad.add_child(_cad_sig)
+	var sep := ColorRect.new()
+	sep.color = Color(0.95, 0.95, 1.0, 0.35)
+	sep.position = Vector2(24, 132)
+	sep.size = Vector2(tela.x - 48, 1)
+	_cad.add_child(sep)
+	_cad_onde = _rotulo("", 8, COR_TEXTO)
+	_cad_onde.position = Vector2(26, 137)
+	_cad_onde.size = Vector2(tela.x - 52, 10)
+	_cad.add_child(_cad_onde)
+	_cad_aviso = _rotulo("", 7, COR_AVISO)
+	_cad_aviso.position = Vector2(26, 151)
+	_cad_aviso.size = Vector2(tela.x - 52, 30)
+	_cad_aviso.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_cad.add_child(_cad_aviso)
+
+
+func _trocar_pagina() -> void:
+	_pagina = 1 - _pagina
+	Jogo.tocar_som("texto", -10.0)
+	_mostrar_pagina()
+
+
+func _mostrar_pagina() -> void:
+	_apo.visible = _pagina == 0
+	_cad.visible = _pagina == 1
+	_aba_apo.add_theme_color_override("font_color", COR_TITULO if _pagina == 0 else COR_APAGADA)
+	_aba_cad.add_theme_color_override("font_color", COR_TITULO if _pagina == 1 else COR_APAGADA)
+	if _pagina == 0:
+		_dica_tela.text = Jogo.texto("{interagir}: escolher   ·   esquerda/direita: caderneta   ·   %s: fechar" % Jogo.botao("bornal"))
+		_mostrar_cursor()
+	else:
+		_dica_tela.text = "cima/baixo: passar a palavra   ·   esquerda/direita: Àpò   ·   %s: fechar" % Jogo.botao("bornal")
+		_mostrar_cad()
+
+
+func _mostrar_cad() -> void:
+	var e: Dictionary = CADERNETA[_cad_i]
+	_cad_contador.text = "%d de %d" % [_cad_i + 1, CADERNETA.size()]
+	_cad_palavra.text = e["palavra"]
+	_cad_pron.text = "pronuncia-se: " + e["pron"]
+	_cad_sig.text = e["sig"]
+	_cad_onde.text = "Onde aprendeu: " + e["onde"]
+	_cad_aviso.text = "Ainda não confirmada: conferir no terreiro." if e["duvida"] else ""
 
 
 func _mostrar_cursor() -> void:
@@ -414,8 +547,8 @@ func _mostrar_cursor() -> void:
 		_linhas_ui[0][1].add_theme_color_override("font_color", COR_APAGADA)
 		_nome.text = ""
 		_desc.text = ""
-		_raiz.get_node("SetaCima").visible = false
-		_raiz.get_node("SetaBaixo").visible = false
+		_apo.get_node("SetaCima").visible = false
+		_apo.get_node("SetaBaixo").visible = false
 		return
 	_linha = clampi(_linha, 0, _lista.size() - 1)
 	# rola a lista para o item escolhido aparecer
@@ -437,8 +570,8 @@ func _mostrar_cursor() -> void:
 			nome.text = ""
 	_cursor.visible = true
 	_cursor.position = Vector2(28, TOPO_LISTA + (_linha - _topo) * ALTURA_LINHA)
-	_raiz.get_node("SetaCima").visible = _topo > 0
-	_raiz.get_node("SetaBaixo").visible = _topo + LINHAS_VISIVEIS < _lista.size()
+	_apo.get_node("SetaCima").visible = _topo > 0
+	_apo.get_node("SetaBaixo").visible = _topo + LINHAS_VISIVEIS < _lista.size()
 	var id_esc: String = _lista[_linha]
 	_nome.text = ITENS[id_esc]["nome"] + ("  (na mão)" if id_esc == equipado else "")
 	_desc.text = Jogo.texto(ITENS[id_esc]["desc"])
@@ -450,18 +583,21 @@ func _input(ev: InputEvent) -> void:
 	if ev.is_action_pressed("bornal") or ev.is_action_pressed("cancelar") or ev.is_action_pressed("sair"):
 		_escolha = "fechar"
 		Jogo.tocar_som("texto", -10.0)
-	elif ev.is_action_pressed("cima") or ev.is_action_pressed("esquerda"):
-		if not _lista.is_empty():
-			_linha = (_linha - 1 + _lista.size()) % _lista.size()
+	elif ev.is_action_pressed("esquerda") or ev.is_action_pressed("direita"):
+		_trocar_pagina()
+	elif ev.is_action_pressed("cima") or ev.is_action_pressed("baixo"):
+		var passo := -1 if ev.is_action_pressed("cima") else 1
+		if _pagina == 0:
+			if not _lista.is_empty():
+				_linha = (_linha + passo + _lista.size()) % _lista.size()
+				Jogo.tocar_som("texto", -12.0)
+				_mostrar_cursor()
+		else:
+			_cad_i = (_cad_i + passo + CADERNETA.size()) % CADERNETA.size()
 			Jogo.tocar_som("texto", -12.0)
-			_mostrar_cursor()
-	elif ev.is_action_pressed("baixo") or ev.is_action_pressed("direita"):
-		if not _lista.is_empty():
-			_linha = (_linha + 1) % _lista.size()
-			Jogo.tocar_som("texto", -12.0)
-			_mostrar_cursor()
+			_mostrar_cad()
 	elif ev.is_action_pressed("interagir"):
-		if not _lista.is_empty():
+		if _pagina == 0 and not _lista.is_empty():
 			Jogo.tocar_som("buzio", -10.0)
 			_escolha = _lista[_linha]
 	else:
