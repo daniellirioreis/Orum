@@ -108,6 +108,8 @@ const ITENS := {
 
 var itens: Array = []          # ids, na ordem em que Adé pegou
 var aprendidas: Array = []     # palavras da caderneta que Adé já ouviu nos diálogos
+var _aviso: Label
+var _aviso_t := 0.0
 var equipado := ""             # a ferramenta "na mão"
 var aberto := false
 
@@ -169,6 +171,31 @@ func aprender_do_texto(texto: String) -> void:
 		var p: String = e["palavra"]
 		if not p in aprendidas and t.contains(p.to_lower()):
 			aprendidas.append(p)
+			_avisar_palavra(p)
+
+
+## Um aviso pequeno no alto da tela quando Adé aprende uma palavra nova.
+func _avisar_palavra(p: String) -> void:
+	if _aviso == null:
+		var camada := CanvasLayer.new()
+		camada.layer = 70
+		add_child(camada)
+		_aviso = _rotulo("", 8, COR_TITULO)
+		_aviso.position = Vector2(0, 26)
+		_aviso.size = Vector2(Jogo.TELA.x, 12)
+		_aviso.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_aviso.visible = false
+		camada.add_child(_aviso)
+	_aviso.text = "Nova palavra na caderneta: %s" % p
+	_aviso.visible = true
+	_aviso_t = 2.5
+
+
+func _process(delta: float) -> void:
+	if _aviso_t > 0.0:
+		_aviso_t -= delta
+		if _aviso_t <= 0.0:
+			_aviso.visible = false
 
 
 ## As palavras que Adé já aprendeu (só essas aparecem na caderneta).
