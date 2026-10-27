@@ -671,6 +671,8 @@ const COR_FALANTE := [
 	["Iemanjá", Color(0.5, 0.85, 1.0)],
 	["Yemọja", Color(0.5, 0.85, 1.0)],
 	["Nanã", Color(0.8, 0.65, 1.0)],
+	["Nàná", Color(0.8, 0.65, 1.0)],
+	["Bené", Color(0.95, 0.7, 0.45)],
 	["Ọ̀ṣọ́ọ̀sì", Color(0.55, 0.92, 0.55)],
 	["Tartaruga", Color(0.75, 0.85, 0.45)],
 ]
@@ -718,11 +720,23 @@ func _fonte_italica_() -> Font:
 	return _fonte_italica
 
 
+## Cores de quem não está na lista: sempre uma cor viva, sempre a mesma para o mesmo nome.
+const CORES_EXTRAS := [
+	Color(0.95, 0.6, 0.4), Color(0.6, 0.95, 0.8), Color(0.95, 0.85, 0.5), Color(0.7, 0.7, 1.0),
+	Color(0.9, 0.55, 0.85), Color(0.55, 0.9, 0.55), Color(1.0, 0.75, 0.6), Color(0.6, 0.85, 0.95),
+]
+
+
 func _cor_do_falante(quem: String) -> Color:
 	for par in COR_FALANTE:
 		if quem.contains(par[0]):
 			return par[1]
-	return COR_TEXTO
+	if quem == "":
+		return COR_TEXTO
+	var soma := 0
+	for c in quem:
+		soma += c.unicode_at(0)
+	return CORES_EXTRAS[soma % CORES_EXTRAS.size()]
 
 
 func _mostrar_livro() -> void:
