@@ -50,6 +50,7 @@ var _pontos_de_luz: Array = []   # [lugar, posição] das tochas acesas (as lamp
 var _avisou_kiumba := false
 var _fogos: Array = []           # [sprite da tocha, fogo sem sombra, fase]
 var _invulneravel := 0.0
+var _quem_bateu := ""              # "redemoinho" ou "kiumbas": para o Exu zoar do jeito certo
 var _empurrando := 0.0
 ## Quão fácil é empurrar as pedras: folga de lado (px) e quanto tempo segurando antes de a pedra andar.
 var folga_empurrar := 9.0
@@ -116,7 +117,7 @@ func _process(delta: float) -> void:
 		r["no"].position = r["de"].lerp(r["ate"], u)
 		r["sprite"].frame = int(_tempo * 12.0 + r["fase"] * 10.0) % 4
 		if _invulneravel <= 0.0 and not _voltando and jogador.pode_mover and r["no"].overlaps_body(jogador):
-			_tomar_dano(r["no"].global_position)
+			_tomar_dano(r["no"].global_position, "redemoinho")
 	_vento_dos_redemoinhos(delta)
 	for i in _velas.size():
 		_velas[i].frame = int(_tempo * 5.0 + i * 1.7) % 2
@@ -613,8 +614,9 @@ func _vento_dos_redemoinhos(delta: float) -> void:
 		som_perto("redemoinho", perto.position, -6.0)
 
 
-func _tomar_dano(de: Vector2) -> void:
+func _tomar_dano(de: Vector2, quem := "") -> void:
 	_invulneravel = 1.4
+	_quem_bateu = quem
 	axe -= 1
 	_atualizar_axe()
 	Jogo.tocar_som("dano", -3.0)
@@ -694,8 +696,13 @@ func _sem_axe() -> void:
 func _exu_troca_buzios() -> bool:
 	var n: int = Jogo.buzios
 	var pode := mini(AXE_MAX, n / BUZIOS_POR_AXE)
+	var zoeira := "Caiu de novo?"
+	if _quem_bateu == "redemoinho":
+		zoeira = "O redemoinho te rodou feito pião e te jogou no chão!"
+	elif _quem_bateu == "kiumbas":
+		zoeira = "Os kiumbas te pegaram de susto, hein? Correndo de sombra..."
 	var falas := [
-		{"quem": "Èṣù", "yo": "Láròyé!", "pt": "Laroyê, menino! Há há há! Caiu de novo? Desse jeito vou ter que te levar no colo até a Vó!"},
+		{"quem": "Èṣù", "yo": "Láròyé!", "pt": "Laroyê, menino! Há há há! %s Desse jeito vou ter que te levar no colo até a Vó!" % zoeira},
 	]
 	if pode == 0:
 		falas.append({"quem": "Èṣù", "yo": "Hi hi hi!", "pt": "Com %d búzios eu devolvo um búzio de axé... mas você só juntou %d. Com isso eu compro um pirulito, não um axé!" % [BUZIOS_POR_AXE, n]})
@@ -842,7 +849,7 @@ func _mover_kiumbas(delta: float) -> void:
 		s.flip_h = passo.x < 0.0
 		s.position.y = sin(_tempo * 3.0 + k["fase"]) * 1.5
 		if ve and _invulneravel <= 0.0 and not _voltando and jogador.pode_mover and no.overlaps_body(jogador):
-			_tomar_dano(no.global_position)
+			_tomar_dano(no.global_position, "kiumbas")
 			_kiumba_recua(k)
 			if not _avisou_kiumba:
 				_avisou_kiumba = true
