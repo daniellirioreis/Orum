@@ -665,6 +665,7 @@ func _revelar_lascas() -> void:
 		return
 	_lascas.visible = true
 	_lascas.ativo = true
+	_lascas.z_index = 5    # cai por cima do bambu, na frente
 	var p := _lascas.position
 	_lascas.position = p + Vector2(0, -6)
 	Jogo.tocar_som("buzio", -8.0)
