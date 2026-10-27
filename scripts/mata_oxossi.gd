@@ -319,6 +319,9 @@ func _novos_rastros() -> void:
 	var inicio := origem + Vector2(8 * TILE, 11 * TILE)
 	_trilha_de_pegadas(inicio + Vector2(randf_range(-4, 4), 0), _saidas[_saida_certa], 0)
 	_trilha_de_pegadas(inicio + Vector2(randf_range(-10, 10), -6), _saidas[engano], 1)
+	# coelho e javali também passam por ali, e levam às outras saídas
+	_trilha_de_pegadas(inicio + Vector2(randf_range(-12, 12), 4), _saidas[outras[0]], 2)
+	_trilha_de_pegadas(inicio + Vector2(randf_range(-12, 12), 8), _saidas[outras[1]], 3)
 
 
 func _trilha_de_pegadas(de: Vector2, ate: Vector2, tipo: int) -> void:
@@ -335,7 +338,7 @@ func _trilha_de_pegadas(de: Vector2, ate: Vector2, tipo: int) -> void:
 		var lado := Vector2(-dir.y, dir.x) * (2.5 if i % 2 else -2.5)
 		var s := Sprite2D.new()
 		s.texture = preload("res://arte/ox_pegadas.png")
-		s.hframes = 2
+		s.hframes = 4
 		s.frame = tipo
 		s.position = p + lado
 		s.rotation = dir.angle() + PI / 2.0
