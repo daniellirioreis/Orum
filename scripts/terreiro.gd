@@ -1790,6 +1790,8 @@ func _preparar_retorno() -> void:
 	await get_tree().create_timer(0.6).timeout
 	$HUD.mostrar_titulo("Ilé", "O terreiro da Vó" if continuando else "De volta ao terreiro da Vó")
 	await get_tree().create_timer(1.4).timeout
+	if not continuando:
+		await _comemorar_retorno()
 	if continuando:
 		jogador.congelar(false)
 	elif not _trofeus_novos().is_empty():
@@ -1801,6 +1803,21 @@ func _preparar_retorno() -> void:
 		await _falar("retorno_sem_trofeu")
 	else:
 		await _falar("retorno_visita")
+
+
+## Adé volta de um campo: pula de alegria e sobe um brilho, antes da Vó falar.
+func _comemorar_retorno() -> void:
+	var sp: Node2D = jogador.sprite
+	var base_y := sp.position.y
+	for i in 3:
+		Jogo.tocar_som("pulo", -14.0)
+		var pulo := create_tween()
+		pulo.tween_property(sp, "position:y", base_y - 12.0, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		pulo.tween_property(sp, "position:y", base_y, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		if i == 0:
+			_estrelinhas(jogador.global_position + Vector2(0, -20))
+		await pulo.finished
+	await get_tree().create_timer(0.2).timeout
 
 
 func _trofeus_novos() -> Array:
