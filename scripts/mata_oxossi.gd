@@ -322,6 +322,9 @@ func _novos_rastros() -> void:
 	# coelho e javali também passam por ali, e levam às outras saídas
 	_trilha_de_pegadas(inicio + Vector2(randf_range(-12, 12), 4), _saidas[outras[0]], 2)
 	_trilha_de_pegadas(inicio + Vector2(randf_range(-12, 12), 8), _saidas[outras[1]], 3)
+	# mais bichos cruzando por ali, para confundir: coelhos e javalis em outros rumos
+	_trilha_de_pegadas(inicio + Vector2(randf_range(-14, 14), -12), _saidas[outras[1]], 2)
+	_trilha_de_pegadas(inicio + Vector2(randf_range(-14, 14), 12), _saidas[outras[0]], 3)
 
 
 func _trilha_de_pegadas(de: Vector2, ate: Vector2, tipo: int) -> void:
