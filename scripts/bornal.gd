@@ -115,6 +115,8 @@ var historia: Array = []       # {"capitulo", "quem", "yo", "pt"}, na ordem em q
 var _vistas := {}              # as falas já guardadas (para não repetir a mesma)
 var _livro_i := 0
 var _livro: Control
+var _livro_scroll: ScrollContainer
+var _livro_texto: RichTextLabel
 var _livro_cap: Label
 var _livro_nar: Label
 var _livro_quem: Label
@@ -653,7 +655,7 @@ func _mostrar_pagina() -> void:
 		_dica_tela.text = "cima/baixo: palavra  ·  ←→ trocar  ·  %s: fechar" % Jogo.botao("bornal")
 		_mostrar_cad()
 	else:
-		_dica_tela.text = "cima/baixo: virar página  ·  ←→ trocar  ·  %s: fechar" % Jogo.botao("bornal")
+		_dica_tela.text = "cima/baixo: rolar  ·  ←→ trocar  ·  %s: fechar" % Jogo.botao("bornal")
 		_mostrar_livro()
 
 
@@ -679,29 +681,21 @@ func _montar_livro(tela: Vector2) -> void:
 	_livro = Control.new()
 	_livro.size = tela
 	_raiz.add_child(_livro)
-	_livro_cap = _rotulo("", 7, COR_APAGADA)
-	_livro_cap.position = Vector2(26, TOPO_LISTA)
-	_livro_cap.size = Vector2(tela.x - 52, 10)
-	_livro.add_child(_livro_cap)
-	_livro_nar = _rotulo("", 7, COR_APAGADA)
-	_livro_nar.position = Vector2(26, TOPO_LISTA + 12)
-	_livro_nar.size = Vector2(tela.x - 52, 22)
-	_livro_nar.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_livro.add_child(_livro_nar)
-	_livro_quem = _rotulo("", 9, COR_TITULO)
-	_livro_quem.position = Vector2(26, TOPO_LISTA + 38)
-	_livro_quem.size = Vector2(tela.x - 52, 14)
-	_livro.add_child(_livro_quem)
-	_livro_yo = _rotulo("", 7, COR_AVISO)
-	_livro_yo.position = Vector2(26, TOPO_LISTA + 54)
-	_livro_yo.size = Vector2(tela.x - 52, 10)
-	_livro.add_child(_livro_yo)
-	_livro_pt = _rotulo("", 8, COR_TEXTO)
-	_livro_pt.position = Vector2(26, TOPO_LISTA + 68)
-	_livro_pt.size = Vector2(tela.x - 52, 50)
-	_livro_pt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_livro_pt.add_theme_font_override("font", _fonte_italica_()) 
-	_livro.add_child(_livro_pt)
+	# o diário é uma lista que rola: Adé lê descendo, sem virar página
+	_livro_scroll = ScrollContainer.new()
+	_livro_scroll.position = Vector2(24, TOPO_LISTA - 2)
+	_livro_scroll.size = Vector2(tela.x - 48, 92)
+	_livro_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_livro.add_child(_livro_scroll)
+	_livro_texto = RichTextLabel.new()
+	_livro_texto.bbcode_enabled = true
+	_livro_texto.fit_content = true
+	_livro_texto.scroll_active = false
+	_livro_texto.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_livro_texto.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_livro_texto.add_theme_font_size_override("normal_font_size", 6)
+	_livro_texto.add_theme_color_override("default_color", COR_TEXTO)
+	_livro_scroll.add_child(_livro_texto)
 	var sep := ColorRect.new()
 	sep.color = Color(0.95, 0.95, 1.0, 0.35)
 	sep.position = Vector2(24, 132)
@@ -734,24 +728,23 @@ func _cor_do_falante(quem: String) -> Color:
 func _mostrar_livro() -> void:
 	var n := historia.size()
 	if n == 0:
-		_livro_cap.text = ""
-		_livro_nar.text = ""
-		_livro_quem.text = "Diário em branco"
-		_livro_quem.add_theme_color_override("font_color", COR_TITULO)
-		_livro_yo.visible = false
-		_livro_pt.text = "Adé ainda não ouviu nada. As conversas que ele tiver aparecem aqui, como num diário."
-		_livro_contador.text = "0 de 0"
+		_livro_texto.text = "[color=#c0c6e6]Adé ainda não ouviu nada. As conversas que ele tiver aparecem aqui, como num diário.[/color]"
+		_livro_contador.text = "0 falas"
 		return
-	_livro_i = clampi(_livro_i, 0, n - 1)
-	var f: Dictionary = historia[_livro_i]
-	_livro_cap.text = f["capitulo"]
-	_livro_nar.text = f.get("narracao", "")
-	_livro_quem.text = f["quem"]
-	_livro_quem.add_theme_color_override("font_color", _cor_do_falante(f["quem"]))
-	_livro_yo.text = f["yo"]
-	_livro_yo.visible = f["yo"] != ""
-	_livro_pt.text = f["pt"]
-	_livro_contador.text = "%d de %d" % [_livro_i + 1, n]
+	var partes := []
+	var capitulo_atual := ""
+	for f in historia:
+		if f["capitulo"] != capitulo_atual:
+			capitulo_atual = f["capitulo"]
+			partes.append("[color=#ffd873]%s[/color]" % capitulo_atual)
+		if str(f.get("narracao", "")) != "":
+			partes.append("[color=#8e96c0]%s[/color]" % f["narracao"])
+		partes.append("[color=#%s]%s[/color]: %s" % [_cor_do_falante(f["quem"]).to_html(false), f["quem"], f["pt"]])
+		if f["yo"] != "":
+			partes.append("[color=#ffb35c]%s[/color]" % f["yo"])
+		partes.append("")
+	_livro_texto.text = "\n".join(partes)
+	_livro_contador.text = "%d falas" % n
 
 
 func _mostrar_cad() -> void:
@@ -854,10 +847,7 @@ func _input(ev: InputEvent) -> void:
 				Jogo.tocar_som("texto", -12.0)
 				_mostrar_cad()
 		else:
-			if not historia.is_empty():
-				_livro_i = clampi(_livro_i + passo, 0, historia.size() - 1)
-				Jogo.tocar_som("texto", -12.0)
-				_mostrar_livro()
+			_livro_scroll.scroll_vertical += passo * 14
 	elif ev.is_action_pressed("interagir"):
 		if _pagina == 0 and not _lista.is_empty():
 			Jogo.tocar_som("buzio", -10.0)
