@@ -61,6 +61,16 @@ var _musica: AudioStreamPlayer
 var _fade: ColorRect
 
 
+## O nome do lugar onde Adé está agora (para o diário saber o capítulo).
+func nome_do_local_atual() -> String:
+	var cena := get_tree().current_scene
+	if cena:
+		for k in LOCAIS:
+			if cena.scene_file_path == LOCAIS[k]["cena"]:
+				return LOCAIS[k]["nome"]
+	return "Caminho de Adé"
+
+
 func _process(delta: float) -> void:
 	tempo_jogado += delta
 

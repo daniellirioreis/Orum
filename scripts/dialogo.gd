@@ -81,6 +81,7 @@ func _mostrar_linha() -> void:
 	_yoruba.visible = _yoruba.text != ""
 	_legenda.text = Jogo.texto(linha.get("pt", ""))
 	Jogo.bornal.aprender_do_texto(str(linha.get("yo", "")) + " " + str(linha.get("pt", "")))
+	Jogo.bornal.registrar_fala(linha)
 	# sem iorubá (narração), a legenda vira o texto principal
 	_legenda.add_theme_color_override("font_color", COR_LEGENDA if _yoruba.visible else COR_YORUBA)
 	_letras = 0.0

@@ -109,6 +109,18 @@ const ITENS := {
 var itens: Array = []          # ids, na ordem em que Adé pegou
 var aprendidas: Array = []     # palavras da caderneta que Adé já ouviu nos diálogos
 var _aviso: Label
+
+# --- o diário de Adé (as falas que ele já ouviu, como num livro)
+var historia: Array = []       # {"capitulo", "quem", "yo", "pt"}, na ordem em que Adé ouviu
+var _vistas := {}              # as falas já guardadas (para não repetir a mesma)
+var _livro_i := 0
+var _livro: Control
+var _livro_cap: Label
+var _livro_quem: Label
+var _livro_yo: Label
+var _livro_pt: Label
+var _livro_contador: Label
+var _aba_diario: Label
 var _aviso_t := 0.0
 var equipado := ""             # a ferramenta "na mão"
 var aberto := false
@@ -163,6 +175,19 @@ func _ready() -> void:
 
 
 # ------------------------------------------------------------------ os itens
+
+## Guarda uma fala no diário (uma vez só, mesmo que a cena se repita).
+func registrar_fala(linha: Dictionary) -> void:
+	var quem := str(linha.get("quem", ""))
+	var pt := str(linha.get("pt", ""))
+	if pt == "" and str(linha.get("yo", "")) == "":
+		return
+	var chave := quem + "|" + pt
+	if _vistas.has(chave):
+		return
+	_vistas[chave] = true
+	historia.append({"capitulo": Jogo.nome_do_local_atual(), "quem": quem, "yo": str(linha.get("yo", "")), "pt": pt})
+
 
 ## Marca como aprendidas as palavras da caderneta que aparecem no texto de um diálogo.
 func aprender_do_texto(texto: String) -> void:
@@ -286,15 +311,21 @@ func comecar_fase(fase: String, menos: Array = []) -> void:
 func esvaziar() -> void:
 	itens.clear()
 	aprendidas.clear()
+	historia.clear()
+	_vistas.clear()
 	equipado = ""
 	_atualizar_hud()
 
 
 func para_salvar() -> Dictionary:
-	return {"itens": itens.duplicate(), "equipado": equipado, "aprendidas": aprendidas.duplicate()}
+	return {"itens": itens.duplicate(), "equipado": equipado, "aprendidas": aprendidas.duplicate(), "historia": historia.duplicate(true)}
 
 
 func carregar(d: Dictionary) -> void:
+	historia = d.get("historia", []).duplicate(true)
+	_vistas.clear()
+	for f in historia:
+		_vistas[f["quem"] + "|" + f["pt"]] = true
 	aprendidas = []
 	for p in d.get("aprendidas", []):
 		if _existe_na_caderneta(p):
@@ -464,17 +495,21 @@ func _montar_tela() -> void:
 	c.atlas = load("res://arte/bornal_itens.png")
 	c.region = Rect2(6 * 12, 0, 12, 12)
 	caderneta.texture = c
-	caderneta.position = Vector2(134, 20)
+	caderneta.position = Vector2(116, 20)
 	_raiz.add_child(caderneta)
-	_aba_cad = _rotulo("Ìwé Adé", 9, COR_APAGADA)
-	_aba_cad.position = Vector2(150, 19)
+	_aba_cad = _rotulo("Ìwé Adé", 8, COR_APAGADA)
+	_aba_cad.position = Vector2(130, 19)
 	_raiz.add_child(_aba_cad)
+	_aba_diario = _rotulo("Diário", 8, COR_APAGADA)
+	_aba_diario.position = Vector2(192, 19)
+	_raiz.add_child(_aba_diario)
 
 	_apo = Control.new()
 	_apo.size = tela
 	_raiz.add_child(_apo)
 	_montar_apo(tela)
 	_montar_cad(tela)
+	_montar_livro(tela)
 
 	_dica_tela = _rotulo("", 7, COR_APAGADA)
 	_dica_tela.position = Vector2(16, tela.y - 26)
@@ -483,6 +518,7 @@ func _montar_tela() -> void:
 	_raiz.add_child(_dica_tela)
 
 	_pagina = 0
+	_livro_i = 0
 	_linha = 0
 	_topo = 0
 	_cad_i = 0
@@ -596,8 +632,8 @@ func _montar_cad(tela: Vector2) -> void:
 	_cad.add_child(_cad_aviso)
 
 
-func _trocar_pagina() -> void:
-	_pagina = 1 - _pagina
+func _trocar_pagina(passo: int) -> void:
+	_pagina = (_pagina + passo + 3) % 3
 	Jogo.tocar_som("texto", -10.0)
 	_mostrar_pagina()
 
@@ -605,14 +641,72 @@ func _trocar_pagina() -> void:
 func _mostrar_pagina() -> void:
 	_apo.visible = _pagina == 0
 	_cad.visible = _pagina == 1
+	_livro.visible = _pagina == 2
 	_aba_apo.add_theme_color_override("font_color", COR_TITULO if _pagina == 0 else COR_APAGADA)
 	_aba_cad.add_theme_color_override("font_color", COR_TITULO if _pagina == 1 else COR_APAGADA)
+	_aba_diario.add_theme_color_override("font_color", COR_TITULO if _pagina == 2 else COR_APAGADA)
 	if _pagina == 0:
 		_dica_tela.text = Jogo.texto("{interagir}: escolher  ·  ←→ caderneta  ·  %s: fechar" % Jogo.botao("bornal"))
 		_mostrar_cursor()
-	else:
-		_dica_tela.text = "cima/baixo: palavra  ·  ←→ Àpò  ·  %s: fechar" % Jogo.botao("bornal")
+	elif _pagina == 1:
+		_dica_tela.text = "cima/baixo: palavra  ·  ←→ trocar  ·  %s: fechar" % Jogo.botao("bornal")
 		_mostrar_cad()
+	else:
+		_dica_tela.text = "cima/baixo: virar página  ·  ←→ trocar  ·  %s: fechar" % Jogo.botao("bornal")
+		_mostrar_livro()
+
+
+## A página do diário: uma fala por página, como num livro.
+func _montar_livro(tela: Vector2) -> void:
+	_livro = Control.new()
+	_livro.size = tela
+	_raiz.add_child(_livro)
+	_livro_cap = _rotulo("", 7, COR_APAGADA)
+	_livro_cap.position = Vector2(26, TOPO_LISTA)
+	_livro_cap.size = Vector2(tela.x - 52, 10)
+	_livro.add_child(_livro_cap)
+	_livro_quem = _rotulo("", 9, COR_TITULO)
+	_livro_quem.position = Vector2(26, TOPO_LISTA + 16)
+	_livro_quem.size = Vector2(tela.x - 52, 14)
+	_livro.add_child(_livro_quem)
+	_livro_yo = _rotulo("", 7, COR_AVISO)
+	_livro_yo.position = Vector2(26, TOPO_LISTA + 32)
+	_livro_yo.size = Vector2(tela.x - 52, 10)
+	_livro.add_child(_livro_yo)
+	_livro_pt = _rotulo("", 8, COR_TEXTO)
+	_livro_pt.position = Vector2(26, TOPO_LISTA + 46)
+	_livro_pt.size = Vector2(tela.x - 52, 80)
+	_livro_pt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_livro.add_child(_livro_pt)
+	var sep := ColorRect.new()
+	sep.color = Color(0.95, 0.95, 1.0, 0.35)
+	sep.position = Vector2(24, 132)
+	sep.size = Vector2(tela.x - 48, 1)
+	_livro.add_child(sep)
+	_livro_contador = _rotulo("", 7, COR_APAGADA)
+	_livro_contador.position = Vector2(tela.x - 104, 137)
+	_livro_contador.size = Vector2(78, 10)
+	_livro_contador.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_livro.add_child(_livro_contador)
+
+
+func _mostrar_livro() -> void:
+	var n := historia.size()
+	if n == 0:
+		_livro_cap.text = ""
+		_livro_quem.text = "Diário em branco"
+		_livro_yo.visible = false
+		_livro_pt.text = "Adé ainda não ouviu nada. As conversas que ele tiver aparecem aqui, como num diário."
+		_livro_contador.text = "0 de 0"
+		return
+	_livro_i = clampi(_livro_i, 0, n - 1)
+	var f: Dictionary = historia[_livro_i]
+	_livro_cap.text = f["capitulo"]
+	_livro_quem.text = f["quem"]
+	_livro_yo.text = f["yo"]
+	_livro_yo.visible = f["yo"] != ""
+	_livro_pt.text = f["pt"]
+	_livro_contador.text = "%d de %d" % [_livro_i + 1, n]
 
 
 func _mostrar_cad() -> void:
@@ -701,7 +795,7 @@ func _input(ev: InputEvent) -> void:
 		_escolha = "fechar"
 		Jogo.tocar_som("texto", -10.0)
 	elif ev.is_action_pressed("esquerda") or ev.is_action_pressed("direita"):
-		_trocar_pagina()
+		_trocar_pagina(-1 if ev.is_action_pressed("esquerda") else 1)
 	elif ev.is_action_pressed("cima") or ev.is_action_pressed("baixo"):
 		var passo := -1 if ev.is_action_pressed("cima") else 1
 		if _pagina == 0:
@@ -709,11 +803,16 @@ func _input(ev: InputEvent) -> void:
 				_linha = (_linha + passo + _lista.size()) % _lista.size()
 				Jogo.tocar_som("texto", -12.0)
 				_mostrar_cursor()
-		else:
+		elif _pagina == 1:
 			if not _caderneta().is_empty():
 				_cad_i = (_cad_i + passo + _caderneta().size()) % _caderneta().size()
 				Jogo.tocar_som("texto", -12.0)
 				_mostrar_cad()
+		else:
+			if not historia.is_empty():
+				_livro_i = clampi(_livro_i + passo, 0, historia.size() - 1)
+				Jogo.tocar_som("texto", -12.0)
+				_mostrar_livro()
 	elif ev.is_action_pressed("interagir"):
 		if _pagina == 0 and not _lista.is_empty():
 			Jogo.tocar_som("buzio", -10.0)
