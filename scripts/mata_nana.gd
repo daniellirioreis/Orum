@@ -219,7 +219,7 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 		"s":
 			_criar_sapo(lugar, base)
 		"K":
-			_criar_cenario("res://arte/nana_bambu.png", Vector2(26, 8), base)
+			_balancar(_criar_cenario("res://arte/nana_bambu.png", Vector2(26, 8), base), randf() * 2.0)
 		"X":
 			_criar_cenario("res://arte/nana_mangue.png", Vector2(14, 8), base)
 		"j":
@@ -632,6 +632,15 @@ func _bolhas(delta: float) -> void:
 		_bolhas_vivas -= 1
 		_bolha_em.erase(chave)
 		s.queue_free())
+
+
+## Bambu balançando pela base, como ao vento; cada touceira começa numa hora diferente.
+func _balancar(s: Sprite2D, atraso: float) -> void:
+	var t := create_tween().set_loops()
+	t.tween_interval(atraso)
+	t.tween_property(s, "rotation", 0.04, 1.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	t.tween_property(s, "rotation", -0.04, 3.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	t.tween_property(s, "rotation", 0.0, 1.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 
 # ------------------------------------------------------------------ garças e sapos
