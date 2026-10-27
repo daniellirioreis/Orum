@@ -116,6 +116,7 @@ var _vistas := {}              # as falas já guardadas (para não repetir a mes
 var _livro_i := 0
 var _livro: Control
 var _livro_scroll: ScrollContainer
+var _rolagem_acum := 0.0
 var _livro_texto: RichTextLabel
 var _livro_cap: Label
 var _livro_nar: Label
@@ -224,6 +225,14 @@ func _process(delta: float) -> void:
 		_aviso_t -= delta
 		if _aviso_t <= 0.0:
 			_aviso.visible = false
+	# no diário, segurar cima/baixo rola mais rápido (o toque único continua em _input)
+	if aberto and _raiz and _raiz.visible and _escolha == null and not Jogo.menu.aberto and _pagina == 2:
+		var segurando := (1.0 if Input.is_action_pressed("baixo") else 0.0) - (1.0 if Input.is_action_pressed("cima") else 0.0)
+		if segurando != 0.0:
+			_rolagem_acum += segurando * 260.0 * delta
+			var inteiro := int(_rolagem_acum)
+			_livro_scroll.scroll_vertical += inteiro
+			_rolagem_acum -= inteiro
 
 
 ## As palavras que Adé já aprendeu (só essas aparecem na caderneta).
