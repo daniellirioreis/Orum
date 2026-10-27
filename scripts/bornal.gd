@@ -550,10 +550,10 @@ func _mostrar_pagina() -> void:
 	_aba_apo.add_theme_color_override("font_color", COR_TITULO if _pagina == 0 else COR_APAGADA)
 	_aba_cad.add_theme_color_override("font_color", COR_TITULO if _pagina == 1 else COR_APAGADA)
 	if _pagina == 0:
-		_dica_tela.text = Jogo.texto("{interagir}: escolher   ·   esquerda/direita: caderneta   ·   %s: fechar" % Jogo.botao("bornal"))
+		_dica_tela.text = Jogo.texto("{interagir}: escolher  ·  ←→ caderneta  ·  %s: fechar" % Jogo.botao("bornal"))
 		_mostrar_cursor()
 	else:
-		_dica_tela.text = "cima/baixo: passar a palavra   ·   esquerda/direita: Àpò   ·   %s: fechar" % Jogo.botao("bornal")
+		_dica_tela.text = "cima/baixo: palavra  ·  ←→ Àpò  ·  %s: fechar" % Jogo.botao("bornal")
 		_mostrar_cad()
 
 
