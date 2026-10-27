@@ -47,7 +47,7 @@ var _espantou := false
 # flecha
 var _flecha := {}               # {s, dir, voando, andou, no_chao}
 var _linha_mira: Line2D
-var _mira_ativa := false       # mira só aparece depois de apertar o botão de atirar
+var _mira_ativa := false       # mira aparece enquanto o botão de atirar está segurado
 var _alvos: Array = []          # {tipo, no, lugar, ...}
 var _avisou_volta := false
 var _avisou_passarinho := false
@@ -147,12 +147,14 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(ev: InputEvent) -> void:
-	if ev.is_action_pressed("atirar") and jogador.pode_mover and not _voltando:
-		# 1º aperto ativa a mira; 2º aperto atira
-		if _mira_ativa:
-			_mira_ativa = false
+	# segurar o botão mostra a mira; soltar atira a flecha
+	if ev.is_action_released("atirar") and _mira_ativa:
+		_mira_ativa = false
+		if jogador.pode_mover and not _voltando:
 			_atirar()
-		elif _ox.has("tem_ofa") and Jogo.bornal.equipado == "ofa" and _flecha.is_empty():
+		return
+	if ev.is_action_pressed("atirar") and jogador.pode_mover and not _voltando:
+		if _ox.has("tem_ofa") and Jogo.bornal.equipado == "ofa" and _flecha.is_empty():
 			_mira_ativa = true
 		else:
 			_atirar()
