@@ -94,8 +94,6 @@ func _montar(titulo: String, opcoes: Array, rodape: String) -> void:
 		l.size = Vector2(largura - 26, 14)
 		if l is Label:
 			l.clip_text = true
-		else:
-			l.clip_contents = true
 		painel.add_child(l)
 		_linhas.append(l)
 	if rodape != "":
@@ -156,8 +154,11 @@ func _contorno(l: Control) -> void:
 func _atualizar() -> void:
 	for i in _linhas.size():
 		var l: Control = _linhas[i]
-		var texto: String = l.text.trim_prefix("▶ ").trim_prefix("   ")
-		l.text = ("▶ " if i == _cursor else "   ") + texto
+		# o cursor vai dentro do [center] (se a linha for centralizada), para ficar junto do texto
+		var centro: bool = l.text.contains("[center]")
+		var texto: String = l.text.replace("[center]", "").replace("[/center]", "").trim_prefix("▶ ").trim_prefix("   ")
+		var novo := ("▶ " if i == _cursor else "   ") + texto
+		l.text = ("[center]%s[/center]" % novo) if centro else novo
 		var cor := COR_APAGADA if i in _desativadas else (COR_TITULO if i == _cursor else COR_TEXTO)
 		if _transparente and i in _desativadas:
 			cor = Color(0.7, 0.62, 0.72)
@@ -217,14 +218,15 @@ func _linha_menu(texto: String, tamanho: int, cor: Color, centro: bool) -> Contr
 		return _rotulo(texto, tamanho, cor)
 	var rt := RichTextLabel.new()
 	rt.bbcode_enabled = true
+	rt.fit_content = false
 	rt.scroll_active = false
 	rt.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	rt.text = ("[center]%s[/center]" % texto) if centro else texto
 	rt.add_theme_font_size_override("normal_font_size", tamanho)
 	rt.add_theme_color_override("default_color", cor)
-	if centro:
-		rt.add_theme_constant_override("outline_size", 3)
-		rt.add_theme_color_override("font_outline_color", Color(0.12, 0.05, 0.14))
+	rt.add_theme_constant_override("line_separation", 0)
+	rt.add_theme_color_override("font_outline_color", Color(0.12, 0.05, 0.14))
+	rt.add_theme_constant_override("outline_size", 3)
 	return rt
 
 
