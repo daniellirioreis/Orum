@@ -521,8 +521,9 @@ func _atualizar_mira() -> void:
 		return
 	if _linha_mira == null:
 		_linha_mira = Line2D.new()
-		_linha_mira.width = 1.0
-		_linha_mira.default_color = Color(1, 0.95, 0.7, 0.85)
+		_linha_mira.width = 2.0
+		_linha_mira.top_level = true
+		_linha_mira.default_color = Color(1, 1, 0.85, 1.0)
 		_linha_mira.z_index = 7
 		add_child(_linha_mira)
 	var dir: Vector2 = jogador.direcao().rotated(_angulo_mira())
