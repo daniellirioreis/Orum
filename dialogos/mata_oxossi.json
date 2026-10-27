@@ -24,7 +24,7 @@
 	],
 	"placa_ox_rastro": [
 		{"quem": "Placa", "yo": "", "pt": "Quem anda sem olhar, anda em círculos."},
-		{"quem": "Placa", "yo": "", "pt": "Nem todo rastro leva para fora da mata. Olhe bem antes de seguir."}
+		{"quem": "Placa", "yo": "", "pt": "O rastro certo é o do veado. Mas nem todo rastro leva para fora da mata: olhe bem antes de seguir."}
 	],
 	"rastro_errado": [
 		{"quem": "Adé", "yo": "", "pt": "Ué... eu já passei por aqui. A mata me fez andar em círculos!", "rosto": "assustado"}
