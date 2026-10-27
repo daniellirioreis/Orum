@@ -5,6 +5,8 @@ extends Node
 ## Tamanho da tela do jogo (como no Super Nintendo).
 const TELA := Vector2i(256, 224)
 
+## enquanto há um diálogo na tela, Adé não anda nem pula (ver jogador.gd)
+var em_dialogo := false
 var buzios := 0
 var buzios_total := 0
 ## segundos de jogo (só conta com o jogo rodando, não em pausa)

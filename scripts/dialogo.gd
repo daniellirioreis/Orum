@@ -66,6 +66,7 @@ func iniciar(linhas: Array) -> void:
 	_linhas = linhas
 	_indice = 0
 	ativo = true
+	Jogo.em_dialogo = true
 	_painel.visible = true
 	_congelar_jogador(true)
 	_mostrar_linha()
@@ -167,6 +168,7 @@ func _unhandled_input(ev: InputEvent) -> void:
 
 func _fechar() -> void:
 	ativo = false
+	Jogo.em_dialogo = false
 	_painel.visible = false
 	_placa.visible = false
 	_moldura.visible = false

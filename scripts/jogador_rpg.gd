@@ -25,11 +25,11 @@ var _ultimo_passo := -1
 
 func _physics_process(delta: float) -> void:
 	var entrada := Vector2.ZERO
-	if pode_mover:
+	if pode_mover and not Jogo.em_dialogo:
 		entrada = Vector2(Input.get_axis("esquerda", "direita"), Input.get_axis("cima", "baixo"))
 		if entrada.length() > 1.0:
 			entrada = entrada.normalized()
-	devagar = pode_mover and Input.is_action_pressed("devagar")
+	devagar = pode_mover and not Jogo.em_dialogo and Input.is_action_pressed("devagar")
 	velocity = entrada * VELOCIDADE * (LENTO if devagar else 1.0) * fator_chao
 	move_and_slide()
 

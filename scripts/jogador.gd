@@ -39,7 +39,7 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	var direcao := 0.0
-	if pode_mover:
+	if pode_mover and not Jogo.em_dialogo:
 		direcao = Input.get_axis("esquerda", "direita")
 
 	# gravidade
@@ -55,7 +55,7 @@ func _physics_process(delta: float) -> void:
 	else:
 		_coyote -= delta
 	_buffer -= delta
-	if pode_mover and Input.is_action_just_pressed("pular"):
+	if pode_mover and not Jogo.em_dialogo and Input.is_action_just_pressed("pular"):
 		_buffer = TEMPO_BUFFER
 
 	if _buffer > 0.0 and _coyote > 0.0:
