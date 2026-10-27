@@ -16,11 +16,10 @@
 		{"quem": "Velhinha", "yo": "", "pt": "Chuva não faz mal a ninguém. Mas a lama está funda para essas pernas velhas."},
 		{"quem": "Velhinha", "yo": "", "pt": "Você leva o meu pote até a lagoa? Está rachado, coitado, mas é o meu pote."},
 		{"quem": "Adé", "yo": "", "pt": "Levo sim, senhora! E a senhora?"},
-		{"quem": "Velhinha", "yo": "", "pt": "Eu chego lá do meu jeito. Devagarinho.", "evento": "ganhar_pote"},
-		{"quem": "Velhinha", "yo": "", "pt": "E outra coisa: na minha terra, ferro não serve para nada."}
+		{"quem": "Velhinha", "yo": "", "pt": "Eu chego lá do meu jeito. Devagarinho.", "evento": "ganhar_pote"}
 	],
 	"velhinha_depois": [
-		{"quem": "Velhinha", "yo": "", "pt": "Vá, meu filho. Pise onde a garça pisa. A gente se vê na lagoa."}
+		{"quem": "Velhinha", "yo": "", "pt": "Vá, meu filho. A gente se vê na lagoa."}
 	],
 	"placa_nana_brejo": [
 		{"quem": "", "yo": "", "pt": "\"O brejo engole quem anda com pressa. As garças sabem onde é firme.\""}
