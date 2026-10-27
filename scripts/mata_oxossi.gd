@@ -509,7 +509,7 @@ func _atirar() -> void:
 
 ## A mira balança em volta de onde Adé olha: o tiro sai no ângulo do momento em que ele atira.
 func _angulo_mira() -> float:
-	return sin(Time.get_ticks_msec() / 1000.0 * 2.4) * 0.35
+	return sin(Time.get_ticks_msec() / 1000.0 * 4.0) * 0.35
 
 
 ## Uma linha clarinha mostra para onde a mira está apontando agora (só quando dá para atirar).
@@ -521,14 +521,16 @@ func _atualizar_mira() -> void:
 		return
 	if _linha_mira == null:
 		_linha_mira = Line2D.new()
-		_linha_mira.width = 2.0
+		_linha_mira.width = 3.0
+		_linha_mira.begin_cap_mode = Line2D.LINE_CAP_ROUND
+		_linha_mira.end_cap_mode = Line2D.LINE_CAP_ROUND
 		_linha_mira.top_level = true
 		_linha_mira.default_color = Color(1, 1, 0.85, 1.0)
 		_linha_mira.z_index = 7
 		add_child(_linha_mira)
 	var dir: Vector2 = jogador.direcao().rotated(_angulo_mira())
 	var ini := jogador.global_position + Vector2(0, -10)
-	_linha_mira.points = PackedVector2Array([ini + dir * 8.0, ini + dir * 44.0])
+	_linha_mira.points = PackedVector2Array([ini + dir * 8.0, ini + dir * 56.0])
 	_linha_mira.visible = true
 
 
