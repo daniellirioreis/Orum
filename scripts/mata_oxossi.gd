@@ -503,7 +503,7 @@ func _atirar() -> void:
 	# vento de Iansá: empurra a flecha de lado, de um jeito diferente a cada tiro
 	var lado := Vector2(-dir.y, dir.x)
 	_flecha = {"s": s, "dir": dir, "voando": true, "andou": 0.0, "no_chao": false,
-		"vento": lado * randf_range(-0.28, 0.28)}
+		"vento": lado * randf_range(-0.12, 0.12)}
 	_mostrar_aviso("Vento de Iansá na mata! A flecha vai desviar.")
 	Jogo.bornal.mao_apagada(true)
 	Jogo.tocar_som("flecha_atira", -4.0)
