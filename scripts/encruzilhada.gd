@@ -728,12 +728,15 @@ func _exu_troca_buzios() -> bool:
 		zoeira = "O redemoinho te rodou feito pião e te jogou no chão!"
 	elif _quem_bateu == "kiumbas":
 		zoeira = "Os kiumbas te pegaram de susto, hein? Correndo de sombra..."
+	var quem_txt := "o redemoinho" if _quem_bateu == "redemoinho" else ("os kiumbas" if _quem_bateu == "kiumbas" else "")
+	var queda := "rodopio" if _quem_bateu == "redemoinho" else ("susto" if _quem_bateu == "kiumbas" else "tombo")
 	var falas := [
 		{"quem": "Èṣù", "yo": "Láròyé!", "pt": "Laroyê, menino! Há há há! %s Desse jeito vou ter que te levar no colo até a Vó!" % zoeira},
 	]
 	if pode == 0:
 		falas.append({"quem": "Èṣù", "yo": "Hi hi hi!", "pt": "Com %d búzios eu devolvo um búzio de axé... mas você só juntou %d. Com isso eu compro um pirulito, não um axé!" % [BUZIOS_POR_AXE, n]})
-		falas.append({"quem": "Èṣù", "yo": "", "pt": "Da próxima vez, junte os búzios do caminho. Eu guardo o que é seu... e conto pra Vó que você caiu!"})
+		var conto := "e conto pra Vó que você caiu!" if quem_txt == "" else "e conto pra Vó que %s te pegou!" % quem_txt
+		falas.append({"quem": "Èṣù", "yo": "", "pt": "Da próxima vez, junte os búzios do caminho. Eu guardo o que é seu... " + conto})
 		await _falar_linhas(falas)
 		jogador.congelar(true)
 		return false
@@ -749,7 +752,7 @@ func _exu_troca_buzios() -> bool:
 		r = await Jogo.menu.escolher("Búzios guardados: %d" % n, opcoes, pode - 1)
 	jogador.congelar(true)
 	if r["i"] >= pode:
-		await _falar_linhas([{"quem": "Èṣù", "yo": "Há há há!", "pt": "Então o caminho acaba aqui... por enquanto. Vou ficar rindo desse tombo até amanhã."}])
+		await _falar_linhas([{"quem": "Èṣù", "yo": "Há há há!", "pt": "Então o caminho acaba aqui... por enquanto. Vou ficar rindo desse %s até amanhã." % queda}])
 		jogador.congelar(true)
 		return false
 	var k: int = r["i"] + 1
