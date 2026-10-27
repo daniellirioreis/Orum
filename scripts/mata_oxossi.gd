@@ -46,6 +46,7 @@ var _veados: Array = []         # {s, casa, alerta, fugiu, passeia, fase, lugar}
 var _espantou := false
 # flecha
 var _flecha := {}               # {s, dir, voando, andou, no_chao}
+var _linha_mira: Line2D
 var _alvos: Array = []          # {tipo, no, lugar, ...}
 var _avisou_volta := false
 var _avisou_passarinho := false
@@ -130,6 +131,7 @@ func _process(delta: float) -> void:
 	super._process(delta)
 	_mover_veados(delta)
 	_mover_flecha(delta)
+	_atualizar_mira()
 	_mover_cobras(delta)
 	_mover_javali(delta)
 	_mover_passaro(delta)
@@ -319,6 +321,12 @@ func _novos_rastros() -> void:
 	var inicio := origem + Vector2(8 * TILE, 11 * TILE)
 	_trilha_de_pegadas(inicio + Vector2(randf_range(-4, 4), 0), _saidas[_saida_certa], 0)
 	_trilha_de_pegadas(inicio + Vector2(randf_range(-10, 10), -6), _saidas[engano], 1)
+	# coelho e javali também passam por ali, e levam às outras saídas
+	_trilha_de_pegadas(inicio + Vector2(randf_range(-12, 12), 4), _saidas[outras[0]], 2)
+	_trilha_de_pegadas(inicio + Vector2(randf_range(-12, 12), 8), _saidas[outras[1]], 3)
+	# mais bichos cruzando por ali, para confundir: coelhos e javalis em outros rumos
+	_trilha_de_pegadas(inicio + Vector2(randf_range(-14, 14), -12), _saidas[outras[1]], 2)
+	_trilha_de_pegadas(inicio + Vector2(randf_range(-14, 14), 12), _saidas[outras[0]], 3)
 
 
 func _trilha_de_pegadas(de: Vector2, ate: Vector2, tipo: int) -> void:
@@ -335,7 +343,7 @@ func _trilha_de_pegadas(de: Vector2, ate: Vector2, tipo: int) -> void:
 		var lado := Vector2(-dir.y, dir.x) * (2.5 if i % 2 else -2.5)
 		var s := Sprite2D.new()
 		s.texture = preload("res://arte/ox_pegadas.png")
-		s.hframes = 2
+		s.hframes = 4
 		s.frame = tipo
 		s.position = p + lado
 		s.rotation = dir.angle() + PI / 2.0
@@ -487,7 +495,7 @@ func _atirar() -> void:
 		elif _ox.has("tem_ofa") and not _flecha.is_empty() and _flecha.has("passarinho"):
 			_mostrar_aviso("Espere: o passarinho está trazendo a flecha!")
 		return
-	var dir: Vector2 = jogador.direcao()
+	var dir: Vector2 = jogador.direcao().rotated(_angulo_mira())    # o tiro sai no ângulo da mira que balança
 	var s := Sprite2D.new()
 	s.texture = preload("res://arte/ox_flecha.png")
 	s.rotation = dir.angle()
@@ -497,6 +505,30 @@ func _atirar() -> void:
 	_flecha = {"s": s, "dir": dir, "voando": true, "andou": 0.0, "no_chao": false}
 	Jogo.bornal.mao_apagada(true)
 	Jogo.tocar_som("flecha_atira", -4.0)
+
+
+## A mira balança em volta de onde Adé olha: o tiro sai no ângulo do momento em que ele atira.
+func _angulo_mira() -> float:
+	return sin(Time.get_ticks_msec() / 1000.0 * 2.4) * 0.35
+
+
+## Uma linha clarinha mostra para onde a mira está apontando agora (só quando dá para atirar).
+func _atualizar_mira() -> void:
+	var pode: bool = _ox.has("tem_ofa") and Jogo.bornal.equipado == "ofa" and _flecha.is_empty() and jogador.pode_mover
+	if not pode:
+		if _linha_mira:
+			_linha_mira.visible = false
+		return
+	if _linha_mira == null:
+		_linha_mira = Line2D.new()
+		_linha_mira.width = 1.0
+		_linha_mira.default_color = Color(1, 0.95, 0.7, 0.85)
+		_linha_mira.z_index = 7
+		add_child(_linha_mira)
+	var dir: Vector2 = jogador.direcao().rotated(_angulo_mira())
+	var ini := jogador.global_position + Vector2(0, -10)
+	_linha_mira.points = PackedVector2Array([ini + dir * 8.0, ini + dir * 44.0])
+	_linha_mira.visible = true
 
 
 func _mover_flecha(delta: float) -> void:
@@ -1291,6 +1323,7 @@ func _abrir_saida() -> void:
 
 
 func _ganhar_trofeu() -> void:
+	_comemorar_mundo()
 	Jogo.bornal.tirar("ofa")       # o ofá do toco era de Oxóssi: agora ele dá o ofá a Adé, como presente
 	Jogo.bornal.mao_apagada(false)
 	Jogo.trofeus["oxossi"] = "Ofá de Oxóssi"
