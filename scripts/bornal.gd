@@ -503,7 +503,7 @@ func _montar_tela() -> void:
 	_aba_cad = _rotulo("Ìwé Adé", 8, COR_APAGADA)
 	_aba_cad.position = Vector2(130, 19)
 	_raiz.add_child(_aba_cad)
-	_aba_diario = _rotulo("Diário", 8, COR_APAGADA)
+	_aba_diario = _rotulo("Ìrántí", 8, COR_APAGADA)
 	_aba_diario.position = Vector2(192, 19)
 	_raiz.add_child(_aba_diario)
 
