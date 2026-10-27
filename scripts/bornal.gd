@@ -401,6 +401,13 @@ func _montar_tela() -> void:
 	_aba_apo = _rotulo("Àpò de Adé", 9, COR_TITULO)
 	_aba_apo.position = Vector2(46, 19)
 	_raiz.add_child(_aba_apo)
+	var caderneta := TextureRect.new()
+	var c := AtlasTexture.new()
+	c.atlas = load("res://arte/bornal_itens.png")
+	c.region = Rect2(6 * 12, 0, 12, 12)
+	caderneta.texture = c
+	caderneta.position = Vector2(134, 20)
+	_raiz.add_child(caderneta)
 	_aba_cad = _rotulo("Ìwé Adé", 9, COR_APAGADA)
 	_aba_cad.position = Vector2(150, 19)
 	_raiz.add_child(_aba_cad)
