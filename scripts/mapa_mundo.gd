@@ -1152,7 +1152,7 @@ func _esconder_no() -> void:
 
 ## Adé pula três vezes e brilha no lugar do mundo que ele acabou de completar.
 func _comemorar_no() -> void:
-	Jogo.tocar_som("pulo", -14.0)
+	# um toque curto de atabaque, um tapa a cada pulo
 	var brilho := CPUParticles2D.new()
 	brilho.position = _ade.position + Vector2(0, -14)
 	brilho.z_index = 20
@@ -1169,11 +1169,10 @@ func _comemorar_no() -> void:
 	brilho.emitting = true
 	get_tree().create_timer(1.0).timeout.connect(brilho.queue_free)
 	for i in 3:
+		Jogo.tocar_som("atabaque_%d" % (i + 1), -8.0)
 		var pulo := create_tween()
 		pulo.tween_property(_ade, "offset:y", -18.0, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		pulo.tween_property(_ade, "offset:y", -6.0, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-		if i < 2:
-			pulo.tween_callback(Jogo.tocar_som.bind("pulo", -14.0))
 		await pulo.finished
 
 
