@@ -47,6 +47,7 @@ var _espantou := false
 # flecha
 var _flecha := {}               # {s, dir, voando, andou, no_chao}
 var _linha_mira: Line2D
+var _punta_mira: Polygon2D          # triângulo da ponta da flecha da mira
 var _mira_ativa := false       # mira aparece enquanto o botão de atirar está segurado
 var _alvos: Array = []          # {tipo, no, lugar, ...}
 var _avisou_volta := false
@@ -534,6 +535,8 @@ func _atualizar_mira() -> void:
 	if not pode:
 		if _linha_mira:
 			_linha_mira.visible = false
+		if _punta_mira:
+			_punta_mira.visible = false
 		return
 	if _linha_mira == null:
 		_linha_mira = Line2D.new()
@@ -544,10 +547,20 @@ func _atualizar_mira() -> void:
 		_linha_mira.default_color = Color(1, 1, 0.85, 1.0)
 		_linha_mira.z_index = 7
 		add_child(_linha_mira)
+		_punta_mira = Polygon2D.new()
+		_punta_mira.color = Color(1, 1, 0.85, 1.0)
+		_punta_mira.top_level = true
+		_punta_mira.z_index = 7
+		add_child(_punta_mira)
 	var dir: Vector2 = jogador.direcao().rotated(_angulo_mira())
 	var ini := jogador.global_position + Vector2(0, -10)
-	_linha_mira.points = PackedVector2Array([ini + dir * 8.0, ini + dir * 56.0])
+	# haste fina + ponta triangular sólida
+	var ponta := ini + dir * 52.0
+	var lado := dir.orthogonal() * 4.0
+	_linha_mira.points = PackedVector2Array([ini + dir * 8.0, ponta - dir * 4.0])
+	_punta_mira.polygon = PackedVector2Array([ponta, ponta - dir * 8.0 + lado, ponta - dir * 8.0 - lado])
 	_linha_mira.visible = true
+	_punta_mira.visible = true
 
 
 func _mover_flecha(delta: float) -> void:
