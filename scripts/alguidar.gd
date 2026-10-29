@@ -1,5 +1,5 @@
 extends CanvasLayer
-## Mini-jogo do padé: Adé mistura o padé num alguidar de barro (visto de cima).
+## Mini-jogo do padê: Adé mistura o padê num alguidar de barro (visto de cima).
 ## Os itens (Gààrí, Epó, Oti) caem um a um e mudam a cor da mistura: o Gààrí deixa branca,
 ## o Epó pinta uma parte de amarelo, o Oti não muda nada. Depois Adé mexe (← e → alternado, no verde)
 ## e a cor vai escurecendo até amarelo escuro. Termina quando a barra enche.
@@ -29,7 +29,7 @@ var _base := Color(0.55, 0.36, 0.22)   # a mistura de dentro (barro vazio, depoi
 var _tem_epo := false                  # o Epó pinta a metade esquerda de amarelo
 var _nomes := ""                       # o que já caiu no alguidar, para a dica
 const COR_EPO := Color(0.98, 0.85, 0.25)
-const COR_FIM := Color(0.72, 0.5, 0.1)  # amarelo escuro: o padé pronto
+const COR_FIM := Color(0.72, 0.5, 0.1)  # amarelo escuro: o padê pronto
 
 var _raiz: Control
 var _desenho: Control
@@ -44,7 +44,7 @@ func _ready() -> void:
 	set_process(false)
 
 
-## Joga até o padé ficar no ponto (itens é a lista do que cai no alguidar, na ordem).
+## Joga até o padê ficar no ponto (itens é a lista do que cai no alguidar, na ordem).
 func jogar(itens: Array = []) -> void:
 	_vel = 0.0
 	_progresso = 0.0
@@ -152,7 +152,7 @@ func _adicionar(id: String) -> void:
 	await get_tree().create_timer(1.6).timeout
 
 
-## Cor da mistura agora: escurece conforme o padé fica pronto.
+## Cor da mistura agora: escurece conforme o padê fica pronto.
 func _cor_mistura() -> Color:
 	return _base.lerp(COR_FIM, _progresso)
 
@@ -165,7 +165,7 @@ func _espirrar() -> void:
 	_rapido = 0.0
 	_vel = 0.5
 	_progresso = maxf(0.0, _progresso - 0.12)
-	_status.text = "Ai! Espirrou padé pra todo lado!"
+	_status.text = "Ai! Espirrou padê pra todo lado!"
 	_aviso_t = 1.2
 	Jogo.tocar_som("agua_cai", -8.0)
 	for i in 14:
