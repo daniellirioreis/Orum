@@ -117,7 +117,9 @@
 		{"quem": "Èṣù", "yo": "Ta ló pè mí?", "pt": "Quem me chamou? Há há há! Ah, é o neto da Vó! Bateu palma tão forte que eu achei que a gira tinha começado."},
 		{"quem": "Adé", "yo": "", "pt": "Fui eu, Adé. Quero encontrar todos os orixás."},
 		{"quem": "Èṣù", "yo": "Èmi ni Èṣù.", "pt": "Eu sou Exu, guardião das encruzilhadas e mensageiro entre os mundos. E o mais bonito deles, não esquece."},
-		{"quem": "Èṣù", "yo": "Tẹ̀lé mi.", "pt": "Me siga. Na encruzilhada eu te conto uma história. Tenta acompanhar o passo, que eu ando rápido.", "evento": "abrir_porteira"},
+		{"quem": "Èṣù", "yo": "", "pt": "Hã? Você quer encontrar os orixás? Há há há! E por quê, menino? Pra pedir o quê?"},
+		{"quem": "Adé", "yo": "", "pt": "Não sei, Èṣù. Só sei que primeiro eu preciso passar pela encruzilhada entre o Aiyê e o Orum."},
+		{"quem": "Èṣù", "yo": "Tẹ̀lé mi.", "pt": "Não sabe, mas já quer correr atrás! Então me siga, que eu falo rápido e ando mais rápido ainda, hi hi! Não fica pra trás não!", "evento": "abrir_porteira"},
 		{"quem": "Benedita", "yo": "", "pt": "Vai, meu neto. E volta pra me contar."}
 	],
 	"depois": [
