@@ -19,7 +19,7 @@ func _ready() -> void:
 	if tipo == "titulo":
 		var titulo := _texto("Ọ̀RUN", 34, Color(0.98, 0.82, 0.45), 30)
 		titulo.add_theme_font_override("font", preload("res://fontes/NotoSans-SemiBold.ttf"))
-		_texto("Ìtàn àwọn Òrìṣà · Histórias dos Orixás", 10, Color(1, 0.95, 0.88), 76)
+		_texto("Ayé àwọn Òrìṣà · O Mundo dos Orixás", 10, Color(1, 0.95, 0.88), 76)
 		_personagem("res://arte/ade.png", 16, Vector2(110, 204))
 		_personagem("res://arte/exu.png", 24, Vector2(148, 204))
 	else:
