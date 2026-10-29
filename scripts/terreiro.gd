@@ -641,9 +641,9 @@ func _vo_sai_do_barracao() -> void:
 
 
 var _arriados := {}       # as oferendas que Adé já arriou na tronqueira
-var _pade_pronto := false      # o padé: Gààrí, Epó e Oti misturados e mexidos até ficar amarelo escuro
-var _alguidar: CanvasLayer     # o mini-jogo do padé (alguidar de barro)
-var _pade_na_mao: Sprite2D     # o padé nas mãos de Adé até arriar
+var _pade_pronto := false      # o padê: Gààrí, Epó e Oti misturados e mexidos até ficar amarelo escuro
+var _alguidar: CanvasLayer     # o mini-jogo do padê (alguidar de barro)
+var _pade_na_mao: Sprite2D     # o padê nas mãos de Adé até arriar
 
 
 ## Na tronqueira: Adé arria cada oferenda pelo bornal (Arriar na tronqueira).
@@ -661,7 +661,7 @@ func _fazer_ritual() -> void:
 func _misturar_pade() -> void:
 	jogador.congelar(true)
 	jogador.olhar_para(tronqueira.global_position)
-	await _falar_linhas([{"quem": "Benedita", "yo": "", "pt": "Vamos fazer o padé, meu neto. Põe cada coisa no alguidar e mexe até ficar amarelo escuro."}])
+	await _falar_linhas([{"quem": "Benedita", "yo": "", "pt": "Vamos fazer o padê, meu neto. Põe cada coisa no alguidar e mexe até ficar amarelo escuro."}])
 	for id in ["efum", "epo", "oti"]:
 		if _slots.has(id):
 			create_tween().tween_property(_slots[id], "modulate:a", 0.0, 0.25)
@@ -670,13 +670,13 @@ func _misturar_pade() -> void:
 	await _alguidar.jogar(["efum", "epo", "oti"])
 	_pade_pronto = true
 	Jogo.bornal.pegar("pade")
-	await _mostrar_grande(preload("res://arte/pade_grande.png"), 2.0, "Padé pronto!", "Mexido até ficar amarelo escuro.")
+	await _mostrar_grande(preload("res://arte/pade_grande.png"), 2.0, "Padê pronto!", "Mexido até ficar amarelo escuro.")
 	_pade_na_mao = Sprite2D.new()
 	_pade_na_mao.texture = preload("res://arte/pade.png")
 	_pade_na_mao.position = Vector2(0, -9)
 	_pade_na_mao.z_index = 1
 	jogador.add_child(_pade_na_mao)
-	_mostrar_aviso("Você guardou no Àpò: Padé")
+	_mostrar_aviso("Você guardou no Àpò: Padê")
 	_dica_bornal("Arriar na tronqueira")
 
 
@@ -702,7 +702,7 @@ func _arriar_na_tronqueira(id: String) -> void:
 		oferenda.position = Vector2(lugares[i], 4)
 	tronqueira.get_node("Oferendas").add_child(oferenda)
 	create_tween().tween_property(oferenda, "modulate:a", 1.0, 0.25)
-	# o Exu só chega com o padé e a vela na tronqueira
+	# o Exu só chega com o padê e a vela na tronqueira
 	if _arriados.has("pade") and _arriados.has("luna"):
 		await get_tree().create_timer(0.6).timeout
 		await _ritual_completo()
@@ -3172,7 +3172,7 @@ func _aceita_arriar(id: String, alvo: String) -> bool:
 		return not _arriados.has("pade")
 	if id == "luna":
 		if not _arriados.has("pade"):
-			_mostrar_aviso("A vela só se arria depois do padé.")
+			_mostrar_aviso("A vela só se arria depois do padê.")
 			return false
 		return not _arriados.has("luna")
 	return false

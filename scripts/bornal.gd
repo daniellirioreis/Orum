@@ -61,8 +61,8 @@ const ITENS := {
 		"desc": "A bebida que o Ogã Bené guardava para Exu."},
 	"luna": {"nome": "Luma", "tipo": "oferenda", "fase": "exu", "icone": ["res://arte/itens.png", 3],
 		"desc": "Uma vela para iluminar o caminho de Exu."},
-	"pade": {"nome": "Padé", "tipo": "oferenda", "fase": "exu", "icone": ["res://arte/pade_itens.png", 0],
-		"desc": "O padé mexido no alguidar, até ficar amarelo escuro. Vai na tronqueira, junto com a vela."},
+	"pade": {"nome": "Padê", "tipo": "oferenda", "fase": "exu", "icone": ["res://arte/pade_itens.png", 0],
+		"desc": "O padê mexido no alguidar, até ficar amarelo escuro. Vai na tronqueira, junto com a vela."},
 	"lenha": {"nome": "Lenha", "tipo": "entrega", "fase": "exu", "icone": ["res://arte/itens.png", 4],
 		"desc": "Um feixe de lenha seca para o fogão da Tia Dora."},
 	# a mata de Oxóssi
