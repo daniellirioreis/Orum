@@ -69,11 +69,15 @@ const ITENS := {
 	"ofa": {"curta": "Já está na mão de Adé. Atire com {atirar}.", "nome": "Ofá", "tipo": "ferramenta", "fase": "oxossi", "icone": ["res://arte/ox_itens.png", 3],
 		"desc": "O arco do caçador, com uma flecha só. Na mão, atira com {atirar}.", "equipa": true},
 	"milho": {"nome": "Milho", "tipo": "oferenda", "fase": "oxossi", "icone": ["res://arte/ox_itens.png", 0],
-		"desc": "Uma espiga do milharal. Vai na oferenda para Exu, como a mãe do caçador fez."},
+		"desc": "Uma espiga do milharal. Vai na oferenda para Oxóssi, como a mãe do caçador fez."},
 	"coco_mata": {"nome": "Coco", "tipo": "oferenda", "fase": "oxossi", "icone": ["res://arte/ox_itens.png", 1],
 		"desc": "Um coco que caiu debaixo do coqueiro da mata."},
-	"mel": {"nome": "Mel", "tipo": "oferenda", "fase": "oxossi", "icone": ["res://arte/ox_itens.png", 2],
-		"desc": "Um favo de mel da colmeia. Docinho."},
+	"semente": {"nome": "Semente", "tipo": "oferenda", "empilha": true, "fase": "oxossi", "icone": ["res://arte/ox_itens.png", 4],
+		"desc": "Uma semente achada debaixo das copas da mata. Vai na oferenda para Oxóssi."},
+	"colheita": {"nome": "Frutas da horta", "tipo": "entrega", "fase": "horta", "icone": ["res://arte/ox_itens.png", 2],
+		"desc": "Frutas colhidas na horta da Vó. Vão para a Vó."},
+	"manga": {"nome": "Manga", "tipo": "oferenda", "fase": "oxossi", "icone": ["res://arte/ox_itens.png", 2],
+		"desc": "Uma manga madura, caída da mangueira da clareira. Docinha."},
 	# a terra de Nanã
 	"faca": {"curta": "Um ọ̀bẹ de ferro velho. Será que corta a taboa?", "nome": "Ọ̀bẹ de ferro", "tipo": "ferramenta", "fase": "nana", "icone": ["res://arte/bornal_itens.png", 4],
 		"desc": "Um ọ̀bẹ (faca, em iorubá) de ferro velho, achado num toco."},
@@ -109,6 +113,7 @@ const ITENS := {
 }
 
 var itens: Array = []          # ids, na ordem em que Adé pegou
+var quantidades := {}          # id → quantos (só os que empilham, como a semente)
 var aprendidas: Array = []     # palavras da caderneta que Adé já ouviu nos diálogos
 var _aviso: Label
 
@@ -137,6 +142,10 @@ var _apo: Control              # a página do Àpò (os itens)
 var _cad: Control              # a página da caderneta
 var _pagina := 0               # 0 = o Àpò, 1 = a caderneta
 var _aba_apo: Label
+var _aba_saberes: Label
+var _saberes_page: Control      # a aba Saberes: o que Adé aprendeu
+var _saberes_lista: RichTextLabel
+var saberes: Array = []         # ids dos saberes aprendidos
 var _aba_cad: Label
 var _dica_tela: Label
 var _lista: Array = []         # os ids, na ordem da lista
@@ -257,6 +266,11 @@ func tem(id: String) -> bool:
 	return id in itens
 
 
+## Quantos Adé tem de um item (1 para os que não empilham).
+func quantidade(id: String) -> int:
+	return quantidades.get(id, 1) if tem(id) else 0
+
+
 func icone(id: String) -> AtlasTexture:
 	var a := AtlasTexture.new()
 	a.atlas = load(ITENS[id]["icone"][0])
@@ -271,6 +285,9 @@ func pegar(id: String, de_onde := Vector2(-1, -1)) -> void:
 		return
 	if not tem(id):
 		itens.append(id)
+		quantidades[id] = 1
+	elif ITENS[id].get("empilha", false):
+		quantidades[id] = quantidades.get(id, 1) + 1
 	if ITENS[id]["tipo"] == "ferramenta" and ITENS[id].get("equipa", false) and equipado == "":
 		equipado = id
 	_atualizar_hud()
@@ -282,7 +299,11 @@ func pegar(id: String, de_onde := Vector2(-1, -1)) -> void:
 
 ## Tira um item do Àpò (dado, arriado ou usado). Se for para um lugar da tela, o ícone voa até lá.
 func tirar(id: String, para_onde := Vector2(-1, -1)) -> void:
-	itens.erase(id)
+	if quantidades.get(id, 1) > 1:
+		quantidades[id] -= 1
+	else:
+		itens.erase(id)
+		quantidades.erase(id)
 	if equipado == id:
 		equipado = ""
 	_atualizar_hud()
@@ -324,6 +345,8 @@ func comecar_fase(fase: String, menos: Array = []) -> void:
 
 func esvaziar() -> void:
 	itens.clear()
+	saberes.clear()
+	quantidades.clear()
 	aprendidas.clear()
 	historia.clear()
 	_vistas.clear()
@@ -332,7 +355,7 @@ func esvaziar() -> void:
 
 
 func para_salvar() -> Dictionary:
-	return {"itens": itens.duplicate(), "equipado": equipado, "aprendidas": aprendidas.duplicate(), "historia": historia.duplicate(true)}
+	return {"saberes": saberes.duplicate(), "itens": itens.duplicate(), "quantidades": quantidades.duplicate(), "equipado": equipado, "aprendidas": aprendidas.duplicate(), "historia": historia.duplicate(true)}
 
 
 func carregar(d: Dictionary) -> void:
@@ -344,10 +367,15 @@ func carregar(d: Dictionary) -> void:
 	for p in d.get("aprendidas", []):
 		if _existe_na_caderneta(p):
 			aprendidas.append(p)
+	saberes = d.get("saberes", []).duplicate()
+	_mostrar_saberes()
 	itens = []
 	for id in d.get("itens", []):
 		if ITENS.has(id):
 			itens.append(id)
+	quantidades = {}
+	for id in itens:
+		quantidades[id] = int(d.get("quantidades", {}).get(id, 1))
 	equipado = d.get("equipado", "")
 	if not equipado in itens:
 		equipado = ""
@@ -509,14 +537,17 @@ func _montar_tela() -> void:
 	c.atlas = load("res://arte/bornal_itens.png")
 	c.region = Rect2(6 * 12, 0, 12, 12)
 	caderneta.texture = c
-	caderneta.position = Vector2(116, 20)
+	caderneta.position = Vector2(100, 20)
 	_raiz.add_child(caderneta)
 	_aba_cad = _rotulo("Ìwé Adé", 8, COR_APAGADA)
-	_aba_cad.position = Vector2(130, 19)
+	_aba_cad.position = Vector2(114, 19)
 	_raiz.add_child(_aba_cad)
 	_aba_diario = _rotulo("Ìrántí", 8, COR_APAGADA)
-	_aba_diario.position = Vector2(192, 19)
+	_aba_diario.position = Vector2(160, 19)
 	_raiz.add_child(_aba_diario)
+	_aba_saberes = _rotulo("Saberes", 8, COR_APAGADA)
+	_aba_saberes.position = Vector2(200, 19)
+	_raiz.add_child(_aba_saberes)
 
 	_apo = Control.new()
 	_apo.size = tela
@@ -524,6 +555,7 @@ func _montar_tela() -> void:
 	_montar_apo(tela)
 	_montar_cad(tela)
 	_montar_livro(tela)
+	_montar_saberes(tela)
 
 	_dica_tela = _rotulo("", 7, COR_APAGADA)
 	_dica_tela.position = Vector2(16, tela.y - 26)
@@ -557,7 +589,7 @@ func _montar_apo(tela: Vector2) -> void:
 		var ic := TextureRect.new()
 		ic.position = Vector2(32, y + 1.5)
 		_apo.add_child(ic)
-		var nome := _rotulo("", 8, COR_TEXTO)
+		var nome := _rotulo("", 6, COR_TEXTO)
 		nome.position = Vector2(48, y + 1)
 		_apo.add_child(nome)
 		_linhas_ui.append([ic, nome])
@@ -578,7 +610,7 @@ func _montar_apo(tela: Vector2) -> void:
 	_nome = _rotulo("", 9, COR_TITULO)
 	_nome.position = Vector2(26, 137)
 	_apo.add_child(_nome)
-	_desc = _rotulo("", 8, COR_TEXTO)
+	_desc = _rotulo("", 6, COR_TEXTO)
 	_desc.position = Vector2(26, 151)
 	_desc.size = Vector2(tela.x - 52, 36)
 	_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -598,7 +630,7 @@ func _montar_cad(tela: Vector2) -> void:
 	_cad.add_child(_cad_cursor)
 	_cad_linhas_ui.clear()
 	for i in LINHAS_VISIVEIS:
-		var nome := _rotulo("", 7, COR_TEXTO)
+		var nome := _rotulo("", 6, COR_TEXTO)
 		nome.position = Vector2(30, TOPO_LISTA + i * ALTURA_LINHA + 1)
 		_cad.add_child(nome)
 		_cad_linhas_ui.append(nome)
@@ -619,7 +651,7 @@ func _montar_cad(tela: Vector2) -> void:
 	_cad_pron.position = Vector2(124, TOPO_LISTA + 18)
 	_cad_pron.size = Vector2(tela.x - 140, 10)
 	_cad.add_child(_cad_pron)
-	_cad_sig = _rotulo("", 7, COR_TEXTO)
+	_cad_sig = _rotulo("", 6, COR_TEXTO)
 	_cad_sig.position = Vector2(124, TOPO_LISTA + 32)
 	_cad_sig.size = Vector2(tela.x - 140, 56)
 	_cad_sig.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -630,7 +662,7 @@ func _montar_cad(tela: Vector2) -> void:
 	sep.position = Vector2(24, 132)
 	sep.size = Vector2(tela.x - 48, 1)
 	_cad.add_child(sep)
-	_cad_onde = _rotulo("", 7, COR_TEXTO)
+	_cad_onde = _rotulo("", 6, COR_TEXTO)
 	_cad_onde.position = Vector2(26, 137)
 	_cad_onde.size = Vector2(tela.x - 130, 10)
 	_cad.add_child(_cad_onde)
@@ -646,8 +678,70 @@ func _montar_cad(tela: Vector2) -> void:
 	_cad.add_child(_cad_aviso)
 
 
+## A aba Saberes: o que Adé aprendeu com Oxóssi (rastro, paciência, licença, fartura).
+## Os orixás, na ordem do documento de diretrizes. Cada um ensina uma coisa; o que ainda não foi aprendido fica marcado.
+const ORIXAS := [
+	{"id": "oxossi", "yo": "Ọ̀ṣọ́ọ̀sì", "pt": "Oxóssi", "cor": "#7fd35c"},
+	{"id": "nana", "yo": "Nàná", "pt": "Nanã", "cor": "#b48ce6"},
+	{"id": "iemanja", "yo": "Yemọja", "pt": "Iemanjá", "cor": "#7cc8ff"},
+	{"id": "ogum", "yo": "Ògún", "pt": "Ogum", "cor": "#e0524a"},
+	{"id": "xango", "yo": "Ṣàngó", "pt": "Xangô", "cor": "#c8703c"},
+	{"id": "iansa", "yo": "Ọya", "pt": "Iansã", "cor": "#f29a52"},
+	{"id": "oxum", "yo": "Ọ̀ṣun", "pt": "Oxum", "cor": "#f5cf55"},
+	{"id": "omulu", "yo": "Ṣọ́pọ̀nná", "pt": "Omulu", "cor": "#c9a06a"},
+	{"id": "oxala", "yo": "Ọbàtálá", "pt": "Oxalá", "cor": "#f4f1ea"},
+]
+## O que cada orixá ensinou (só o de Oxóssi existe por enquanto).
+const SABERES := {
+	"oxossi": {"yo": "Ọ̀pọ̀ àti ìmọ̀ ti Ọ̀ṣọ́ọ̀sì", "pt": "Fartura e conhecimento de Oxóssi"},
+}
+
+
+func _montar_saberes(tela: Vector2) -> void:
+	_saberes_page = Control.new()
+	_saberes_page.size = tela
+	_raiz.add_child(_saberes_page)
+	_saberes_lista = RichTextLabel.new()
+	_saberes_lista.bbcode_enabled = true
+	_saberes_lista.scroll_active = true
+	_saberes_lista.position = Vector2(32, 36)
+	_saberes_lista.size = Vector2(tela.x - 64, tela.y - 90)
+	_saberes_lista.add_theme_font_override("normal_font", preload("res://fontes/NotoSans-Regular.ttf"))
+	_saberes_lista.add_theme_font_size_override("normal_font_size", 6)
+	_saberes_lista.add_theme_color_override("default_color", Color(1.0, 0.97, 0.9))
+	_saberes_page.add_child(_saberes_lista)
+	_saberes_page.visible = false
+
+
+func _mostrar_saberes() -> void:
+	if not _saberes_lista:
+		return
+	var linhas := []
+	for o in ORIXAS:
+		var cor: String = o["cor"]
+		if o["id"] in saberes and SABERES.has(o["id"]):
+			if o["id"] == "oxossi":
+				linhas.append("[color=%s]%s[/color]: Ọ̀pọ̀ àti ìmọ̀ ti Ọ̀ṣọ́ọ̀sì (Fartura e conhecimento), Sùúrù Ọ̀ṣọ́ọ̀sì (Paciência)" % [cor, o["yo"]])
+			else:
+				linhas.append("[color=%s]%s[/color]: %s" % [cor, o["yo"], SABERES[o["id"]]["pt"]])
+		else:
+			linhas.append("[color=%s]%s[/color]: [color=#9aa3c4]ainda não aprendido[/color]" % [cor, o["yo"]])
+	_saberes_lista.text = "\n".join(linhas)
+	_saberes_lista.call_deferred("scroll_to_line", 0)
+
+
+## Põe um saber na aba. Devolve o nome dele (vazio se já estava guardado).
+func aprender_saber(id: String) -> String:
+	if id in saberes or not SABERES.has(id):
+		return ""
+	saberes.append(id)
+	_mostrar_saberes()
+	mudou.emit()
+	return SABERES[id]["pt"]
+
+
 func _trocar_pagina(passo: int) -> void:
-	_pagina = (_pagina + passo + 3) % 3
+	_pagina = (_pagina + passo + 4) % 4
 	Jogo.tocar_som("texto", -10.0)
 	_mostrar_pagina()
 
@@ -656,6 +750,8 @@ func _mostrar_pagina() -> void:
 	_apo.visible = _pagina == 0
 	_cad.visible = _pagina == 1
 	_livro.visible = _pagina == 2
+	_saberes_page.visible = _pagina == 3
+	_aba_saberes.add_theme_color_override("font_color", COR_TITULO if _pagina == 3 else COR_APAGADA)
 	_aba_apo.add_theme_color_override("font_color", COR_TITULO if _pagina == 0 else COR_APAGADA)
 	_aba_cad.add_theme_color_override("font_color", COR_TITULO if _pagina == 1 else COR_APAGADA)
 	_aba_diario.add_theme_color_override("font_color", COR_TITULO if _pagina == 2 else COR_APAGADA)
@@ -665,9 +761,12 @@ func _mostrar_pagina() -> void:
 	elif _pagina == 1:
 		_dica_tela.text = "cima/baixo: palavra  ·  ←→ trocar  ·  %s: fechar" % Jogo.botao("bornal")
 		_mostrar_cad()
-	else:
+	elif _pagina == 2:
 		_dica_tela.text = "cima/baixo: rolar  ·  ←→ trocar  ·  %s: fechar" % Jogo.botao("bornal")
 		_mostrar_livro()
+	else:
+		_dica_tela.text = "←→ trocar  ·  %s: fechar" % Jogo.botao("bornal")
+		_mostrar_saberes()
 
 
 ## A página do diário: uma fala por página, como num livro.
@@ -770,6 +869,7 @@ func _mostrar_livro() -> void:
 		partes.append("")
 	_livro_texto.text = "\n".join(partes)
 	_livro_contador.text = "%d falas" % n
+	_livro_scroll.set_deferred("scroll_vertical", 1000000)
 
 
 func _mostrar_cad() -> void:
@@ -837,7 +937,7 @@ func _mostrar_cursor() -> void:
 		if k < _lista.size():
 			var id: String = _lista[k]
 			ic.texture = icone(id)
-			nome.text = ITENS[id]["nome"] + ("   · na mão" if id == equipado else "")
+			nome.text = ITENS[id]["nome"] + (" x%d" % quantidades[id] if quantidades.get(id, 1) > 1 else "") + ("   · na mão" if id == equipado else "")
 			nome.add_theme_color_override("font_color", COR_TITULO if k == _linha else COR_TEXTO)
 		else:
 			ic.texture = null

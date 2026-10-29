@@ -133,10 +133,10 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
     devagar e passa. Se um veado foge, Adé volta para a entrada do campo. No milharal está a **espiga de milho**.
   - **O presente do caçador** (mirar): num toco, Adé acha o **ofá** com uma flecha só. Atirar corta a corda do tronco
     seco, que cai e vira ponte sobre o riacho; acertar a colmeia solta as abelhas, que espantam o javali que guarda o cantinho do coqueiro,
-    e cai o **favo de mel**. As cobras fogem quando a flecha passa perto. O **coco** fica no cantinho do coqueiro, atrás do javali (o caminho principal fica sempre livre, na ida e na volta).
+    e cai uma **manga** da mangueira. As cobras fogem quando a flecha passa perto. O **coco** fica no cantinho do coqueiro, atrás do javali (o caminho principal fica sempre livre, na ida e na volta).
     Depois de atirar, é preciso ir buscar a flecha; se ela cai na água, volta sozinha.
   - **A clareira** (o pássaro das Iyami): a sombra no chão mostra onde o pássaro vai mergulhar, e as flechas desviam dele.
-    Com milho, coco e mel, Adé faz a oferenda no assentamento de Exu; o pássaro baixa a guarda, Oxóssi chega e,
+    Com milho, coco, manga e semente, Adé faz a oferenda no assentamento de Oxóssi; o pássaro baixa a guarda, Oxóssi chega e,
     com uma flecha só, espanta o pássaro (não mata). O sol se põe, e Adé e Oxóssi conversam sobre o sonho e sobre o que
     Oxóssi guarda: o conhecimento da mata, a paciência e a fartura repartida.
 - Os bichos da mata: passarinhos (sabiá, azulão e canário) bicando o chão, que voam quando Adé chega perto e voltam
@@ -151,8 +151,8 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
   de pausa ganha **Voltar ao mapa** (a cena diz se pode com `pode_voltar_ao_mapa()` e sai com `voltar_ao_mapa()`).
 - Mapas: `fases/ox_rastro.txt`, `ox_campo.txt`, `ox_ofa.txt`, `ox_clareira.txt` (+ `_objetos`), gerados pelo `gerar_mapas_oxossi.py`.
   Letras: `W N E` saídas do labirinto, `p` chegada, `v` veado pastando, `V` veado que passeia, `m`/`u` pé de milho
-  (sem/com espiga), `O` toco com o ofá, `T` tronco amarrado, `s` cobra, `j` javali, `H` árvore com colmeia, `k` coco,
-  `B` pássaro, `X` assentamento de Exu, `x` de onde Oxóssi chega, `>` saída. Textos em `dialogos/mata_oxossi.json`.
+  (sem/com espiga), `O` toco com o ofá, `T` tronco amarrado, `s` cobra, `j` javali, `H` mangueira com colmeia, `k` coco,
+  `B` pássaro, `X` assentamento de Oxóssi, `x` de onde Oxóssi chega, `>` saída. Textos em `dialogos/mata_oxossi.json`.
 - Arte nova: `arte/ox_*.png` (feita pelo `gerar_arte_mata.py`) e o Oxóssi animado em `arte/oxossi_anim.png`.
 - **A mata fechada vista de cima**: as copas das árvores altas (`C` no mapa, `arte/ox_copas.png`, 3 formatos) passam
   por cima de tudo, até de Adé, e tapam pedaços da tela; a sombra delas fica no chão (`ox_copa_sombra.png`). Quando

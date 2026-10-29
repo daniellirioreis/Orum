@@ -18,6 +18,7 @@ var falou_com_exu := false
 var trofeus := {}
 ## troféus que a Vó já colocou no assentamento do orixá, no quarto de santo
 var assentados := {}
+var horta := {"plantada": false, "visitas": 0, "chuva": false, "pronta": false, "colhida": false}
 ## O tempo no terreiro na última volta de Adé (manha, tarde, noite, nublado, chuva). Muda a cada volta.
 var tempo_terreiro := ""
 
@@ -117,6 +118,7 @@ func reiniciar() -> void:
 	falou_com_exu = false
 	trofeus = {}
 	assentados = {}
+	horta = {"plantada": false, "visitas": 0, "chuva": false, "pronta": false, "colhida": false}
 	tempo_terreiro = ""
 	tempo_jogado = 0.0
 	mortes = 0
@@ -531,6 +533,7 @@ func salvar(espaco: int, local: String) -> void:
 		"local": local,
 		"trofeus": trofeus,
 		"assentados": assentados,
+		"horta": horta.duplicate(),
 		"buzios": buzios,
 		"metas": metas,
 		"bornal": bornal.para_salvar(),
@@ -608,6 +611,7 @@ func carregar(espaco: int) -> void:
 	espaco_atual = espaco
 	trofeus = d.get("trofeus", {})
 	assentados = d.get("assentados", {})
+	horta = d.get("horta", {"plantada": false, "visitas": 0, "chuva": false, "pronta": false, "colhida": false}).duplicate()
 	buzios = int(d.get("buzios", 0))
 	tempo_terreiro = d.get("tempo", "")
 	tempo_jogado = float(d.get("tempo_jogado", 0.0))

@@ -1,5 +1,5 @@
 {
-	"nomes": {"milho": "uma espiga de milho", "coco": "um coco", "mel": "um favo de mel"},
+	"nomes": {"milho": "uma espiga de milho", "coco": "um coco", "manga": "uma manga", "semente": "uma semente"},
 	"revisita": [
 		{"quem": "Adé", "yo": "", "pt": "A mata de Oxóssi de novo... Agora os bichos já me conhecem."}
 	],
@@ -19,8 +19,7 @@
 		{"quem": "Adé", "yo": "Ọkẹ́ àrò, Ọ̀ṣọ́ọ̀sì!", "pt": "Okê arô, Oxóssi!"}
 	],
 	"chegada": [
-		{"quem": "Adé", "yo": "", "pt": "Que mata fechada... As árvores são tão altas que quase escondem o céu."},
-		{"quem": "Adé", "yo": "", "pt": "Este é o campo de Oxóssi, o caçador. A Vó diz que ele conhece cada folha da mata."}
+		{"quem": "Adé", "yo": "", "pt": "Que mata fechada... As árvores são tão altas que quase escondem o céu."}
 	],
 	"placa_ox_rastro": [
 		{"quem": "Placa", "yo": "", "pt": "Quem anda sem olhar, anda em círculos."},
@@ -63,7 +62,7 @@
 		{"quem": "Adé", "yo": "", "pt": "A flecha cortou a corda e o tronco caiu por cima do riacho! Virou uma ponte."}
 	],
 	"colmeia": [
-		{"quem": "Adé", "yo": "", "pt": "As abelhas espantaram o javali! E caiu um favo de mel da colmeia."}
+		{"quem": "Adé", "yo": "", "pt": "As abelhas espantaram o javali! E caiu uma manga da mangueira."}
 	],
 	"clareira": [
 		{"quem": "", "yo": "", "pt": "Uma sombra enorme cobre a clareira."},
@@ -74,44 +73,43 @@
 	"flecha_desviou": [
 		{"quem": "Adé", "yo": "", "pt": "A flecha desviou!", "rosto": "assustado"},
 		{"quem": "Adé", "yo": "", "pt": "Na história, os caçadores atiraram vinte, quarenta, cinquenta flechas... e erraram todas."},
-		{"quem": "Adé", "yo": "", "pt": "Mas a mãe do caçador de uma flecha só fez uma oferenda a Exu, e aí a flecha acertou."},
-		{"quem": "Adé", "yo": "", "pt": "Aquela pedra num alguidar... é um assentamento de Exu!"}
+		{"quem": "Adé", "yo": "", "pt": "Mas a mãe do caçador de uma flecha só fez uma oferenda a Oxóssi, e aí a flecha acertou."},
+		{"quem": "Adé", "yo": "", "pt": "Humm, aquela árvore grande... é um lugar bom para arriar oferenda para Oxóssi!"}
 	],
 	"assentamento_arriar": [
-		{"quem": "Adé", "yo": "", "pt": "Uma pedra de Exu num alguidar. Tenho o milho, o coco e o mel no Àpò: vou arriar a oferenda, um por um."}
+		{"quem": "Adé", "yo": "", "pt": "Este é o pé da árvore de Oxóssi. Tenho o milho, o coco, a manga e a semente no Àpò: vou arriar a oferenda aqui, um por um."}
 	],
 	"assentamento_falta": [
-		{"quem": "Adé", "yo": "", "pt": "Uma pedra de Exu num alguidar. Para fazer a oferenda, ainda falta: {faltam}."}
+		{"quem": "Adé", "yo": "", "pt": "Este é o pé da árvore de Oxóssi. Para fazer a oferenda, ainda falta: {faltam}."}
 	],
 	"recusa_assentamento": [
-		{"quem": "Adé", "yo": "", "pt": "Isso não vai na oferenda de Exu. Exu pediu milho, coco e mel."}
+		{"quem": "Adé", "yo": "", "pt": "Isso não vai na oferenda de Oxóssi. Oxóssi pediu milho, coco, manga e semente."}
 	],
 	"assentamento_depois": [
-		{"quem": "Adé", "yo": "Laroyê, Èṣù!", "pt": "Obrigado, Exu, por abrir o caminho do caçador.", "rosto": "feliz"}
+		{"quem": "Adé", "yo": "Okê Arô!", "pt": "Obrigado, Oxóssi, pelo caminho que você abriu para o caçador.", "rosto": "feliz"}
 	],
 	"oferenda": [
-		{"quem": "Adé", "yo": "Laroyê, Èṣù!", "pt": "Laroyê, Exu! Trago milho, coco e mel. Abra o caminho do caçador.", "evento": "oferenda"},
+		{"quem": "Adé", "yo": "Okê Arô!", "pt": "Okê, Oxóssi! Trago milho, coco, manga e semente. Abra o caminho do caçador.", "evento": "oferenda"},
 		{"quem": "", "yo": "", "pt": "As oferendas brilham no alguidar. O pássaro para de mergulhar... e baixa a guarda."},
 		{"quem": "", "yo": "", "pt": "Um assobio vem do meio da mata.", "evento": "oxossi_chega"}
 	],
 	"oxossi": [
-		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "Ọfà kan ṣoṣo.", "pt": "Uma flecha só. É tudo de que o caçador precisa."},
-		{"quem": "Adé", "yo": "", "pt": "Você espantou o pássaro! Mas... não matou ele?"},
-		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "O caçador não tira da mata mais do que precisa. Aquele pássaro só precisava ir embora."},
-		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "E você fez o que a mãe do caçador fez: pediu licença a Exu antes. Por isso a flecha acertou."},
-		{"quem": "Adé", "yo": "Okê Arô, Ọ̀ṣọ́ọ̀sì!", "pt": "Salve, Oxóssi! Eu sou Adé, neto da Vó do terreiro.", "rosto": "feliz"},
-		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Eu sei quem você é. Vi você seguir o rastro, passar em silêncio pelos veados e mirar antes de soltar."},
-		{"quem": "Adé", "yo": "", "pt": "Eu tive um sonho, Oxóssi. Sonhei com todos os orixás juntos, e quero encontrar cada um de vocês."},
-		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Um sonho é como uma caça: não se acha correndo de um lado para o outro."},
-		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Primeiro se aprende a olhar: o rastro, o vento, o silêncio. Isso é conhecimento."},
-		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Depois se espera a hora certa. Quem tem cem flechas e pressa erra cem vezes. Quem tem uma só e paciência, acerta."},
-		{"quem": "Adé", "yo": "", "pt": "E o que você guarda, Oxóssi? Exu guarda os caminhos..."},
-		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Eu guardo a mata e a fartura. O caçador não caça para si: leva o alimento para a aldeia inteira."},
-		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Seu sonho também é assim. Não é só seu: você carrega o terreiro da sua Vó e todos que ainda vão ouvir estas histórias."},
-		{"quem": "Adé", "yo": "", "pt": "Então eu vou com calma... uma flecha de cada vez."},
-		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "Ó dára, ọmọ mi.", "pt": "Muito bem, minha criança.", "rosto": "feliz"},
+		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Adé! Você chegou pelo caminho certo."},
+		{"quem": "Adé", "yo": "", "pt": "Eu tive um sonho, Oxóssi. Todos os orixás estavam juntos, e me chamaram."},
+		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Eu sei, Adé. Cada um de nós quer ensinar o seu conhecimento."},
+		{"quem": "Adé", "yo": "", "pt": "Por que eu, Oxóssi?"},
+		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Porque você andou devagar e olhou antes de atirar."},
+		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Me diga: como você sabe que um rastro é do veado e não de outro bicho?"},
+		{"quem": "Adé", "yo": "", "pt": "Pelas duas unhas, e por onde ele pisa."},
+		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Isso é conhecimento. Olhar antes de agir."},
+		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Caçador não guarda para si. Eu levo o alimento para a aldeia inteira."},
+		{"quem": "Adé", "yo": "", "pt": "E o terreiro da minha Vó? Ele também precisa de fartura?"},
+		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Precisa. Tanto de comida quanto de saber. O que você aprendeu aqui é para alimentar a casa."},
+		{"quem": "Adé", "yo": "", "pt": "E como eu faço isso?"},
+		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Volte e conte o que viu. Ensine quem está lá a olhar o rastro."},
 		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "O ofá que você achou no toco era meu. Agora é seu. Leve para o terreiro da sua Vó e conte o que aprendeu aqui.", "evento": "trofeu"},
 		{"quem": "Adé", "yo": "", "pt": "Obrigado, Oxóssi! Vou guardar no terreiro, perto do congá.", "rosto": "feliz"},
+		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "Leve esta semente. Plante na horta da sua Vó, e a casa vai ter fartura.", "evento": "sementes"},
 		{"quem": "Ọ̀ṣọ́ọ̀sì", "yo": "", "pt": "A mata vai abrir um caminho para você voltar. Siga o seu sonho de olhos abertos."},
 		{"quem": "Adé", "yo": "Okê Arô!", "pt": "Salve o caçador!"}
 	],
@@ -121,5 +119,17 @@
 	"pavao": [
 		{"quem": "Adé", "yo": "", "pt": "Um pavão! Ele abriu a cauda inteira, cheia de olhos coloridos."},
 		{"quem": "Adé", "yo": "", "pt": "A Vó diz que a mata de Oxóssi é farta: tem bicho de todo jeito, e cada um no seu lugar."}
+	],
+	"exu_dica": [
+		{"quem": "Èṣù", "yo": "Laroyê, menino!", "pt": "Laroyê, menino! Achou que ia encontrar Oxóssi sozinho nessa mata?", "rosto": "rindo"},
+		{"quem": "Adé", "yo": "", "pt": "Exu! O que você faz aqui na mata de Oxóssi?"},
+		{"quem": "Èṣù", "yo": "", "pt": "Eu estou em toda encruzilhada, e aqui tem muitas. Oxóssi não se mostra a qualquer um."},
+		{"quem": "Adé", "yo": "", "pt": "E como eu faço para encontrá-lo?"},
+		{"quem": "Èṣù", "yo": "", "pt": "Ah, você quer tudo mastigado? Oxóssi só recebe quem traz oferenda. Pedir licença antes é o que a mãe do caçador fazia.", "rosto": "rindo"},
+		{"quem": "Èṣù", "yo": "", "pt": "Eu não vou dizer tudo. Pense no que o milharal guarda, no que cai da mangueira quando a mata balança, no que nasce ao pé do coqueiro e no que se esconde onde a copa fecha."},
+		{"quem": "Èṣù", "yo": "", "pt": "E não se engane: da última são três, menino, não uma. Quem tem pressa leva uma e erra.", "rosto": "feliz"},
+		{"quem": "Èṣù", "yo": "", "pt": "Arria tudo ao pé da árvore grande, na clareira. Depois é só esperar."},
+		{"quem": "Adé", "yo": "Okê Arô!", "pt": "Obrigado, Exu!", "rosto": "feliz"},
+		{"quem": "Èṣù", "yo": "", "pt": "Hê hê! Não agradece ainda, menino. Antes você tem que achar tudo, e isso dá trabalho.", "rosto": "rindo"}
 	]
 }

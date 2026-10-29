@@ -8,9 +8,9 @@ extends "res://scripts/encruzilhada.gd"
 ##   ox_campo    → paciência: passar pelos veados andando devagar (SHIFT / C). Quem corre espanta a caça.
 ##                 No milharal, a espiga de milho para a oferenda.
 ##   ox_ofa      → mirar: Adé acha o ofá (arco) com UMA flecha. Corta a corda do tronco (vira ponte),
-##                 acerta a colmeia (as abelhas espantam o javali e cai o favo de mel), espanta as cobras.
+##                 acerta a colmeia (as abelhas espantam o javali e cai uma manga da mangueira), espanta as cobras.
 ##                 O coco fica debaixo do coqueiro.
-##   ox_clareira → o pássaro das Iyami: flechas não adiantam. Com milho, coco e mel, Adé faz a oferenda a Exu
+##   ox_clareira → o pássaro das Iyami: flechas não adiantam. Com milho, coco, manga e semente, Adé faz a oferenda a Oxóssi
 ##                 (como a mãe do caçador do itan); o pássaro baixa a guarda, Oxóssi chega e, com uma flecha só,
 ##                 espanta o pássaro. Ao pôr do sol, Adé e Oxóssi conversam sobre o sonho.
 ##                 Oxóssi dá o ofá a Adé: o troféu que ele vai levar para o terreiro da Vó.
@@ -23,9 +23,9 @@ const LUGARES_MATA := {
 }
 const COR_MATA := Color(0.84, 0.95, 0.8)        # sombra verde das folhas
 const COR_POR_DO_SOL := Color(1.0, 0.85, 0.72)
-const OFERENDAS := ["milho", "coco", "mel"]
+const OFERENDAS := ["milho", "coco", "manga", "semente"]
 ## O nome de cada coisa da mata no bornal (o coco daqui é diferente do coco do quintal da Vó).
-const BORNAL_ID := {"milho": "milho", "coco": "coco_mata", "mel": "mel"}
+const BORNAL_ID := {"milho": "milho", "coco": "coco_mata", "manga": "manga", "semente": "semente"}
 const RODADAS := 3                              # acertos seguidos para sair do labirinto
 const VEADO_OUVE := 46.0                        # de quão longe o veado ouve passos apressados
 const FLECHA_VEL := 230.0
@@ -33,7 +33,7 @@ const FLECHA_ALCANCE := 170.0
 const TEX_OX_ITENS := preload("res://arte/ox_itens.png")
 
 var _ox := {}                   # flags da fase (tem_ofa, ponte, javali_foi, oferenda, passaro_chegou...)
-var _ox_slots := {}             # id → ícone do inventário (milho, coco, mel, ofa)
+var _ox_slots := {}             # id → ícone do inventário (milho, coco, manga, ofa)
 var _moldura_trofeu: TextureRect
 # rastros
 var _rodada := 0
@@ -127,6 +127,18 @@ func _inicio() -> void:
 			voltar_ao_mapa()
 			return
 	await _falar("chegada")
+	if not Jogo.trofeus.has("oxossi"):
+		await _exu_da_dica()
+
+
+## Exu surge na entrada da mata, brincando, e diz a Adé o que é preciso para achar Oxóssi.
+func _exu_da_dica() -> void:
+	var e := _exu_surge(jogador.global_position + Vector2(30, 0))
+	await get_tree().create_timer(1.2).timeout
+	await _falar("exu_dica")
+	create_tween().tween_property(e, "modulate:a", 0.0, 0.6)
+	await get_tree().create_timer(0.7).timeout
+	e.queue_free()
 
 
 func _process(delta: float) -> void:
@@ -199,7 +211,7 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 		"j":
 			_criar_javali(lugar, base)
 		"H":
-			_criar_cenario("res://arte/obj_arvore.png", Vector2(12, 8), base)
+			_criar_cenario("res://arte/obj_mangueira.png", Vector2(12, 8), base)
 			var col := Sprite2D.new()
 			col.texture = preload("res://arte/ox_colmeia.png")
 			col.hframes = 2
@@ -210,12 +222,15 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			_alvos.append({"tipo": "colmeia", "lugar": lugar, "centro": col.position, "raio": 9.0})
 		"k":
 			_criar_coletavel(lugar, "coco", base, preload("res://arte/ox_coco.png"))
+		"g":
+			_criar_semente(lugar, base)
 		"B":
 			_criar_passaro(lugar, base)
 		"X":
 			_assentamento = _criar_interativo("res://arte/ox_assentamento.png", 2, base, Vector2(16, 8), -26.0)
+			_assentamento.sprite.visible = false   # sem alguidar: a oferenda é arriada ao pé da árvore
 			_assentamento.interagiu.connect(_no_assentamento)
-			_registrar_alvo(_assentamento, "assentamento", "altar", "Arriar no assentamento de Exu", 36.0)
+			_registrar_alvo(_assentamento, "assentamento", "altar", "Arriar ao pé da árvore de Oxóssi", 36.0)
 		"x":
 			_oxossi_pos = base
 		"b":
@@ -260,7 +275,7 @@ func _criar_inventario() -> void:
 	for n in _hud_oferendas:
 		n.visible = false
 	var camada: CanvasLayer = _icone_buzio.get_parent()
-	var ordem := ["milho", "coco", "mel", "ofa"]
+	var ordem := ["milho", "coco", "manga", "ofa", "semente"]
 	for i in ordem.size():
 		var caixa := TextureRect.new()
 		caixa.texture = preload("res://arte/hud_slot.png")
@@ -291,6 +306,15 @@ func _ganhar_item(id: String, texto: String) -> void:
 	t.tween_property(icone, "scale", Vector2(1.6, 1.6), 0.12)
 	t.tween_property(icone, "scale", Vector2.ONE, 0.18)
 	_pegar_item(BORNAL_ID.get(id, id))
+
+
+## Semente: sob a copa, fica embaixo dela; aparece quando Adé passa por baixo (a copa fica transparente).
+func _criar_semente(lugar: String, base: Vector2) -> void:
+	var tex := AtlasTexture.new()
+	tex.atlas = TEX_OX_ITENS
+	tex.region = Rect2(48, 0, 12, 12)
+	_criar_coletavel(lugar, "semente", base, tex)
+	_coletaveis.back()["s"].z_index = 19
 
 
 func _criar_coletavel(lugar: String, id: String, base: Vector2, tex: Texture2D) -> void:
@@ -1030,11 +1054,11 @@ func _quebrar_colmeia() -> void:
 	if not _javali.is_empty() and not _javali["foi"]:
 		t.tween_property(abelhas, "position", _javali["s"].position + Vector2(0, -12), 0.9)
 	await t.finished
-	# o favo de mel cai no chão
-	var favo := AtlasTexture.new()
-	favo.atlas = TEX_OX_ITENS
-	favo.region = Rect2(24, 0, 12, 12)
-	_criar_coletavel(_colmeia["lugar"], "mel", col.position + Vector2(4, 34), favo)
+	# a manga cai da mangueira
+	var fruta := AtlasTexture.new()
+	fruta.atlas = TEX_OX_ITENS
+	fruta.region = Rect2(24, 0, 12, 12)
+	_criar_coletavel(_colmeia["lugar"], "manga", col.position + Vector2(4, 34), fruta)
 	if not _javali.is_empty() and not _javali["foi"]:
 		_javali["foi"] = true
 		_javali["corpo"].set_deferred("disabled", true)
@@ -1138,7 +1162,7 @@ func _no_assentamento() -> void:
 			faltam.append(_dados["nomes"][id])
 	if faltam.is_empty():
 		await _falar("assentamento_arriar")
-		_dica_bornal("Arriar no assentamento de Exu")
+		_dica_bornal("Arriar ao pé da árvore de Oxóssi")
 	else:
 		var linha: Dictionary = _dados["assentamento_falta"][0].duplicate()
 		linha["pt"] = linha["pt"].replace("{faltam}", _juntar(faltam))
@@ -1154,12 +1178,17 @@ func _ao_dar(_id: String, _alvo: String) -> void:
 
 
 func _aceita_arriar(id: String, alvo: String) -> bool:
+	if id == "semente" and Jogo.bornal.quantidade(id) < 3:
+		return false      # são três sementes, não uma
 	return alvo == "assentamento" and not _ox.has("oferenda") and id in BORNAL_ID.values()
 
 
-## Cada oferenda arriada fica no alguidar; com as três, Adé saúda Exu.
+## Cada oferenda arriada fica no alguidar; com todas, Adé saúda Oxóssi.
 func _ao_arriar(id: String, _alvo: String) -> void:
 	var interno: String = BORNAL_ID.find_key(id)
+	if id == "semente":
+		for _k in 2:              # as outras duas sementes também saem do Àpò
+			Jogo.bornal.tirar(id)
 	_ox_arriados[interno] = true
 	var i := OFERENDAS.find(interno)
 	var sp := Sprite2D.new()
@@ -1413,6 +1442,8 @@ func _particulas(pos: Vector2, cores: Array, n: int) -> void:
 
 func _ao_evento(nome: String) -> void:
 	match nome:
+		"sementes":
+			_pegar_item("semente")
 		"ganhar_ofa":
 			_ox["tem_ofa"] = true
 			_pegar_item("ofa")

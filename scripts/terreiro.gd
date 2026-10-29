@@ -644,6 +644,79 @@ var _arriados := {}       # as oferendas que Adé já arriou na tronqueira
 var _pade_pronto := false      # o padê: Gààrí, Epó e Oti misturados e mexidos até ficar amarelo escuro
 var _alguidar: CanvasLayer     # o mini-jogo do padê (alguidar de barro)
 var _pade_na_mao: Sprite2D     # o padê nas mãos de Adé até arriar
+var _hortas: Array = []        # as hortas do quintal (o estado está em Jogo.horta)
+
+
+## A horta do quintal: Adé planta as três sementes e espera brotar.
+func _na_horta() -> void:
+	var hz: Dictionary = Jogo.horta
+	if not hz["plantada"]:
+		await _falar_linhas([{"quem": "Adé", "yo": "", "pt": "A horta da Vó. Se eu tivesse uma semente, poderia plantar aqui."}])
+	elif hz["colhida"]:
+		await _falar_linhas([{"quem": "Adé", "yo": "", "pt": "A horta já foi colhida. Vou deixar brotar de novo."}])
+	elif not hz["pronta"] and not hz.get("chuva", false):
+		await _falar_linhas([{"quem": "Adé", "yo": "", "pt": "A semente ainda não germinou. Ela precisa da chuva para crescer."}])
+	elif not hz["pronta"]:
+		await _falar_linhas([{"quem": "Adé", "yo": "", "pt": "A semente ainda está germinando. Ela precisa de mais tempo para crescer!"}])
+	else:
+		Jogo.horta["colhida"] = true
+		_atualizar_hortas()
+		_pegar_item("colheita")
+		await _falar_linhas([{"quem": "Adé", "yo": "", "pt": "Frutas da horta! Vou levar para a Vó."}])
+
+
+## Cada volta com a semente plantada conta. A semente só germina depois de pelo menos uma chuva.
+func _contar_visita_horta() -> void:
+	if not Jogo.horta["plantada"] or Jogo.horta["pronta"]:
+		return
+	Jogo.horta["visitas"] += 1
+	if Jogo.tempo_terreiro == "chuva" and not Jogo.horta.get("chuva", false):
+		Jogo.horta["chuva"] = true
+		_mostrar_aviso("A chuva! É ela que faz a semente germinar.")
+	if Jogo.horta["visitas"] >= 3 and Jogo.horta.get("chuva", false):
+		Jogo.horta["pronta"] = true
+	_atualizar_hortas()
+
+
+## O quadro da horta: vazia, germinando ou crescida com frutas.
+func _quadro_horta() -> int:
+	if Jogo.horta["colhida"] or not Jogo.horta["plantada"]:
+		return 0
+	return 2 if Jogo.horta["pronta"] else 1
+
+
+func _atualizar_hortas() -> void:
+	for h in _hortas:
+		if is_instance_valid(h):
+			h.sprite.frame = _quadro_horta()
+
+
+## Aviso de quando a horta dá fruta, como a mensagem de entrada nos mundos.
+func _mostrar_fartura() -> void:
+	await get_tree().create_timer(0.6).timeout
+	_atualizar_hortas()
+	$HUD.mostrar_titulo("Ọ̀pọ̀ àti ìmọ̀ ti Ọ̀ṣọ́ọ̀sì", "Fartura e conhecimento de Oxóssi adquiridos!")
+
+
+
+
+## Um saber novo entra na aba Saberes e aparece num aviso.
+func _aprender(id: String) -> void:
+	var nome: String = Jogo.bornal.aprender_saber(id)
+	if nome != "":
+		_mostrar_aviso("Você aprendeu: " + nome)
+
+
+func _plantar_na_horta(id: String) -> void:
+	if Jogo.horta["plantada"] or Jogo.bornal.quantidade(id) < 1:
+		await _falar_linhas([{"quem": "Adé", "yo": "", "pt": "Preciso de uma semente para plantar."}])
+		return
+	Jogo.bornal.tirar(id)
+	Jogo.horta["plantada"] = true
+	Jogo.horta["visitas"] = 0
+	_atualizar_hortas()
+	Jogo.tocar_som("pegar_item", -6.0)
+	await _falar_linhas([{"quem": "Adé", "yo": "", "pt": "Plantei a semente na horta da Vó. Vamos ver o que brota."}])
 
 
 ## Na tronqueira: Adé arria cada oferenda pelo bornal (Arriar na tronqueira).
@@ -659,6 +732,7 @@ func _fazer_ritual() -> void:
 
 ## Adé põe o Gààrí, o Epó e o Oti no alguidar e mexe até ficar amarelo escuro (mesma dinâmica do manjar).
 func _misturar_pade() -> void:
+	var estava: bool = jogador.pode_mover
 	jogador.congelar(true)
 	jogador.olhar_para(tronqueira.global_position)
 	await _falar_linhas([{"quem": "Benedita", "yo": "", "pt": "Vamos fazer o padê, meu neto. Põe cada coisa no alguidar e mexe até ficar amarelo escuro."}])
@@ -678,6 +752,8 @@ func _misturar_pade() -> void:
 	jogador.add_child(_pade_na_mao)
 	_mostrar_aviso("Você guardou no Àpò: Padê")
 	_dica_bornal("Arriar na tronqueira")
+	if estava:
+		jogador.congelar(false)
 
 
 func _arriar_na_tronqueira(id: String) -> void:
@@ -1122,6 +1198,14 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 		return
 	if c == "m" and lugar == "quintal":
 		c = "m2"   # no quintal, "m" é mato alto (na cozinha é a mesa)
+	if c == "H" and lugar in ["quintal", "terreiro"]:
+		var h := _criar_interativo("res://arte/obj_horta.png", 3, base, Vector2(46, 22), -34.0)
+		h.olhar_para_jogador = false
+		h.interagiu.connect(_na_horta)
+		_registrar_alvo(h, "horta", "horta", "Plantar na horta", 40.0)
+		_hortas.append(h)
+		h.sprite.frame = _quadro_horta()
+		return
 	if CENARIO.has(c):
 		var s := _criar_cenario(CENARIO[c][0], CENARIO[c][1], base)
 		_objetos[lugar + ":" + c] = s       # para as pessoas da casa interagirem com eles (fogão, atabaques...)
@@ -1802,6 +1886,7 @@ func _com_nomes(linhas: Array, id: String) -> Array:
 ## Adé volta de um campo: a porteira está aberta e a Vó o espera na tronqueira.
 func _preparar_retorno() -> void:
 	_escolher_tempo(Jogo.has_meta("na_quartinha"))
+	_contar_visita_horta()
 	estado = "aberto"
 	for id in ITENS:
 		coletados[id] = true
@@ -3028,6 +3113,9 @@ func _acoes_do_bornal(id: String) -> Array:
 	var pessoa := _alvo_perto("pessoa")
 	if not pessoa.is_empty():
 		acoes.append([pessoa["rotulo"], "dar:" + pessoa["id"]])
+	var horta := _alvo_perto("horta")
+	if not horta.is_empty() and id == "semente":
+		acoes.append([horta["rotulo"], "plantar:" + horta["id"]])
 	if item.get("equipa", false):
 		acoes.append(["Guardar" if Jogo.bornal.equipado == id else "Pôr na mão", "equipar"])
 	return acoes
@@ -3044,6 +3132,8 @@ func _fazer_no_bornal(id: String, acao: String) -> void:
 	if no:
 		jogador.olhar_para(no.global_position)
 	match partes[0]:
+		"plantar":
+			await _plantar_na_horta(id)
 		"dar":
 			if _aceita_dar(id, alvo["id"]):
 				Jogo.bornal.tirar(id, _na_tela(no.global_position + Vector2(0, -16)))
@@ -3133,7 +3223,7 @@ func _aceita_dar(id: String, alvo: String) -> bool:
 		"tia":
 			return (id == "lenha" and tia == "pediu_lenha") or (_manjar == "tia_pediu" and id in INGREDIENTES)
 		"vo":
-			return id == "manjar" and _manjar == "pronto"
+			return (id == "manjar" and _manjar == "pronto") or id == "colheita"
 	return false
 
 
@@ -3154,6 +3244,11 @@ func _ao_dar(id: String, alvo: String) -> void:
 			_manjar = "pronto"
 			await _falar("tia_manjar_pronto")
 		"vo":
+			if id == "colheita":
+				await _falar_linhas([{"quem": "Benedita", "yo": "", "pt": "Que fartura, meu neto! Isso é o que Oxóssi ensinou: comida e saber para a casa."}])
+				_mostrar_fartura()
+				_aprender("oxossi")
+				return
 			jogador.congelar(true)
 			await _entregar_manjar()
 			await _falar("vo_manjar")

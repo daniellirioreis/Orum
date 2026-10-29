@@ -15,7 +15,7 @@
 		{"quem": "Benedita", "yo": "", "pt": "Vamos descobrir juntos, meu filho, mas os orixás moram no Orum. Pra chegar até eles, primeiro você precisa falar com quem conhece todos os caminhos entre o Aiyê e o Orum."},
 		{"quem": "Adé", "yo": "", "pt": "Exu?"},
 		{"quem": "Benedita", "yo": "", "pt": "Sim, O Mensageiro, o Senhor das encruzilhadas. Sem Exu, meu neto, nada se faz."},
-		{"quem": "Benedita", "yo": "", "pt": "Vamos arriar um padê na tronqueira para Exu. Me traga o Gààrí, o Epó, o Oti e a Luma."},
+		{"quem": "Benedita", "yo": "", "pt": "Vamos arriar um padé na tronqueira para Exu. Me traga o Gààrí, o Epó, o Oti e a Luma."},
 		{"quem": "Benedita", "yo": "", "pt": "Cada coisa está num canto do terreiro. Fale com a Tia Dora na cozinha, com o Ogã Bené nos atabaques e com a Lia no congá. O Epó deve estar guardado na despensa, meu neto."},
 		{"quem": "Benedita", "yo": "", "pt": "Faça tudo com calma e com respeito.", "evento": "comecar_busca"}
 	],
@@ -107,7 +107,7 @@
 	],
 
 	"ritual": [
-		{"quem": "", "yo": "", "pt": "Adé arriou o padê diante da tronqueira e acendeu a Luma."},
+		{"quem": "", "yo": "", "pt": "Adé arriou o padé diante da tronqueira e acendeu a Luma."},
 		{"quem": "Benedita", "yo": "", "pt": "Laroyê, Exu! Abra os caminhos do meu neto para o Orum!", "evento": "vo_saudacao"},
 		{"quem": "", "yo": "", "pt": "A chama da Luma estremeceu. Um vento quente atravessou o terreiro.", "evento": "tremer"},
 		{"quem": "", "yo": "", "pt": "E alguém riu baixinho, do lado de dentro da tronqueira.", "evento": "exu_chega"}
