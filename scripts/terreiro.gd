@@ -205,6 +205,8 @@ func _ready() -> void:
 	add_child(_toque)
 	_panela = preload("res://scripts/panela.gd").new()
 	add_child(_panela)
+	_alguidar = preload("res://scripts/alguidar.gd").new()
+	add_child(_alguidar)
 	_criar_interface()
 	$Dialogo.evento.connect(_ao_evento)
 	_entrar_lugar(LUGAR_INICIAL)
@@ -640,98 +642,68 @@ func _vo_sai_do_barracao() -> void:
 
 var _arriados := {}       # as oferendas que Adé já arriou na tronqueira
 var _pade_pronto := false      # o padé: Gààrí, Epó e Oti misturados e mexidos até ficar amarelo escuro
-var _pote_base: Polygon2D      # a tigela do padé na tronqueira (muda de cor a cada item)
-var _pote_amarelo: Polygon2D   # a parte amarela que o Epó pinta
+var _alguidar: CanvasLayer     # o mini-jogo do padé (alguidar de barro)
+var _pade_na_mao: Sprite2D     # o padé nas mãos de Adé até arriar
 
 
 ## Na tronqueira: Adé arria cada oferenda pelo bornal (Arriar na tronqueira).
 func _fazer_ritual() -> void:
 	if estado != "na_tronqueira":
 		return
+	if not _pade_pronto and ["efum", "epo", "oti"].all(func(i): return Jogo.bornal.tem(i)):
+		await _misturar_pade()
+		return
 	await _falar("esperando")
 	_dica_bornal("Arriar na tronqueira")
 
 
-## Cada item arriado na tronqueira muda a cor do padé. Depois do Oti, Adé mexe até ficar amarelo escuro.
-## A tigela do padé, desenhada na tronqueira (sem arte nova).
-func _criar_pote_pade() -> void:
-	var pote := Node2D.new()
-	pote.name = "Pote"
-	pote.position = Vector2(0, 4)
-	tronqueira.add_child(pote)
-	_pote_base = Polygon2D.new()
-	_pote_base.polygon = _elipse(9.0, 5.0)
-	_pote_base.color = Color(0.45, 0.3, 0.2)                  # tigela de barro, antes de por qualquer coisa
-	pote.add_child(_pote_base)
-	_pote_amarelo = Polygon2D.new()
-	_pote_amarelo.polygon = _meia_elipse_esq(9.0, 5.0)
-	_pote_amarelo.color = Color(0.98, 0.85, 0.2)
-	_pote_amarelo.visible = false
-	pote.add_child(_pote_amarelo)
-
-
-func _elipse(rx: float, ry: float) -> PackedVector2Array:
-	var p := PackedVector2Array()
-	for n in range(14):
-		var a := TAU * float(n) / 14.0
-		p.append(Vector2(cos(a) * rx, sin(a) * ry))
-	return p
-
-
-func _meia_elipse_esq(rx: float, ry: float) -> PackedVector2Array:
-	var p := PackedVector2Array()
-	for n in range(9):
-		var a := PI / 2.0 + PI * float(n) / 8.0
-		p.append(Vector2(cos(a) * rx, sin(a) * ry))
-	return p
-
-
-func _juntar_no_pade(id: String) -> void:
-	await get_tree().create_timer(0.3).timeout
-	if id == "efum":
-		_pote_base.color = Color(0.97, 0.97, 0.92)          # Gààrí: a mistura fica branca
-		_mostrar_aviso("O Gààrí deixou a mistura branquinha.")
-	elif id == "epo":
-		_pote_amarelo.visible = true                          # Epó: uma parte fica amarela
-		_mostrar_aviso("O Epó pintou uma parte da mistura de amarelo.")
-	elif id == "oti":
-		_mostrar_aviso("O Oti não tem cor: a mistura continua do mesmo jeito.")
-
-
-## Adé mexe o padé (mini-jogo da panela) até ficar amarelo escuro.
-func _mexer_pade() -> void:
+## Adé põe o Gààrí, o Epó e o Oti no alguidar e mexe até ficar amarelo escuro (mesma dinâmica do manjar).
+func _misturar_pade() -> void:
 	jogador.congelar(true)
 	jogador.olhar_para(tronqueira.global_position)
-	await _falar_linhas([{"quem": "Benedita", "yo": "", "pt": "Agora mexa o padé, meu neto, até ficar amarelo escuro."}])
-	await _panela.jogar("Mexa até ficar amarelo escuro!", "← → alternando · fique no verde")
-	_pote_base.color = Color(0.72, 0.5, 0.1)                  # amarelo escuro
-	_pote_amarelo.visible = false
+	await _falar_linhas([{"quem": "Benedita", "yo": "", "pt": "Vamos fazer o padé, meu neto. Põe cada coisa no alguidar e mexe até ficar amarelo escuro."}])
+	for id in ["efum", "epo", "oti"]:
+		if _slots.has(id):
+			create_tween().tween_property(_slots[id], "modulate:a", 0.0, 0.25)
+		Jogo.bornal.tirar(id, _na_tela(tronqueira.global_position + Vector2(0, -6)))
+	await get_tree().create_timer(0.5).timeout
+	await _alguidar.jogar(["efum", "epo", "oti"])
 	_pade_pronto = true
-	jogador.congelar(false)
-	_mostrar_aviso("O padé está pronto. Agora arria a vela na tronqueira.")
+	Jogo.bornal.pegar("pade")
+	await _mostrar_grande(preload("res://arte/pade_grande.png"), 2.0, "Padé pronto!", "Mexido até ficar amarelo escuro.")
+	_pade_na_mao = Sprite2D.new()
+	_pade_na_mao.texture = preload("res://arte/pade.png")
+	_pade_na_mao.position = Vector2(0, -9)
+	_pade_na_mao.z_index = 1
+	jogador.add_child(_pade_na_mao)
+	_mostrar_aviso("Você guardou no Àpò: Padé")
+	_dica_bornal("Arriar na tronqueira")
 
 
 func _arriar_na_tronqueira(id: String) -> void:
 	_arriados[id] = true
-	create_tween().tween_property(_slots[id], "modulate:a", 0.0, 0.25)   # sai da barra de cima
+	if _slots.has(id):
+		create_tween().tween_property(_slots[id], "modulate:a", 0.0, 0.25)   # sai da barra de cima
 	Jogo.tocar_som("buzio", -6.0)
-	if id != "luna":
-		await _juntar_no_pade(id)
-		if _arriados.has("efum") and _arriados.has("epo") and _arriados.has("oti") and not _pade_pronto:
-			await _mexer_pade()
-		return
-	# a vela (Luma) na tronqueira, ao lado do padé
-	var lugares := [-12.0, -4.0, 4.0, 12.0]
-	var i := ITENS.find(id)
 	var oferenda := Sprite2D.new()
-	oferenda.texture = TEX_ITENS
-	oferenda.hframes = 5
-	oferenda.frame = i
-	oferenda.position = Vector2(lugares[i], 4)
 	oferenda.modulate.a = 0.0
+	if id == "pade":
+		if is_instance_valid(_pade_na_mao):
+			_pade_na_mao.queue_free()
+			_pade_na_mao = null
+		oferenda.texture = preload("res://arte/pade.png")
+		oferenda.position = Vector2(0, 4)
+	else:
+		var lugares := [-12.0, -4.0, 4.0, 12.0]
+		var i := ITENS.find(id)
+		oferenda.texture = TEX_ITENS
+		oferenda.hframes = 5
+		oferenda.frame = i
+		oferenda.position = Vector2(lugares[i], 4)
 	tronqueira.get_node("Oferendas").add_child(oferenda)
 	create_tween().tween_property(oferenda, "modulate:a", 1.0, 0.25)
-	if _arriados.size() == ITENS.size():
+	# o Exu só chega com o padé e a vela na tronqueira
+	if _arriados.has("pade") and _arriados.has("luna"):
 		await get_tree().create_timer(0.6).timeout
 		await _ritual_completo()
 
@@ -1247,7 +1219,6 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			var oferendas := Node2D.new()
 			oferendas.name = "Oferendas"
 			tronqueira.add_child(oferendas)
-			_criar_pote_pade()
 			tronqueira.interagiu.connect(_fazer_ritual)
 		"X":
 			_criar_porteira(base)
@@ -3195,10 +3166,16 @@ func _ao_dar(id: String, alvo: String) -> void:
 
 
 func _aceita_arriar(id: String, alvo: String) -> bool:
-	if alvo == "tronqueira" and estado == "na_tronqueira" and id in ITENS and id == "luna" and not _pade_pronto:
-		_mostrar_aviso("A vela só se arria depois que o padé estiver pronto.")
+	if alvo != "tronqueira" or estado != "na_tronqueira":
 		return false
-	return alvo == "tronqueira" and estado == "na_tronqueira" and id in ITENS
+	if id == "pade":
+		return not _arriados.has("pade")
+	if id == "luna":
+		if not _arriados.has("pade"):
+			_mostrar_aviso("A vela só se arria depois do padé.")
+			return false
+		return not _arriados.has("luna")
+	return false
 
 
 func _ao_arriar(id: String, _alvo: String) -> void:
