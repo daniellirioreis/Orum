@@ -93,7 +93,9 @@
 		{"quem": "Lia", "yo": "", "pt": "Oi, Adé. Estou cuidando do congá."}
 	],
 	"cambone_cedo": [
-		{"quem": "Lia", "yo": "", "pt": "A Luma? A Luma é a última, Adé. A luz se acende quando tudo está pronto."},
+		{"quem": "Adé", "yo": "", "pt": "Lia, você tem a Luma?"},
+		{"quem": "Lia", "yo": "", "pt": "Tenho sim, Adé. A Mãe Benedita falou da oferenda de Exu, e pra ela você vai precisar da Luma."},
+		{"quem": "Lia", "yo": "", "pt": "Mas a Luma é a última, Adé. A luz se acende quando tudo está pronto."},
 		{"quem": "Lia", "yo": "", "pt": "Volte quando tiver o Gààrí, o Epó e o Oti."}
 	],
 	"cambone_luma": [
