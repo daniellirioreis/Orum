@@ -68,6 +68,7 @@ var _ultimo_firme := Vector2.ZERO
 var _mare_levou_uma_vez := false
 var _velhinha_mangue: Area2D
 var _falou_mangue := false
+var _falou_brejo := false
 # lagoa
 var _barro: Area2D
 var _pedra: Area2D
@@ -135,7 +136,16 @@ func _inicio() -> void:
 			voltar_ao_mapa()
 			return
 	await _falar("chegada")
-	await _velhinha_chama()
+	await _exu_da_dica()
+
+
+func _exu_da_dica() -> void:
+	var e := _exu_surge(jogador.global_position + Vector2(30, 0))
+	await get_tree().create_timer(1.2).timeout
+	await _falar("exu_dica")
+	create_tween().tween_property(e, "modulate:a", 0.0, 0.6)
+	await get_tree().create_timer(0.7).timeout
+	e.queue_free()
 
 
 func _process(delta: float) -> void:
@@ -148,6 +158,7 @@ func _process(delta: float) -> void:
 	_bolhas(delta)
 	_pingos_na_agua(delta)
 	_mover_mare(delta)
+	_perto_da_velhinha_do_brejo()
 	_mover_caranguejos()
 	_encher_pote(delta)
 	_atualizar_balao_pedra()
@@ -998,6 +1009,15 @@ func _falar_com_velhinha_do_mangue() -> void:
 	_falou_mangue = true
 	await _falar("velhinha_mangue_depois" if _nana.has("viu_velhinha_mangue") else "velhinha_mangue")
 	_nana["viu_velhinha_mangue"] = true
+
+
+## No brejo, a velhinha chama Adé só quando ele chega perto dela.
+func _perto_da_velhinha_do_brejo() -> void:
+	if _falou_brejo or not _velhinha or lugar_atual != "nana_brejo" or not jogador.pode_mover:
+		return
+	if _velhinha.position.distance_to(jogador.global_position) < 56.0:
+		_falou_brejo = true
+		_velhinha_chama()
 
 
 ## No mangue, a velhinha chama Adé quando ele chega do outro lado.

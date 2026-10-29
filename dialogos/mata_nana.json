@@ -6,9 +6,21 @@
 	"revisita": [
 		{"quem": "Adé", "yo": "", "pt": "A terra de Nanã de novo... A chuva cai do mesmo jeito, mansinha."}
 	],
-	"chegada": [
-		{"quem": "Adé", "yo": "", "pt": "Que chuva fininha... Aqui tudo é lama, brejo e água parada."},
-		{"quem": "Adé", "yo": "", "pt": "Esta é a terra de Nanã, a mais velha de todos os orixás. A Vó diz que ela é a dona da lama do fundo das lagoas."}
+	"exu_dica": [
+  {"quem": "Èṣù", "yo": "Laroyê, menino!", "pt": "Laroyê, menino! Chegou sujo de lama e nem reparou em mim?", "rosto": "rindo"},
+  {"quem": "Adé", "yo": "Laroyê!", "pt": "Exu! Você aparece em todo lugar, né? Essa é a terra de Nanã."},
+  {"quem": "Èṣù", "yo": "", "pt": "Em todo lugar onde tem encruzilhada, e a lama está cheia delas. Nanã é a dona dessa lama, a mais antiga. Ela não gosta de pressa.", "rosto": "feliz"},
+  {"quem": "Adé", "yo": "", "pt": "E o que ela quer de mim?"},
+  {"quem": "Èṣù", "yo": "", "pt": "Oferenda. Um pote de barro cheio de água da chuva e flores lilás. Onde achar cada coisa, isso é com você.", "rosto": "rindo"},
+  {"quem": "Adé", "yo": "", "pt": "A água tem que ser da chuva mesmo? Não dá para encher o pote de outro jeito?"},
+  {"quem": "Èṣù", "yo": "", "pt": "Nanã só aceita a água que cai do céu, menino. Água de torneira ela nem olha.", "rosto": "feliz"},
+  {"quem": "Adé", "yo": "", "pt": "Só isso? Ela não pede mais nada?"},
+  {"quem": "Èṣù", "yo": "", "pt": "Só isso. Nanã não gosta de coisa demais, menino.", "rosto": "rindo"},
+  {"quem": "Adé", "yo": "", "pt": "Obrigado, Exu!", "rosto": "feliz"},
+  {"quem": "Èṣù", "yo": "", "pt": "Hê hê! Não agradece ainda, menino. Antes você tem que achar tudo, e isso dá trabalho.", "rosto": "rindo"}
+],
+"chegada": [
+		{"quem": "Adé", "yo": "", "pt": "Que chuva fininha... Aqui tudo é lama, brejo e água parada."}
 	],
 	"velhinha_pedido": [
 		{"quem": "Velhinha", "yo": "", "pt": "Ô menino! Chega aqui, meu filho."},
