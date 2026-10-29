@@ -639,13 +639,29 @@ func _vo_sai_do_barracao() -> void:
 
 
 var _arriados := {}       # as oferendas que Adé já arriou na tronqueira
+var _pade_misturado := false   # o padé é misturado (mini-jogo da panela) antes de arriar
 
 
 ## Na tronqueira: Adé arria cada oferenda pelo bornal (Arriar na tronqueira).
 func _fazer_ritual() -> void:
 	if estado != "na_tronqueira":
 		return
+	if not _pade_misturado and ITENS.all(func(i): return coletados.has(i)):
+		await _misturar_pade()
+		return
 	await _falar("esperando")
+	_dica_bornal("Arriar na tronqueira")
+
+
+## Antes de arriar, Adé mexe o padé com as quatro coisas (mesma dinâmica do manjar).
+func _misturar_pade() -> void:
+	jogador.congelar(true)
+	jogador.olhar_para(tronqueira.global_position)
+	await _falar_linhas([{"quem": "Benedita", "yo": "", "pt": "Agora misture o padé, meu neto. Mexa devagar, no ritmo certo."}])
+	await _panela.jogar("Mexa o padé!", "← → alternando · fique no verde")
+	_pade_misturado = true
+	jogador.congelar(false)
+	_mostrar_aviso("O padé está misturado. Agora arria na tronqueira.")
 	_dica_bornal("Arriar na tronqueira")
 
 
@@ -3127,6 +3143,9 @@ func _ao_dar(id: String, alvo: String) -> void:
 
 
 func _aceita_arriar(id: String, alvo: String) -> bool:
+	if alvo == "tronqueira" and estado == "na_tronqueira" and id in ITENS and not _pade_misturado:
+		_mostrar_aviso("Primeiro misture o padé na tronqueira.")
+		return false
 	return alvo == "tronqueira" and estado == "na_tronqueira" and id in ITENS
 
 

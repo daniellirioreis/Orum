@@ -40,7 +40,7 @@ func _ready() -> void:
 
 
 ## Joga até o manjar ficar no ponto.
-func jogar() -> void:
+func jogar(titulo := "Mexa o manjar!", dica := "← → alternando · fique no verde") -> void:
 	_vel = 0.0
 	_progresso = 0.0
 	_angulo = 0.0
@@ -50,8 +50,8 @@ func jogar() -> void:
 	_comecou = false
 	_pelotas.clear()
 	_respingos.clear()
-	_status.text = "Mexa o manjar!"
-	_dica.text = "← → alternando · fique no verde"
+	_status.text = titulo
+	_dica.text = dica
 	_raiz.visible = true
 	jogando = true
 	set_process(true)
