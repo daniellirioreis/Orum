@@ -107,8 +107,8 @@
 	],
 
 	"ritual": [
-		{"quem": "", "yo": "", "pt": "Adé arriou as oferendas diante da tronqueira: o Gààrí, o Epó, o Oti. E acendeu a Luma."},
-		{"quem": "Benedita", "yo": "", "pt": "Meu pai, abençoe!", "evento": "vo_saudacao"},
+		{"quem": "", "yo": "", "pt": "Adé arriou o padé diante da tronqueira e acendeu a Luma."},
+		{"quem": "Benedita", "yo": "", "pt": "Laroyê, Exu! Abra os caminhos do meu neto para o Orum!", "evento": "vo_saudacao"},
 		{"quem": "", "yo": "", "pt": "A chama da Luma estremeceu. Um vento quente atravessou o terreiro.", "evento": "tremer"},
 		{"quem": "", "yo": "", "pt": "E alguém riu baixinho, do lado de dentro da tronqueira.", "evento": "exu_chega"}
 	],
