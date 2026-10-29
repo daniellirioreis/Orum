@@ -10,7 +10,8 @@ var _pronto := false
 
 func _ready() -> void:
 	Jogo.tocar_musica()
-	for nome in ["fundo_ceu", "fundo_montes", "fundo_arvores"]:
+	var ceu := "fundo_ceu_orun" if tipo == "titulo" else "fundo_ceu"   # o título é Òrun: céu com raios e lua
+	for nome in [ceu, "fundo_montes", "fundo_arvores"]:
 		var img := TextureRect.new()
 		img.texture = load("res://arte/%s.png" % nome)
 		img.position = Vector2(-64, 8)   # o fundo tem 384 de largura: centraliza na tela de 256
