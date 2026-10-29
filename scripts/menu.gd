@@ -293,7 +293,9 @@ func fim_de_jogo() -> void:
 			continue                      # aqui não dá para fechar: tem que escolher
 		get_tree().paused = false
 		if r["i"] == 0 and ultimo >= 0:
+			var mortes_ate_agora := Jogo.mortes   # o carregar traz o número antigo: mantém a morte que acabou de acontecer
 			Jogo.carregar(ultimo)
+			Jogo.mortes = mortes_ate_agora
 		else:
 			Jogo.mudar_cena("res://cenas/titulo.tscn")
 		return
