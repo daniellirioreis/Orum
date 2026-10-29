@@ -672,7 +672,7 @@ func _mostrar_pagina() -> void:
 ## Em cima, o lugar (capítulo) e uma frase de narração (se o diálogo tiver); depois quem fala, em cor
 ## própria, e a fala em itálico.
 const COR_FALANTE := [
-	["Vó", Color(1.0, 0.8, 0.3)],
+	["Benedita", Color(1.0, 0.8, 0.3)],
 	["Adé", Color(0.6, 0.85, 1.0)],
 	["Tia", Color(1.0, 0.6, 0.75)],
 	["Èṣù", Color(1.0, 0.5, 0.4)],

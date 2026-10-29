@@ -6,28 +6,28 @@
 		{"quem": "", "yo": "", "pt": "E Adé acordou assustado, ainda deitado na esteira."}
 	],
 	"conversa": [
-		{"quem": "Vó", "yo": "", "pt": "Acordou assustado, meu neto. Estava falando dormindo."},
+		{"quem": "Benedita", "yo": "", "pt": "Acordou assustado, meu neto. Estava falando dormindo."},
 		{"quem": "Adé", "yo": "", "pt": "A bença, Vó."},
-		{"quem": "Vó", "yo": "", "pt": "Oxalá te abençoe, meu filho."},
+		{"quem": "Benedita", "yo": "", "pt": "Oxalá te abençoe, meu filho."},
 		{"quem": "Adé", "yo": "", "pt": "Sonhei com eles de novo, Vó. Com todos os orixás. Eles me chamavam."},
-		{"quem": "Vó", "yo": "", "pt": "Quando o Orum chama, a gente não finge que não ouviu."},
+		{"quem": "Benedita", "yo": "", "pt": "Quando o Orum chama, a gente não finge que não ouviu."},
 		{"quem": "Adé", "yo": "", "pt": "Eu quero encontrar todos eles, Vó. Todos."},
-		{"quem": "Vó", "yo": "", "pt": "Os orixás moram no Orum. Pra chegar até eles, primeiro você precisa falar com quem leva os recados entre o Aiyê e o Orum."},
+		{"quem": "Benedita", "yo": "", "pt": "Os orixás moram no Orum. Pra chegar até eles, primeiro você precisa falar com quem leva os recados entre o Aiyê e o Orum."},
 		{"quem": "Adé", "yo": "", "pt": "Exu?"},
-		{"quem": "Vó", "yo": "", "pt": "Ele mesmo. O mensageiro. Sem Exu, nada se faz."},
-		{"quem": "Vó", "yo": "", "pt": "Vamos fazer o ritual na tronqueira. Me traga o Gààrí, o Epó, o Oti e a Luma."},
-		{"quem": "Vó", "yo": "", "pt": "Cada coisa está num canto da casa. Fale com a Tia Dora na cozinha, com o Ogã Bené nos atabaques e com a Lia no congá. O Epó fica guardado na despensa."},
-		{"quem": "Vó", "yo": "", "pt": "Faça tudo com calma e com respeito.", "evento": "comecar_busca"}
+		{"quem": "Benedita", "yo": "", "pt": "Ele mesmo. O mensageiro. Sem Exu, nada se faz."},
+		{"quem": "Benedita", "yo": "", "pt": "Vamos fazer o ritual na tronqueira. Me traga o Gààrí, o Epó, o Oti e a Luma."},
+		{"quem": "Benedita", "yo": "", "pt": "Cada coisa está num canto da casa. Fale com a Tia Dora na cozinha, com o Ogã Bené nos atabaques e com a Lia no congá. O Epó fica guardado na despensa."},
+		{"quem": "Benedita", "yo": "", "pt": "Faça tudo com calma e com respeito.", "evento": "comecar_busca"}
 	],
 	"falta": [
-		{"quem": "Vó", "yo": "", "pt": "Ainda falta trazer: {faltam}."}
+		{"quem": "Benedita", "yo": "", "pt": "Ainda falta trazer: {faltam}."}
 	],
 	"pronto": [
-		{"quem": "Vó", "yo": "", "pt": "Trouxe tudo, meu neto. Muito bem."},
-		{"quem": "Vó", "yo": "", "pt": "Vou na frente. Te espero lá fora, na tronqueira, perto da porteira.", "evento": "ir_para_tronqueira"}
+		{"quem": "Benedita", "yo": "", "pt": "Trouxe tudo, meu neto. Muito bem."},
+		{"quem": "Benedita", "yo": "", "pt": "Vou na frente. Te espero lá fora, na tronqueira, perto da porteira.", "evento": "ir_para_tronqueira"}
 	],
 	"esperando": [
-		{"quem": "Vó", "yo": "", "pt": "Venha, meu neto. Coloque as oferendas diante da tronqueira."}
+		{"quem": "Benedita", "yo": "", "pt": "Venha, meu neto. Coloque as oferendas diante da tronqueira."}
 	],
 
 	"tia_antes": [
@@ -100,20 +100,20 @@
 
 	"ritual": [
 		{"quem": "", "yo": "", "pt": "Adé arriou as oferendas diante da tronqueira: o Gààrí, o Epó, o Oti. E acendeu a Luma."},
-		{"quem": "Vó", "yo": "", "pt": "Meu pai, abençoe!", "evento": "vo_saudacao"},
+		{"quem": "Benedita", "yo": "", "pt": "Meu pai, abençoe!", "evento": "vo_saudacao"},
 		{"quem": "", "yo": "", "pt": "A chama da Luma estremeceu. Um vento quente atravessou o terreiro.", "evento": "tremer"},
 		{"quem": "", "yo": "", "pt": "E alguém riu baixinho, do lado de dentro da tronqueira.", "evento": "exu_chega"}
 	],
 	"exu": [
-		{"quem": "Vó e Adé", "yo": "", "pt": "Laroyê, Exu!"},
+		{"quem": "Benedita e Adé", "yo": "", "pt": "Laroyê, Exu!"},
 		{"quem": "Èṣù", "yo": "Ta ló pè mí?", "pt": "Quem me chamou? Há há há! Ah, é o neto da Vó! Bateu palma tão forte que eu achei que a gira tinha começado."},
 		{"quem": "Adé", "yo": "", "pt": "Fui eu, Adé. Quero encontrar todos os orixás."},
 		{"quem": "Èṣù", "yo": "Èmi ni Èṣù.", "pt": "Eu sou Exu, guardião das encruzilhadas e mensageiro entre os mundos. E o mais bonito deles, não esquece."},
 		{"quem": "Èṣù", "yo": "Tẹ̀lé mi.", "pt": "Me siga. Na encruzilhada eu te conto uma história. Tenta acompanhar o passo, que eu ando rápido.", "evento": "abrir_porteira"},
-		{"quem": "Vó", "yo": "", "pt": "Vai, meu neto. E volta pra me contar."}
+		{"quem": "Benedita", "yo": "", "pt": "Vai, meu neto. E volta pra me contar."}
 	],
 	"depois": [
-		{"quem": "Vó", "yo": "", "pt": "A porteira está aberta. Siga Exu, meu filho."}
+		{"quem": "Benedita", "yo": "", "pt": "A porteira está aberta. Siga Exu, meu filho."}
 	],
 
 	"criancas": [
@@ -142,9 +142,9 @@
 		{"quem": "Adé", "yo": "", "pt": "Ela já estava aqui antes da casa... e vai continuar aqui depois de todos nós."}
 	],
 	"gameleira_vo": [
-		{"quem": "Vó", "yo": "", "pt": "Essa é a árvore de Iroko, meu neto. Iroko é o tempo."},
-		{"quem": "Vó", "yo": "", "pt": "Ela já estava aqui antes da casa. E vai continuar aqui depois de todos nós."},
-		{"quem": "Vó", "yo": "", "pt": "Por isso o ojá branco no tronco: a gente cuida de quem cuida da gente."}
+		{"quem": "Benedita", "yo": "", "pt": "Essa é a árvore de Iroko, meu neto. Iroko é o tempo."},
+		{"quem": "Benedita", "yo": "", "pt": "Ela já estava aqui antes da casa. E vai continuar aqui depois de todos nós."},
+		{"quem": "Benedita", "yo": "", "pt": "Por isso o ojá branco no tronco: a gente cuida de quem cuida da gente."}
 	],
 
 	"nomes_itens": {
@@ -170,49 +170,49 @@
 		{"quem": "Adé", "yo": "", "pt": "Olha a Vó ali, perto da tronqueira. Vou contar tudo pra ela!"}
 	],
 	"retorno_vo": [
-		{"quem": "Vó", "yo": "", "pt": "Meu neto! Você voltou. Exu me avisou que você vinha pelo caminho."},
+		{"quem": "Benedita", "yo": "", "pt": "Meu neto! Você voltou. Exu me avisou que você vinha pelo caminho."},
 		{"quem": "Adé", "yo": "", "pt": "Vó, eu encontrei um orixá! E trouxe uma coisa para a senhora."}
 	],
 	"conta_oxossi": [
 		{"quem": "Adé", "yo": "", "pt": "Fui na mata de Oxóssi. Segui os rastros, passei devagarinho pelos veados e achei um ofá com uma flecha só."},
 		{"quem": "Adé", "yo": "", "pt": "Tinha um pássaro enorme, de olhos vermelhos. Fiz uma oferenda a Exu, e Oxóssi apareceu e espantou ele com uma flecha!"},
 		{"quem": "Adé", "yo": "", "pt": "Ele me deu o ofá, Vó. Disse para eu trazer para cá."},
-		{"quem": "Vó", "yo": "Okê Arô!", "pt": "O caçador de uma flecha só... Você ouviu as minhas histórias direitinho, meu neto."}
+		{"quem": "Benedita", "yo": "Okê Arô!", "pt": "O caçador de uma flecha só... Você ouviu as minhas histórias direitinho, meu neto."}
 	],
 	"conta_nana": [
 		{"quem": "Adé", "yo": "", "pt": "Fui na terra de Nanã, Vó. Choveu o tempo todo! Tinha um brejo onde a lama puxa o pé... Só as garças sabiam onde pisar."},
 		{"quem": "Adé", "yo": "", "pt": "O ọ̀bẹ de ferro afundou na lama, e eu cortei a taboa com uma lâmina de bambu. Depois atravessei o mangue esperando a maré baixar."},
 		{"quem": "Adé", "yo": "", "pt": "E a velhinha que me pediu para levar o pote dela... era Nanã, Vó! Ela me deu o ibiri."},
-		{"quem": "Vó", "yo": "Sálùbá!", "pt": "Nanã, a mais velha... Ela chega assim mesmo, meu neto: devagarinho, do jeito dela."}
+		{"quem": "Benedita", "yo": "Sálùbá!", "pt": "Nanã, a mais velha... Ela chega assim mesmo, meu neto: devagarinho, do jeito dela."}
 	],
 	"vo_leva_ao_quarto": [
-		{"quem": "Vó", "yo": "", "pt": "Isso não é brinquedo, é axé. Presente de orixá tem lugar certo."},
-		{"quem": "Vó", "yo": "", "pt": "Venha comigo ao quarto de santo. Lá cada orixá tem o seu assentamento."}
+		{"quem": "Benedita", "yo": "", "pt": "Isso não é brinquedo, é axé. Presente de orixá tem lugar certo."},
+		{"quem": "Benedita", "yo": "", "pt": "Venha comigo ao quarto de santo. Lá cada orixá tem o seu assentamento."}
 	],
 	"vo_assenta": [
-		{"quem": "Vó", "yo": "{saudacao}", "pt": "Aqui fica o {trofeu}, presente de {nome} para o meu neto."},
-		{"quem": "Vó", "yo": "", "pt": "A vela está acesa. Toda vez que olhar para este assentamento, você vai lembrar do que aprendeu."}
+		{"quem": "Benedita", "yo": "{saudacao}", "pt": "Aqui fica o {trofeu}, presente de {nome} para o meu neto."},
+		{"quem": "Benedita", "yo": "", "pt": "A vela está acesa. Toda vez que olhar para este assentamento, você vai lembrar do que aprendeu."}
 	],
 	"assenta_oxossi": [
 		{"quem": "Adé", "yo": "", "pt": "Olhar com atenção, esperar a hora certa e repartir a fartura. Foi isso que Oxóssi me ensinou."},
-		{"quem": "Vó", "yo": "", "pt": "Então você já aprendeu muito, meu filho."}
+		{"quem": "Benedita", "yo": "", "pt": "Então você já aprendeu muito, meu filho."}
 	],
 	"assenta_nana": [
 		{"quem": "Adé", "yo": "", "pt": "Ir devagar, respeitar os mais velhos e não esquecer de onde eu vim. Foi isso que Nanã me ensinou."},
-		{"quem": "Vó", "yo": "", "pt": "É por isso que os retratos ficam na parede, meu filho. Para a gente não esquecer."}
+		{"quem": "Benedita", "yo": "", "pt": "É por isso que os retratos ficam na parede, meu filho. Para a gente não esquecer."}
 	],
 	"vo_bencao": [
-		{"quem": "Vó", "yo": "", "pt": "Ainda tem muito assentamento esperando. Cada orixá tem uma história para te contar."},
+		{"quem": "Benedita", "yo": "", "pt": "Ainda tem muito assentamento esperando. Cada orixá tem uma história para te contar."},
 		{"quem": "Adé", "yo": "", "pt": "A bênção, Vó."},
-		{"quem": "Vó", "yo": "", "pt": "Deus te abençoe, meu neto. Que os orixás te acompanhem."},
-		{"quem": "Vó", "yo": "", "pt": "Quando quiser seguir viagem, é só sair pela porteira. Exu abre o caminho."}
+		{"quem": "Benedita", "yo": "", "pt": "Deus te abençoe, meu neto. Que os orixás te acompanhem."},
+		{"quem": "Benedita", "yo": "", "pt": "Quando quiser seguir viagem, é só sair pela porteira. Exu abre o caminho."}
 	],
 	"vo_sem_trofeu": [
-		{"quem": "Vó", "yo": "", "pt": "Voltou para matar a saudade, meu neto? A porteira está aberta."},
-		{"quem": "Vó", "yo": "", "pt": "Quando encontrar um orixá, traga a história para a sua Vó."}
+		{"quem": "Benedita", "yo": "", "pt": "Voltou para matar a saudade, meu neto? A porteira está aberta."},
+		{"quem": "Benedita", "yo": "", "pt": "Quando encontrar um orixá, traga a história para a sua Vó."}
 	],
 	"vo_quarto": [
-		{"quem": "Vó", "yo": "", "pt": "O quarto de santo é lugar de respeito. Cada vela acesa é um orixá que você encontrou."}
+		{"quem": "Benedita", "yo": "", "pt": "O quarto de santo é lugar de respeito. Cada vela acesa é um orixá que você encontrou."}
 	],
 	"assentamento_vazio": [
 		{"quem": "Adé", "yo": "", "pt": "O assentamento de {nome}. Ainda está esperando... Um dia eu trago um presente de {nome} para cá."}
@@ -243,28 +243,28 @@
 	],
 	"vo_alfazema": [
 		{"quem": "Adé", "yo": "", "pt": "A bênção, Vó!"},
-		{"quem": "Vó", "yo": "", "pt": "Oxalá te abençoe, meu neto. Que carinha é essa? Parece que viu o mar.", "rosto": "feliz"},
+		{"quem": "Benedita", "yo": "", "pt": "Oxalá te abençoe, meu neto. Que carinha é essa? Parece que viu o mar.", "rosto": "feliz"},
 		{"quem": "Adé", "yo": "", "pt": "Vi sim, Vó! Fui ao mar de Iemanjá, de noite, com a lua brilhando na água.", "rosto": "feliz"},
 		{"quem": "Adé", "yo": "", "pt": "Exu apareceu na praia e me contou que Iemanjá mora lá no fundo do mar, num palácio chamado Aiocá.", "rosto": "feliz"},
 		{"quem": "Adé", "yo": "", "pt": "Pra chegar na casa dela, eu preciso levar uma oferenda: flores brancas, perfume de alfazema, uma pérola e um espelho."},
 		{"quem": "Adé", "yo": "", "pt": "As flores ficam numa pedra no meio do mar, e só dá pra chegar de jangada. Mas a jangada estava sem remo..."},
 		{"quem": "Adé", "yo": "", "pt": "Aí uma tartaruga velhinha me contou que o mar tinha levado o remo pra uma gruta... e eu achei!"},
-		{"quem": "Vó", "yo": "", "pt": "Uma tartaruga, uma gruta escura... e o meu neto sozinho na beira do mar, de noite!", "rosto": "assustado"},
+		{"quem": "Benedita", "yo": "", "pt": "Uma tartaruga, uma gruta escura... e o meu neto sozinho na beira do mar, de noite!", "rosto": "assustado"},
 		{"quem": "Adé", "yo": "", "pt": "Mas eu não podia sair pro mar sem a alfazema, senão a oferenda ia ficar faltando. E a senhora sempre tem esse cheirinho..."},
-		{"quem": "Vó", "yo": "", "pt": "Ah, meu neto... senta aqui, que a Vó vai te contar um segredo."},
-		{"quem": "Vó", "yo": "Odò ìyá!", "pt": "Sua Vó é filha de Iemanjá. Foi a mãe das águas quem cuidou da minha cabeça a vida inteira."},
-		{"quem": "Vó", "yo": "", "pt": "Quando eu era menina do seu tamanho, minha mãe me levava pra beira do mar todo dois de fevereiro.", "rosto": "feliz"},
-		{"quem": "Vó", "yo": "", "pt": "A gente jogava flores nas ondas, e o mar levava tudo, devagarinho...", "rosto": "feliz"},
-		{"quem": "Vó", "yo": "", "pt": "Foi ali, olhando as flores indo embora, que eu entendi de quem eu era filha."},
+		{"quem": "Benedita", "yo": "", "pt": "Ah, meu neto... senta aqui, que a Vó vai te contar um segredo."},
+		{"quem": "Benedita", "yo": "Odò ìyá!", "pt": "Sua Vó é filha de Iemanjá. Foi a mãe das águas quem cuidou da minha cabeça a vida inteira."},
+		{"quem": "Benedita", "yo": "", "pt": "Quando eu era menina do seu tamanho, minha mãe me levava pra beira do mar todo dois de fevereiro.", "rosto": "feliz"},
+		{"quem": "Benedita", "yo": "", "pt": "A gente jogava flores nas ondas, e o mar levava tudo, devagarinho...", "rosto": "feliz"},
+		{"quem": "Benedita", "yo": "", "pt": "Foi ali, olhando as flores indo embora, que eu entendi de quem eu era filha."},
 		{"quem": "Adé", "yo": "", "pt": "Então é por isso que a senhora tem cheiro de alfazema!", "rosto": "feliz"},
-		{"quem": "Vó", "yo": "", "pt": "É sim. Eu uso alfazema no banho e pra lavar as minhas guias. É o cheiro da minha mãe Iemanjá.", "rosto": "feliz"},
-		{"quem": "Vó", "yo": "", "pt": "Tem um vidrinho guardado lá na despensa.", "rosto": "feliz"},
+		{"quem": "Benedita", "yo": "", "pt": "É sim. Eu uso alfazema no banho e pra lavar as minhas guias. É o cheiro da minha mãe Iemanjá.", "rosto": "feliz"},
+		{"quem": "Benedita", "yo": "", "pt": "Tem um vidrinho guardado lá na despensa.", "rosto": "feliz"},
 		{"quem": "Adé", "yo": "", "pt": "Então eu posso pegar?", "rosto": "feliz"},
-		{"quem": "Vó", "yo": "", "pt": "Calma, apressadinho! Quem vai pedir à mãe, primeiro serve. Em casa de santo, nada se ganha sem trabalho e sem carinho."},
-		{"quem": "Vó", "yo": "", "pt": "Vá até a cozinha e ajude a Tia Dora no que ela precisar. Depois a gente conversa.", "evento": "manjar_vo_pediu"}
+		{"quem": "Benedita", "yo": "", "pt": "Calma, apressadinho! Quem vai pedir à mãe, primeiro serve. Em casa de santo, nada se ganha sem trabalho e sem carinho."},
+		{"quem": "Benedita", "yo": "", "pt": "Vá até a cozinha e ajude a Tia Dora no que ela precisar. Depois a gente conversa.", "evento": "manjar_vo_pediu"}
 	],
 	"vo_alfazema_esperando": [
-		{"quem": "Vó", "yo": "", "pt": "Já ajudou a Tia Dora, meu neto? Ela está lá na cozinha. Quem serve primeiro, recebe depois."}
+		{"quem": "Benedita", "yo": "", "pt": "Já ajudou a Tia Dora, meu neto? Ela está lá na cozinha. Quem serve primeiro, recebe depois."}
 	],
 	"tia_manjar": [
 		{"quem": "Tia Dora", "yo": "", "pt": "Adé! Chegou na hora certa, menino. Olha só o que eu estou fazendo..."},
@@ -296,14 +296,14 @@
 	],
 	"vo_manjar": [
 		{"quem": "Adé", "yo": "", "pt": "Vó! A Tia Dora fez manjar branco, e eu ajudei a mexer!", "rosto": "feliz"},
-		{"quem": "Vó", "yo": "", "pt": "Manjar branco... a comida que minha mãe Iemanjá mais gosta. Que coincidência, hein?", "rosto": "feliz"},
+		{"quem": "Benedita", "yo": "", "pt": "Manjar branco... a comida que minha mãe Iemanjá mais gosta. Que coincidência, hein?", "rosto": "feliz"},
 		{"quem": "", "yo": "", "pt": "A Vó prova um pedacinho, fecha os olhos e sorri."},
-		{"quem": "Vó", "yo": "", "pt": "Igualzinho ao que a minha mãe fazia, quando eu era menina...", "rosto": "feliz"},
-		{"quem": "Vó", "yo": "", "pt": "Você trabalhou com carinho, Adé. Agora sim: pode pegar a alfazema. O vidrinho roxo está na prateleira da despensa.", "evento": "liberar_alfazema"},
-		{"quem": "Vó", "yo": "Odò ìyá!", "pt": "Leve pro mar com respeito. E quando chegar na casa de Iemanjá, peça a bênção da mãe das águas pela sua Vó também.", "rosto": "feliz"}
+		{"quem": "Benedita", "yo": "", "pt": "Igualzinho ao que a minha mãe fazia, quando eu era menina...", "rosto": "feliz"},
+		{"quem": "Benedita", "yo": "", "pt": "Você trabalhou com carinho, Adé. Agora sim: pode pegar a alfazema. O vidrinho roxo está na prateleira da despensa.", "evento": "liberar_alfazema"},
+		{"quem": "Benedita", "yo": "Odò ìyá!", "pt": "Leve pro mar com respeito. E quando chegar na casa de Iemanjá, peça a bênção da mãe das águas pela sua Vó também.", "rosto": "feliz"}
 	],
 	"vo_alfazema_buscar": [
-		{"quem": "Vó", "yo": "", "pt": "O vidrinho roxo de alfazema está na prateleira da despensa, meu neto."}
+		{"quem": "Benedita", "yo": "", "pt": "O vidrinho roxo de alfazema está na prateleira da despensa, meu neto."}
 	],
 	"coco_pegar": [
 		{"quem": "", "yo": "", "pt": "Adé sacudiu o coqueiro e caiu um coco maduro!", "evento": "pegar_coco"}
@@ -339,7 +339,7 @@
 		{"quem": "Tia Dora", "yo": "", "pt": "O açúcar! Nem muito, nem pouco... só pra adoçar a boca de Iemanjá.", "rosto": "feliz"}
 	],
 	"vo_manjar_ver": [
-		{"quem": "Vó", "yo": "", "pt": "Que cheirinho bom é esse, meu neto? O que você tem aí no Àpò?", "rosto": "feliz"}
+		{"quem": "Benedita", "yo": "", "pt": "Que cheirinho bom é esse, meu neto? O que você tem aí no Àpò?", "rosto": "feliz"}
 	],
 	"recusa_tia": [
 		{"quem": "Tia Dora", "yo": "", "pt": "{item}? Pra que eu quero isso na cozinha, menino?"}
@@ -351,10 +351,10 @@
 		{"quem": "Tia Dora", "yo": "", "pt": "Que cheirinho bom! Mas isso é da Vó, e de Iemanjá. Guarda bem guardado."}
 	],
 	"recusa_vo": [
-		{"quem": "Vó", "yo": "", "pt": "Guarda isso com você, meu neto. A Vó não precisa disso agora."}
+		{"quem": "Benedita", "yo": "", "pt": "Guarda isso com você, meu neto. A Vó não precisa disso agora."}
 	],
 	"recusa_vo_alfazema": [
-		{"quem": "Vó", "yo": "", "pt": "Não, meu neto, essa alfazema agora é sua. Leve para a mãe Iemanjá.", "rosto": "feliz"}
+		{"quem": "Benedita", "yo": "", "pt": "Não, meu neto, essa alfazema agora é sua. Leve para a mãe Iemanjá.", "rosto": "feliz"}
 	],
 	"recusa_oga": [
 		{"quem": "Ogã Bené", "yo": "", "pt": "Ô menino, eu só preciso dos meus atabaques! Isso aí leva pra quem precisa."}
