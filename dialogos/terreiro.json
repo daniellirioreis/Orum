@@ -34,6 +34,9 @@
 		{"quem": "Tia Dora", "yo": "", "pt": "Boa tarde, Adé! A boca do fogão do terreiro nunca fica fria! Hi hi hi! O fogão desta casa nunca para."}
 	],
 	"tia_pedido": [
+		{"quem": "Adé", "yo": "", "pt": "Tia Dora, Tia Dora!"},
+		{"quem": "Tia Dora", "yo": "", "pt": "Oi, Adé! Diga, meu bem."},
+		{"quem": "Adé", "yo": "", "pt": "A senhora tem o Gààrí?"},
 		{"quem": "Tia Dora", "yo": "", "pt": "O Gààrí? Tenho sim, meu bem."},
 		{"quem": "Tia Dora", "yo": "", "pt": "Mas antes me ajuda: o fogo está fraco. Traz lenha do quintal pra mim? A pilha fica lá fora, perto da horta.", "evento": "pedir_lenha"}
 	],
@@ -71,6 +74,9 @@
 		{"quem": "Ogã Bené", "yo": "", "pt": "Salve, Adé! Tô afinando os atabaques pra próxima gira."}
 	],
 	"oga_pedido": [
+		{"quem": "Adé", "yo": "", "pt": "Ogã Bené, Ogã Bené!"},
+		{"quem": "Ogã Bené", "yo": "", "pt": "Diga, Adé! O que você precisa?"},
+		{"quem": "Adé", "yo": "", "pt": "O senhor tem o Oti?"},
 		{"quem": "Ogã Bené", "yo": "", "pt": "O Oti? Tá aqui comigo."},
 		{"quem": "Ogã Bené", "yo": "", "pt": "Mas quem quer chamar Exu tem que saber ouvir. Eu toco, você repete."},
 		{"quem": "", "yo": "", "pt": "Use ← ↑ → (ou A W D) para tocar cada atabaque.", "evento": "comecar_toque"}
