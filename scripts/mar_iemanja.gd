@@ -20,11 +20,17 @@ const LUGARES_IEMANJA := {
 	"iemanja_mar": {"origem": Vector2(0, 1000), "dentro": false},
 	"iemanja_gruta": {"origem": Vector2(400, 0), "dentro": false},
 	"iemanja_fundo": {"origem": Vector2(1200, 0), "dentro": false},
+	"iemanja_camara": {"origem": Vector2(1800, 0), "dentro": false},
 }
 const COR_GRUTA := Color(0.22, 0.22, 0.38)    # a gruta é escura: só brilham as algas, as águas-vivas e a luz de Adé
 const COR_LUA := Color(0.19, 0.24, 0.5)       # noite de lua: escuro e azulado; só a lua, a espuma e as luzinhas brilham
 const SECO := ["s", ",", ";", "*", "t"]
 const TEX_ITENS_IEM := preload("res://arte/iemanja_itens.png")
+const CAMARA_ORIGEM := Vector2(1800, 0)      # a câmara de Aiocá, à direita do fundo do mar
+## Os itens da oferenda no altar (id da bornal → nome na meta) e onde cada um fica sobre o altar.
+const ALTAR_ITENS := {"alfazema": "alfazema", "flores_iemanja": "flores", "perola": "perola"}
+const COR_CAMARA_CLARA := Color(0.75, 0.9, 1.0)   # a câmara toda clara, quando a pérola está no altar
+const ALTAR_POS := {"alfazema": Vector2(-11, -14), "flores_iemanja": Vector2(11, -14), "perola": Vector2(0, -20)}
 const ORDEM_ITENS := ["flores", "alfazema", "perola", "abebe"]
 ## O ritmo das ondas da praia: calma → aviso (a espuma marca até onde a próxima vai) → sobe → cheia → desce.
 const ONDA_TEMPO := {"aviso": 0.9, "sobe": 0.7, "cheia": 0.35, "desce": 1.2}
@@ -41,7 +47,7 @@ const FUNDO_ORIGEM := Vector2(1200, 0)
 const FUNDO_COLUNAS := 31
 const FUNDO_LINHAS := 21
 const COR_FUNDO := Color(0.008, 0.014, 0.05)   # o fundo do mar: bem escuro mesmo, só as lanternas dos peixes clareiam
-const AR_MAX := 25.0
+const AR_MAX := 10.0
 const NADO_VEL := 60.0
 
 var _tartaruga := {}            # a tartaruga velha: anda devagar pela beira, para e olha para Adé
@@ -86,6 +92,7 @@ var _furou_uma_vez := false
 var _bateu_uma_vez := false
 var _mergulhando := false
 var _bolhas_ar: Array = []     # fontes de bolha de ar: {pos, nodo, espera}
+var _animais: Array = []         # bichos da câmara: polvo, tripé, pelicano e cavalo-marinho
 var _peixes: Array = []        # peixes nadando pelo labirinto: {nodo, x0, x1, vel, dir}
 var _ar := 0.0
 var _barra_ar: ColorRect
@@ -152,6 +159,19 @@ func _ready() -> void:
 
 func _inicio() -> void:
 	jogador.congelar(true)
+	if Jogo.has_meta("iemanja_no_camara"):
+		Jogo.remove_meta("iemanja_no_camara")
+		_retomar()
+		_jangada.visible = false
+		_navegando = false
+		_mergulhando = true
+		jogador.set_physics_process(false)
+		_ar = AR_MAX
+		teleportar("iemanja_camara", CAMARA_ORIGEM + Vector2(10 * TILE, 10 * TILE))
+		_clarear_camara(false)
+		_barra_ar.visible = false
+		jogador.congelar(false)
+		return
 	if Jogo.has_meta("iemanja_no_fundo") or (Jogo.has_meta("iemanja_flores") and not Jogo.trofeus.has("iemanja")):
 		# o jogo foi guardado no labirinto, ou as flores já foram pegas: volta direto para o labirinto
 		if Jogo.has_meta("iemanja_no_fundo"):
@@ -206,9 +226,9 @@ func _retomar() -> void:
 		if _flores:
 			_flores.frame = 1
 		_slots_iem["flores"].modulate = Color.WHITE
-		if not Jogo.bornal.tem("flores_iemanja"):
+		if not Jogo.bornal.tem("flores_iemanja") and not Jogo.has_meta("iemanja_arriou_flores"):
 			Jogo.bornal.pegar("flores_iemanja")
-	if Jogo.has_meta("iemanja_alfazema") and not Jogo.bornal.tem("alfazema"):
+	if Jogo.has_meta("iemanja_alfazema") and not Jogo.bornal.tem("alfazema") and not Jogo.has_meta("iemanja_arriou_alfazema"):
 		Jogo.bornal.pegar("alfazema")
 	if Jogo.has_meta("iemanja_alfazema"):
 		_slots_iem["alfazema"].modulate = Color.WHITE
@@ -234,6 +254,7 @@ func _process(delta: float) -> void:
 	super._process(delta)
 	_nadar(delta)
 	_mover_peixes(delta)
+	_mover_animais(delta)
 	if lugar_atual == "iemanja_praia":
 		_mover_tartaruga(delta)
 		_mover_ondas(delta)
@@ -275,6 +296,24 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 	match c:
 		"E":
 			marcas["exu"] = base
+		"Q":
+			# o altar da câmara de Aiocá: a oferenda vai ali (a pérola, por último, no centro)
+			_altar = _criar_interativo("res://arte/iemanja_altar.png", 1, base, Vector2(30, 8), -26.0)
+			_altar.interagiu.connect(_na_altar)
+			_registrar_alvo(_altar, "altar_iem", "altar", "Arriar no altar", 44.0)
+			_luz_altar = PointLight2D.new()
+			_luz_altar.color = Color(0.7, 0.95, 1.0)
+			_luz_altar.energy = 0.0                  # o altar fica no escuro; só acende quando a oferenda se completa
+			_luz_altar.texture = _luz_tex
+			_luz_altar.texture_scale = 2.6
+			_luz_altar.position = base + Vector2(0, -12)
+			mundo.add_child(_luz_altar)
+			var bolhas := _criar_emissor_bolhas(8, 3.0, 8.0)
+			bolhas.position = base + Vector2(0, -6)
+			mundo.add_child(bolhas)
+			for bid in ALTAR_ITENS:
+				if Jogo.has_meta("iemanja_arriou_" + ALTAR_ITENS[bid]):
+					_pos_oferenda(bid, false)
 		"Z":
 			# a pérola da oferenda: brilha quando Adé chega perto
 			if Jogo.has_meta("iemanja_perola"):
@@ -367,6 +406,35 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			_criar_bolha_ar(base)
 		"-":
 			_criar_peixe(base)
+		"A":
+			_criar_agua_viva(base)
+		"G":
+			_criar_animal("res://arte/iemanja_polvo.png", 2, base, false)
+		"B":
+			_criar_animal("res://arte/iemanja_tripe.png", 2, base, false)
+		"D":
+			_criar_animal("res://arte/iemanja_pelicano.png", 2, base, false)
+		"F":
+			_criar_animal("res://arte/iemanja_cavalo.png", 2, base, true)
+		"V":
+			# estalactite: pendurada no teto, pinga água de vez em quando
+			var est := Sprite2D.new()
+			est.texture = preload("res://arte/iemanja_estalactite.png")
+			est.centered = false
+			est.position = base + Vector2(-4, -TILE)
+			est.z_index = -1
+			est.material = _material_sem_sombra()
+			mundo.add_child(est)
+			_criar_gotejo(base + Vector2(0, -TILE + est.texture.get_height()))
+		"U":
+			# estalagmite: sobe do chão da câmara
+			var esg := Sprite2D.new()
+			esg.texture = preload("res://arte/iemanja_estalagmite.png")
+			esg.offset = Vector2(0, -esg.texture.get_height() / 2.0)
+			esg.position = base
+			esg.z_index = -1
+			esg.material = _material_sem_sombra()
+			mundo.add_child(esg)
 		"(":
 			# a quartinha de Exu: aqui se guarda o caminho do mar de Iemanjá
 			_criar_quartinha(base)
@@ -455,6 +523,14 @@ func _construir_terreno(mapa: PackedStringArray, origem: Vector2, topo: TileMapL
 				c.visible = false
 
 
+## No labirinto do fundo do mar, Exu fala de debaixo d'água.
+func _fala_quartinha(chave: String) -> void:
+	if lugar_atual == "iemanja_fundo" and _dados.has("fundo_quartinha_" + chave):
+		await _falar("fundo_quartinha_" + chave)
+		return
+	await super._fala_quartinha(chave)
+
+
 ## O mar mexe: faixas de luz passando.
 func _camada_terreno(origem: Vector2, i: int, camada: TileMapLayer) -> void:
 	# detecta o fundo do mar pela posição de origem (x >= 1200)
@@ -474,7 +550,8 @@ func _camada_terreno(origem: Vector2, i: int, camada: TileMapLayer) -> void:
 
 ## Uma rocha por célula de parede, do tamanho exato de um bloco.
 func _rochas_do_fundo(origem: Vector2) -> void:
-	var mapa: PackedStringArray = _mapas["iemanja_fundo"]
+	var nome := "iemanja_camara" if origem.x > 1700.0 else "iemanja_fundo"
+	var mapa: PackedStringArray = _mapas[nome]
 	var tex: Texture2D = preload("res://arte/iemanja_rocha.png")
 	for y in mapa.size():
 		for x in mapa[y].length():
@@ -485,6 +562,29 @@ func _rochas_do_fundo(origem: Vector2) -> void:
 				s.position = origem + Vector2(x * TILE + TILE / 2.0, y * TILE + TILE / 2.0)
 				s.z_index = -5
 				add_child(s)
+	if nome != "iemanja_fundo":
+		return
+	# a saída: um buraco na rocha que solta bolhas, passagem para o fundo mais fundo do mar
+	var buraco := Sprite2D.new()
+	buraco.texture = preload("res://arte/iemanja_buraco.png")
+	buraco.centered = false
+	buraco.position = origem + Vector2((FUNDO_COLUNAS - 2) * TILE, (FUNDO_LINHAS - 1) * TILE + TILE / 2.0 - buraco.texture.get_height() / 2.0)
+	buraco.z_index = -3
+	buraco.material = _material_sem_sombra()
+	add_child(buraco)
+	var luz_buraco := PointLight2D.new()
+	luz_buraco.color = Color(0.6, 0.92, 1.0)
+	luz_buraco.energy = 1.6
+	luz_buraco.texture = _luz_tex
+	luz_buraco.texture_scale = 2.0
+	luz_buraco.position = origem + Vector2((FUNDO_COLUNAS - 2) * TILE + TILE / 2.0, (FUNDO_LINHAS - 1) * TILE + TILE / 2.0)
+	add_child(luz_buraco)
+	var pulso := create_tween().set_loops()
+	pulso.tween_property(luz_buraco, "energy", 2.6, 0.7)
+	pulso.tween_property(luz_buraco, "energy", 1.2, 0.7)
+	var bolhas_saida := _criar_emissor_bolhas(10, 2.2, 12.0)
+	bolhas_saida.position = origem + Vector2((FUNDO_COLUNAS - 2) * TILE + TILE / 2.0, (FUNDO_LINHAS - 1) * TILE)
+	add_child(bolhas_saida)
 
 
 const SHADER_FUNDO := """
@@ -927,7 +1027,7 @@ func _espirrar(delta: float) -> void:
 
 ## A gruta é escura; a praia e o mar, de lua.
 func _entrar_lugar(nome: String) -> void:
-	cor_fora = COR_GRUTA if nome == "iemanja_gruta" else (COR_FUNDO if nome == "iemanja_fundo" else COR_LUA)
+	cor_fora = COR_GRUTA if nome == "iemanja_gruta" else (COR_FUNDO if nome in ["iemanja_fundo", "iemanja_camara"] else COR_LUA)
 	super._entrar_lugar(nome)
 	if nome == "iemanja_fundo" and not has_node("BolhasMapa"):
 		# bolhinhas subindo pelo fundo do mar, espalhadas pelo mapa
@@ -1252,7 +1352,8 @@ func _nadar(delta: float) -> void:
 	jogador.global_position = p
 	_animar_nado(dir, delta)
 	_atualizar_perola(delta, p)
-	_ar -= delta
+	if lugar_atual != "iemanja_camara":
+		_ar -= delta
 	for b in _bolhas_ar:
 		b["espera"] = maxf(0.0, b["espera"] - delta)
 		if b["espera"] <= 0.0 and p.distance_to(b["pos"]) < 12.0:
@@ -1263,8 +1364,7 @@ func _nadar(delta: float) -> void:
 		_mergulhando = false
 		_sem_ar()
 	elif _letra_em(p) == "s":
-		_mergulhando = false
-		_chegou_fundo()
+		_entrar_camara()
 
 
 ## Braçadas: Adé inclina para onde nada e balança como na água.
@@ -1336,6 +1436,92 @@ func _criar_bolha_ar(base: Vector2) -> void:
 	_bolhas_ar.append({"pos": base, "nodo": bolha, "espera": 0.0})
 
 
+## Bichos que nadam pela câmara (polvo, tripé, pelicano, cavalo-marinho). Nunca passam por cima do altar.
+func _criar_animal(caminho: String, quadros: int, base: Vector2, vertical: bool) -> void:
+	var s := Sprite2D.new()
+	s.texture = load(caminho)
+	s.hframes = quadros
+	s.position = base + Vector2(0, -8)
+	s.z_index = 4
+	s.material = _material_sem_sombra()
+	mundo.add_child(s)
+	_animais.append({"nodo": s, "x0": base.x - 36.0, "x1": base.x + 36.0, "base_y": base.y - 8.0,
+		"vel": 9.0 + randf() * 7.0, "dir": 1.0 if randf() < 0.5 else -1.0, "t": randf() * 6.0,
+		"quadros": quadros, "vertical": vertical})
+
+
+## Água-viva grande: flutua devagar e pisca uma luz rosa, que pulsa como o movimento do sino.
+func _criar_agua_viva(base: Vector2) -> void:
+	var s := Sprite2D.new()
+	s.texture = load("res://arte/iemanja_agua_viva.png")
+	s.hframes = 2
+	s.position = base + Vector2(0, -14)
+	s.z_index = 4
+	s.material = _material_sem_sombra()
+	mundo.add_child(s)
+	var luz := PointLight2D.new()
+	luz.color = Color(1.0, 0.45, 0.75)
+	luz.texture = _luz_tex
+	luz.texture_scale = 1.2
+	luz.energy = randf_range(0.1, 0.3)
+	s.add_child(luz)
+	var pulso := create_tween().set_loops()
+	pulso.tween_property(luz, "energy", 0.7, 1.6).set_trans(Tween.TRANS_SINE)
+	pulso.tween_property(luz, "energy", 0.1, 1.6).set_trans(Tween.TRANS_SINE)
+	_animais.append({"nodo": s, "x0": base.x - 30.0, "x1": base.x + 30.0, "base_y": base.y - 14.0,
+		"vel": 4.0 + randf() * 3.0, "dir": 1.0 if randf() < 0.5 else -1.0, "t": randf() * 6.0,
+		"quadros": 2, "vertical": false, "luz": luz, "pulso": pulso})
+
+
+func _mover_animais(delta: float) -> void:
+	if lugar_atual != "iemanja_camara" or _altar == null:
+		return
+	var centro := _altar.position + Vector2(0, -8)
+	for a in _animais:
+		if a.get("sumindo", false):
+			continue
+		var n: Sprite2D = a["nodo"]
+		a["t"] += delta
+		if a["vertical"]:
+			# o cavalo-marinho sobe e desce no mesmo lugar
+			n.position.y = a["base_y"] + sin(a["t"] * 1.4) * 10.0
+			n.flip_h = false
+		else:
+			n.position.x += a["vel"] * a["dir"] * delta
+			n.position.y = a["base_y"] + sin(a["t"] * 2.0) * 5.0
+			if n.position.x > a["x1"] or n.position.x < a["x0"]:
+				a["dir"] = -a["dir"]
+			n.flip_h = a["dir"] < 0.0
+		# se chega perto do altar, o bicho volta (ou se afasta, no caso do cavalo)
+		if n.position.distance_to(centro) < 30.0:
+			if a["vertical"]:
+				n.position.x = centro.x + (34.0 if n.position.x >= centro.x else -34.0)
+			else:
+				a["dir"] = -a["dir"]
+				n.position.x = centro.x + (-30.0 if n.position.x < centro.x else 30.0)
+		n.frame = int(a["t"] * 3.0) % a["quadros"]
+
+
+## Gotas que caem da ponta de uma estalactite, de vez em quando.
+func _criar_gotejo(ponta: Vector2) -> void:
+	var g := CPUParticles2D.new()
+	g.position = ponta
+	g.amount = 2
+	g.lifetime = 2.2
+	g.preprocess = 2.2
+	g.direction = Vector2(0, 1)
+	g.spread = 0.0
+	g.gravity = Vector2(0, 45)
+	g.initial_velocity_min = 0.0
+	g.initial_velocity_max = 2.0
+	g.scale_amount_min = 1.0
+	g.scale_amount_max = 1.0
+	g.color = Color(0.7, 0.95, 1.0, 0.85)
+	g.z_index = 5
+	g.material = _material_sem_sombra()
+	mundo.add_child(g)
+
+
 func _criar_peixe(base: Vector2) -> void:
 	var peixe := Sprite2D.new()
 	peixe.texture = preload("res://arte/iemanja_peixe.png")
@@ -1356,7 +1542,7 @@ func _criar_peixe(base: Vector2) -> void:
 
 
 func _mover_peixes(delta: float) -> void:
-	if lugar_atual != "iemanja_fundo":
+	if lugar_atual not in ["iemanja_fundo", "iemanja_camara"]:
 		return
 	for f in _peixes:
 		var n: Sprite2D = f["nodo"]
@@ -1390,6 +1576,9 @@ func _nado_livre(pos: Vector2) -> bool:
 	return true
 
 
+var _altar: Area2D
+var _luz_altar: PointLight2D
+var _pulso_altar: Tween
 var _perola: Sprite2D
 var _perola_luz: PointLight2D
 var _perola_pega := false
@@ -1426,9 +1615,135 @@ func _sem_ar() -> void:
 	jogador.congelar(true)
 	_barra_ar.visible = false
 	_voltando = true
+	axe -= 1                                  # faltar ar custa um búzio de axé
+	_atualizar_axe()
 	await _falar("sem_ar")
+	if axe <= 0:
+		_sem_axe()
+		return
 	await _mergulhar()
 
+
+## A passagem de bolhas leva Adé até a câmara de Aiocá: lá não há timer de ar.
+func _entrar_camara() -> void:
+	_voltando = true
+	jogador.congelar(true)
+	_barra_ar.visible = false
+	await _falar("camara_chegada")
+	teleportar("iemanja_camara", CAMARA_ORIGEM + Vector2(10 * TILE, 10 * TILE))
+	_clarear_camara(false)
+	_ar = AR_MAX
+	_voltando = false
+	jogador.congelar(false)
+
+
+func _aceita_arriar(id: String, alvo: String) -> bool:
+	if alvo != "altar_iem" or not ALTAR_ITENS.has(id) or Jogo.has_meta("iemanja_arriou_" + ALTAR_ITENS[id]):
+		return false
+	if id == "perola":
+		# a pérola é a última: só depois das flores e da alfazema
+		return Jogo.has_meta("iemanja_arriou_alfazema") and Jogo.has_meta("iemanja_arriou_flores")
+	return true
+
+
+## Cada item vai para o seu lugar no altar; a pérola, no centro, acende a câmara.
+func _ao_arriar(id: String, _alvo: String) -> void:
+	Jogo.set_meta("iemanja_arriou_" + ALTAR_ITENS[id], true)
+	_pos_oferenda(id, true)
+	_clarear_camara(true)
+	if id == "perola":
+		_acender_camara()
+
+
+## Adé chega ao altar e fala do que falta arriar (ou que a oferenda está pronta).
+func _na_altar() -> void:
+	var nomes := {"alfazema": "a alfazema", "flores_iemanja": "as flores brancas", "perola": "a pérola"}
+	var falta := []
+	for bid in ALTAR_ITENS:
+		if not Jogo.has_meta("iemanja_arriou_" + ALTAR_ITENS[bid]):
+			falta.append(nomes[bid])
+	var chave := "altar_vazio"
+	if falta.is_empty():
+		chave = "altar_pronto"
+	elif falta.size() < ALTAR_ITENS.size():
+		chave = "altar_parcial"
+	var linhas: Array = _dados[chave].duplicate(true)
+	var txt := " e ".join(falta)
+	for l in linhas:
+		l["pt"] = l["pt"].replace("{falta}", txt)
+	await _falar_linhas(linhas)
+
+
+func _pos_oferenda(bid: String, animar: bool) -> void:
+	var sp := Sprite2D.new()
+	sp.texture = Jogo.bornal.icone(bid)
+	sp.position = _altar.position + ALTAR_POS[bid]
+	sp.z_index = 1
+	mundo.add_child(sp)
+	if animar:
+		sp.modulate.a = 0.0
+		create_tween().tween_property(sp, "modulate:a", 1.0, 0.25)
+		Jogo.tocar_som("buzio", -6.0)
+
+
+## Cada oferenda no altar clareia um pouco a câmara; com a última (a pérola), ela fica toda clara.
+func _clarear_camara(animar: bool) -> void:
+	var n := 0
+	for bid in ALTAR_ITENS:
+		if Jogo.has_meta("iemanja_arriou_" + ALTAR_ITENS[bid]):
+			n += 1
+	# só a pérola (a última) clareia a câmara; as duas primeiras deixam tudo escuro
+	var peso := [0.0, 0.0, 0.0, 1.0][n]
+	var alvo := COR_FUNDO.lerp(COR_CAMARA_CLARA, peso)
+	if animar:
+		create_tween().tween_property(_noite, "color", alvo, 1.2)
+	else:
+		_noite.color = alvo
+
+
+## Com a pérola no altar, os bichos e as águas-vivas somem aos poucos (3 segundos).
+func _sumir_bichos() -> void:
+	for a in _animais:
+		a["sumindo"] = true
+		var n: Sprite2D = a["nodo"]
+		if a.has("pulso"):
+			a["pulso"].kill()
+		var t := create_tween().set_parallel(true)
+		t.tween_property(n, "modulate:a", 0.0, 3.0)
+		if a.has("luz"):
+			t.tween_property(a["luz"], "energy", 0.0, 3.0)
+		t.chain().tween_callback(n.hide)
+
+
+## A câmara acende e três ondulações saem do altar. Sem diálogo por enquanto: a conversa com Iemanjá vem depois.
+func _acender_camara() -> void:
+	Jogo.set_meta("iemanja_oferenda", true)
+	_sumir_bichos()
+	if _pulso_altar:
+		_pulso_altar.kill()
+	await get_tree().create_timer(0.5).timeout
+	var t := create_tween()
+	t.tween_property(_luz_altar, "energy", 2.4, 1.4)
+	t.parallel().tween_property(_luz_altar, "texture_scale", 4.0, 1.4)
+	for i in 3:
+		_ondulacao(_altar.position + Vector2(0, -18), i * 0.45)
+
+
+func _ondulacao(pos: Vector2, atraso: float) -> void:
+	await get_tree().create_timer(atraso).timeout
+	var anel := Line2D.new()
+	anel.width = 1.0
+	anel.default_color = Color(0.7, 0.95, 1.0, 0.9)
+	for k in 25:
+		var a := TAU * k / 24.0
+		anel.add_point(Vector2(cos(a), sin(a)) * 6.0)
+	anel.position = pos
+	anel.z_index = 3
+	mundo.add_child(anel)
+	var t := create_tween().set_parallel(true)
+	t.tween_property(anel, "scale", Vector2(7, 7), 1.8)
+	t.tween_property(anel, "modulate:a", 0.0, 1.8)
+	t.chain().tween_callback(anel.queue_free)
 
 func _chegou_fundo() -> void:
 	jogador.congelar(true)
@@ -1481,6 +1796,8 @@ func voltar_ao_mapa() -> void:
 
 ## Guardado aqui, o jogo continua do começo do mar de Iemanjá.
 func _local_do_caminho() -> String:
+	if lugar_atual == "iemanja_camara":
+		return "iemanja_camara"
 	return "iemanja_fundo" if _mergulhando else "iemanja"
 
 

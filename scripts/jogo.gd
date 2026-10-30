@@ -32,8 +32,10 @@ const LOCAIS := {
 	"oxossi": {"nome": "Mata de Oxóssi", "cena": "res://cenas/mata_oxossi.tscn"},
 	"nana": {"nome": "Terra de Nanã", "cena": "res://cenas/mata_nana.tscn"},
 	"iemanja": {"nome": "Mar de Iemanjá", "cena": "res://cenas/mar_iemanja.tscn"},
+	"iemanja_fundo": {"nome": "Fundo do mar", "cena": "res://cenas/mar_iemanja.tscn"},
+	"iemanja_camara": {"nome": "Aiocá", "cena": "res://cenas/mar_iemanja.tscn"},
 }
-const METAS_SALVAS := ["mapa_aberto", "volta_feita", "iemanja_remo", "iemanja_flores", "iemanja_alfazema", "bornal_dica"]
+const METAS_SALVAS := ["mapa_aberto", "volta_feita", "iemanja_remo", "iemanja_flores", "iemanja_alfazema", "iemanja_perola", "iemanja_arriou_alfazema", "iemanja_arriou_flores", "iemanja_arriou_perola", "iemanja_oferenda", "bornal_dica"]
 var espaco_atual := -1
 var opcoes := {"musica": 8, "efeitos": 8}
 var menu: CanvasLayer
@@ -627,4 +629,8 @@ func carregar(espaco: int) -> void:
 			set_meta("na_quartinha", true)
 		"orita":
 			set_meta("no_mapa", "orita")
+		"iemanja_fundo":
+			set_meta("iemanja_no_fundo", true)
+		"iemanja_camara":
+			set_meta("iemanja_no_camara", true)
 	mudar_cena(LOCAIS.get(local, LOCAIS["orita"])["cena"])

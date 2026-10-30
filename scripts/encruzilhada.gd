@@ -723,8 +723,12 @@ func _sem_axe() -> void:
 func _exu_troca_buzios() -> bool:
 	var n: int = Jogo.buzios
 	var pode := mini(AXE_MAX, n / BUZIOS_POR_AXE)
+	# na fase do fundo do mar, Exu fala das coisas de lá (bolhas, pérola, água)
+	var no_fundo: bool = lugar_atual == "iemanja_fundo"
 	var zoeira := "Caiu de novo?"
-	if _quem_bateu == "redemoinho":
+	if no_fundo and _quem_bateu == "":
+		zoeira = "Engoliu mais água que ar, hein? Virou peixe de novo!"
+	elif _quem_bateu == "redemoinho":
 		zoeira = "O redemoinho te rodou feito pião e te jogou no chão!"
 	elif _quem_bateu == "kiumbas":
 		zoeira = "Os kiumbas te pegaram de susto, hein? Correndo de sombra..."
@@ -736,11 +740,15 @@ func _exu_troca_buzios() -> bool:
 	if pode == 0:
 		falas.append({"quem": "Èṣù", "yo": "Hi hi hi!", "pt": "Há há há! Com %d búzios eu devolvo um búzio de axé... mas você só juntou %d. Com isso eu compro um pirulito, não um axé!" % [BUZIOS_POR_AXE, n]})
 		var conto := "e conto pra Vó que você caiu!" if quem_txt == "" else "e conto pra Vó que %s te pegou!" % quem_txt
-		falas.append({"quem": "Èṣù", "yo": "", "pt": "Hi hi hi! Da próxima vez, junte os búzios do caminho. Eu guardo o que é seu... " + conto})
+		var dica := "Da próxima vez, junte os búzios do caminho lá embaixo, perto das bolhas." if no_fundo else "Da próxima vez, junte os búzios do caminho."
+		falas.append({"quem": "Èṣù", "yo": "", "pt": "Hi hi hi! " + dica + " Eu guardo o que é seu... " + conto})
 		await _falar_linhas(falas)
 		jogador.congelar(true)
 		return false
-	falas.append({"quem": "Èṣù", "yo": "", "pt": "Hi hi hi! Olha só, juntou %d búzios! Tá rico, hein? Cada %d búzios valem um búzio de axé. Quer trocar?" % [n, BUZIOS_POR_AXE]})
+	if no_fundo:
+		falas.append({"quem": "Èṣù", "yo": "", "pt": "Hi hi hi! Juntou %d búzios no fundo do mar, e sem se afogar! Tá rico, hein? Cada %d búzios valem um búzio de axé. Quer trocar?" % [n, BUZIOS_POR_AXE]})
+	else:
+		falas.append({"quem": "Èṣù", "yo": "", "pt": "Hi hi hi! Olha só, juntou %d búzios! Tá rico, hein? Cada %d búzios valem um búzio de axé. Quer trocar?" % [n, BUZIOS_POR_AXE]})
 	await _falar_linhas(falas)
 	jogador.congelar(true)
 	var opcoes := []

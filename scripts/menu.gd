@@ -411,7 +411,7 @@ func escolher_caminho(titulo: String, para_carregar: bool) -> int:
 	var inicial := maxi(Jogo.espaco_atual, 0)
 	var r2 := await escolher(titulo, itens, inicial, false, vazios if para_carregar else [])
 	if r2["acao"] != "ok":
-		return -1
+		return -2                             # Esc: cancela sem guardar (diferente de "Não guardar", que é -1)
 	if r2["i"] == Jogo.ESPACOS:
 		await _apagar_caminho()
 		return await escolher_caminho(titulo, para_carregar)
@@ -427,8 +427,8 @@ func escolher_caminho(titulo: String, para_carregar: bool) -> int:
 func _rotulo_caminho(i: int) -> String:
 	var r: Dictionary = Jogo.resumo(i)
 	if r.is_empty():
-		return "Caminho %d  ·  vazio" % (i + 1)
-	return "Caminho %d · %s ★%d [img=8x8]res://arte/ico_tempo.png[/img] %s [img=8x8]res://arte/ico_morte.png[/img] %d [img=8x8]res://arte/ico_buzio.png[/img] %d" % [i + 1, r["onde"], r["trofeus"], r["tempo"], r["mortes"], r["buzios"]]
+		return "%d  ·  vazio" % (i + 1)
+	return "%d · %s · %s ★%d [img=8x8]res://arte/ico_tempo.png[/img] %s [img=8x8]res://arte/ico_morte.png[/img] %d [img=8x8]res://arte/ico_buzio.png[/img] %d" % [i + 1, r["onde"], r["data"], r["trofeus"], r["tempo"], r["mortes"], r["buzios"]]
 
 
 ## Pergunta qual caminho apagar (com confirmação). Os vazios não aparecem como escolha.

@@ -2077,6 +2077,7 @@ func _na_quartinha() -> void:
 	jogador.olhar_para(e.global_position)
 	await _fala_quartinha("pergunta")
 	jogador.congelar(true)
+	get_tree().paused = true                  # como no menu de pausa: o mundo para enquanto o caminho é escolhido
 	var espaco: int = await Jogo.menu.escolher_caminho("Exu guarda o seu caminho", false)
 	if espaco >= 0:
 		Jogo.salvar(espaco, _local_do_caminho())
@@ -2084,9 +2085,12 @@ func _na_quartinha() -> void:
 		Jogo.tocar_som("caminho", -6.0)
 		var guardado := Jogo.resumo(espaco)
 		await Jogo.menu.escolher("Caminho %d guardado" % (espaco + 1), ["Ok"], 0, false, [], "Tempo de jogo: %s  ·  Mortes: %d" % [guardado["tempo"], guardado["mortes"]])
+		get_tree().paused = false
 		await _fala_quartinha("guardou")
 	else:
-		await _fala_quartinha("nao")
+		get_tree().paused = false
+		if espaco != -2:                      # Esc só fecha a tela; "Não guardar" ainda deixa Exu falar
+			await _fala_quartinha("nao")
 	jogador.congelar(true)
 	if veio:
 		_fumaca_vermelha(e.global_position + Vector2(0, -12))
