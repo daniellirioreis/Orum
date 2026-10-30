@@ -1359,6 +1359,7 @@ func _nadar(delta: float) -> void:
 		if b["espera"] <= 0.0 and p.distance_to(b["pos"]) < 12.0:
 			b["espera"] = 2.0                      # a fonte continua ali: respira de novo depois de uma pausa
 			_ar = minf(AR_MAX, _ar + 10.0)
+			Jogo.tocar_som("bolha", -6.0)
 	_barra_ar.size.x = 60.0 * clampf(_ar / AR_MAX, 0.0, 1.0)
 	if _ar <= 0.0:
 		_mergulhando = false
@@ -1693,7 +1694,7 @@ func _clarear_camara(animar: bool) -> void:
 		if Jogo.has_meta("iemanja_arriou_" + ALTAR_ITENS[bid]):
 			n += 1
 	# só a pérola (a última) clareia a câmara; as duas primeiras deixam tudo escuro
-	var peso := [0.0, 0.0, 0.0, 1.0][n]
+	var peso: float = [0.0, 0.0, 0.0, 1.0][n]
 	var alvo := COR_FUNDO.lerp(COR_CAMARA_CLARA, peso)
 	if animar:
 		create_tween().tween_property(_noite, "color", alvo, 1.2)
@@ -1719,6 +1720,7 @@ func _sumir_bichos() -> void:
 func _acender_camara() -> void:
 	Jogo.set_meta("iemanja_oferenda", true)
 	_sumir_bichos()
+	Jogo.tocar_som("claridade", -4.0)
 	if _pulso_altar:
 		_pulso_altar.kill()
 	await get_tree().create_timer(0.5).timeout
