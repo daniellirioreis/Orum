@@ -40,7 +40,7 @@ const ROLO_CADA := 3.4
 const FUNDO_ORIGEM := Vector2(1200, 0)
 const FUNDO_COLUNAS := 31
 const FUNDO_LINHAS := 21
-const COR_FUNDO := Color(0.04, 0.07, 0.22)   # o fundo do mar: escuro, azul-marinho
+const COR_FUNDO := Color(0.008, 0.014, 0.05)   # o fundo do mar: bem escuro mesmo, só as lanternas dos peixes clareiam
 const AR_MAX := 25.0
 const NADO_VEL := 60.0
 
@@ -85,7 +85,7 @@ var _mar_desenho: Node2D
 var _furou_uma_vez := false
 var _bateu_uma_vez := false
 var _mergulhando := false
-var _bolhas_ar: Array = []     # bolhas de ar no labirinto: {pos, nodo, usada}
+var _bolhas_ar: Array = []     # fontes de bolha de ar: {pos, nodo, espera}
 var _peixes: Array = []        # peixes nadando pelo labirinto: {nodo, x0, x1, vel, dir}
 var _ar := 0.0
 var _barra_ar: ColorRect
@@ -275,6 +275,26 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 	match c:
 		"E":
 			marcas["exu"] = base
+		"Z":
+			# a pérola da oferenda: brilha quando Adé chega perto
+			if Jogo.has_meta("iemanja_perola"):
+				_perola_pega = true
+				return
+			_perola = Sprite2D.new()
+			_perola.texture = TEX_ITENS_IEM
+			_perola.hframes = 5
+			_perola.frame = 2                      # a pérola no conjunto de ícones
+			_perola.position = base + Vector2(0, -4)
+			_perola.z_index = 5
+			_perola.material = _material_sem_sombra()
+			mundo.add_child(_perola)
+			_perola_luz = PointLight2D.new()
+			_perola_luz.color = Color(0.7, 0.95, 1.0)
+			_perola_luz.energy = 0.0
+			_perola_luz.texture = _luz_tex
+			_perola_luz.texture_scale = 1.1
+			_perola_luz.position = base + Vector2(0, -4)
+			mundo.add_child(_perola_luz)
 		"N":
 			var rede := _criar_interativo("res://arte/iemanja_rede.png", 1, base + Vector2(0, 4), Vector2(40, 4), -30.0)
 			(rede.get_node("Alcance").shape as CircleShape2D).radius = 30.0
@@ -340,11 +360,9 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 		"[", "]":
 			var coral_tex := "res://arte/iemanja_coral_a.png" if c == "[" else "res://arte/iemanja_coral_b.png"
 			var coral := _criar_cenario(coral_tex, Vector2(8, 4), base)
-			coral.scale = Vector2(0.4, 0.4)            # coral bem menor, para não invadir a trilha
+			coral.scale = Vector2(1.0, 1.0)            # corais no tamanho original, como no labirinto de antes
 			coral.z_index = -2                         # Adé fica sempre por cima do coral
-			# bioluminescência: cor diferente para cada tipo de coral
-			var cor_coral := Color(0.3, 0.9, 1.0) if c == "[" else Color(0.7, 0.3, 1.0)
-			_luz(base + Vector2(0, -6), cor_coral, 0.45 + randf() * 0.2, 0.35, false)
+			# sem luz própria: no fundo do mar, só os peixes iluminam o caminho
 		")":
 			_criar_bolha_ar(base)
 		"-":
@@ -428,20 +446,27 @@ func som_do_chao(pos: Vector2) -> Array:
 	return super.som_do_chao(pos)
 
 
+## No fundo do mar não existe grama: a camada de grama some e fica só o escuro.
+func _construir_terreno(mapa: PackedStringArray, origem: Vector2, topo: TileMapLayer) -> void:
+	super._construir_terreno(mapa, origem, topo)
+	if origem.x >= FUNDO_ORIGEM.x - 4.0:
+		for c in get_children():
+			if c is TileMapLayer and c.z_index == -10:
+				c.visible = false
+
+
 ## O mar mexe: faixas de luz passando.
 func _camada_terreno(origem: Vector2, i: int, camada: TileMapLayer) -> void:
 	# detecta o fundo do mar pela posição de origem (x >= 1200)
 	var e_fundo := origem.x >= FUNDO_ORIGEM.x - 4.0
 	if e_fundo:
-		# o labirinto: sem fundo. Some a grama e as camadas de chão; ficam só a trilha de água e as rochas
-		if i == 0:
-			for c in get_children():
-				if c is TileMapLayer and c.z_index == -10:
-					c.visible = false
+		# o fundo do mar: a parede vira rocha (desenhada à parte); o chão/areia continua
 		if i == 4:
+			camada.visible = false                 # a textura de parede soma à rocha; escondida para não dobrar
 			_rochas_do_fundo(origem)
-		if i != 2:
-			camada.visible = false
+			return
+		if i == 2:
+			camada.material = _material_fundo_mar()  # água escura: só as lanternas dos peixes iluminam
 		return
 	if i == 2 or i == 5:
 		camada.material = _material_mar()
@@ -471,13 +496,8 @@ void vertex() {
 void fragment() {
 	vec4 c = COLOR;
 	vec2 p = floor(mundo);
-	// raios de luz descendo de cima, lentos e ondulados
-	float raio = sin(p.x * 0.18 + TIME * 0.7 + sin(p.y * 0.09 + TIME * 0.4) * 2.5)
-		* sin(p.y * 0.12 - TIME * 0.5);
-	float luz = step(0.6, raio) * 0.12 + step(0.85, raio) * 0.14;
-	// brilho azul-ciano que pulsa
-	c.rgb += vec3(luz * 0.4, luz * 0.9, luz) * c.a;
-	c.rgb = mix(c.rgb, vec3(0.04, 0.09, 0.28) * c.a + c.rgb * (1.0 - c.a * 0.3), 0.15);
+	// quase sem luz própria: só uma sombra escurecendo a água, sem clarear (o brilho vem dos peixes)
+	c.rgb = c.rgb * 0.22 + vec3(0.004, 0.007, 0.02) * c.a;
 	COLOR = c;
 }
 """
@@ -909,6 +929,18 @@ func _espirrar(delta: float) -> void:
 func _entrar_lugar(nome: String) -> void:
 	cor_fora = COR_GRUTA if nome == "iemanja_gruta" else (COR_FUNDO if nome == "iemanja_fundo" else COR_LUA)
 	super._entrar_lugar(nome)
+	if nome == "iemanja_fundo" and not has_node("BolhasMapa"):
+		# bolhinhas subindo pelo fundo do mar, espalhadas pelo mapa
+		var bolhas := _criar_emissor_bolhas(40, 4.5, 14.0)
+		bolhas.name = "BolhasMapa"
+		bolhas.position = FUNDO_ORIGEM + Vector2(FUNDO_COLUNAS * TILE / 2.0, FUNDO_LINHAS * TILE / 2.0)
+		bolhas.preprocess = 4.5
+		bolhas.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+		bolhas.emission_rect_extents = Vector2(FUNDO_COLUNAS * TILE / 2.0, FUNDO_LINHAS * TILE / 2.0)
+		bolhas.spread = 8.0
+		add_child(bolhas)
+	if has_node("BolhasMapa"):
+		$BolhasMapa.visible = nome == "iemanja_fundo"      # as bolhas do mapa só aparecem no fundo do mar
 	if nome == "iemanja_fundo" and not _mergulhando:
 		# partículas de plâncton flutuando no fundo do mar
 		if not has_node("Plancton"):
@@ -1200,6 +1232,10 @@ func _mergulhar() -> void:
 ## Nadando: as setas movem Adé pela água; pedra não passa, e o ar vai acabando.
 func _nadar(delta: float) -> void:
 	if not _mergulhando or $Dialogo.ativo or _voltando:
+		jogador.sprite.rotation = 0.0               # fora da água, Adé volta ao jeito normal
+		jogador.sprite.position.y = 0.0
+		if _bolhas_nado:
+			_bolhas_nado.emitting = false
 		return
 	var dir := Input.get_vector("esquerda", "direita", "cima", "baixo")
 	jogador.velocity = Vector2.ZERO               # na água não há gravidade: a física de chão não pode puxar Adé para a parede
@@ -1214,12 +1250,14 @@ func _nadar(delta: float) -> void:
 	if not _nado_livre(p):
 		p = jogador.global_position              # nunca fica numa parede/coral: se o resultado caiu nela, volta
 	jogador.global_position = p
+	_animar_nado(dir, delta)
+	_atualizar_perola(delta, p)
 	_ar -= delta
 	for b in _bolhas_ar:
-		if not b["usada"] and p.distance_to(b["pos"]) < 12.0:
-			b["usada"] = true
+		b["espera"] = maxf(0.0, b["espera"] - delta)
+		if b["espera"] <= 0.0 and p.distance_to(b["pos"]) < 12.0:
+			b["espera"] = 2.0                      # a fonte continua ali: respira de novo depois de uma pausa
 			_ar = minf(AR_MAX, _ar + 10.0)
-			b["nodo"].visible = false
 	_barra_ar.size.x = 60.0 * clampf(_ar / AR_MAX, 0.0, 1.0)
 	if _ar <= 0.0:
 		_mergulhando = false
@@ -1227,6 +1265,52 @@ func _nadar(delta: float) -> void:
 	elif _letra_em(p) == "s":
 		_mergulhando = false
 		_chegou_fundo()
+
+
+## Braçadas: Adé inclina para onde nada e balança como na água.
+var _tempo_nado := 0.0
+
+func _animar_nado(dir: Vector2, delta: float) -> void:
+	var s: Sprite2D = jogador.sprite
+	_tempo_nado += delta
+	if dir.x != 0.0:
+		s.flip_h = dir.x < 0.0
+	if dir.length() > 0.1:
+		s.frame = [2, 3, 4, 5][int(_tempo_nado * 8.0) % 4]     # braçadas
+	else:
+		s.frame = [0, 1][int(_tempo_nado * 1.5) % 2]           # boiando parada
+	var alvo := dir.x * 0.3 + sin(_tempo_nado * 5.0) * 0.06
+	s.rotation = lerpf(s.rotation, alvo, minf(1.0, 8.0 * delta))
+	s.position.y = sin(_tempo_nado * 4.0) * 1.0
+	# bolhinhas saindo da cabeça de Adé enquanto ela nada
+	if _bolhas_nado == null:
+		_bolhas_nado = _criar_emissor_bolhas(3, 1.2, 4.0)
+		mundo.add_child(_bolhas_nado)
+	_bolhas_nado.global_position = jogador.global_position + Vector2(-5.0 * (-1.0 if s.flip_h else 1.0), -8.0)
+	_bolhas_nado.emitting = true
+
+
+var _bolhas_nado: CPUParticles2D
+
+## Um emissor de bolhas: sobe devagar, aumenta e some no topo.
+func _criar_emissor_bolhas(quantidade: int, vida: float, velocidade: float) -> CPUParticles2D:
+	var b := CPUParticles2D.new()
+	b.amount = quantidade
+	b.lifetime = vida
+	b.direction = Vector2(0, -1)
+	b.spread = 15.0
+	b.gravity = Vector2(0, -velocidade)
+	b.initial_velocity_min = 2.0
+	b.initial_velocity_max = 6.0
+	b.scale_amount_min = 0.8
+	b.scale_amount_max = 2.2
+	var grad := Gradient.new()
+	grad.set_color(0, Color(0.7, 0.96, 1.0, 0.0))
+	grad.add_point(0.25, Color(0.7, 0.96, 1.0, 0.9))
+	grad.set_color(grad.get_point_count() - 1, Color(0.4, 0.8, 1.0, 0.0))
+	b.color_ramp = grad
+	b.z_index = 20
+	return b
 
 
 func _criar_bolha_ar(base: Vector2) -> void:
@@ -1249,7 +1333,7 @@ func _criar_bolha_ar(base: Vector2) -> void:
 	grad.set_color(grad.get_point_count()-1, Color(0.3, 0.7, 1.0, 0.0))
 	bolha.color_ramp = grad
 	mundo.add_child(bolha)
-	_bolhas_ar.append({"pos": base, "nodo": bolha, "usada": false})
+	_bolhas_ar.append({"pos": base, "nodo": bolha, "espera": 0.0})
 
 
 func _criar_peixe(base: Vector2) -> void:
@@ -1264,7 +1348,7 @@ func _criar_peixe(base: Vector2) -> void:
 	var luz_p := PointLight2D.new()
 	luz_p.color = Color(1.0, 0.92, 0.55)
 	luz_p.energy = 0.0
-	luz_p.texture_scale = 0.9
+	luz_p.texture_scale = 0.3                  # luz pequena, só clareia bem perto do peixe
 	luz_p.texture = _luz_tex
 	luz_p.position = Vector2(8, -2)
 	peixe.add_child(luz_p)
@@ -1288,7 +1372,7 @@ func _mover_peixes(delta: float) -> void:
 		# a lanterna acende e apaga (fica acesa cerca de 3 s em cada ciclo de 5 s)
 		var luz: PointLight2D = f["luz"]
 		var acesa := fposmod(f["t"] * 0.6 + f["fase"], 5.0) < 3.0
-		luz.energy = lerpf(luz.energy, 1.5 if acesa else 0.0, minf(1.0, 5.0 * delta))
+		luz.energy = lerpf(luz.energy, 1.0 if acesa else 0.0, minf(1.0, 5.0 * delta))
 		luz.position.x = 8.0 * f["dir"]
 
 
@@ -1296,9 +1380,46 @@ func _nado_livre(pos: Vector2) -> bool:
 	# Adé tem corpo: os quatro cantos do corpo precisam estar na trilha (sem encostar nos corais)
 	for d in [Vector2(-4, -8), Vector2(4, -8), Vector2(-4, 2), Vector2(4, 2)]:
 		var l := _letra_em(pos + d)
+		if l == "s" and not _perola_pega:
+			if not _aviso_saida:
+				_aviso_saida = true
+				_falar("sem_perola")
+			return false
 		if not (l == "w" or l == "s"):
 			return false
 	return true
+
+
+var _perola: Sprite2D
+var _perola_luz: PointLight2D
+var _perola_pega := false
+var _aviso_saida := false
+
+## A pérola ilumina o caminho quando Adé chega perto; ao tocar nela, Adé a guarda.
+func _atualizar_perola(delta: float, p: Vector2) -> void:
+	if _perola == null or _perola_pega:
+		return
+	var d := p.distance_to(_perola.global_position)
+	# a pérola pisca: mais forte quando Adé está perto, um brilho fraco de longe
+	var pisca := 0.5 + 0.5 * sin(Time.get_ticks_msec() / 1000.0 * 5.0)
+	var perto := d < 80.0
+	var alvo := (1.2 + 0.8 * pisca) if perto else (0.25 + 0.2 * pisca)
+	_perola_luz.energy = lerpf(_perola_luz.energy, alvo, minf(1.0, 6.0 * delta))
+	_perola_luz.texture_scale = 1.4 + 0.4 * pisca
+	_perola.modulate = Color(1.0, 1.0, 1.0, (0.55 + 0.45 * pisca) if perto else (0.35 + 0.25 * pisca))
+	if d < 12.0:
+		_pegar_perola()
+
+
+func _pegar_perola() -> void:
+	_perola_pega = true
+	_iem["perola"] = true
+	Jogo.set_meta("iemanja_perola", true)
+	_perola.visible = false
+	_perola_luz.energy = 0.0
+	_acender_slot("perola", "")
+	_pegar_item("perola", _perola.global_position)
+	_falar("perola_achada")
 
 
 func _sem_ar() -> void:

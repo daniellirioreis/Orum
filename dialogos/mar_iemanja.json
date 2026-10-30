@@ -2,8 +2,7 @@
 	"nomes": {
 		"flores": "flores brancas",
 		"alfazema": "o perfume de alfazema",
-		"perola": "uma pérola",
-		"espelho": "um espelho"
+		"perola": "uma pérola"
 	},
 	"revisita": [
 		{
@@ -53,7 +52,7 @@
 		{
 			"quem": "Èṣù",
 			"yo": "",
-			"pt": "Flores brancas, perfume de alfazema, uma pérola e um espelho. Iemanjá gosta de se ver bonita!"
+			"pt": "Flores brancas, perfume de alfazema e uma pérola. Iemanjá gosta de ficar bonita!"
 		},
 		{
 			"quem": "Èṣù",
@@ -124,7 +123,7 @@
 		{
 			"quem": "Adé",
 			"yo": "",
-			"pt": "Faltam a pérola e o espelho... Iemanjá mora lá no fundo do mar. Será que eles estão por lá?"
+			"pt": "Falta a pérola... Iemanjá mora lá no fundo do mar. Será que ela está por lá?"
 		}
 	],
 	"jangada_sem_remo": [
@@ -361,7 +360,7 @@
 		{
 			"quem": "Adé",
 			"yo": "",
-			"pt": "Faltam a pérola e o espelho... devem estar lá no fundo do mar."
+			"pt": "Falta a pérola... deve estar lá no fundo do mar."
 		}
 	],
 	"costao_fechado": [
@@ -405,5 +404,20 @@
 			"yo": "",
 			"pt": "Isso não faz a jangada andar... preciso do remo."
 		}
+	],
+	"mergulho": [
+		{"quem": "Adé", "yo": "", "pt": "Vou mergulhar! Com as setas eu desço. O ar não dura para sempre, então não posso demorar."}
+	],
+	"sem_ar": [
+		{"quem": "Adé", "yo": "", "pt": "Faltou ar! Adé sobe, tosse e respira. Vou tentar de novo, e mais devagar."}
+	],
+	"fundo": [
+		{"quem": "Adé", "yo": "", "pt": "A areia do fundo do mar! Aiocá deve estar por perto, mas ainda não é a casa de Iemanjá."}
+	],
+	"sem_perola": [
+		{"quem": "Adé", "yo": "", "pt": "A saída está fechada... Iemanjá só abre o caminho quando a pérola da oferenda estiver com Adé."}
+	],
+	"perola_achada": [
+		{"quem": "Adé", "yo": "", "pt": "A pérola! Ela brilha como uma estrela no fundo do mar. Agora Adé pode seguir para a casa de Iemanjá."}
 	]
 }
