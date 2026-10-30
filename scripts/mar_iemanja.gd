@@ -1,7 +1,7 @@
 extends "res://scripts/encruzilhada.gd"
 ## Òkun Yemọja — o mar de Iemanjá (visão de cima, de noite, ao luar).
 ## Na chegada, Exu explica a Adé quem é Iemanjá e o que vai na oferenda que ele tem de levar até Aiocá,
-## o palácio dela no fundo do mar: flores brancas, perfume de alfazema, uma pérola e um espelho.
+## o palácio dela no fundo do mar: flores brancas, perfume de alfazema e uma pérola.
 ##
 ## Lugares:
 ##   iemanja_praia → a praia de cima para baixo: Adé desce das dunas e do coqueiral até a beira; o mar fica
@@ -19,12 +19,13 @@ const LUGARES_IEMANJA := {
 	"iemanja_praia": {"origem": Vector2(0, 0), "dentro": false},
 	"iemanja_mar": {"origem": Vector2(0, 1000), "dentro": false},
 	"iemanja_gruta": {"origem": Vector2(400, 0), "dentro": false},
+	"iemanja_fundo": {"origem": Vector2(1200, 0), "dentro": false},
 }
 const COR_GRUTA := Color(0.22, 0.22, 0.38)    # a gruta é escura: só brilham as algas, as águas-vivas e a luz de Adé
 const COR_LUA := Color(0.19, 0.24, 0.5)       # noite de lua: escuro e azulado; só a lua, a espuma e as luzinhas brilham
 const SECO := ["s", ",", ";", "*", "t"]
 const TEX_ITENS_IEM := preload("res://arte/iemanja_itens.png")
-const ORDEM_ITENS := ["flores", "alfazema", "perola", "espelho", "abebe"]
+const ORDEM_ITENS := ["flores", "alfazema", "perola", "abebe"]
 ## O ritmo das ondas da praia: calma → aviso (a espuma marca até onde a próxima vai) → sobe → cheia → desce.
 const ONDA_TEMPO := {"aviso": 0.9, "sobe": 0.7, "cheia": 0.35, "desce": 1.2}
 const ONDAS := [1.9, 3.9, 2.4, 1.7, 4.0, 3.7, 2.1, 4.0]     # até quantos blocos cada onda sobe (repete)
@@ -35,6 +36,13 @@ const ARRASTO := 1.1           # a água freia a jangada (por segundo)
 const CORRENTEZA := 26.0
 const ROLO_VEL := 24.0         # os rolos de onda descendo
 const ROLO_CADA := 3.4
+# o mergulho: Adé desce com as setas até a areia do fundo; o ar tem um limite
+const FUNDO_ORIGEM := Vector2(1200, 0)
+const FUNDO_COLUNAS := 31
+const FUNDO_LINHAS := 21
+const COR_FUNDO := Color(0.04, 0.07, 0.22)   # o fundo do mar: escuro, azul-marinho
+const AR_MAX := 25.0
+const NADO_VEL := 60.0
 
 var _tartaruga := {}            # a tartaruga velha: anda devagar pela beira, para e olha para Adé
 var _iem := {}                  # flags da fase: flores, remo...
@@ -76,6 +84,11 @@ var _flores: Sprite2D
 var _mar_desenho: Node2D
 var _furou_uma_vez := false
 var _bateu_uma_vez := false
+var _mergulhando := false
+var _bolhas_ar: Array = []     # bolhas de ar no labirinto: {pos, nodo, usada}
+var _peixes: Array = []        # peixes nadando pelo labirinto: {nodo, x0, x1, vel, dir}
+var _ar := 0.0
+var _barra_ar: ColorRect
 var _proa := PI                 # para onde a proa aponta (0 = para cima; começa apontando mar adentro, para baixo)
 
 
@@ -109,6 +122,12 @@ func _ready() -> void:
 
 	_criar_interface()
 	_criar_inventario()
+	_barra_ar = ColorRect.new()
+	_barra_ar.position = Vector2(8, 22)
+	_barra_ar.size = Vector2(60, 3)
+	_barra_ar.color = Color(0.5, 0.85, 1.0)
+	_barra_ar.visible = false
+	$HUD.add_child(_barra_ar)
 	$Dialogo.evento.connect(_ao_evento)
 	_proximo_raio = 9999.0
 	_preparar_ondas()
@@ -133,6 +152,21 @@ func _ready() -> void:
 
 func _inicio() -> void:
 	jogador.congelar(true)
+	if Jogo.has_meta("iemanja_no_fundo") or (Jogo.has_meta("iemanja_flores") and not Jogo.trofeus.has("iemanja")):
+		# o jogo foi guardado no labirinto, ou as flores já foram pegas: volta direto para o labirinto
+		if Jogo.has_meta("iemanja_no_fundo"):
+			Jogo.remove_meta("iemanja_no_fundo")
+		_retomar()
+		_jangada.visible = false
+		_navegando = false
+		_mergulhando = true
+		jogador.set_physics_process(false)      # sem física de chão/gravidade: debaixo d'água só o _nadar move Adé
+		_ar = AR_MAX
+		teleportar("iemanja_fundo", FUNDO_ORIGEM + Vector2(15.5 * TILE, 9.5 * TILE))
+		_barra_ar.size.x = 60.0
+		_barra_ar.visible = true
+		jogador.congelar(false)
+		return
 	await get_tree().create_timer(0.8).timeout
 	$HUD.mostrar_titulo("Òkun Yemọja", "O Mar de Iemanjá")
 	await get_tree().create_timer(1.6).timeout
@@ -198,6 +232,8 @@ func _exu_explica() -> void:
 
 func _process(delta: float) -> void:
 	super._process(delta)
+	_nadar(delta)
+	_mover_peixes(delta)
 	if lugar_atual == "iemanja_praia":
 		_mover_tartaruga(delta)
 		_mover_ondas(delta)
@@ -301,6 +337,21 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 		"c":
 			super._criar_objeto(lugar, c, celula, base, chao)
 			_luz(base + Vector2(0, -8), Color(0.75, 0.85, 1.0), 0.7, 0.45, false)   # o búzio brilha na areia
+		"[", "]":
+			var coral_tex := "res://arte/iemanja_coral_a.png" if c == "[" else "res://arte/iemanja_coral_b.png"
+			var coral := _criar_cenario(coral_tex, Vector2(8, 4), base)
+			coral.scale = Vector2(0.4, 0.4)            # coral bem menor, para não invadir a trilha
+			coral.z_index = -2                         # Adé fica sempre por cima do coral
+			# bioluminescência: cor diferente para cada tipo de coral
+			var cor_coral := Color(0.3, 0.9, 1.0) if c == "[" else Color(0.7, 0.3, 1.0)
+			_luz(base + Vector2(0, -6), cor_coral, 0.45 + randf() * 0.2, 0.35, false)
+		")":
+			_criar_bolha_ar(base)
+		"-":
+			_criar_peixe(base)
+		"(":
+			# a quartinha de Exu: aqui se guarda o caminho do mar de Iemanjá
+			_criar_quartinha(base)
 		"C":
 			var qual := "res://arte/iemanja_coqueiro_g.png" if celula.y % 2 else "res://arte/iemanja_coqueiro_g2.png"
 			_criar_cenario(qual, Vector2(8, 5), base + Vector2(0, 2))
@@ -378,9 +429,68 @@ func som_do_chao(pos: Vector2) -> Array:
 
 
 ## O mar mexe: faixas de luz passando.
-func _camada_terreno(_origem: Vector2, i: int, camada: TileMapLayer) -> void:
+func _camada_terreno(origem: Vector2, i: int, camada: TileMapLayer) -> void:
+	# detecta o fundo do mar pela posição de origem (x >= 1200)
+	var e_fundo := origem.x >= FUNDO_ORIGEM.x - 4.0
+	if e_fundo:
+		# o labirinto: sem fundo. Some a grama e as camadas de chão; ficam só a trilha de água e as rochas
+		if i == 0:
+			for c in get_children():
+				if c is TileMapLayer and c.z_index == -10:
+					c.visible = false
+		if i == 4:
+			_rochas_do_fundo(origem)
+		if i != 2:
+			camada.visible = false
+		return
 	if i == 2 or i == 5:
 		camada.material = _material_mar()
+
+
+## Uma rocha por célula de parede, do tamanho exato de um bloco.
+func _rochas_do_fundo(origem: Vector2) -> void:
+	var mapa: PackedStringArray = _mapas["iemanja_fundo"]
+	var tex: Texture2D = preload("res://arte/iemanja_rocha.png")
+	for y in mapa.size():
+		for x in mapa[y].length():
+			if mapa[y][x] == "r":
+				var s := Sprite2D.new()
+				s.texture = tex
+				s.scale = Vector2(TILE, TILE) / Vector2(tex.get_size())
+				s.position = origem + Vector2(x * TILE + TILE / 2.0, y * TILE + TILE / 2.0)
+				s.z_index = -5
+				add_child(s)
+
+
+const SHADER_FUNDO := """
+shader_type canvas_item;
+varying vec2 mundo;
+void vertex() {
+	mundo = (MODEL_MATRIX * vec4(VERTEX, 0.0, 1.0)).xy;
+}
+void fragment() {
+	vec4 c = COLOR;
+	vec2 p = floor(mundo);
+	// raios de luz descendo de cima, lentos e ondulados
+	float raio = sin(p.x * 0.18 + TIME * 0.7 + sin(p.y * 0.09 + TIME * 0.4) * 2.5)
+		* sin(p.y * 0.12 - TIME * 0.5);
+	float luz = step(0.6, raio) * 0.12 + step(0.85, raio) * 0.14;
+	// brilho azul-ciano que pulsa
+	c.rgb += vec3(luz * 0.4, luz * 0.9, luz) * c.a;
+	c.rgb = mix(c.rgb, vec3(0.04, 0.09, 0.28) * c.a + c.rgb * (1.0 - c.a * 0.3), 0.15);
+	COLOR = c;
+}
+"""
+var _shader_fundo: ShaderMaterial
+
+
+func _material_fundo_mar() -> ShaderMaterial:
+	if not _shader_fundo:
+		var sh := Shader.new()
+		sh.code = SHADER_FUNDO
+		_shader_fundo = ShaderMaterial.new()
+		_shader_fundo.shader = sh
+	return _shader_fundo
 
 
 const SHADER_MAR := """
@@ -797,8 +907,35 @@ func _espirrar(delta: float) -> void:
 
 ## A gruta é escura; a praia e o mar, de lua.
 func _entrar_lugar(nome: String) -> void:
-	cor_fora = COR_GRUTA if nome == "iemanja_gruta" else COR_LUA
+	cor_fora = COR_GRUTA if nome == "iemanja_gruta" else (COR_FUNDO if nome == "iemanja_fundo" else COR_LUA)
 	super._entrar_lugar(nome)
+	if nome == "iemanja_fundo" and not _mergulhando:
+		# partículas de plâncton flutuando no fundo do mar
+		if not has_node("Plancton"):
+			var plancton := CPUParticles2D.new()
+			plancton.name = "Plancton"
+			plancton.position = FUNDO_ORIGEM + Vector2(FUNDO_COLUNAS * TILE / 2.0, FUNDO_LINHAS * TILE / 2.0)
+			plancton.amount = 60
+			plancton.lifetime = 5.0
+			plancton.preprocess = 5.0
+			plancton.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+			plancton.emission_rect_extents = Vector2(FUNDO_COLUNAS * TILE / 2.0, FUNDO_LINHAS * TILE / 2.0)
+			plancton.gravity = Vector2(0, -6.0)
+			plancton.direction = Vector2(1, -1)
+			plancton.spread = 80.0
+			plancton.initial_velocity_min = 3.0
+			plancton.initial_velocity_max = 10.0
+			plancton.scale_amount_min = 0.5
+			plancton.scale_amount_max = 1.5
+			plancton.material = _material_sem_sombra()
+			plancton.z_index = 20
+			var gpl := Gradient.new()
+			gpl.set_color(0, Color(0.5, 1.0, 0.85, 0.0))
+			gpl.add_point(0.2, Color(0.5, 1.0, 0.85, 0.9))
+			gpl.add_point(0.7, Color(0.4, 0.8, 1.0, 0.6))
+			gpl.set_color(gpl.get_point_count()-1, Color(0.3, 0.7, 1.0, 0.0))
+			plancton.color_ramp = gpl
+			add_child(plancton)
 
 
 ## Chegando por uma passagem: o primeiro bloco livre ao lado (na praia, areia; na gruta, o chão de pedra).
@@ -1036,6 +1173,151 @@ func _desenhar_mar() -> void:
 
 # ------------------------------------------------------------------ as flores
 
+## Depois das flores, Adé se joga do lado da pedra e desce até a areia do fundo do mar.
+func _mergulhar() -> void:
+	_voltando = true
+	jogador.congelar(true)
+	Jogo.tocar_som("agua_cai", -6.0)
+	var c := create_tween()
+	c.tween_property(_cortina, "color:a", 1.0, 0.5)
+	await c.finished
+	_jangada.visible = false
+	_navegando = false
+	_mergulhando = true
+	jogador.set_physics_process(false)      # sem física de chão/gravidade: debaixo d'água só o _nadar move Adé
+	_ar = AR_MAX
+	teleportar("iemanja_fundo", FUNDO_ORIGEM + Vector2(15.5 * TILE, 9.5 * TILE))
+	_barra_ar.size.x = 60.0
+	_barra_ar.visible = true
+	await get_tree().create_timer(0.3).timeout
+	var c2 := create_tween()
+	c2.tween_property(_cortina, "color:a", 0.0, 0.5)
+	await c2.finished
+	_voltando = false
+	await _falar("mergulho")
+
+
+## Nadando: as setas movem Adé pela água; pedra não passa, e o ar vai acabando.
+func _nadar(delta: float) -> void:
+	if not _mergulhando or $Dialogo.ativo or _voltando:
+		return
+	var dir := Input.get_vector("esquerda", "direita", "cima", "baixo")
+	jogador.velocity = Vector2.ZERO               # na água não há gravidade: a física de chão não pode puxar Adé para a parede
+	jogador.collision_mask = 0                    # debaixo d'água quem barra é o mapa (_nado_livre), não o corpo de Adé (mais largo que a passagem)
+	var p := jogador.global_position
+	var nx := p + Vector2(dir.x * NADO_VEL * delta, 0.0)
+	if _nado_livre(nx):
+		p.x = nx.x
+	var ny := Vector2(p.x, p.y + dir.y * NADO_VEL * delta)
+	if _nado_livre(ny):
+		p.y = ny.y
+	if not _nado_livre(p):
+		p = jogador.global_position              # nunca fica numa parede/coral: se o resultado caiu nela, volta
+	jogador.global_position = p
+	_ar -= delta
+	for b in _bolhas_ar:
+		if not b["usada"] and p.distance_to(b["pos"]) < 12.0:
+			b["usada"] = true
+			_ar = minf(AR_MAX, _ar + 10.0)
+			b["nodo"].visible = false
+	_barra_ar.size.x = 60.0 * clampf(_ar / AR_MAX, 0.0, 1.0)
+	if _ar <= 0.0:
+		_mergulhando = false
+		_sem_ar()
+	elif _letra_em(p) == "s":
+		_mergulhando = false
+		_chegou_fundo()
+
+
+func _criar_bolha_ar(base: Vector2) -> void:
+	# luz suave que identifica a bolha de longe
+	_luz(base + Vector2(0, -4), Color(0.4, 0.85, 1.0), 0.7, 0.55, false)
+	var bolha := CPUParticles2D.new()
+	bolha.position = base
+	bolha.amount = 10
+	bolha.lifetime = 1.8
+	bolha.direction = Vector2(0, -1)
+	bolha.spread = 20.0
+	bolha.gravity = Vector2(-2.0, -4.0)   # deriva levemente para o lado
+	bolha.initial_velocity_min = 8.0
+	bolha.initial_velocity_max = 16.0
+	bolha.scale_amount_min = 0.8
+	bolha.scale_amount_max = 2.5
+	var grad := Gradient.new()
+	grad.set_color(0, Color(0.7, 0.96, 1.0, 0.9))
+	grad.add_point(0.4, Color(0.5, 0.88, 1.0, 0.7))
+	grad.set_color(grad.get_point_count()-1, Color(0.3, 0.7, 1.0, 0.0))
+	bolha.color_ramp = grad
+	mundo.add_child(bolha)
+	_bolhas_ar.append({"pos": base, "nodo": bolha, "usada": false})
+
+
+func _criar_peixe(base: Vector2) -> void:
+	var peixe := Sprite2D.new()
+	peixe.texture = preload("res://arte/iemanja_peixe.png")
+	peixe.hframes = 2
+	peixe.position = base
+	peixe.z_index = 4
+	peixe.material = _material_sem_sombra()
+	mundo.add_child(peixe)
+	# a lanterna na cabeça: luz amarelada que acende e apaga, iluminando o caminho
+	var luz_p := PointLight2D.new()
+	luz_p.color = Color(1.0, 0.92, 0.55)
+	luz_p.energy = 0.0
+	luz_p.texture_scale = 0.9
+	luz_p.texture = _luz_tex
+	luz_p.position = Vector2(8, -2)
+	peixe.add_child(luz_p)
+	_peixes.append({"nodo": peixe, "luz": luz_p, "x0": base.x - 40.0, "x1": base.x + 40.0, "vel": 14.0 + randf() * 10.0, "dir": 1.0, "t": randf() * 6.0, "fase": randf() * 5.0})
+
+
+func _mover_peixes(delta: float) -> void:
+	if lugar_atual != "iemanja_fundo":
+		return
+	for f in _peixes:
+		var n: Sprite2D = f["nodo"]
+		f["t"] = f.get("t", 0.0) + delta
+		n.position.x += f["vel"] * f["dir"] * delta
+		# movimento ondulatório vertical suave
+		n.position.y += sin(f["t"] * 2.5) * 8.0 * delta
+		if n.position.x > f["x1"] or n.position.x < f["x0"]:
+			f["dir"] = -f["dir"]
+		n.flip_h = f["dir"] < 0.0
+		# anima frames da cauda (batida lenta)
+		n.frame = int(f["t"] * 4.0) % 2
+		# a lanterna acende e apaga (fica acesa cerca de 3 s em cada ciclo de 5 s)
+		var luz: PointLight2D = f["luz"]
+		var acesa := fposmod(f["t"] * 0.6 + f["fase"], 5.0) < 3.0
+		luz.energy = lerpf(luz.energy, 1.5 if acesa else 0.0, minf(1.0, 5.0 * delta))
+		luz.position.x = 8.0 * f["dir"]
+
+
+func _nado_livre(pos: Vector2) -> bool:
+	# Adé tem corpo: os quatro cantos do corpo precisam estar na trilha (sem encostar nos corais)
+	for d in [Vector2(-4, -8), Vector2(4, -8), Vector2(-4, 2), Vector2(4, 2)]:
+		var l := _letra_em(pos + d)
+		if not (l == "w" or l == "s"):
+			return false
+	return true
+
+
+func _sem_ar() -> void:
+	jogador.congelar(true)
+	_barra_ar.visible = false
+	_voltando = true
+	await _falar("sem_ar")
+	await _mergulhar()
+
+
+func _chegou_fundo() -> void:
+	jogador.congelar(true)
+	jogador.set_physics_process(true)       # sai da água: devolve a física normal
+	_barra_ar.visible = false
+	_voltando = true
+	await _falar("fundo")
+	voltar_ao_mapa()
+
+
 func _colher_flores() -> void:
 	if _iem.has("flores") or $Dialogo.ativo:
 		return
@@ -1045,7 +1327,7 @@ func _colher_flores() -> void:
 	_flores.frame = 1
 	Jogo.set_meta("iemanja_flores", true)
 	await _falar("continua")
-	voltar_ao_mapa()
+	await _mergulhar()
 
 
 func _ao_evento(nome: String) -> void:
@@ -1078,7 +1360,7 @@ func voltar_ao_mapa() -> void:
 
 ## Guardado aqui, o jogo continua do começo do mar de Iemanjá.
 func _local_do_caminho() -> String:
-	return "iemanja"
+	return "iemanja_fundo" if _mergulhando else "iemanja"
 
 
 func _pode_guardar() -> bool:
