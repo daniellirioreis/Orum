@@ -35,7 +35,7 @@ const LOCAIS := {
 	"iemanja_fundo": {"nome": "Fundo do mar", "cena": "res://cenas/mar_iemanja.tscn"},
 	"iemanja_camara": {"nome": "Aiocá", "cena": "res://cenas/mar_iemanja.tscn"},
 }
-const METAS_SALVAS := ["mapa_aberto", "volta_feita", "iemanja_remo", "iemanja_flores", "iemanja_alfazema", "iemanja_perola", "iemanja_arriou_alfazema", "iemanja_arriou_flores", "iemanja_arriou_perola", "iemanja_oferenda", "bornal_dica"]
+const METAS_SALVAS := ["mapa_aberto", "volta_feita", "iemanja_remo", "iemanja_flores", "iemanja_alfazema", "iemanja_perola", "iemanja_arriou_alfazema", "iemanja_arriou_flores", "iemanja_arriou_perola", "iemanja_oferenda", "iemanja_altar_viu", "bornal_dica"]
 var espaco_atual := -1
 var opcoes := {"musica": 8, "efeitos": 8}
 var menu: CanvasLayer
@@ -127,9 +127,9 @@ func reiniciar() -> void:
 	espaco_atual = -1
 	if bornal:
 		bornal.esvaziar()
-	for m in ["mapa_aberto", "volta_feita", "no_mapa", "volta", "retorno", "na_quartinha", "iemanja_remo", "iemanja_flores", "iemanja_alfazema", "bornal_dica"]:
-		if has_meta(m):
-			remove_meta(m)
+	# apaga todo o progresso anterior: o carregar traz só o que estava no save
+	for m in get_meta_list():
+		remove_meta(m)
 
 
 ## Cada mundo tem a sua trilha (sons/<nome>.wav); o terreiro, a tela de título e as fases usam "musica".
@@ -277,7 +277,7 @@ func _aviso_controle(texto: String) -> void:
 
 
 func _unhandled_input(evento: InputEvent) -> void:
-	if evento.is_action_pressed("sair") and not menu.aberto and _fade.color.a < 0.1:
+	if evento.is_action_pressed("sair") and not menu.aberto and not em_dialogo and _fade.color.a < 0.1:
 		var cena := get_tree().current_scene
 		if cena and not cena.scene_file_path.ends_with("titulo.tscn"):
 			get_viewport().set_input_as_handled()
@@ -325,13 +325,13 @@ func _acao(nome: String, teclas: Array, botoes: Array, eixo := -1, direcao := 0.
 		var ev := InputEventKey.new()
 		ev.physical_keycode = tecla
 		InputMap.action_add_event(nome, ev)
-	for botao in botoes:
+	for btn in botoes:
 		var evb := InputEventJoypadButton.new()
-		evb.button_index = botao
+		evb.button_index = btn as JoyButton
 		InputMap.action_add_event(nome, evb)
 	if eixo >= 0:
 		var eva := InputEventJoypadMotion.new()
-		eva.axis = eixo
+		eva.axis = eixo as JoyAxis
 		eva.axis_value = direcao
 		InputMap.action_add_event(nome, eva)
 
@@ -527,9 +527,14 @@ func _arquivo(espaco: int) -> String:
 
 ## Guarda o jogo no espaço escolhido. "local" é onde Adé está: terreiro, orita, oxossi ou nana.
 func salvar(espaco: int, local: String) -> void:
+	# todo o progresso (missões, oferendas, falas já ditas) vai para o save
 	var metas := {}
-	for m in METAS_SALVAS:
-		metas[m] = has_meta(m)
+	for m in get_meta_list():
+		var v = get_meta(m)
+		if v is Vector2:
+			metas[m] = {"v2": [v.x, v.y]}
+		elif v is bool or v is int or v is float or v is String:
+			metas[m] = v
 	var dados := {
 		"versao": 1,
 		"local": local,
@@ -619,8 +624,13 @@ func carregar(espaco: int) -> void:
 	tempo_jogado = float(d.get("tempo_jogado", 0.0))
 	mortes = int(d.get("mortes", 0))
 	for m in d.get("metas", {}):
-		if d["metas"][m]:
-			set_meta(m, true)
+		var v = d["metas"][m]
+		if v is Dictionary and v.has("v2"):
+			set_meta(m, Vector2(v["v2"][0], v["v2"][1]))
+		elif v is bool and not v:
+			continue
+		else:
+			set_meta(m, v)
 	bornal.carregar(d.get("bornal", {}))
 	var local: String = d.get("local", "orita")
 	match local:

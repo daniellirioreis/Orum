@@ -34,12 +34,12 @@ var _largura := 0.0
 ## "rosto": "feliz" (por exemplo); a gargalhada de Exu já usa o rosto rindo.
 const RETRATOS := {"Adé": 0, "Benedita": 1, "Benedita e Adé": 1, "Èṣù": 2, "Ọ̀ṣọ́ọ̀sì": 3, "Nàná": 4, "Velhinha": 5,
 	"Tia Dora": 6, "Ogã Bené": 7, "Lia": 8, "Mestre Tião": 9, "Menina": 10, "Crianças": 11, "???": 12, "Placa": 13,
-	"Tartaruga": 14}
+	"Tartaruga": 14, "Iemanjá": 15, "Yemọja": 15}
 const EXPRESSOES := [["normal", "feliz", "assustado"], ["normal", "feliz", "assustado"],
 	["normal", "rindo", "bravo"], ["normal", "feliz", "assustado"], ["normal", "feliz", "bravo"],
 	["normal", "feliz", "assustado"], ["normal", "feliz", "assustado"], ["normal", "feliz", "assustado"],
 	["normal", "feliz", "assustado"], ["normal", "feliz", "assustado"], ["normal", "feliz", "assustado"],
-	["normal", "feliz"], ["normal"], ["normal"], ["normal", "feliz", "assustada"]]
+	["normal", "feliz"], ["normal"], ["normal"], ["normal", "feliz", "assustada"], ["normal", "feliz", "assustado"]]
 const TAM_ROSTO := 32
 
 

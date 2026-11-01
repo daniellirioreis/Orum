@@ -134,25 +134,6 @@ func _process(delta: float) -> void:
 # ------------------------------------------------------------------ o riacho corre
 ## A água do riacho (encruzilhada e mata de Oxóssi) corre da esquerda para a direita: riscos de luz descem com a correnteza e
 ## folhinhas passam boiando.
-const SHADER_RIO := """
-shader_type canvas_item;
-varying vec2 mundo;
-void vertex() {
-	mundo = (MODEL_MATRIX * vec4(VERTEX, 0.0, 1.0)).xy;
-}
-void fragment() {
-	vec4 c = COLOR;
-	vec2 p = floor(mundo);
-	float corre = p.x - TIME * 14.0;                       // a correnteza
-	float faixa = sin(p.y * 0.9 + sin(corre * 0.05) * 1.3);
-	float risco = sin(corre * 0.21 + p.y * 1.7) * faixa;
-	float luz = step(0.78, risco) * 0.13 + step(0.93, risco) * 0.13;
-	float brilho = step(0.985, sin(p.x * 0.7 + p.y * 2.3 - TIME * 3.0)) * 0.12;
-	float sombra = step(risco, -0.85) * 0.05;
-	c.rgb += vec3(luz * 0.8 + brilho, luz + brilho, luz + brilho) * c.a - vec3(sombra) * c.a;
-	COLOR = c;
-}
-"""
 var _rio: Array = []            # folhinhas boiando: {s, y, xmin, xmax, vel, fase}
 
 

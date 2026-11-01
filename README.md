@@ -165,7 +165,7 @@ no teclado, "Aperte E". Nos diálogos e avisos, escreva `{interagir}`, `{atirar}
 
 **O Mar de Iemanjá (Òkun Yemọja, visão de cima — em construção)** — `cenas/mar_iemanja.tscn`, `scripts/mar_iemanja.gd`
 - Na chegada, Exu explica quem é Iemanjá (a dona do mar, a mãe de todos) e o que vai na oferenda que Adé leva até
-  Aiocá, o palácio dela no fundo do mar: flores brancas, perfume de alfazema, uma pérola e um espelho.
+  Aiocá, o palácio dela no fundo do mar: flores brancas, perfume de alfazema e uma pérola.
 - Tudo de noite, ao luar: azulado, com o caminho da lua brilhando no mar, a espuma das ondas brilhando verde-água,
   búzios acesos na areia molhada, águas-vivas que brilham e vaga-lumes nas dunas.
 - **A praia, de cima para baixo**: Adé desce das dunas e do coqueiral (coqueiros grandes, moitas da restinga,

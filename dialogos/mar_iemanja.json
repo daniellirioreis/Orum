@@ -1,516 +1,600 @@
 {
-  "nomes": {
-	"flores": "flores brancas",
-	"alfazema": "o perfume de alfazema",
-	"perola": "uma pérola"
-  },
-  "revisita": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "O mar de Iemanjá de novo... Escuta só as ondas indo e voltando."
-	}
-  ],
-  "chegada": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "O mar... de noite! Olha a lua brilhando na água, e a espuma das ondas acendendo."
+	"nomes": {
+		"flores": "flores brancas",
+		"alfazema": "o perfume de alfazema",
+		"perola": "uma pérola"
 	},
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Este é o mar de Iemanjá. A Vó diz que ela é a mãe de todos nós."
-	}
-  ],
-  "exu_explica": [
-	{
-	  "quem": "Èṣù",
-	  "yo": "Láròyé!",
-	  "pt": "Há há há! Que cara é essa, menino? Achou que eu não vinha? Todo caminho passa por mim!"
-	},
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Exu! Eu quero encontrar Iemanjá. Onde ela mora?"
-	},
-	{
-	  "quem": "Èṣù",
-	  "yo": "",
-	  "pt": "Iemanjá é a dona do mar, a mãe de todos os filhos. A casa dela fica lá no fundo: Aiocá, o palácio de Iemanjá."
-	},
-	{
-	  "quem": "Èṣù",
-	  "yo": "",
-	  "pt": "Quem vai até a casa da mãe não chega de mão vazia. Leve uma oferenda pra ela."
-	},
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "E o que vai na oferenda?"
-	},
-	{
-	  "quem": "Èṣù",
-	  "yo": "",
-	  "pt": "Flores brancas, perfume de alfazema e uma pérola. Iemanjá gosta de ficar bonita!"
-	},
-	{
-	  "quem": "Èṣù",
-	  "yo": "",
-	  "pt": "As flores brancas estão numa pedra lá no meio do mar, acesas pela lua. Pra chegar lá, só de jangada! Tem uma lá embaixo, na beira d'água."
-	},
-	{
-	  "quem": "Èṣù",
-	  "yo": "",
-	  "pt": "E presta atenção na beira: a onda vem e volta. A espuma brilhando mostra até onde ela vai. A onda traz búzios — pegue, mas saia antes da próxima!"
-	},
-	{
-	  "quem": "Èṣù",
-	  "yo": "Hi hi hi!",
-	  "pt": "E não pise nas águas-vivas, que elas queimam o pé! Odoyá, menino! Agora vai, que eu tenho outros caminhos pra cuidar."
-	}
-  ],
-  "onda_levou": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Aiii! A onda me pegou e me jogou de volta na areia!"
-	},
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Exu avisou: onde a areia está molhada, a onda chega. A espuma mostra até onde a próxima vai subir."
-	},
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Vou esperar a onda recuar e passar correndo."
-	}
-  ],
-  "aguaviva": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Ai, ai! A água-viva queimou meu pé! Exu bem que avisou..."
-	}
-  ],
-  "flores": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "As flores brancas, brilhando na pedra, no meio do mar... parece que a lua acendeu elas."
-	},
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Vou levar com cuidado. São as primeiras coisas da oferenda de Iemanjá.",
-	  "evento": "pegar_flores"
-	}
-  ],
-  "flores_depois": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Já peguei as flores. O resto fica pra enfeitar a praia."
-	}
-  ],
-  "continua": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Agora tenho as flores brancas e o perfume de alfazema!"
-	},
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Falta a pérola... Iemanjá mora lá no fundo do mar. Será que ela está por lá?"
-	}
-  ],
-  "jangada_sem_remo": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "A jangada! Mas não tem remo... sem remo não dá pra sair pro mar."
-	},
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Quem será que sabe onde foi parar o remo? Aquela tartaruga velha ali na beira parece saber de tudo."
-	}
-  ],
-  "jangada_vamos": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Com o remo, agora sim! Vou empurrar a jangada pra água quando a onda recuar..."
-	},
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Iemanjá, me leva com cuidado. Odoyá!"
-	}
-  ],
-  "no_mar": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Estou no mar! A jangada balança, e lá longe, mar adentro, brilha a pedra das flores."
-	},
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "As ondas vêm rolando do mar aberto. Se eu remar de frente pra elas, com força, a jangada fura a onda; parado, ela me empurra de volta."
-	},
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "E cuidado com as pedras. Os brilhos na água mostram pra onde a correnteza puxa."
-	}
-  ],
-  "bateu_pedra": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Ai! Bati na pedra! Preciso remar com mais cuidado."
-	}
-  ],
-  "rede_vazia": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Uma rede de pesca secando ao luar, cheia de conchinhas presas. Não tem nada escondido aqui."
-	}
-  ],
-  "tartaruga": [
-	{
-	  "quem": "Tartaruga",
-	  "yo": "",
-	  "pt": "Hmmm... um menino na beira do mar de Iemanjá, a esta hora da noite?"
-	},
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "A bênção, dona Tartaruga! Eu preciso ir até a pedra das flores, mas a jangada está sem remo."
-	},
-	{
-	  "quem": "Tartaruga",
-	  "yo": "",
-	  "pt": "A bênção de Iemanjá, menino. Ela é a mãe de todos nós... de você, de mim e de todos os peixinhos do mar.",
-	  "rosto": "feliz"
-	},
-	{
-	  "quem": "Tartaruga",
-	  "yo": "",
-	  "pt": "O remo... a maré cheia levou. Eu vi, menino, eu vejo tudo. Já nadei este mar por cem anos."
-	},
-	{
-	  "quem": "Tartaruga",
-	  "yo": "",
-	  "pt": "O mar deixou o remo lá na gruta do costão, passando as pedras, à direita do coqueiral."
-	},
-	{
-	  "quem": "Tartaruga",
-	  "yo": "",
-	  "pt": "Lá dentro é escuro, a onda espirra entre as pedras e as poças são fundas. Pense antes de empurrar as pedras, e respeite o tempo do mar."
-	},
-	{
-	  "quem": "Tartaruga",
-	  "yo": "",
-	  "pt": "Devagar se vai longe, menino. Pergunte a qualquer tartaruga!",
-	  "rosto": "feliz"
-	}
-  ],
-  "tartaruga_depois": [
-	{
-	  "quem": "Tartaruga",
-	  "yo": "",
-	  "pt": "A gruta do costão, menino: passando as pedras, à direita do coqueiral. Devagar..."
-	}
-  ],
-  "tartaruga_remo": [
-	{
-	  "quem": "Tartaruga",
-	  "yo": "",
-	  "pt": "Achou o remo! Eu sabia. Agora a jangada é sua.",
-	  "rosto": "feliz"
-	},
-	{
-	  "quem": "Tartaruga",
-	  "yo": "",
-	  "pt": "Que Iemanjá te leve com cuidado, menino. Odoyá!",
-	  "rosto": "feliz"
-	}
-  ],
-  "remo_achou": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "O remo! Preso aqui entre as pedras, onde o mar deixou."
-	},
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Agora sim: vou voltar pra praia e levar a jangada pro mar!",
-	  "evento": "pegar_remo"
-	}
-  ],
-  "espirro": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Uau! A onda estourou entre as pedras e me molhou todo!"
-	},
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Antes de espirrar, a água borbulha. É só esperar estourar e passar."
-	}
-  ],
-  "pedra_ponte": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "A pedra caiu na poça e virou um caminho! Agora dá pra passar."
-	}
-  ],
-  "chegada_gruta": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Que escuro... só as algas brilham. E esse barulho da onda batendo nas pedras..."
-	},
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Tem pedras soltas lá dentro. Se eu prender uma num canto, é só sair da gruta e voltar: a maré arruma tudo de novo."
-	}
-  ],
-  "jangada_sem_alfazema": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "A jangada e o remo! Mas espera... a oferenda de Iemanjá leva perfume de alfazema, e eu não tenho."
-	},
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Se eu for pro mar agora, vai faltar uma coisa na oferenda."
-	},
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Perfume de alfazema... a Vó sempre tem esse cheirinho! Vou voltar ao terreiro e perguntar pra ela."
-	}
-  ],
-  "volta_sem_alfazema": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "O mar de Iemanjá de novo. O remo está comigo, guardadinho."
-	},
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Mas sem o perfume de alfazema a oferenda não fica completa. Preciso ir ao terreiro falar com a Vó."
-	}
-  ],
-  "volta_com_alfazema": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "De volta ao mar de Iemanjá! Tenho o remo e o perfume de alfazema da Vó."
-	},
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Agora sim: vou de jangada até a pedra das flores brancas!"
-	}
-  ],
-  "pedra_funda": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Glub! A pedra sumiu dentro da poça... essa poça é funda!"
-	},
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Se eu empurrar outra pedra por cima dessa, aí sim vira um caminho."
-	}
-  ],
-  "tartaruga_susto": [
-	{
-	  "quem": "Tartaruga",
-	  "yo": "",
-	  "pt": "Ai, ai! Que menino apressado! Quase me matou de susto...",
-	  "rosto": "assustada"
-	},
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Desculpa, dona Tartaruga! Eu não vi a senhora."
-	}
-  ],
-  "volta_com_flores": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "De volta ao mar de Iemanjá! Tenho as flores brancas e o perfume de alfazema."
-	},
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Falta a pérola... deve estar lá no fundo do mar."
-	}
-  ],
-  "costao_fechado": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Só pedras e a onda batendo... Não parece ter caminho por aqui."
-	},
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Quem conhece bem esta praia deve saber onde dá pra passar."
-	}
-  ],
-  "jangada_remo_dica": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "A jangada! O remo está no meu Àpò. É só usar o remo aqui."
-	}
-  ],
-  "recusa_tartaruga": [
-	{
-	  "quem": "Tartaruga",
-	  "yo": "",
-	  "pt": "Hmmm... guarde isso, menino. Uma tartaruga velha não precisa de nada, só do mar.",
-	  "rosto": "feliz"
-	}
-  ],
-  "recusa_tartaruga_remo": [
-	{
-	  "quem": "Tartaruga",
-	  "yo": "",
-	  "pt": "O remo é seu agora, menino. Tartaruga não rema: tartaruga nada!",
-	  "rosto": "feliz"
-	}
-  ],
-  "recusa_jangada": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Isso não faz a jangada andar... preciso do remo."
-	}
-  ],
-  "mergulho": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Vou mergulhar! Nado para qualquer lado, mas o ar acaba rápido. As bolhas que sobem das pedras me dão mais fôlego."
-	}
-  ],
-  "sem_ar": [
-	{
-	  "quem": "",
-	  "yo": "",
-	  "pt": "Faltou ar! Adé sobe, tosse e perde um búzio de axé. Ela vai tentar de novo, e mais devagar."
-	}
-  ],
-  "fundo": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "A areia do fundo do mar! Aiocá deve estar por perto, mas ainda não é a casa de Iemanjá."
-	}
-  ],
-  "sem_perola": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Não posso encontrar Iemanjá sem a pérola... Tenho que encontrá-la."
-	}
-  ],
-  "perola_achada": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "A pérola! Ela brilha como uma estrela no fundo do mar. Agora Adé pode seguir para a casa de Iemanjá."
-	}
-  ],
-  "fundo_quartinha_pergunta": [
-	{
-	  "quem": "Èṣù",
-	  "yo": "Ọmọ mi.",
-	  "pt": "Bateu palma lá do fundo do mar e eu vim! Aqui embaixo, molhado e tudo... hi hi hi! Pra Exu não tem água que impeça."
-	},
-	{
-	  "quem": "Èṣù",
-	  "yo": "Hi hi hi!",
-	  "pt": "Quer que eu guarde o seu caminho daqui de baixo? Prometo não espiar as suas braçadas. Muito."
-	}
-  ],
-  "fundo_quartinha_guardou": [
-	{
-	  "quem": "Èṣù",
-	  "yo": "Ọ̀nà rẹ wà lọ́wọ́ mi.",
-	  "pt": "Guardado! Até debaixo d'água eu alcanço você. Tenta não se afogar no próximo tropeço!"
-	},
-	{
-	  "quem": "Adé",
-	  "yo": "Laroyê, Èṣù!",
-	  "pt": "Obrigada, Exu! Até no fundo do mar você aparece!"
-	}
-  ],
-  "fundo_quartinha_nao": [
-	{
-	  "quem": "Èṣù",
-	  "yo": "",
-	  "pt": "Tudo bem. Quando quiser, é só bater palma. Debaixo d'água também conta, hi hi!"
-	}
-  ],
-  "camara_chegada": [
-	{
-	  "quem": "",
-	  "yo": "",
-	  "pt": "A bolha grande leva Adé para baixo, por um canal de águas claras, até uma câmara calma. É a casa de Aiocá."
-	}
-  ],
-  "recusa_altar_iem_perola": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "A pérola fica por último, no centro do altar. Primeiro as flores e a alfazema."
-	}
-  ],
-  "recusa_altar_iem": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Isso não é para a oferenda de Iemanjá."
-	}
-  ],
-  "altar_vazio": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Um altar de conchas e pedras, com três lugares para a oferenda. Aqui eu arrio as flores brancas e a alfazema e, por último, a pérola, no centro."
-	}
-  ],
-  "altar_parcial": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "Algumas oferendas já estão no altar. Ainda falta arriar {falta}."
-	}
-  ],
-  "altar_pronto": [
-	{
-	  "quem": "Adé",
-	  "yo": "",
-	  "pt": "A oferenda está completa. As ondas do altar brilham pela câmara de Aiocá."
-	}
-  ]
+	"revisita": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "O mar de Iemanjá de novo... Escuta só as ondas indo e voltando."
+		}
+	],
+	"chegada": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "O mar... de noite! Olha a lua brilhando na água, e a espuma das ondas acendendo."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Este é o mar de Iemanjá. A Vó diz que ela é a mãe de todos nós."
+		}
+	],
+	"exu_explica": [
+		{
+			"quem": "Èṣù",
+			"yo": "Láròyé!",
+			"pt": "Há há há! Que cara é essa, menino? Achou que eu não vinha? Todo caminho passa por mim!"
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Exu! Eu quero encontrar Iemanjá. Onde ela mora?"
+		},
+		{
+			"quem": "Èṣù",
+			"yo": "",
+			"pt": "Iemanjá é a dona do mar, a mãe de todos os filhos. A casa dela fica lá no fundo: Aiocá, o palácio de Iemanjá."
+		},
+		{
+			"quem": "Èṣù",
+			"yo": "",
+			"pt": "Quem vai até a casa da mãe não chega de mão vazia. Leve uma oferenda pra ela."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "E o que vai na oferenda?"
+		},
+		{
+			"quem": "Èṣù",
+			"yo": "",
+			"pt": "Flores brancas, perfume de alfazema e uma pérola. Iemanjá gosta de ficar bonita!"
+		},
+		{
+			"quem": "Èṣù",
+			"yo": "",
+			"pt": "As flores brancas estão numa pedra lá no meio do mar, acesas pela lua. Pra chegar lá, só de jangada! Tem uma lá embaixo, na beira d'água."
+		},
+		{
+			"quem": "Èṣù",
+			"yo": "",
+			"pt": "E presta atenção na beira: a onda vem e volta. A espuma brilhando mostra até onde ela vai. A onda traz búzios — pegue, mas saia antes da próxima!"
+		},
+		{
+			"quem": "Èṣù",
+			"yo": "Hi hi hi!",
+			"pt": "E não pise nas águas-vivas, que elas queimam o pé! Odoyá, menino! Agora vai, que eu tenho outros caminhos pra cuidar."
+		}
+	],
+	"onda_levou": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Aiii! A onda me pegou e me jogou de volta na areia!"
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Exu avisou: onde a areia está molhada, a onda chega. A espuma mostra até onde a próxima vai subir."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Vou esperar a onda recuar e passar correndo."
+		}
+	],
+	"aguaviva": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Ai, ai! A água-viva queimou meu pé! Exu bem que avisou..."
+		}
+	],
+	"flores": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "As flores brancas, brilhando na pedra, no meio do mar... parece que a lua acendeu elas."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Vou levar com cuidado. São as primeiras coisas da oferenda de Iemanjá.",
+			"evento": "pegar_flores"
+		}
+	],
+	"flores_depois": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Já peguei as flores. O resto fica pra enfeitar a praia."
+		}
+	],
+	"continua": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Agora tenho as flores brancas e o perfume de alfazema!"
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Falta a pérola... Iemanjá mora lá no fundo do mar. Será que ela está por lá?"
+		}
+	],
+	"jangada_sem_remo": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "A jangada! Mas não tem remo... sem remo não dá pra sair pro mar."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Quem será que sabe onde foi parar o remo? Aquela tartaruga velha ali na beira parece saber de tudo."
+		}
+	],
+	"jangada_vamos": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Com o remo, agora sim! Vou empurrar a jangada pra água quando a onda recuar..."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Iemanjá, me leva com cuidado. Odoyá!"
+		}
+	],
+	"no_mar": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Estou no mar! A jangada balança, e lá longe, mar adentro, brilha a pedra das flores."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "As ondas vêm rolando do mar aberto. Se eu remar de frente pra elas, com força, a jangada fura a onda; parado, ela me empurra de volta."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "E cuidado com as pedras. Os brilhos na água mostram pra onde a correnteza puxa."
+		}
+	],
+	"bateu_pedra": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Ai! Bati na pedra! Preciso remar com mais cuidado."
+		}
+	],
+	"rede_vazia": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Uma rede de pesca secando ao luar, cheia de conchinhas presas. Não tem nada escondido aqui."
+		}
+	],
+	"tartaruga": [
+		{
+			"quem": "Tartaruga",
+			"yo": "",
+			"pt": "Hmmm... um menino na beira do mar de Iemanjá, a esta hora da noite?"
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "A bênção, dona Tartaruga! Eu preciso ir até a pedra das flores, mas a jangada está sem remo."
+		},
+		{
+			"quem": "Tartaruga",
+			"yo": "",
+			"pt": "A bênção de Iemanjá, menino. Ela é a mãe de todos nós... de você, de mim e de todos os peixinhos do mar.",
+			"rosto": "feliz"
+		},
+		{
+			"quem": "Tartaruga",
+			"yo": "",
+			"pt": "O remo... a maré cheia levou. Eu vi, menino, eu vejo tudo. Já nadei este mar por cem anos."
+		},
+		{
+			"quem": "Tartaruga",
+			"yo": "",
+			"pt": "O mar deixou o remo lá na gruta do costão, passando as pedras, à direita do coqueiral."
+		},
+		{
+			"quem": "Tartaruga",
+			"yo": "",
+			"pt": "Lá dentro é escuro, a onda espirra entre as pedras e as poças são fundas. Pense antes de empurrar as pedras, e respeite o tempo do mar."
+		},
+		{
+			"quem": "Tartaruga",
+			"yo": "",
+			"pt": "Devagar se vai longe, menino. Pergunte a qualquer tartaruga!",
+			"rosto": "feliz"
+		}
+	],
+	"tartaruga_depois": [
+		{
+			"quem": "Tartaruga",
+			"yo": "",
+			"pt": "A gruta do costão, menino: passando as pedras, à direita do coqueiral. Devagar..."
+		}
+	],
+	"tartaruga_remo": [
+		{
+			"quem": "Tartaruga",
+			"yo": "",
+			"pt": "Achou o remo! Eu sabia. Agora a jangada é sua.",
+			"rosto": "feliz"
+		},
+		{
+			"quem": "Tartaruga",
+			"yo": "",
+			"pt": "Que Iemanjá te leve com cuidado, menino. Odoyá!",
+			"rosto": "feliz"
+		}
+	],
+	"remo_achou": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "O remo! Preso aqui entre as pedras, onde o mar deixou."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Agora sim: vou voltar pra praia e levar a jangada pro mar!",
+			"evento": "pegar_remo"
+		}
+	],
+	"espirro": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Uau! A onda estourou entre as pedras e me molhou todo!"
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Antes de espirrar, a água borbulha. É só esperar estourar e passar."
+		}
+	],
+	"pedra_ponte": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "A pedra caiu na poça e virou um caminho! Agora dá pra passar."
+		}
+	],
+	"chegada_gruta": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Que escuro... só as algas brilham. E esse barulho da onda batendo nas pedras..."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Tem pedras soltas lá dentro. Se eu prender uma num canto, é só sair da gruta e voltar: a maré arruma tudo de novo."
+		}
+	],
+	"jangada_sem_alfazema": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "A jangada e o remo! Mas espera... a oferenda de Iemanjá leva perfume de alfazema, e eu não tenho."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Se eu for pro mar agora, vai faltar uma coisa na oferenda."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Perfume de alfazema... a Vó sempre tem esse cheirinho! Vou voltar ao terreiro e perguntar pra ela."
+		}
+	],
+	"volta_sem_alfazema": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "O mar de Iemanjá de novo. O remo está comigo, guardadinho."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Mas sem o perfume de alfazema a oferenda não fica completa. Preciso ir ao terreiro falar com a Vó."
+		}
+	],
+	"volta_com_alfazema": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "De volta ao mar de Iemanjá! Tenho o remo e o perfume de alfazema da Vó."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Agora sim: vou de jangada até a pedra das flores brancas!"
+		}
+	],
+	"pedra_funda": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Glub! A pedra sumiu dentro da poça... essa poça é funda!"
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Se eu empurrar outra pedra por cima dessa, aí sim vira um caminho."
+		}
+	],
+	"tartaruga_susto": [
+		{
+			"quem": "Tartaruga",
+			"yo": "",
+			"pt": "Ai, ai! Que menino apressado! Quase me matou de susto...",
+			"rosto": "assustada"
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Desculpa, dona Tartaruga! Eu não vi a senhora."
+		}
+	],
+	"volta_com_flores": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "De volta ao mar de Iemanjá! Tenho as flores brancas e o perfume de alfazema."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Falta a pérola... deve estar lá no fundo do mar."
+		}
+	],
+	"costao_fechado": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Só pedras e a onda batendo... Não parece ter caminho por aqui."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Quem conhece bem esta praia deve saber onde dá pra passar."
+		}
+	],
+	"jangada_remo_dica": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "A jangada! O remo está no meu Àpò. É só usar o remo aqui."
+		}
+	],
+	"recusa_tartaruga": [
+		{
+			"quem": "Tartaruga",
+			"yo": "",
+			"pt": "Hmmm... guarde isso, menino. Uma tartaruga velha não precisa de nada, só do mar.",
+			"rosto": "feliz"
+		}
+	],
+	"recusa_tartaruga_remo": [
+		{
+			"quem": "Tartaruga",
+			"yo": "",
+			"pt": "O remo é seu agora, menino. Tartaruga não rema: tartaruga nada!",
+			"rosto": "feliz"
+		}
+	],
+	"recusa_jangada": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Isso não faz a jangada andar... preciso do remo."
+		}
+	],
+	"mergulho": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Vou mergulhar! Nado para qualquer lado, mas o ar acaba rápido. As bolhas que sobem das pedras me dão mais fôlego."
+		}
+	],
+	"sem_ar": [
+		{
+			"quem": "",
+			"yo": "",
+			"pt": "Faltou ar! Adé sobe, tosse e perde um búzio de axé. Ela vai tentar de novo, e mais devagar."
+		}
+	],
+	"fundo": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "A areia do fundo do mar! Aiocá deve estar por perto, mas ainda não é a casa de Iemanjá."
+		}
+	],
+	"sem_perola": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Não posso encontrar Iemanjá sem a pérola... Tenho que encontrá-la."
+		}
+	],
+	"perola_achada": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "A pérola! Ela brilha como uma estrela no fundo do mar. Agora Adé pode seguir para a casa de Iemanjá."
+		}
+	],
+	"fundo_quartinha_pergunta": [
+		{
+			"quem": "Èṣù",
+			"yo": "Ọmọ mi.",
+			"pt": "Bateu palma lá do fundo do mar e eu vim! Aqui embaixo, molhado e tudo... hi hi hi! Pra Exu não tem água que impeça."
+		},
+		{
+			"quem": "Èṣù",
+			"yo": "Hi hi hi!",
+			"pt": "Quer que eu guarde o seu caminho daqui de baixo? Prometo não espiar as suas braçadas. Muito."
+		}
+	],
+	"fundo_quartinha_guardou": [
+		{
+			"quem": "Èṣù",
+			"yo": "Ọ̀nà rẹ wà lọ́wọ́ mi.",
+			"pt": "Guardado! Até debaixo d'água eu alcanço você. Tenta não se afogar no próximo tropeço!"
+		},
+		{
+			"quem": "Adé",
+			"yo": "Laroyê, Èṣù!",
+			"pt": "Obrigada, Exu! Até no fundo do mar você aparece!"
+		}
+	],
+	"fundo_quartinha_nao": [
+		{
+			"quem": "Èṣù",
+			"yo": "",
+			"pt": "Tudo bem. Quando quiser, é só bater palma. Debaixo d'água também conta, hi hi!"
+		}
+	],
+	"camara_chegada": [
+		{
+			"quem": "",
+			"yo": "",
+			"pt": "A bolha grande leva Adé para baixo, por um canal de águas escuras, até uma câmara calma. É a casa de Aiocá."
+		}
+	],
+	"recusa_altar_iem_perola": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "A pérola fica por último, no centro do altar. Primeiro as flores e a alfazema."
+		}
+	],
+	"recusa_altar_iem": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Isso não é para a oferenda de Iemanjá."
+		}
+	],
+	"altar_vazio": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Um altar de conchas e pedras, com marcas no centro. Será que é aqui que se deixa alguma coisa? Não sei bem o que ele pede..."
+		}
+	],
+	"altar_parcial": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Já tem coisas deixadas aqui. Será que falta mais alguma coisa para isso ficar completo?"
+		}
+	],
+	"altar_pronto": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "A oferenda está completa. As ondas do altar brilham pela câmara de Aiocá."
+		}
+	],
+	"altar_nao_visto": [
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Tem marcas aqui, mas ainda não sei se é este o lugar para isso. Preciso olhar melhor o altar primeiro."
+		}
+	],
+	"iemanja_conversa": [
+		{
+			"quem": "Yemọja",
+			"yo": "Odoyá, ọmọ mi.",
+			"pt": "Você veio, meu filho. Eu sabia que viria."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Iemanjá! A senhora está aqui, na sua casa... Eu sonhei com a senhora, e acordei com o coração apertado."
+		},
+		{
+			"quem": "Yemọja",
+			"yo": "",
+			"pt": "Eu sei. Fui eu que te chamei. O sonho é a porta por onde eu falo com quem precisa de mim."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Então a senhora queria me dizer alguma coisa?"
+		},
+		{
+			"quem": "Yemọja",
+			"yo": "",
+			"pt": "Você já fez o caminho das minhas tarefas. Trouxe as flores brancas e a alfazema, cuidando delas para não as machucar."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Com a tartaruga eu aprendi que devagar se vai longe, e que é preciso respeitar o tempo do mar. Antes de empurrar as pedras, eu tinha que pensar."
+		},
+		{
+			"quem": "Yemọja",
+			"yo": "",
+			"pt": "Isso mesmo. E na jangada você viu que a onda não se vence com força cega: é preciso remar de frente, na hora certa, e saber quando parar."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "No fundo do mar a água-viva queimou meu pé, e eu quase me afoguei por falta de ar. Só achei a pérola quando aprendi a respirar e a seguir as bolhas."
+		},
+		{
+			"quem": "Yemọja",
+			"yo": "",
+			"pt": "Esse é o equilíbrio. Emoção que queima não se combate na força: a gente respira, espera a onda passar e segue."
+		},
+		{
+			"quem": "Yemọja",
+			"yo": "",
+			"pt": "E é isso que uma mãe ensina: abraça sem prender, e sente tudo como a maré, sem se afogar nela."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "A Vó? Ela nunca me disse que a senhora a conhecia..."
+		},
+		{
+			"quem": "Yemọja",
+			"yo": "",
+			"pt": "E essa lição não é só para você. Sua Vó, a Benedita, é minha filha. Ela cuida do terreiro todo dia: da água, das flores, de cada um que chega com a dor no peito. Eu vejo esse cuidado daqui, e ele me toca."
+		},
+		{
+			"quem": "Yemọja",
+			"yo": "",
+			"pt": "Leve isso para o terreiro. Quem cuida dos outros também precisa de colo e de calma."
+		},
+		{
+			"quem": "Yemọja",
+			"yo": "",
+			"pt": "E a guia, azul e branca, também vai com você. Cada conta é um cuidado meu com quem chega na minha casa. Quando chegar, entregue a guia à sua Vó. Ela vai saber o que fazer."
+		},
+		{
+			"quem": "Adé",
+			"yo": "",
+			"pt": "Vou levar, Mãe. Obrigado pelo ensinamento."
+		}
+	]
 }

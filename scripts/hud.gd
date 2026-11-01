@@ -42,14 +42,14 @@ func _process(_delta: float) -> void:
 	_icone.visible = _contador.visible
 
 
-func mostrar_titulo(titulo: String, subtitulo: String) -> void:
+func mostrar_titulo(titulo: String, subtitulo: String, duracao := 2.2) -> void:
 	_titulo.text = titulo
 	_subtitulo.text = subtitulo
 	var t := create_tween()
 	t.tween_interval(0.4)
 	t.tween_property(_titulo, "modulate:a", 1.0, 0.6)
 	t.parallel().tween_property(_subtitulo, "modulate:a", 1.0, 0.6)
-	t.tween_interval(2.2)
+	t.tween_interval(duracao)
 	t.tween_property(_titulo, "modulate:a", 0.0, 0.8)
 	t.parallel().tween_property(_subtitulo, "modulate:a", 0.0, 0.8)
 

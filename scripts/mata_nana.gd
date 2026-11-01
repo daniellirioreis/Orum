@@ -140,6 +140,7 @@ func _inicio() -> void:
 
 
 func _exu_da_dica() -> void:
+	Jogo.set_meta("nana_comecou", true)   # para a aba Missões
 	var e := _exu_surge(jogador.global_position + Vector2(30, 0))
 	await get_tree().create_timer(1.2).timeout
 	await _falar("exu_dica")
@@ -1042,6 +1043,9 @@ func _no_bambu_rachado() -> void:
 	if _nana.has("lamina"):
 		await _falar("lascas_depois")
 		return
+	# a lasca só sai depois que Adé já mexeu com a faca de ferro (sem aviso: nada acontece)
+	if not (_nana.has("faca") or _nana.has("faca_foi")):
+		return
 	await _falar("lamina")
 
 
@@ -1327,6 +1331,7 @@ func _encher_pote(delta: float) -> void:
 	_pote_na_pedra.frame = 1 + mini(2, int(_enchendo / 2.5))
 	if _enchendo >= 7.5:
 		_nana["pote"] = "pronto"
+		Jogo.set_meta("nana_pote_cheio", true)
 		Jogo.tocar_som("buzio", -6.0)
 		_mostrar_aviso("O pote encheu de água da chuva!")
 
@@ -1354,6 +1359,7 @@ func _no_lugar_de_nana() -> void:
 
 func _fazer_oferenda() -> void:
 	_nana["oferenda"] = true
+	Jogo.set_meta("nana_oferenda", true)
 	_lugar_nana.sprite.frame = 1
 	_lugar_nana.ativo = false
 	for id in OFERENDAS:
@@ -1377,14 +1383,12 @@ func _velhinha_vem() -> void:
 	v.olhar_para_jogador = false
 	v.modulate.a = 0.0
 	v.get_node("Corpo/Forma").set_deferred("disabled", true)
-	var perto := jogador.global_position + Vector2(-22 if _chegada_velhinha.x < jogador.global_position.x else 22, 14)
 	var anda := create_tween().set_loops()
 	anda.tween_callback(func(): v.sprite.frame = 2).set_delay(0.3)
 	anda.tween_callback(func(): v.sprite.frame = 3).set_delay(0.3)
 	var t := create_tween()
 	t.tween_property(v, "modulate:a", 1.0, 0.8)
 	t.parallel().tween_property(v, "position", _chegada_velhinha, 2.0)
-	t.tween_property(v, "position", perto, v.position.distance_to(perto) / 16.0 + 1.0)
 	jogador.olhar_para(_chegada_velhinha)
 	await t.finished
 	anda.kill()
@@ -1403,6 +1407,9 @@ func _velhinha_vem() -> void:
 		await _falar("nana_despedida")
 	else:
 		await _falar("nana")
+		# Nanã dá a boneca de pano para Adé levar à Vó
+		Jogo.set_meta("nana_boneca", true)
+		_pegar_item("boneca_pano")
 	await _nana_vai_embora()
 
 
@@ -1503,7 +1510,8 @@ func _nana_vai_embora() -> void:
 	await get_tree().create_timer(0.4).timeout
 	# Nanã volta para a lagoa, devagar, e some na água
 	_anim_nana = ""
-	var lagoa: Vector2 = _lugar_nana.position + Vector2(0, -44)
+	# Nanã some no mesmo ponto onde apareceu (a marca "x"), sem andar até a lagoa
+	var lagoa: Vector2 = _nana_sprite.position
 	var anda := create_tween().set_loops()
 	anda.tween_callback(func(): _nana_sprite.frame = 5).set_delay(0.3)
 	anda.tween_callback(func(): _nana_sprite.frame = 6).set_delay(0.3)
@@ -1571,6 +1579,8 @@ func _ao_evento(nome: String) -> void:
 	match nome:
 		"ganhar_pote":
 			_nana["pote"] = "rachado"
+			Jogo.set_meta("nana_pote", true)
+			Jogo.set_meta("nana_pediu_conserto", true)   # a velhinha pediu para consertar o pote
 			_acender_slot("pote")
 			_pegar_item("pote_rachado", _velhinha.position + Vector2(0, -16) if _velhinha else Vector2(-1, -1))
 			_slots_nana["pote"].modulate = Color(1, 1, 1, 0.75)
@@ -1596,10 +1606,12 @@ func _ao_evento(nome: String) -> void:
 			_pegar_item("lamina", _lascas.position + Vector2(0, -8))
 		"ganhar_flores":
 			_nana["flores"] = true
+			Jogo.set_meta("nana_flores", true)
 			_acender_slot("flores")
 			_pegar_item("flores_nana")
 		"consertar_pote":
 			_nana["pote"] = "vazio"
+			Jogo.set_meta("nana_barro", true)
 			_barro.sprite.frame = 1
 			Jogo.bornal.trocar("pote_rachado", "pote")
 			_slots_nana["pote"].modulate = Color.WHITE
@@ -1690,6 +1702,7 @@ func _aceita_arriar(id: String, alvo: String) -> bool:
 ## O pote com a água da chuva e as flores lilás ficam no lugar de Nanã; com os dois, Adé saúda Nanã.
 func _ao_arriar(id: String, _alvo: String) -> void:
 	_nana_arriados[id] = true
+	Jogo.bornal.tirar(id)          # a oferenda sai do Àpò quando é arriada
 	var sp := Sprite2D.new()
 	sp.texture = Jogo.bornal.icone(id)
 	sp.position = _lugar_nana.position + Vector2(-6 if id == "pote_cheio" else 6, -6)

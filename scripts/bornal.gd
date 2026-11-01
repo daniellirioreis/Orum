@@ -61,7 +61,7 @@ const ITENS := {
 		"desc": "A bebida que o Ogã Bené guardava para Exu."},
 	"luna": {"nome": "Luma", "tipo": "oferenda", "fase": "exu", "icone": ["res://arte/itens.png", 3],
 		"desc": "Uma vela para iluminar o caminho de Exu."},
-	"pade": {"nome": "Padê", "tipo": "oferenda", "fase": "exu", "icone": ["res://arte/pade_itens.png", 0],
+	"pade": {"feito": true, "nome": "Padê", "tipo": "oferenda", "fase": "exu", "icone": ["res://arte/pade_itens.png", 0],
 		"desc": "O padê mexido no alguidar, até ficar amarelo escuro. Vai na tronqueira, junto com a vela."},
 	"lenha": {"nome": "Lenha", "tipo": "entrega", "fase": "exu", "icone": ["res://arte/itens.png", 4],
 		"desc": "Um feixe de lenha seca para o fogão da Tia Dora."},
@@ -87,7 +87,7 @@ const ITENS := {
 		"desc": "O pote de barro da velhinha. Está rachado: assim não segura água."},
 	"pote": {"nome": "Pote de barro", "tipo": "oferenda", "fase": "nana", "icone": ["res://arte/nana_itens.png", 0],
 		"desc": "O pote da velhinha, consertado com o barro da lagoa. Está vazio."},
-	"pote_cheio": {"nome": "Pote com água da chuva", "tipo": "oferenda", "fase": "nana", "icone": ["res://arte/nana_itens.png", 0],
+	"pote_cheio": {"feito": true, "nome": "Pote com água da chuva", "tipo": "oferenda", "fase": "nana", "icone": ["res://arte/nana_itens.png", 0],
 		"desc": "O pote cheio de água da chuva, para a oferenda de Nanã."},
 	"flores_nana": {"nome": "Flores lilás", "tipo": "oferenda", "fase": "nana", "icone": ["res://arte/nana_itens.png", 2],
 		"desc": "Flores lilás da ilhota do mangue, para Nanã."},
@@ -100,7 +100,7 @@ const ITENS := {
 		"desc": "Uma garrafa de leite fresquinho, para o manjar."},
 	"acucar": {"nome": "Açúcar", "tipo": "entrega", "fase": "iemanja", "icone": ["res://arte/bornal_itens.png", 2],
 		"desc": "Uma tigelinha de açúcar, para o manjar."},
-	"manjar": {"nome": "Manjar branco", "tipo": "entrega", "fase": "iemanja", "icone": ["res://arte/bornal_itens.png", 3],
+	"manjar": {"feito": true, "nome": "Manjar branco", "tipo": "entrega", "fase": "iemanja", "icone": ["res://arte/bornal_itens.png", 3],
 		"desc": "O manjar que Adé e a Tia Dora fizeram. A comida que Iemanjá mais gosta."},
 	"alfazema": {"nome": "Perfume de alfazema", "tipo": "oferenda", "fase": "iemanja", "icone": ["res://arte/iemanja_itens.png", 1],
 		"desc": "O vidrinho roxo da Vó. Ela usa no banho e para lavar as guias. Iemanjá gosta de se sentir cheirosa."},
@@ -108,8 +108,21 @@ const ITENS := {
 		"desc": "As flores brancas da pedra no meio do mar, acesas pela lua."},
 	"perola": {"nome": "Pérola", "tipo": "oferenda", "fase": "iemanja", "icone": ["res://arte/iemanja_itens.png", 2],
 		"desc": "Uma pérola do fundo do mar."},
-	"espelho": {"nome": "Espelho", "tipo": "oferenda", "fase": "iemanja", "icone": ["res://arte/iemanja_itens.png", 3],
-		"desc": "Iemanjá gosta de se ver bonita."},
+	"bacia": {"nome": "Bacia de banho", "tipo": "entrega", "fase": "terreiro", "icone": ["res://arte/bacia_itens.png", 0],
+		"desc": "A bacia da despensa. Pode ser posta no quintal para lavar a guia."},
+	"agua": {"nome": "Água", "tipo": "oferenda", "fase": "terreiro", "icone": ["res://arte/agua_itens.png", 0],
+		"desc": "Uma garrafa de água fresca, dada pela Lia. Serve para encher a bacia da lavagem da guia."},
+	"ramo_alfazema": {"nome": "Ramo de alfazema", "tipo": "oferenda", "fase": "terreiro", "icone": ["res://arte/ramo_alfazema_itens.png", 0],
+		"desc": "Um ramo de alfazema colhido no pé da Vó. Perfuma a água do banho."},
+	"abebe": {"nome": "Abebé de Iemanjá", "tipo": "entrega", "fase": "iemanja", "icone": ["res://arte/iemanja_itens.png", 3],
+		"desc": "O leque de Iemanjá, de metal e espelho. Presente dela: leve para o terreiro da Vó, que vai pôr no assentamento."},
+	"retalho": {"nome": "Retalho de pano", "tipo": "entrega", "fase": "terreiro", "icone": ["res://arte/abayomi_pecas.png", 0], "desc": "Um pedaço de pano para fazer a abayomi."},
+	"linha": {"nome": "Linha", "tipo": "entrega", "fase": "terreiro", "icone": ["res://arte/abayomi_pecas.png", 1], "desc": "Linha para dar os nós da abayomi."},
+	"palha": {"nome": "Palha", "tipo": "entrega", "fase": "terreiro", "icone": ["res://arte/abayomi_pecas.png", 2], "desc": "Palha para o recheio da abayomi."},
+	"abayomi_pronta": {"curta": "A abayomi que Adé fez com a Vó. Agora ela precisa ir para uma criança.", "nome": "Abayomi", "tipo": "entrega", "fase": "terreiro", "icone": ["res://arte/abayomi_itens.png", 0], "desc": "A abayomi feita com a Vó, para uma criança do terreiro."},
+	"boneca_pano": {"curta": "Uma abayomi, feita de pano. A avó vai saber o que fazer com ela.", "nome": "Boneca de pano", "tipo": "entrega", "fase": "nana", "icone": ["res://arte/abayomi_itens.png", 0], "desc": "Uma boneca de pano, sem rosto, que Nanã deu para Adé levar à Vó."},
+	"guia": {"nome": "Guia azul", "tipo": "oferenda", "fase": "iemanja", "icone": ["res://arte/guia_itens.png", 0],
+		"desc": "A guia de contas azuis e brancas de Iemanjá. Já foi lavada: é de Adé para sempre."},
 }
 
 var itens: Array = []          # ids, na ordem em que Adé pegou
@@ -125,11 +138,6 @@ var _livro: Control
 var _livro_scroll: ScrollContainer
 var _rolagem_acum := 0.0
 var _livro_texto: RichTextLabel
-var _livro_cap: Label
-var _livro_nar: Label
-var _livro_quem: Label
-var _livro_yo: Label
-var _livro_pt: Label
 var _livro_contador: Label
 var _aba_diario: Label
 var _aviso_t := 0.0
@@ -144,6 +152,9 @@ var _pagina := 0               # 0 = o Àpò, 1 = a caderneta
 var _aba_apo: Label
 var _aba_saberes: Label
 var _saberes_page: Control      # a aba Saberes: o que Adé aprendeu
+var _missoes_page: Control      # a aba Missões: o que já foi feito e o que falta
+var _missoes_lista: RichTextLabel
+var _aba_missoes: Label
 var _saberes_lista: RichTextLabel
 var saberes: Array = []         # ids dos saberes aprendidos
 var _aba_cad: Label
@@ -529,7 +540,7 @@ func _montar_tela() -> void:
 	bolsa.texture = a
 	bolsa.position = Vector2(28, 20)
 	_raiz.add_child(bolsa)
-	_aba_apo = _rotulo("Àpò de Adé", 9, COR_TITULO)
+	_aba_apo = _rotulo("Àpò de Adé", 7, COR_TITULO)
 	_aba_apo.position = Vector2(46, 19)
 	_raiz.add_child(_aba_apo)
 	var caderneta := TextureRect.new()
@@ -537,17 +548,20 @@ func _montar_tela() -> void:
 	c.atlas = load("res://arte/bornal_itens.png")
 	c.region = Rect2(6 * 12, 0, 12, 12)
 	caderneta.texture = c
-	caderneta.position = Vector2(100, 20)
+	caderneta.position = Vector2(90, 20)
 	_raiz.add_child(caderneta)
-	_aba_cad = _rotulo("Ìwé Adé", 8, COR_APAGADA)
-	_aba_cad.position = Vector2(114, 19)
+	_aba_cad = _rotulo("Ìwé Adé", 7, COR_APAGADA)
+	_aba_cad.position = Vector2(106, 19)
 	_raiz.add_child(_aba_cad)
-	_aba_diario = _rotulo("Ìrántí", 8, COR_APAGADA)
-	_aba_diario.position = Vector2(160, 19)
+	_aba_diario = _rotulo("Ìrántí", 7, COR_APAGADA)
+	_aba_diario.position = Vector2(144, 19)
 	_raiz.add_child(_aba_diario)
-	_aba_saberes = _rotulo("Saberes", 8, COR_APAGADA)
-	_aba_saberes.position = Vector2(200, 19)
+	_aba_saberes = _rotulo("Saberes", 7, COR_APAGADA)
+	_aba_saberes.position = Vector2(172, 19)
 	_raiz.add_child(_aba_saberes)
+	_aba_missoes = _rotulo("Missões", 7, COR_APAGADA)
+	_aba_missoes.position = Vector2(204, 19)
+	_raiz.add_child(_aba_missoes)
 
 	_apo = Control.new()
 	_apo.size = tela
@@ -556,6 +570,7 @@ func _montar_tela() -> void:
 	_montar_cad(tela)
 	_montar_livro(tela)
 	_montar_saberes(tela)
+	_montar_missoes(tela)
 
 	_dica_tela = _rotulo("", 7, COR_APAGADA)
 	_dica_tela.position = Vector2(16, tela.y - 26)
@@ -694,6 +709,8 @@ const ORIXAS := [
 ## O que cada orixá ensinou (só o de Oxóssi existe por enquanto).
 const SABERES := {
 	"oxossi": {"yo": "Ọ̀pọ̀ àti ìmọ̀ ti Ọ̀ṣọ́ọ̀sì", "pt": "Fartura e conhecimento de Oxóssi"},
+	"iemanja": {"yo": "ìdáàbòbò (proteção), ìwọ̀ntúnwọ̀nsì (equilíbrio)", "pt": "Proteção de mãe e equilíbrio de Iemanjá"},
+	"nana": {"yo": "Ààbò àwọn baba ńlá fún àwùjọ", "pt": "Proteção dos ancestrais para a comunidade"},
 }
 
 
@@ -722,6 +739,10 @@ func _mostrar_saberes() -> void:
 		if o["id"] in saberes and SABERES.has(o["id"]):
 			if o["id"] == "oxossi":
 				linhas.append("[color=%s]%s[/color]: Ọ̀pọ̀ àti ìmọ̀ ti Ọ̀ṣọ́ọ̀sì (Fartura e conhecimento), Sùúrù Ọ̀ṣọ́ọ̀sì (Paciência)" % [cor, o["yo"]])
+			elif o["id"] == "iemanja":
+				linhas.append("[color=%s]%s[/color]: %s" % [cor, o["yo"], SABERES["iemanja"]["yo"]])
+			elif o["id"] == "nana":
+				linhas.append("[color=%s]%s[/color]: %s (%s)" % [cor, o["yo"], SABERES["nana"]["yo"], SABERES["nana"]["pt"]])
 			else:
 				linhas.append("[color=%s]%s[/color]: %s" % [cor, o["yo"], SABERES[o["id"]]["pt"]])
 		else:
@@ -740,8 +761,116 @@ func aprender_saber(id: String) -> String:
 	return SABERES[id]["pt"]
 
 
+func _montar_missoes(tela: Vector2) -> void:
+	_missoes_page = Control.new()
+	_missoes_page.size = tela
+	_raiz.add_child(_missoes_page)
+	_missoes_lista = RichTextLabel.new()
+	_missoes_lista.bbcode_enabled = true
+	_missoes_lista.scroll_active = true
+	_missoes_lista.position = Vector2(32, 36)
+	_missoes_lista.size = Vector2(tela.x - 64, tela.y - 90)
+	_missoes_lista.add_theme_font_override("normal_font", preload("res://fontes/NotoSans-Regular.ttf"))
+	_missoes_lista.add_theme_font_size_override("normal_font_size", 6)
+	_missoes_lista.add_theme_color_override("default_color", Color(1.0, 0.97, 0.9))
+	_missoes_page.add_child(_missoes_lista)
+	_missoes_page.visible = false
+
+
+## Um passo da missão: "(feito)" ou "(falta)", com a cor certa.
+func _passo(feito: bool, texto: String) -> String:
+	if feito:
+		# um "V" verde pequeno, marcando que a etapa já foi feita
+		return "[color=#7cd992]V[/color] %s" % texto
+	return "[color=#9aa3c4](falta)[/color] %s" % texto
+
+
+## Mostra só o que já foi feito e a próxima etapa: as seguintes ficam escondidas (sem spoiler).
+func _linhas_da_missao(titulo: String, passos: Array, mostrar_todas := false) -> Array:
+	var linhas := []
+	var concluida := true
+	for p in passos:
+		if not p[0]:
+			concluida = false
+			break
+	if concluida:
+		# missão já concluída: só o título com o visto e a palavra concluída, sem as etapas
+		linhas.append("[color=#7cd992]V[/color] [color=#ffd966]%s[/color]  [color=#7cd992](concluída)[/color]" % titulo)
+	else:
+		# em andamento: só o que já foi feito e a próxima etapa
+		linhas.append("[color=#ffd966]%s[/color]" % titulo)
+		for p in passos:
+			if p[0]:
+				linhas.append(_passo(true, p[1]))
+			else:
+				linhas.append(_passo(false, p[1]))
+				if not mostrar_todas:
+					break
+	return linhas
+
+
+func _mostrar_missoes() -> void:
+	if not _missoes_lista:
+		return
+	var linhas := []
+	if Jogo.has_meta("ritual_comecou"):
+		linhas += _linhas_da_missao("O ritual da tronqueira", [
+			[Jogo.has_meta("ritual_efum"), "Pegar o Efum com a Tia Dora"],
+			[Jogo.has_meta("ritual_epo"), "Achar o Epó na despensa"],
+			[Jogo.has_meta("ritual_oti"), "Pegar o Oti com o Ogã Bené"],
+			[Jogo.has_meta("ritual_pade"), "Misturar o padê no alguidar"],
+			[Jogo.has_meta("ritual_pade_arriado"), "Arriar o padê na tronqueira"],
+			[Jogo.has_meta("ritual_vela_arriada"), "Arriar a vela na tronqueira"],
+		])
+		linhas.append("")
+	if Jogo.has_meta("oxossi_comecou"):
+		linhas += _linhas_da_missao("A oferenda de Oxóssi", [
+			[Jogo.has_meta("oxossi_milho"), "Colher o milho no milharal"],
+			[Jogo.has_meta("oxossi_coco"), "Pegar o coco debaixo do coqueiro"],
+			[Jogo.has_meta("oxossi_manga"), "Pegar a manga da mangueira"],
+			[Jogo.has_meta("oxossi_semente"), "Pegar as três sementes sob a copa"],
+			[Jogo.has_meta("oxossi_oferenda"), "Arriar as oferendas na clareira"],
+		], true)
+		linhas.append("")
+	if Jogo.has_meta("nana_comecou"):
+		var passos_nana := [[Jogo.has_meta("nana_pote"), "Encontrar pote de barro"]]
+		if Jogo.has_meta("nana_pediu_conserto"):
+			passos_nana.append([Jogo.has_meta("nana_barro"), "Consertar o pote de barro"])
+		passos_nana += [
+			[Jogo.has_meta("nana_pote_cheio"), "Encontrar água de chuva"],
+			[Jogo.has_meta("nana_flores"), "Encontrar flores lilás"],
+			[Jogo.has_meta("nana_oferenda"), "Arriar a oferenda no lugar de Nanã"],
+		]
+		linhas += _linhas_da_missao("A oferenda de Nanã", passos_nana, true)
+		linhas.append("")
+	if Jogo.has_meta("abayomi_comecou"):
+		linhas += _linhas_da_missao("A abayomi da Vó", [
+			[Jogo.has_meta("abayomi_retalho"), "Pegar o retalho de pano na despensa"],
+			[Jogo.has_meta("abayomi_linha"), "Pegar a linha na despensa"],
+			[Jogo.has_meta("abayomi_palha"), "Pegar a palha no quintal"],
+			[Jogo.has_meta("abayomi_feita"), "Dar os nós da abayomi com a Vó"],
+			[Jogo.has_meta("abayomi_entregue"), "Entregar a abayomi a uma criança"],
+		], true)
+		linhas.append("")
+	linhas += _linhas_da_missao("A oferenda de Iemanjá", [
+		[Jogo.has_meta("iemanja_flores"), "Colher as flores brancas na praia"],
+		[Jogo.has_meta("iemanja_alfazema"), "Colher a alfazema para a oferenda"],
+		[Jogo.has_meta("iemanja_perola"), "Pegar a pérola no fundo do mar"],
+	])
+	linhas.append("")
+	if Jogo.has_meta("lavagem_comecou") or Jogo.has_meta("guia_vestida"):
+		linhas += _linhas_da_missao("Lavar a guia de Iemanjá", [
+			[Jogo.has_meta("bacia_pegada"), "Pegar a bacia na despensa"],
+			[Jogo.has_meta("bacia_agua"), "Encher a bacia no riacho"],
+			[Jogo.has_meta("bacia_posta"), "Pôr a bacia no quintal"],
+			[Jogo.has_meta("bacia_macerada"), "Macerar a alfazema até a água ficar roxa"],
+			[Jogo.has_meta("guia_vestida"), "Chamar a Vó para lavar a guia"],
+		])
+	_missoes_lista.text = "\n".join(linhas)
+
+
 func _trocar_pagina(passo: int) -> void:
-	_pagina = (_pagina + passo + 4) % 4
+	_pagina = (_pagina + passo + 5) % 5
 	Jogo.tocar_som("texto", -10.0)
 	_mostrar_pagina()
 
@@ -751,6 +880,8 @@ func _mostrar_pagina() -> void:
 	_cad.visible = _pagina == 1
 	_livro.visible = _pagina == 2
 	_saberes_page.visible = _pagina == 3
+	_missoes_page.visible = _pagina == 4
+	_aba_missoes.add_theme_color_override("font_color", COR_TITULO if _pagina == 4 else COR_APAGADA)
 	_aba_saberes.add_theme_color_override("font_color", COR_TITULO if _pagina == 3 else COR_APAGADA)
 	_aba_apo.add_theme_color_override("font_color", COR_TITULO if _pagina == 0 else COR_APAGADA)
 	_aba_cad.add_theme_color_override("font_color", COR_TITULO if _pagina == 1 else COR_APAGADA)
@@ -764,9 +895,12 @@ func _mostrar_pagina() -> void:
 	elif _pagina == 2:
 		_dica_tela.text = "cima/baixo: rolar  ·  ←→ trocar  ·  %s: fechar" % Jogo.botao("bornal")
 		_mostrar_livro()
-	else:
+	elif _pagina == 3:
 		_dica_tela.text = "←→ trocar  ·  %s: fechar" % Jogo.botao("bornal")
 		_mostrar_saberes()
+	else:
+		_dica_tela.text = "←→ trocar  ·  %s: fechar" % Jogo.botao("bornal")
+		_mostrar_missoes()
 
 
 ## A página do diário: uma fala por página, como num livro.
@@ -971,6 +1105,11 @@ func _input(ev: InputEvent) -> void:
 				_cad_i = (_cad_i + passo + _caderneta().size()) % _caderneta().size()
 				Jogo.tocar_som("texto", -12.0)
 				_mostrar_cad()
+		elif _pagina == 4:
+			# Missões: a lista rola com cima e baixo
+			if _missoes_lista:
+				var barra := _missoes_lista.get_v_scroll_bar()
+				barra.value += passo * 14
 		else:
 			_livro_scroll.scroll_vertical += passo * 14
 	elif ev.is_action_pressed("interagir"):

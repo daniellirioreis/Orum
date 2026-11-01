@@ -133,6 +133,7 @@ func _inicio() -> void:
 
 ## Exu surge na entrada da mata, brincando, e diz a Adé o que é preciso para achar Oxóssi.
 func _exu_da_dica() -> void:
+	Jogo.set_meta("oxossi_comecou", true)   # para a aba Missões
 	var e := _exu_surge(jogador.global_position + Vector2(30, 0))
 	await get_tree().create_timer(1.2).timeout
 	await _falar("exu_dica")
@@ -300,6 +301,7 @@ func _criar_inventario() -> void:
 
 func _ganhar_item(id: String, texto: String) -> void:
 	_ox[id] = true
+	Jogo.set_meta("oxossi_" + id, true)   # para a aba Missões
 	var icone: TextureRect = _ox_slots[id]
 	icone.modulate = Color.WHITE
 	var t := create_tween()
@@ -393,6 +395,7 @@ func _escolher_saida(corpo: Node2D, saida: String) -> void:
 	await t.finished
 	if _rodada >= RODADAS:
 		_rastros.visible = false
+		Jogo.set_meta("oxossi_rastro", true)
 		teleportar("ox_campo", marcas["p_ox_campo"])
 	else:
 		teleportar("ox_rastro", _ponto_volta["ox_rastro"])
@@ -502,6 +505,7 @@ func _colher_milho(pe: Area2D) -> void:
 	await _falar("milho")
 	pe.sprite.frame = 1
 	_ganhar_item("milho", _dados["nomes"]["milho"])
+	Jogo.set_meta("oxossi_milho", true)
 
 
 # ------------------------------------------------------------------ 3) o ofá e a flecha
@@ -1190,6 +1194,7 @@ func _ao_arriar(id: String, _alvo: String) -> void:
 		for _k in 2:              # as outras duas sementes também saem do Àpò
 			Jogo.bornal.tirar(id)
 	_ox_arriados[interno] = true
+	Jogo.set_meta("oxossi_arriou_" + interno, true)
 	var i := OFERENDAS.find(interno)
 	var sp := Sprite2D.new()
 	sp.texture = Jogo.bornal.icone(id)
@@ -1210,6 +1215,7 @@ func _ao_arriar(id: String, _alvo: String) -> void:
 
 func _fazer_oferenda() -> void:
 	_ox["oferenda"] = true
+	Jogo.set_meta("oxossi_oferenda", true)
 	_assentamento.sprite.frame = 1
 	_assentamento.ativo = false
 	for id in OFERENDAS:
@@ -1224,6 +1230,7 @@ func _fazer_oferenda() -> void:
 
 ## Oxóssi sai da mata, mira com o ofá e, com uma flecha só, espanta o pássaro das Iyami.
 func _oxossi_chega() -> void:
+	Jogo.set_meta("oxossi_passaro", true)
 	jogador.congelar(true)
 	_oxossi = Sprite2D.new()
 	_oxossi.texture = preload("res://arte/oxossi_anim.png")
@@ -1444,9 +1451,11 @@ func _ao_evento(nome: String) -> void:
 	match nome:
 		"sementes":
 			_pegar_item("semente")
+			Jogo.set_meta("oxossi_semente", true)
 		"ganhar_ofa":
 			_ox["tem_ofa"] = true
 			_pegar_item("ofa")
+			Jogo.set_meta("oxossi_ofa", true)
 			if Jogo.bornal.equipado != "ofa":
 				Jogo.bornal.equipar("ofa")      # o ofá já vai para a mão de Adé
 			for n in mundo.get_children():

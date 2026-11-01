@@ -106,7 +106,7 @@ const COR_ASSENTAMENTO := {
 	"iemanja": Color(0.55, 0.8, 1.0), "nana": Color(0.8, 0.6, 1.0), "omolu": Color(0.9, 0.75, 0.5),
 }
 ## Ícone de cada troféu: [folha, quadro de 12x12]
-const ICONE_TROFEU := {"oxossi": ["res://arte/ox_itens.png", 3], "nana": ["res://arte/nana_itens.png", 3]}
+const ICONE_TROFEU := {"oxossi": ["res://arte/ox_itens.png", 3], "nana": ["res://arte/nana_itens.png", 3], "iemanja": ["res://arte/iemanja_itens.png", 3]}
 
 ## Etapas: sonho → acordou → buscando → pronto → na_tronqueira → ritual → aberto
 var estado := "sonho"
@@ -169,6 +169,7 @@ var _roda := {}               # roda de capoeira
 var _chamas: Array = []
 var _tempo := 0.0
 var _cor_fundo_antiga: Color
+var _pecas_abayomi: Array = []   # [parte, posição] das peças da abayomi, até a missão começar
 var _retorno := false         # Adé voltou de um campo (pela encruzilhada ou pelo atalho do mapa)
 var _assentamentos := {}      # id do orixá → interativo do assentamento
 var _campos := {}             # id → nome, saudação (de dialogos/encruzilhada.json)
@@ -207,6 +208,8 @@ func _ready() -> void:
 	add_child(_panela)
 	_alguidar = preload("res://scripts/alguidar.gd").new()
 	add_child(_alguidar)
+	_maceracao = preload("res://scripts/macerar.gd").new()
+	add_child(_maceracao)
 	_criar_interface()
 	$Dialogo.evento.connect(_ao_evento)
 	_entrar_lugar(LUGAR_INICIAL)
@@ -327,12 +330,12 @@ func _mostrar_nome_do_lugar(nome: String) -> void:
 		estilo.content_margin_top = 1
 		estilo.content_margin_bottom = 2
 		_placa_lugar.add_theme_stylebox_override("panel", estilo)
-		var rotulo := Label.new()
-		rotulo.add_theme_font_override("font", preload("res://fontes/NotoSans-SemiBold.ttf"))
-		rotulo.add_theme_font_size_override("font_size", 10)
-		rotulo.add_theme_color_override("font_color", Color(1.0, 0.86, 0.45))
-		rotulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		_placa_lugar.add_child(rotulo)
+		var placa_rot := Label.new()
+		placa_rot.add_theme_font_override("font", preload("res://fontes/NotoSans-SemiBold.ttf"))
+		placa_rot.add_theme_font_size_override("font_size", 10)
+		placa_rot.add_theme_color_override("font_color", Color(1.0, 0.86, 0.45))
+		placa_rot.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_placa_lugar.add_child(placa_rot)
 		camada.add_child(_placa_lugar)
 	var rotulo: Label = _placa_lugar.get_child(0)
 	rotulo.text = NOMES_DOS_LUGARES[nome]
@@ -419,6 +422,13 @@ func _sonho() -> void:
 func _falar_com_vo() -> void:
 	if _retorno:
 		await _vo_no_retorno()
+		await _revelar_abayomi()
+		return
+	# a abayomi: a Vó revela o nome e pede as peças; depois ensina os nós
+	if await _revelar_abayomi():
+		return
+	if Jogo.has_meta("abayomi_comecou") and not Jogo.has_meta("abayomi_feita"):
+		await _falar("abayomi_pede")
 		return
 	match estado:
 		"acordou":
@@ -477,7 +487,7 @@ func _pegar_lenha() -> void:
 		await _falar("lenha_nada")
 
 
-func _procurar_na_despensa(tem_epo: bool, letra := "") -> void:
+func _procurar_na_despensa(tem_epo: bool, letra := "", caixa := Vector2i(-1, -1)) -> void:
 	if _quer_alfazema() and _manjar == "tia_pediu":
 		if letra == "S" and not _tem_ingrediente("acucar"):
 			await _falar("acucar_pegar")
@@ -485,6 +495,18 @@ func _procurar_na_despensa(tem_epo: bool, letra := "") -> void:
 			await _falar("leite_pegar")
 		else:
 			await _falar("despensa_manjar_nada")
+		return
+	# o retalho está dentro da vasilha (saco) da despensa, no canto
+	if letra == "S" and caixa == Vector2i(2, 6) and Jogo.has_meta("abayomi_comecou") and not Jogo.has_meta("abayomi_retalho"):
+		Jogo.set_meta("abayomi_retalho", true)
+		await _falar("abayomi_retalho_achou")
+		_pegar_item("retalho")
+		return
+	# a linha está dentro de uma das caixas que já existem na despensa
+	if letra == "K" and caixa == Vector2i(5, 6) and Jogo.has_meta("abayomi_comecou") and not Jogo.has_meta("abayomi_linha"):
+		Jogo.set_meta("abayomi_linha", true)
+		await _falar("abayomi_linha_achou")
+		_pegar_item("linha")
 		return
 	if estado != "buscando":
 		await _falar("despensa_antes")
@@ -529,6 +551,7 @@ func _ao_evento(nome: String) -> void:
 	match nome:
 		"comecar_busca":
 			estado = "buscando"
+			Jogo.set_meta("ritual_comecou", true)
 			_lista.visible = true
 		"pedir_lenha":
 			tia = "pediu_lenha"
@@ -573,6 +596,7 @@ func _ao_evento(nome: String) -> void:
 
 func _ganhar(id: String) -> void:
 	coletados[id] = true
+	Jogo.set_meta("ritual_" + id, true)   # para a aba Missões
 	var icone: TextureRect = _slots[id]
 	icone.modulate = Color.WHITE
 	icone.pivot_offset = Vector2(6, 6)
@@ -643,6 +667,9 @@ func _vo_sai_do_barracao() -> void:
 var _arriados := {}       # as oferendas que Adé já arriou na tronqueira
 var _pade_pronto := false      # o padê: Gààrí, Epó e Oti misturados e mexidos até ficar amarelo escuro
 var _alguidar: CanvasLayer     # o mini-jogo do padê (alguidar de barro)
+var _maceracao: CanvasLayer    # o mini-jogo de macerar a alfazema na bacia
+var _bacia_despensa: Area2D     # a bacia vazia guardada na despensa (some quando Adé a pega)
+var _bacia_quintal: Area2D      # a bacia posta no quintal (vazia, e cheia depois da água)
 var _pade_na_mao: Sprite2D     # o padê nas mãos de Adé até arriar
 var _hortas: Array = []        # as hortas do quintal (o estado está em Jogo.horta)
 
@@ -695,7 +722,7 @@ func _atualizar_hortas() -> void:
 func _mostrar_fartura() -> void:
 	await get_tree().create_timer(0.6).timeout
 	_atualizar_hortas()
-	$HUD.mostrar_titulo("Ọ̀pọ̀ àti ìmọ̀ ti Ọ̀ṣọ́ọ̀sì", "Fartura e conhecimento de Oxóssi adquiridos!")
+	$HUD.mostrar_titulo("Ọ̀pọ̀ àti ìmọ̀ ti Ọ̀ṣọ́ọ̀sì", "Fartura e conhecimento de Oxóssi adquiridos!", 4.5)
 
 
 
@@ -743,6 +770,7 @@ func _misturar_pade() -> void:
 	await get_tree().create_timer(0.5).timeout
 	await _alguidar.jogar(["efum", "epo", "oti"])
 	_pade_pronto = true
+	Jogo.set_meta("ritual_pade", true)
 	Jogo.bornal.pegar("pade")
 	await _mostrar_grande(preload("res://arte/pade_grande.png"), 2.0, "Padê pronto!", "Mexido até ficar amarelo escuro.")
 	_pade_na_mao = Sprite2D.new()
@@ -758,6 +786,7 @@ func _misturar_pade() -> void:
 
 func _arriar_na_tronqueira(id: String) -> void:
 	_arriados[id] = true
+	Jogo.set_meta("ritual_pade_arriado" if id == "pade" else "ritual_vela_arriada", true)
 	if _slots.has(id):
 		create_tween().tween_property(_slots[id], "modulate:a", 0.0, 0.25)   # sai da barra de cima
 	Jogo.tocar_som("buzio", -6.0)
@@ -770,12 +799,12 @@ func _arriar_na_tronqueira(id: String) -> void:
 		oferenda.texture = preload("res://arte/pade.png")
 		oferenda.position = Vector2(0, 4)
 	else:
-		var lugares := [-12.0, -4.0, 4.0, 12.0]
+		var esperas := [-12.0, -4.0, 4.0, 12.0]
 		var i := ITENS.find(id)
 		oferenda.texture = TEX_ITENS
 		oferenda.hframes = 5
 		oferenda.frame = i
-		oferenda.position = Vector2(lugares[i], 4)
+		oferenda.position = Vector2(esperas[i], 4)
 	tronqueira.get_node("Oferendas").add_child(oferenda)
 	create_tween().tween_property(oferenda, "modulate:a", 1.0, 0.25)
 	# o Exu só chega com o padê e a vela na tronqueira
@@ -1115,6 +1144,9 @@ func _construir(nome: String) -> void:
 				continue
 			var base := origem + Vector2(x * TILE + TILE / 2.0, (y + 1) * TILE)
 			_criar_objeto(nome, c, Vector2i(x, y), base, chao)
+	# a bacia que Adé pôs no quintal continua lá quando a cena é montada de novo
+	if nome == "quintal" and Jogo.has_meta("bacia_posta"):
+		_criar_bacia(Jogo.get_meta("bacia_posta"))
 
 
 ## Escolhe o bloco certo olhando os vizinhos (paredes, telhado, muro).
@@ -1161,7 +1193,45 @@ func _tile_para(mapa: PackedStringArray, x: int, y: int) -> int:
 	return -1
 
 
-func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, chao: TileMapLayer) -> void:
+## Poeirinha que sobe do telhado caído do galinheiro, como se ele tivesse desabado há pouco.
+func _poeira_do_galinheiro(s: Sprite2D) -> void:
+	var p := CPUParticles2D.new()
+	p.position = Vector2(0, -18)
+	p.z_index = 2
+	p.amount = 16
+	p.lifetime = 2.8
+	p.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	p.emission_rect_extents = Vector2(16, 4)
+	p.direction = Vector2(0, -1)
+	p.spread = 30.0
+	p.gravity = Vector2(0, -4)
+	p.initial_velocity_min = 4.0
+	p.initial_velocity_max = 12.0
+	p.scale_amount_min = 2.0
+	p.scale_amount_max = 4.5
+	p.color = Color(0.78, 0.72, 0.6, 0.5)
+	p.emitting = true
+	s.add_child(p)
+
+
+func _falar_com_galinheiro() -> void:
+	await _falar("galinheiro")
+
+
+func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, _chao: TileMapLayer) -> void:
+	if lugar == "quintal" and celula == Vector2i(24, 20):
+		# a margem do riacho: a bacia é enchida aqui
+		var margem := Node2D.new()
+		margem.position = base
+		mundo.add_child(margem)
+		_registrar_alvo(margem, "riacho", "coisa", "Encher a bacia no riacho", 40.0)
+		return
+	if lugar == "quintal" and celula == Vector2i(35, 31):
+		# o galinheiro estragado (vai ser consertado numa missão mais pra frente); o Z dessa célula não é a cerquinha
+		var galinheiro := _criar_interativo("res://arte/galinheiro_estragado.png", 1, base, Vector2(26, 10), -30.0)
+		_poeira_do_galinheiro(galinheiro.sprite)
+		galinheiro.interagiu.connect(_falar_com_galinheiro)
+		return
 	if c.is_valid_int():
 		if not portas.has(c):
 			portas[c] = []
@@ -1195,6 +1265,19 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 		prat.ativo = false
 		prat.interagiu.connect(_pegar_alfazema)
 		_prateleiras.append(prat)
+		return
+	if c == "N" and lugar == "quintal":
+		# pé de alfazema da Vó: Adé colhe um ramo
+		var alf := _criar_interativo("res://arte/obj_alfazema.png", 1, base, Vector2(8, 4), -26.0)
+		alf.olhar_para_jogador = false
+		alf.interagiu.connect(_colher_alfazema)
+		return
+	if c == "D" and lugar == "despensa":
+		# a bacia de banho, guardada na despensa: Adé pode pegá-la
+		if not Jogo.has_meta("bacia_pegada"):
+			_bacia_despensa = _criar_interativo("res://arte/obj_bacia_vazia.png", 1, base, Vector2(10, 6), -22.0)
+			_bacia_despensa.olhar_para_jogador = false
+			_bacia_despensa.interagiu.connect(_pegar_bacia)
 		return
 	if c == "m" and lugar == "quintal":
 		c = "m2"   # no quintal, "m" é mato alto (na cozinha é a mesa)
@@ -1276,10 +1359,19 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, ch
 			_lia = _criar_pessoa("res://arte/cambone_snes.png", 9, base)
 			_lia.interagiu.connect(_falar_com_cambone)
 			_registrar_alvo(_lia, "lia", "pessoa", "Dar à Lia")
+		"j", "y":
+			# as peças da abayomi: retalho e palha (j), linha (y, na despensa)
+			var partes: Dictionary = {"j": {"despensa": "retalho", "quintal": "palha"}, "y": {"despensa": "linha"}}
+			var parte: String = partes[c].get(lugar, "")
+			if parte != "" and not Jogo.has_meta("abayomi_" + parte):
+				# a peça só aparece quando a missão começa (a Vó pede)
+				_pecas_abayomi.append([parte, base])
+				if Jogo.has_meta("abayomi_comecou"):
+					_criar_peca_abayomi(parte, base)
 		"K", "S", "k":
 			var tex := "res://arte/obj_caixote.png" if c != "S" else "res://arte/obj_saco.png"
 			var spot := _criar_interativo(tex, 1, base, Vector2(14, 8), -22.0)
-			spot.interagiu.connect(_procurar_na_despensa.bind(c == "k", c))
+			spot.interagiu.connect(_procurar_na_despensa.bind(c == "k", c, celula))
 		"I":
 			# gameleira-branca de Iroko: dá para "conversar" com ela
 			var gameleira := _criar_interativo("res://arte/obj_gameleira.png", 1, base, Vector2(24, 10), -90.0)
@@ -1561,13 +1653,18 @@ func _criar_ciranda(base: Vector2) -> void:
 	for i in 4:
 		criancas.append(_figura(TEX_CRIANCAS, 4, 6, i, centro, 0.8))
 	_ciranda = {"centro": centro, "criancas": criancas}
-	_ciranda["ponto"] = _ponto_de_conversa(centro, Vector2(52, 22), 38.0, -36.0)
+	_ciranda["ponto"] = _ponto_de_conversa(centro, Vector2(52, 22), 38.0, -14.0)
 	_ciranda["ponto"].interagiu.connect(_falar_com_criancas)
+	_registrar_alvo(_ciranda["ponto"], "criancas", "pessoa", "Dar a boneca a uma criança", 50.0)
 
 
 func _criar_pega_pega(base: Vector2) -> void:
 	var centro := base + Vector2(8, -4)
 	_pega = {"centro": centro, "criancas": [_figura(TEX_CRIANCAS, 4, 6, 4, centro, 0.8), _figura(TEX_CRIANCAS, 4, 6, 5, centro, 0.8)]}
+	# as crianças do pega-pega também recebem a abayomi, como as da ciranda
+	_pega["ponto"] = _ponto_de_conversa(centro, Vector2(80, 40), 52.0, -12.0)
+	_pega["ponto"].interagiu.connect(_falar_com_criancas)
+	_registrar_alvo(_pega["ponto"], "criancas_pega", "pessoa", "Dar a boneca a uma criança", 60.0)
 
 
 func _criar_roda_capoeira(base: Vector2) -> void:
@@ -1631,6 +1728,72 @@ func _falar_com_criancas() -> void:
 	await _falar("criancas_depois" if estado == "aberto" else "criancas")
 
 
+## Cria a peça da abayomi no mapa: a palha no chão; o retalho numa prateleira e a linha numa caixa.
+func _criar_peca_abayomi(parte: String, base: Vector2) -> void:
+	if parte == "linha" or parte == "retalho":
+		return      # saem de caixas e vasilhas que já existem (ver _procurar_na_despensa)
+	var peca: Area2D
+	if parte == "palha":
+		# o canteiro de palha atrás da casa
+		peca = _criar_interativo("res://arte/palha_canteiro.png", 1, base, Vector2(28, 8), -22.0)
+	elif parte == "retalho":
+		# o retalho fica na prateleira que já existe na despensa: só a área de interação, sem outro desenho
+		peca = _ponto_de_conversa(base, Vector2(20, 10), 22.0, -22.0)
+	else:
+		peca = _criar_interativo("res://arte/obj_caixote.png", 1, base, Vector2(14, 8), -22.0)
+	peca.interagiu.connect(_pegar_abayomi.bind(parte, peca))
+
+
+## Uma peça da abayomi que Adé entrega à Vó (só depois que ela pediu e antes da montagem).
+func _aceita_peca_abayomi(id: String) -> bool:
+	return id in ["retalho", "linha", "palha"] and Jogo.has_meta("abayomi_comecou") and not Jogo.has_meta("abayomi_feita") and not Jogo.has_meta("abayomi_entregou_" + id)
+
+
+## A Vó revela a abayomi só depois que o troféu de Nanã está no assentamento.
+func _revelar_abayomi() -> bool:
+	if not Jogo.bornal.tem("boneca_pano") or Jogo.has_meta("abayomi_comecou") or not Jogo.assentados.has("nana"):
+		return false
+	Jogo.set_meta("abayomi_comecou", true)
+	for r in _pecas_abayomi:
+		_criar_peca_abayomi(r[0], r[1])
+	await _falar("abayomi_revela")
+	# a boneca sai da bolsa de Adé e fica com a Vó
+	Jogo.bornal.tirar("boneca_pano", _na_tela(vo.global_position + Vector2(0, -16)))
+	return true
+
+
+## Pega uma peça da abayomi (só depois que a Vó pediu).
+func _pegar_abayomi(parte: String, peca: Area2D) -> void:
+	if not Jogo.has_meta("abayomi_comecou") or Jogo.bornal.tem(parte):
+		return
+	Jogo.set_meta("abayomi_" + parte, true)
+	peca.queue_free()
+	_pegar_item(parte, peca.global_position)
+
+
+## Os nós da abayomi: Adé segue as setas, e o jogo só termina quando todos os nós estiverem dados.
+func _montar_abayomi() -> void:
+	jogador.congelar(true)
+	var costura = preload("res://scripts/abayomi_costura.gd").new()
+	add_child(costura)
+	await costura.jogar()
+	costura.queue_free()
+	for parte in ["retalho", "linha", "palha"]:
+		Jogo.bornal.tirar(parte)
+	Jogo.set_meta("abayomi_feita", true)
+	Jogo.bornal.pegar("abayomi_pronta")
+	await _mostrar_grande(Jogo.bornal.icone("abayomi_pronta"), 4.0, "Abayomi!", "Feita de nós, sem costura nem cola.")
+	jogador.congelar(false)
+
+
+## A criança do terreiro recebe a abayomi: Adé aprende o saber de Nanã.
+func _entregar_abayomi() -> void:
+	Jogo.set_meta("abayomi_entregue", true)
+	await _falar("criancas_abayomi")
+	Jogo.bornal.aprender_saber("nana")
+	$HUD.mostrar_titulo("Ààbò àwọn baba ńlá fún àwùjọ", "Proteção dos ancestrais para a comunidade adquirida!", 4.5)
+
+
 func _falar_com_mestre() -> void:
 	await _falar("capoeira_depois" if estado == "aberto" else "capoeira")
 
@@ -1646,13 +1809,27 @@ func _criar_galinha(base: Vector2) -> void:
 	_bichos.append({"sprite": g, "origem": base, "alvo": base, "espera": randf_range(0.5, 2.0), "cor": cor})
 
 
+## Um lugar para a galinha ciscar que não seja água, e onde o caminho até lá também não passe por água.
+func _alvo_galinha(origem: Vector2, atual: Vector2) -> Vector2:
+	for _t in 10:
+		var cand := origem + Vector2(randf_range(-40, 40), randf_range(-24, 24))
+		var seguro := true
+		for k in 6:
+			if _letra_em(atual.lerp(cand, (k + 1) / 6.0)) in agua_chars:
+				seguro = false
+				break
+		if seguro:
+			return cand
+	return atual
+
+
 func _mover_galinha(b: Dictionary, delta: float) -> void:
 	var g: Sprite2D = b["sprite"]
 	if b["espera"] > 0.0:
 		b["espera"] -= delta
 		g.frame = b["cor"] + (1 if fmod(_tempo, 0.6) < 0.3 else 0)
 		if b["espera"] <= 0.0:
-			b["alvo"] = b["origem"] + Vector2(randf_range(-40, 40), randf_range(-24, 24))
+			b["alvo"] = _alvo_galinha(b["origem"], g.position)
 		return
 	var para: Vector2 = b["alvo"] - g.position
 	if para.length() < 1.0:
@@ -1778,7 +1955,7 @@ func _construir_terreno(mapa: PackedStringArray, origem: Vector2, topo: TileMapL
 			elif c == "a":
 				_criar_cenario_quadros(tex_moita, 2, 1 if (x * 3 + y) % 4 == 0 else 0, Vector2(14, 8), origem + Vector2(x * TILE + TILE / 2.0, (y + 1) * TILE))
 			elif c == "e":
-				_criar_cenario("res://arte/estaca.png", Vector2(10, 6), origem + Vector2(x * TILE + TILE / 2.0, (y + 1) * TILE + 2))
+				_criar_cenario("res://arte/cerca_branca.png", Vector2(10, 6), origem + Vector2(x * TILE + TILE / 2.0, (y + 1) * TILE + 2))
 
 
 ## Cada camada de terreno pronta passa por aqui (a fase de Nanã guarda a da maré).
@@ -1809,8 +1986,36 @@ func som_do_chao(pos: Vector2) -> Array:
 	return ["passo_grama", -14.0]
 
 
-func _camada_terreno(_origem: Vector2, _i: int, _camada: TileMapLayer) -> void:
-	pass
+const SHADER_RIO := """
+shader_type canvas_item;
+varying vec2 mundo;
+void vertex() {
+	mundo = (MODEL_MATRIX * vec4(VERTEX, 0.0, 1.0)).xy;
+}
+void fragment() {
+	vec4 c = COLOR;
+	vec2 p = floor(mundo);
+	float corre = p.x - TIME * 14.0;                       // a correnteza
+	float faixa = sin(p.y * 0.9 + sin(corre * 0.05) * 1.3);
+	float risco = sin(corre * 0.21 + p.y * 1.7) * faixa;
+	float luz = step(0.78, risco) * 0.13 + step(0.93, risco) * 0.13;
+	float brilho = step(0.985, sin(p.x * 0.7 + p.y * 2.3 - TIME * 3.0)) * 0.12;
+	float sombra = step(risco, -0.85) * 0.05;
+	c.rgb += vec3(luz * 0.8 + brilho, luz + brilho, luz + brilho) * c.a - vec3(sombra) * c.a;
+	COLOR = c;
+}
+"""
+
+
+## Cada camada de terreno pronta: a água (camada 2) corre com o shader do riacho.
+func _camada_terreno(_origem: Vector2, i: int, camada: TileMapLayer) -> void:
+	if i != 2:
+		return
+	var sh := Shader.new()
+	sh.code = SHADER_RIO
+	var m := ShaderMaterial.new()
+	m.shader = sh
+	camada.material = m
 
 
 func _criar_cenario_quadros(caminho: String, quadros: int, quadro: int, pe: Vector2, base: Vector2) -> void:
@@ -2001,6 +2206,8 @@ func _vo_assenta(id: String) -> void:
 	jogador.olhar_para(a.global_position)
 	await get_tree().create_timer(0.3).timeout
 	Jogo.assentados[id] = true
+	if id == "iemanja" and Jogo.bornal.tem("abebe"):
+		Jogo.bornal.tirar("abebe")      # o abebé vai para o assentamento: sai do Àpò
 	_acender_assentamento(id, true)
 	await get_tree().create_timer(0.9).timeout
 	vo.sprite.frame = 2                      # a saudação
@@ -2022,7 +2229,16 @@ func _vo_assenta(id: String) -> void:
 	forma.set_deferred("disabled", false)
 	vo.sprite.frame = 0
 	vo.sprite.flip_h = false
-
+	# Adé conta resumido para a Vó o que viveu no mar de Iemanjá (uma vez, ao entregar o abebé)
+	if id == "iemanja" and not Jogo.has_meta("relato_iemanja"):
+		Jogo.set_meta("relato_iemanja", true)
+		await _falar("iemanja_relato")
+	# Adé conta da guia: foi Iemanjá que deu, e a Vó ensina o que precisa ser feito
+	if id == "iemanja" and Jogo.bornal.tem("guia") and not Jogo.has_meta("guia_explicada"):
+		Jogo.set_meta("guia_explicada", true)
+		await _falar("guia_conta")
+		await _falar("guia_instrucao")
+		Jogo.set_meta("lavagem_comecou", true)     # a missão só começa depois da conversa
 
 
 # ------------------------------------------------------------------ a quartinha de Exu: onde se guarda o caminho (salvar)
@@ -3109,17 +3325,24 @@ func _acoes_do_bornal(id: String) -> Array:
 	var item: Dictionary = Jogo.bornal.ITENS[id]
 	var acoes := []
 	var coisa := _alvo_perto("coisa")
-	if not coisa.is_empty() and item["tipo"] != "entrega":
+	if not coisa.is_empty() and item["tipo"] != "entrega" and id != "guia":
 		acoes.append([coisa["rotulo"], "usar:" + coisa["id"]])
+	if id == "guia" and not coisa.is_empty() and Jogo.has_meta("bacia_macerada") and int(Jogo.get_meta("guia_lavagens", 0)) < 3:
+		acoes.append(["Chamar a Vó pra lavar", "lavar:" + coisa["id"]])
+	var riacho := _alvo_perto("riacho")
+	if not riacho.is_empty() and id == "bacia" and not Jogo.has_meta("bacia_agua"):
+		acoes.append([riacho["rotulo"], "usar:riacho"])
 	var altar := _alvo_perto("altar")
-	if not altar.is_empty() and item["tipo"] == "oferenda":
+	if not altar.is_empty() and item["tipo"] == "oferenda" and id != "guia":
 		acoes.append([altar["rotulo"], "arriar:" + altar["id"]])
 	var pessoa := _alvo_perto("pessoa")
-	if not pessoa.is_empty():
+	if not pessoa.is_empty() and id != "guia":
 		acoes.append([pessoa["rotulo"], "dar:" + pessoa["id"]])
 	var horta := _alvo_perto("horta")
 	if not horta.is_empty() and id == "semente":
 		acoes.append([horta["rotulo"], "plantar:" + horta["id"]])
+	if id == "bacia" and lugar_atual == "quintal" and not Jogo.has_meta("bacia_posta") and Jogo.has_meta("bacia_agua"):
+		acoes.append(["Pôr a bacia aqui", "pors:bacia"])
 	if item.get("equipa", false):
 		acoes.append(["Guardar" if Jogo.bornal.equipado == id else "Pôr na mão", "equipar"])
 	return acoes
@@ -3130,6 +3353,9 @@ func _fazer_no_bornal(id: String, acao: String) -> void:
 	if partes[0] == "equipar":
 		Jogo.bornal.equipar(id)
 		Jogo.tocar_som("pegar_item", -10.0)
+		return
+	if partes[0] == "pors":
+		await _por_bacia()
 		return
 	var alvo := _alvo_por_id(partes[1])
 	var no: Node2D = alvo.get("no")
@@ -3153,6 +3379,8 @@ func _fazer_no_bornal(id: String, acao: String) -> void:
 				await _ao_arriar(id, alvo["id"])
 			else:
 				await _recusa(id, alvo)
+		"lavar":
+			await _lavar_guia(no)
 		"usar":
 			if _aceita_usar(id, alvo["id"]):
 				await _ao_usar(id, alvo["id"])
@@ -3170,8 +3398,8 @@ func _pegar_item(id: String, de_onde: Vector2 = Vector2(-1, -1)) -> void:
 	Jogo.bornal.pegar(id, _na_tela(de_onde) if de_onde.x > -1 else _na_tela(jogador.global_position + Vector2(0, -16)))
 	Jogo.tocar_som("pegar_item", -4.0)
 	_mostrar_aviso("Você guardou no Àpò: " + Jogo.bornal.ITENS[id]["nome"])
-	if Jogo.bornal.ITENS[id]["tipo"] == "ferramenta":
-		# uma ferramenta nova aparece grande, depois da conversa em que Adé acha
+	# ferramenta nova, ou um item feito na hora (padê, manjar, pote cheio), aparece grande
+	if Jogo.bornal.ITENS[id]["tipo"] == "ferramenta" or Jogo.bornal.ITENS[id].get("feito", false):
 		await _mostrar_grande(Jogo.bornal.icone(id), 4.0, Jogo.bornal.ITENS[id]["nome"] + "!",
 			Jogo.texto(Jogo.bornal.ITENS[id].get("curta", "Guardado no Àpò.")))
 	if not Jogo.has_meta("bornal_dica"):
@@ -3187,12 +3415,113 @@ func _pegar_item(id: String, de_onde: Vector2 = Vector2(-1, -1)) -> void:
 
 ## Hooks das cenas: aceitam o item? E o que acontece depois. (_aceita_dar, _ao_dar, _aceita_arriar e _ao_arriar
 ## do terreiro ficam lá embaixo; as fases trocam todos.)
-func _aceita_usar(_id: String, _alvo: String) -> bool:
+func _aceita_usar(id: String, alvo: String) -> bool:
+	if alvo == "riacho":
+		return id == "bacia" and Jogo.has_meta("lavagem_comecou") and not Jogo.has_meta("bacia_agua")
+	if alvo != "bacia":
+		return false
+	if id == "ramo_alfazema":
+		return Jogo.has_meta("bacia_agua") and not Jogo.has_meta("bacia_macerada")
 	return false
 
 
-func _ao_usar(_id: String, _alvo: String) -> void:
-	pass
+func _ao_usar(id: String, alvo: String) -> void:
+	if alvo == "riacho":
+		# a bacia vai até a margem e sai cheia de água do riacho
+		Jogo.set_meta("bacia_agua", true)
+		Jogo.tocar_som("agua_cai", -6.0)
+		await _falar("bacia_agua")
+		return
+	if alvo != "bacia":
+		return
+	if id == "ramo_alfazema":
+		Jogo.bornal.tirar("ramo_alfazema", _na_tela(jogador.global_position + Vector2(0, -12)))
+		jogador.congelar(true)
+		await _maceracao.jogar()
+		jogador.congelar(false)
+		Jogo.set_meta("bacia_macerada", true)
+		await _falar("bacia_roxa")
+
+
+## A Vó vem lavar a guia: Adé entrega a guia, ela mergulha três vezes e então a guia vai para o pescoço de Adé.
+func _lavar_guia(bacia_no: Node2D) -> void:
+	jogador.congelar(true)
+	# a tela escurece, e quando volta a Vó já está ao lado da bacia
+	var t := create_tween()
+	t.tween_property(_cortina, "color:a", 1.0, 0.4)
+	await t.finished
+	var alvo := bacia_no.global_position + Vector2(-22, 0)
+	vo.animar = false
+	vo.olhar_para_jogador = false
+	vo.global_position = alvo
+	vo.sprite.frame = 0
+	vo.sprite.flip_h = false                   # de frente para a bacia
+	jogador.olhar_para(bacia_no.global_position)
+	await get_tree().create_timer(0.3).timeout
+	var t2 := create_tween()
+	t2.tween_property(_cortina, "color:a", 0.0, 0.4)
+	await t2.finished
+	await _falar("lavar_chamar")
+	for n in 3:
+		await _falar("guia_lavar_%d" % (n + 1))
+	Jogo.set_meta("guia_lavagens", 3)
+	await _falar("lavar_acabou")
+	await _falar("guia_revela")
+	Jogo.set_meta("guia_vestida", true)
+	jogador.vestir_guia()                 # Adé veste a guia azul e branca
+	await _mostrar_grande(Jogo.bornal.icone("guia"), 4.0, "Guia azul!", "Presente de Iemanjá. Ela fica com você para sempre.")
+	var nome: String = Jogo.bornal.aprender_saber("iemanja")
+	if nome != "":
+		_mostrar_aviso("Saber aprendido: " + nome)
+	vo.animar = true
+	vo.olhar_para_jogador = true
+	jogador.congelar(false)
+
+
+## Adé pega a bacia na despensa (uma vez).
+func _pegar_bacia() -> void:
+	if not Jogo.has_meta("lavagem_comecou") and not Jogo.has_meta("bacia_pegada"):
+		await _falar_linhas([{"quem": "Adé", "yo": "", "pt": "Não posso pegar a bacia sem falar com a avó."}])
+		return
+	if Jogo.has_meta("bacia_pegada"):
+		await _falar("bacia_ja")
+		return
+	Jogo.set_meta("bacia_pegada", true)
+	if is_instance_valid(_bacia_despensa):
+		_bacia_despensa.queue_free()
+	_pegar_item("bacia")
+	await _falar("bacia_pegar")
+
+
+## Adé põe a bacia no chão, onde estiver no quintal, para lavar a guia.
+func _por_bacia() -> void:
+	var pos := mundo.to_local(jogador.global_position + Vector2(0, 4))
+	Jogo.set_meta("bacia_posta", pos)
+	Jogo.bornal.tirar("bacia", _na_tela(jogador.global_position))
+	_criar_bacia(pos)
+	await _falar("bacia_posta")
+
+
+## A bacia posta no quintal: vazia até Adé pôr a água (depois aparece cheia).
+func _criar_bacia(pos: Vector2) -> void:
+	var cheia := Jogo.has_meta("bacia_agua")
+	var bacia := _criar_interativo("res://arte/obj_bacia.png" if cheia else "res://arte/obj_bacia_vazia.png", 1, pos, Vector2(10, 6), -22.0)
+	bacia.olhar_para_jogador = false
+	_bacia_quintal = bacia
+	_registrar_alvo(bacia, "bacia", "coisa", "Usar na bacia", 40.0)
+
+
+## Adé colhe um ramo de alfazema do pé da Vó (uma vez).
+func _colher_alfazema() -> void:
+	if not Jogo.has_meta("lavagem_comecou"):
+		await _falar_linhas([{"quem": "Adé", "yo": "", "pt": "Não colher alfazema sem a permissão da vó."}])
+		return
+	if Jogo.has_meta("ramo_colhido"):
+		await _falar("alfazema_colhida")
+		return
+	Jogo.set_meta("ramo_colhido", true)
+	await _falar("alfazema_colher")
+	_pegar_item("ramo_alfazema")
 
 
 ## Quando o item não serve ali: a fala "recusa_<alvo>_<item>" ou "recusa_<alvo>" do diálogo da cena,
@@ -3227,12 +3556,16 @@ func _aceita_dar(id: String, alvo: String) -> bool:
 		"tia":
 			return (id == "lenha" and tia == "pediu_lenha") or (_manjar == "tia_pediu" and id in INGREDIENTES)
 		"vo":
-			return (id == "manjar" and _manjar == "pronto") or id == "colheita"
+			return (id == "manjar" and _manjar == "pronto") or id == "colheita" or _aceita_peca_abayomi(id)
+		"criancas", "criancas_pega":
+			return id == "abayomi_pronta" and not Jogo.has_meta("abayomi_entregue")
 	return false
 
 
 func _ao_dar(id: String, alvo: String) -> void:
 	match alvo:
+		"criancas", "criancas_pega":
+			await _entregar_abayomi()
 		"tia":
 			if id == "lenha":
 				tia = "com_lenha"
@@ -3248,10 +3581,19 @@ func _ao_dar(id: String, alvo: String) -> void:
 			_manjar = "pronto"
 			await _falar("tia_manjar_pronto")
 		"vo":
+			if id in ["retalho", "linha", "palha"]:
+				# as peças da abayomi: o mini-game começa quando as três estiverem com a Vó
+				Jogo.set_meta("abayomi_entregou_" + id, true)
+				if Jogo.has_meta("abayomi_entregou_retalho") and Jogo.has_meta("abayomi_entregou_linha") and Jogo.has_meta("abayomi_entregou_palha"):
+					await _falar("abayomi_fazer")
+					await _montar_abayomi()
+				else:
+					await _falar("abayomi_recebe")
+				return
 			if id == "colheita":
 				await _falar_linhas([{"quem": "Benedita", "yo": "", "pt": "Que fartura, meu neto! Isso é o que Oxóssi ensinou: comida e saber para a casa."}])
 				_mostrar_fartura()
-				_aprender("oxossi")
+				Jogo.bornal.aprender_saber("oxossi")
 				return
 			jogador.congelar(true)
 			await _entregar_manjar()

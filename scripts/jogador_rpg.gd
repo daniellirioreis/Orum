@@ -23,6 +23,17 @@ var _ultimo_passo := -1
 @onready var sprite: Sprite2D = $Sprite
 
 
+func _ready() -> void:
+	# depois que a Vó põe a guia, Adé sempre aparece com ela no pescoço
+	if Jogo.has_meta("guia_vestida"):
+		vestir_guia()
+
+
+## Adé veste a guia: a folha dele com a guia azul e branca no pescoço.
+func vestir_guia() -> void:
+	sprite.texture = preload("res://arte/ade_guia_snes.png")
+
+
 func _physics_process(delta: float) -> void:
 	var entrada := Vector2.ZERO
 	if pode_mover and not Jogo.em_dialogo:

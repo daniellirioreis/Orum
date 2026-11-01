@@ -38,13 +38,13 @@ func _ready() -> void:
 
 ## Mostra uma lista e espera a escolha. Devolve {"i": índice, "acao": "ok" | "cancelar" | "esq" | "dir"}.
 ## Com lateral = true, ← e → também respondem (para ajustar volumes).
-func escolher(titulo: String, opcoes: Array, inicial := 0, lateral := false, desativadas := [], rodape := "") -> Dictionary:
+func escolher(titulo: String, lista: Array, inicial := 0, lateral := false, desativadas := [], rodape := "") -> Dictionary:
 	_fechar_caixa()
 	aberto = true
 	_lateral = lateral
 	_desativadas = desativadas
-	_cursor = clampi(inicial, 0, opcoes.size() - 1)
-	_montar(titulo, opcoes, rodape)
+	_cursor = clampi(inicial, 0, lista.size() - 1)
+	_montar(titulo, lista, rodape)
 	_resposta = null
 	while _resposta == null:
 		await get_tree().process_frame
@@ -55,20 +55,20 @@ func escolher(titulo: String, opcoes: Array, inicial := 0, lateral := false, des
 	return r
 
 
-func _montar(titulo: String, opcoes: Array, rodape: String) -> void:
+func _montar(titulo: String, lista: Array, rodape: String) -> void:
 	var tela := Vector2(Jogo.TELA)
 	_raiz = Control.new()
 	_raiz.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(_raiz)
 	if _transparente:
-		_montar_sem_caixa(titulo, opcoes, rodape)
+		_montar_sem_caixa(titulo, lista, rodape)
 		return
 	var escuro := ColorRect.new()
 	escuro.color = Color(0, 0, 0, 0.45)
 	escuro.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_raiz.add_child(escuro)
 	var largura := tela.x - 24.0
-	var altura := 30.0 + opcoes.size() * 15.0 + (12.0 if rodape != "" else 0.0)
+	var altura := 30.0 + lista.size() * 15.0 + (12.0 if rodape != "" else 0.0)
 	var painel := Panel.new()
 	var estilo := StyleBoxFlat.new()
 	estilo.bg_color = COR_FUNDO
@@ -88,8 +88,8 @@ func _montar(titulo: String, opcoes: Array, rodape: String) -> void:
 	t.add_theme_font_override("font", preload("res://fontes/NotoSans-SemiBold.ttf"))
 	painel.add_child(t)
 	_linhas.clear()
-	for i in opcoes.size():
-		var l := _linha_menu(str(opcoes[i]), 8, COR_TEXTO, false)
+	for i in lista.size():
+		var l := _linha_menu(str(lista[i]), 8, COR_TEXTO, false)
 		l.position = Vector2(18, 24 + i * 15)
 		l.size = Vector2(largura - 26, 14)
 		if l is Label:
@@ -106,9 +106,9 @@ func _montar(titulo: String, opcoes: Array, rodape: String) -> void:
 
 
 ## As opções direto por cima do fundo, centralizadas, com contorno escuro (como nos títulos dos 16 bits).
-func _montar_sem_caixa(titulo: String, opcoes: Array, rodape: String) -> void:
+func _montar_sem_caixa(titulo: String, lista: Array, rodape: String) -> void:
 	var y := _topo
-	var altura_lista := (15.0 if titulo != "" else 0.0) + opcoes.size() * 13.0 + (14.0 if rodape != "" else 0.0)
+	var altura_lista := (15.0 if titulo != "" else 0.0) + lista.size() * 13.0 + (14.0 if rodape != "" else 0.0)
 	if y + altura_lista > Jogo.TELA.y - 6.0:
 		# lista comprida (os controles): sobe e ganha uma faixa escura atrás, para dar para ler
 		y = maxf(6.0, (Jogo.TELA.y - altura_lista) / 2.0)
@@ -123,15 +123,15 @@ func _montar_sem_caixa(titulo: String, opcoes: Array, rodape: String) -> void:
 		y += 15
 	_linhas.clear()
 	var longa := false
-	for o in opcoes:
+	for o in lista:
 		longa = longa or str(o).length() > 26
-	for i in opcoes.size():
-		var l := _linha_menu(str(opcoes[i]), 7 if longa else 9, COR_TEXTO, true)
+	for i in lista.size():
+		var l := _linha_menu(str(lista[i]), 7 if longa else 9, COR_TEXTO, true)
 		_centralizar(l, y + i * 13, 13)
 		_linhas.append(l)
 	if rodape != "":
 		var r := _rotulo(rodape, 7, Color(0.9, 0.85, 0.95))
-		_centralizar(r, y + opcoes.size() * 13 + 3, 10)
+		_centralizar(r, y + lista.size() * 13 + 3, 10)
 	_atualizar()
 
 
@@ -285,10 +285,10 @@ func fim_de_jogo() -> void:
 	if ultimo >= 0:
 		var r := Jogo.resumo(ultimo)
 		rodape = "%s · %s" % [r.get("onde", "?"), r.get("data", "")]
-	var opcoes := ["Voltar ao último caminho guardado", "Voltar ao título"]
+	var lista := ["Voltar ao último caminho guardado", "Voltar ao título"]
 	var desativadas := [] if ultimo >= 0 else [0]
 	while true:
-		var r := await escolher("O axé acabou...", opcoes, 0 if ultimo >= 0 else 1, false, desativadas, rodape)
+		var r := await escolher("O axé acabou...", lista, 0 if ultimo >= 0 else 1, false, desativadas, rodape)
 		if r["acao"] != "ok":
 			continue                      # aqui não dá para fechar: tem que escolher
 		get_tree().paused = false
