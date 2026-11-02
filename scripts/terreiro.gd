@@ -1105,6 +1105,25 @@ func _ler(caminho: String) -> PackedStringArray:
 	return linhas
 
 
+## Cada terra encostada na água é uma margem: a bacia pode ser enchida em qualquer ponto do riacho.
+func _margens_do_riacho(mapa: PackedStringArray, origem: Vector2) -> void:
+	for y in mapa.size():
+		for x in mapa[y].length():
+			var l := _letra(mapa, x, y)
+			if l in AGUA_CHARS or not (l in ANDAVEL):
+				continue
+			var tem_agua := false
+			for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+				if _letra(mapa, x + d.x, y + d.y) in AGUA_CHARS:
+					tem_agua = true
+			if not tem_agua:
+				continue
+			var margem := Node2D.new()
+			margem.position = origem + Vector2(x * TILE + TILE / 2.0, (y + 1) * TILE)
+			mundo.add_child(margem)
+			_registrar_alvo(margem, "riacho", "riacho", "Encher a bacia no riacho", 28.0)
+
+
 func _letra(mapa: PackedStringArray, x: int, y: int) -> String:
 	if y < 0 or y >= mapa.size() or x < 0 or x >= mapa[y].length():
 		return " "
@@ -1144,6 +1163,8 @@ func _construir(nome: String) -> void:
 				continue
 			var base := origem + Vector2(x * TILE + TILE / 2.0, (y + 1) * TILE)
 			_criar_objeto(nome, c, Vector2i(x, y), base, chao)
+	if nome == "quintal":
+		_margens_do_riacho(mapa, origem)
 	# a bacia que Adé pôs no quintal continua lá quando a cena é montada de novo
 	if nome == "quintal" and Jogo.has_meta("bacia_posta"):
 		_criar_bacia(Jogo.get_meta("bacia_posta"))
@@ -1224,7 +1245,7 @@ func _criar_objeto(lugar: String, c: String, celula: Vector2i, base: Vector2, _c
 		var margem := Node2D.new()
 		margem.position = base
 		mundo.add_child(margem)
-		_registrar_alvo(margem, "riacho", "coisa", "Encher a bacia no riacho", 40.0)
+		_registrar_alvo(margem, "riacho", "riacho", "Encher a bacia no riacho", 40.0)
 		return
 	if lugar == "quintal" and celula == Vector2i(35, 31):
 		# o galinheiro estragado (vai ser consertado numa missão mais pra frente); o Z dessa célula não é a cerquinha
@@ -3472,7 +3493,7 @@ func _lavar_guia(bacia_no: Node2D) -> void:
 	await _mostrar_grande(Jogo.bornal.icone("guia"), 4.0, "Guia azul!", "Presente de Iemanjá. Ela fica com você para sempre.")
 	var nome: String = Jogo.bornal.aprender_saber("iemanja")
 	if nome != "":
-		_mostrar_aviso("Saber aprendido: " + nome)
+		$HUD.mostrar_titulo("Ìdáàbòbò àti Ìwọ̀ntúnwọ̀nsì", nome, 4.5)
 	vo.animar = true
 	vo.olhar_para_jogador = true
 	jogador.congelar(false)

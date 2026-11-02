@@ -1454,6 +1454,7 @@ func _criar_bolha_ar(base: Vector2) -> void:
 	bolha.initial_velocity_max = 16.0
 	bolha.scale_amount_min = 0.8
 	bolha.scale_amount_max = 2.5
+	bolha.texture = preload("res://arte/bolha_ar.png")
 	var grad := Gradient.new()
 	grad.set_color(0, Color(0.7, 0.96, 1.0, 0.9))
 	grad.add_point(0.4, Color(0.5, 0.88, 1.0, 0.7))

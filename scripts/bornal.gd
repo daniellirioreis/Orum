@@ -109,7 +109,7 @@ const ITENS := {
 	"perola": {"nome": "Pérola", "tipo": "oferenda", "fase": "iemanja", "icone": ["res://arte/iemanja_itens.png", 2],
 		"desc": "Uma pérola do fundo do mar."},
 	"bacia": {"nome": "Bacia de banho", "tipo": "entrega", "fase": "terreiro", "icone": ["res://arte/bacia_itens.png", 0],
-		"desc": "A bacia da despensa. Pode ser posta no quintal para lavar a guia."},
+		"desc": "Bacia de banho. Encha no riacho do quintal e ponha no chão para lavar a guia."},
 	"agua": {"nome": "Água", "tipo": "oferenda", "fase": "terreiro", "icone": ["res://arte/agua_itens.png", 0],
 		"desc": "Uma garrafa de água fresca, dada pela Lia. Serve para encher a bacia da lavagem da guia."},
 	"ramo_alfazema": {"nome": "Ramo de alfazema", "tipo": "oferenda", "fase": "terreiro", "icone": ["res://arte/ramo_alfazema_itens.png", 0],
